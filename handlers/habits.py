@@ -166,8 +166,7 @@ async def analyze_missed_barrier(
 
 
 @router.message(Command("habit"))
-async def cmd_habit(message: Message, db: Database, claude: AsyncAnthropic):
-    user_id = message.from_user.id
+async def cmd_habit(message: Message, db: Database):    user_id = message.from_user.id
     profile = await db.get_profile(user_id)
     lang = await db.get_language(user_id)
 
