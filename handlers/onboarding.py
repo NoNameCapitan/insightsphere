@@ -230,17 +230,17 @@ async def handle_message(message: Message, db: Database):
     if resistant_count >= 1:
         injection = build_resistant_injection(resistant_count, lang)
 
-    history.append({"role": "user", "content": user_text + injection})
+     history.append({"role": "user", "content": user_text + injection})
         # Перетворюємо історію повідомлень у формат, який розуміє Gemini
-    history_text = "\n".join([f"{m['role']}: {m['content']}" for m in history])
-    full_prompt = f"{ONBOARDING_SYSTEM_PROMPT}\n\nІсторія діалогу:\n{history_text}"
+     history_text = "\n".join([f"{m['role']}: {m['content']}" for m in history])
+     full_prompt = f"{ONBOARDING_SYSTEM_PROMPT}\n\nІсторія діалогу:\n{history_text}"
 
         # Запит до Gemini
-    response = await model.generate_content_async(full_prompt)
-    assistant_text = response.text
+     response = await model.generate_content_async(full_prompt)
+     assistant_text = response.text
 
 
-    visible_text, profile_data = extract_profile_from_response(assistant_text)
+     visible_text, profile_data = extract_profile_from_response(assistant_text)
 
     if profile_data:
             # Ensure language is saved in profile
