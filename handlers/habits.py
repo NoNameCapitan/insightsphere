@@ -105,13 +105,17 @@ Big Five: O={big_five.get('O',5)} C={big_five.get('C',5)} E={big_five.get('E',5)
 [Обґрунтування]
 Перший крок: [дія]
 """
-    try:
-        response = await claude.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=500,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return response.content[0].text
+        try:
+            # Запит до Gemini
+            response = await model.generate_content_async(prompt)
+            return response.text
+        except Exception as e:
+            if 'logger' in globals():
+                logger.error(f"Habit suggestion error: {e}")
+            else:
+                print(f"Habit suggestion error: {e}")
+            return ""
+
     except Exception as e:
         logger.error(f"Habit suggestion error: {e}")
         return ""
