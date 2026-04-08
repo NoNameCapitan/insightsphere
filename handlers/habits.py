@@ -179,7 +179,7 @@ async def cmd_habit(message: Message, db: Database):    user_id = message.from_u
 
     if not habits:
         await message.bot.send_chat_action(chat_id=message.chat.id, action="typing")
-        suggestion = await suggest_habits(profile, claude, lang)
+        suggestion = await suggest_habits(profile,suggestion = await suggest_habits(profile, lang)
 
         headers = {
             "uk": "🌱 *AI-Трекер звичок*\n\nНа основі твого профілю рекомендую:\n\n",
