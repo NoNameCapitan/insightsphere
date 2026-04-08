@@ -231,17 +231,14 @@ async def handle_message(message: Message, db: Database):
         injection = build_resistant_injection(resistant_count, lang)
 
     history.append({"role": "user", "content": user_text + injection})
+        # Перетворюємо історію повідомлень у формат, який розуміє Gemini
+        history_text = "\n".join([f"{m['role']}: {m['content']}" for m in history])
+        full_prompt = f"{ONBOARDING_SYSTEM_PROMPT}\n\nІсторія діалогу:\n{history_text}"
 
-    await message.bot.send_chat_action(chat_id=message.chat.id, action="typing")
+        # Запит до Gemini
+        response = await model.generate_content_async(full_prompt)
+        assistant_text = response.text
 
-    try:
-        response = await claude.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=800,
-            system=ONBOARDING_SYSTEM_PROMPT,
-            messages=history
-        )
-        assistant_text = response.content[0].text
 
         visible_text, profile_data = extract_profile_from_response(assistant_text)
 
