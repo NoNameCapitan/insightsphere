@@ -95,7 +95,7 @@ async def cmd_techniques(message: Message, db: Database):
 
 
 @router.callback_query(F.data.startswith("technique:"))
-async def cb_technique(query: CallbackQuery, db: Database, claude: AsyncAnthropic):
+async def cb_technique(query: CallbackQuery, db: Database):
     await query.answer()
     tech_id = query.data.split(":", 1)[1]
     user_id = query.from_user.id
