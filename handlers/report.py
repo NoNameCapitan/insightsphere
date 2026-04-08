@@ -126,7 +126,7 @@ async def send_daily_report(
     chat_id: int,
     profile: dict,
     db: Database,
-    claude: AsyncAnthropic,
+    
     bot,
     is_premium: bool = False,
     deeper_topic: str = None,
@@ -149,16 +149,16 @@ async def send_daily_report(
         prefix = SCHEDULED_PREFIX.get(lang, SCHEDULED_PREFIX["uk"]).format(name_part=name_part)
 
     try:
-        response = await claude.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=max_tokens,
-            system=DAILY_REPORT_SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": build_report_prompt(
-                profile, lang=lang, is_premium=is_premium, deeper_topic=deeper_topic
-            )}]
+        # Формуємо промпт для звіту
+        prompt_content = build_report_prompt(
+            profile, lang=lang, is_premium=is_premium, deeper_topic=deeper_topic
         )
-        report_text = response.content[0].text
-        topic = report_text.split('\n')[0].strip()[:100] or "Insight"
+        
+        # Запит до Gemini (об'єднуємо системний промпт та контент)
+        full_query = f"{DAILY_REPORT_SYSTEM_PROMPT}\n\n{prompt_content}"
+        
+        response = await model.generate_content_async(full_query)
+        report_text = response.text
 
         await db.save_report(chat_id, report_text, topic, depth)
         await db.increment_reports_today(chat_id)
