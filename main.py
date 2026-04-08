@@ -1,7 +1,11 @@
 import asyncio
 import logging
 import os
-from anthropic import AsyncAnthropic
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+load_dotenv()
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 from aiogram import Bot, Dispatcher, BaseMiddleware
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
@@ -24,15 +28,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
-ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
 
 
 class DependencyMiddleware(BaseMiddleware):
     """Injects db and claude into every handler via data dict."""
 
-    def __init__(self, db: Database, claude: AsyncAnthropic):
+    def __init__(self, db: Database):
         self.db = db
-        self.claude = claude
+
 
     async def __call__(
         self,
@@ -41,7 +44,7 @@ class DependencyMiddleware(BaseMiddleware):
         data: Dict[str, Any],
     ) -> Any:
         data["db"] = self.db
-        data["claude"] = self.claude
+
         return await handler(event, data)
 
 
@@ -50,7 +53,7 @@ async def main():
     await db.connect()
     logger.info("Database connected ✅")
 
-    claude = AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+
 
     bot = Bot(
         token=TELEGRAM_TOKEN,
@@ -59,7 +62,7 @@ async def main():
     dp = Dispatcher(storage=MemoryStorage())
 
     # Attach middleware to messages and callbacks
-    middleware = DependencyMiddleware(db, claude)
+    middleware = DependencyMiddleware(db)
     dp.message.middleware(middleware)
     dp.callback_query.middleware(middleware)
 
@@ -75,7 +78,7 @@ async def main():
     dp.include_router(callbacks.router)     # all inline button callbacks (last)
 
     # Background scheduler: daily reports, habit reminders, weekly topics
-    asyncio.create_task(run_scheduler(bot, db, claude))
+    asyncio.create_task(run_scheduler(bot, db))
 
     logger.info("InsightSphere bot started ✅")
 
