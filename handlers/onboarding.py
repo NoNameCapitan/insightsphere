@@ -1,7 +1,11 @@
 import json
 import logging
 import re
-from anthropic import AsyncAnthropic
+import google.generativeai as genai
+import os
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel('gemini-1.5-flash')
 from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.filters import Command
@@ -165,7 +169,7 @@ async def cmd_start(message: Message, db: Database):
 
 
 @router.message(F.text & ~F.text.startswith("/"))
-async def handle_message(message: Message, db: Database, claude: AsyncAnthropic):
+async def handle_message(message: Message, db: Database):
     user_id = message.from_user.id
     user_text = message.text.strip()
 
