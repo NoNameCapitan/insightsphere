@@ -70,54 +70,23 @@ def t(key: str, lang: str, **kwargs) -> str:
     return text.format(**kwargs) if kwargs else text
 
 
+```python
 async def suggest_habits(profile: dict, lang: str) -> str:
-    name = profile.get("name", "")
-    interests = profile.get("interests", [])
-    values = profile.get("values", [])
-    fears = profile.get("fears", [])
-    mindset = profile.get("mindset", "mixed")
-    big_five = profile.get("big_five", {})
-
-
-    lang_instruction = {
-        "uk": "Відповідай виключно українською мовою.",
-        "ru": "Отвечай исключительно на русском языке.",
-        "en": "Reply exclusively in English.",
-    }.get(lang, "Відповідай виключно українською мовою.")
-
-    prompt = f"""
-{lang_instruction}
-
-Ти — AI-Куратор InsightSphere. На основі профілю запропонуй 2 персональні звички.
-
-Профіль: {name}, інтереси={interests}, цінності={values}, бар'єри={fears}, mindset={mindset},
-Big Five: O={big_five.get('O',5)} C={big_five.get('C',5)} E={big_five.get('E',5)} A={big_five.get('A',5)} N={big_five.get('N',5)}
-
-Для кожної звички:
-1. Назва (до 5 слів)
-2. Чому саме ця звичка підходить цій людині (1-2 речення, персоналізовано, пов'язано з Big Five і цінностями)
-3. Мінімальний перший крок (що зробити сьогодні, дуже конкретно)
-
-Формат:
-🌱 **[Назва 1]**
-[Обґрунтування]
-Перший крок: [дія]
-
-🌱 **[Назва 2]**
-[Обґрунтування]
-Перший крок: [дія]
-"""
-    try:
-        # Запит до Gemini
-        response = await model.generate_content_async(prompt)
-        return response.text
-    except Exception as e:
-        if 'logger' in globals():
-            logger.error(f"Habit suggestion error: {e}")
-        else:
-            print(f"Habit suggestion error: {e}")
-        return ""
-
+name = profile.get("name", "")
+interests = profile.get("interests", [])
+goals = profile.get("goals", [])
+prompt = f"Користувач: {name}. Інтереси: {interests}. Цілі: {goals}. Згенеруй звички."
+try:
+# Запит до Gemini
+response = await model.generate_content_async(prompt)
+return response.text
+except Exception as e:
+if 'logger' in globals():
+logger.error(f"Habit suggestion error: {e}")
+else:
+print(f"Habit suggestion error: {e}")
+return ""
+async def analyze_missed_barrier(habit_name: str, reason: str, profile: dict, lang: str) -> str:
     
 
     """Generate empathetic barrier analysis and adaptation suggestion"""
