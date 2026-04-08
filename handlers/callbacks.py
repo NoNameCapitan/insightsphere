@@ -108,7 +108,7 @@ async def cb_deeper(query: CallbackQuery, db: Database):
     if profile:
         await send_daily_report(
             chat_id=query.message.chat.id, profile=profile,
-            db=db, claude=claude, bot=query.bot,
+
             is_premium=is_prem, deeper_topic=topic, lang=lang,
         )
 
