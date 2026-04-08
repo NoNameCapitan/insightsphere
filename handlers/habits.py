@@ -122,8 +122,9 @@ habit_name: str, reason: str, profile: dict, lang: str
 
 
 async def analyze_missed_barrier(
-    habit_name: str, reason: str, profile: dict, lang: str, claude: AsyncAnthropic
+    habit_name: str, reason: str, profile: dict, lang: str
 ) -> str:
+
     """Generate empathetic barrier analysis and adaptation suggestion"""
     lang_instruction = {
         "uk": "Відповідай виключно українською.",
