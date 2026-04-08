@@ -107,19 +107,16 @@ Big Five: O={big_five.get('O',5)} C={big_five.get('C',5)} E={big_five.get('E',5)
 [Обґрунтування]
 Перший крок: [дія]
 """
-        try:
-            # Запит до Gemini
-            response = await model.generate_content_async(prompt)
-            return response.text
-        except Exception as e:
-            if 'logger' in globals():
-                logger.error(f"Habit suggestion error: {e}")
-            else:
-                print(f"Habit suggestion error: {e}")
-            return ""
-
-
-
+try:
+        # Запит до Gemini
+        response = await model.generate_content_async(prompt)
+        return response.text
+    except Exception as e:
+        if 'logger' in globals():
+            logger.error(f"Habit suggestion error: {e}")
+        else:
+            print(f"Habit suggestion error: {e}")
+        return ""
 async def analyze_missed_barrier(
     habit_name: str, reason: str, profile: dict, lang: str
 ) -> str:
