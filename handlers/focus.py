@@ -1,5 +1,11 @@
 import logging
-from anthropic import AsyncAnthropic
+import os
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+load_dotenv()
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel('gemini-1.5-flash')
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
@@ -51,7 +57,7 @@ def t(key: str, lang: str) -> str:
     return T.get(key, {}).get(lang, T.get(key, {}).get("uk", key))
 
 
-async def generate_focus_session(goal: str, profile: dict, claude: AsyncAnthropic, lang: str) -> str:
+async def generate_focus_session(goal: str, profile: dict, lang: str) -> str:
     """Generate a personalized focus session plan"""
     name = profile.get("name", "")
     mindset = profile.get("mindset", "mixed")
@@ -86,18 +92,14 @@ async def generate_focus_session(goal: str, profile: dict, claude: AsyncAnthropi
 Стиль: живий, впевнений, як найкращий коуч.
 """
     try:
-        response = await claude.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=600,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return response.content[0].text
+        response = await model.generate_content_async(prompt)
+        return response.text
     except Exception as e:
         logger.error(f"Focus session generation error: {e}")
         return goal
 
 
-async def generate_session_summary(goal: str, result: str, profile: dict, claude: AsyncAnthropic, lang: str) -> str:
+async def generate_session_summary(goal: str, result: str, profile: dict, lang: str) -> str:
     """Generate a closing summary after focus session"""
     name = profile.get("name", "")
     lang_instruction = {
@@ -120,12 +122,8 @@ async def generate_session_summary(goal: str, result: str, profile: dict, claude
 4. Мотиваційне закінчення (1 речення)
 """
     try:
-        response = await claude.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=400,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return response.content[0].text
+        response = await model.generate_content_async(prompt)
+        return response.text
     except Exception as e:
         logger.error(f"Focus summary error: {e}")
         return result
@@ -157,7 +155,7 @@ async def cmd_focus(message: Message, db: Database, state: FSMContext):
 
 
 @router.message(FocusStates.waiting_for_goal)
-async def focus_goal_received(message: Message, db: Database, claude: AsyncAnthropic, state: FSMContext):
+async def focus_goal_received(message: Message, db: Database, state: FSMContext):
     user_id = message.from_user.id
     lang = await db.get_language(user_id)
     profile = await db.get_profile(user_id)
@@ -169,7 +167,7 @@ async def focus_goal_received(message: Message, db: Database, claude: AsyncAnthr
     await state.update_data(session_id=session_id, goal=goal)
     await state.set_state(FocusStates.in_session)
 
-    plan = await generate_focus_session(goal, profile or {}, claude, lang)
+    plan = await generate_focus_session(goal, profile or {}, lang)
 
     end_btns = {
         "uk": "✅ Завершити сесію",
@@ -197,7 +195,7 @@ async def cb_focus_done(query: CallbackQuery, db: Database, state: FSMContext):
 
 @router.message(Command("done"))
 @router.message(FocusStates.in_session)
-async def focus_session_done(message: Message, db: Database, claude: AsyncAnthropic, state: FSMContext):
+async def focus_session_done(message: Message, db: Database, state: FSMContext):
     user_id = message.from_user.id
     lang = await db.get_language(user_id)
     profile = await db.get_profile(user_id)
@@ -212,7 +210,7 @@ async def focus_session_done(message: Message, db: Database, claude: AsyncAnthro
     session_id = data["session_id"]
 
     await message.bot.send_chat_action(chat_id=message.chat.id, action="typing")
-    summary = await generate_session_summary(goal, result, profile or {}, claude, lang)
+    summary = await generate_session_summary(goal, result, profile or {}, lang)
 
     await db.complete_focus_session(session_id, summary)
     await state.clear()
