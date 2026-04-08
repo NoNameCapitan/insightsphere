@@ -70,8 +70,7 @@ def t(key: str, lang: str, **kwargs) -> str:
     return text.format(**kwargs) if kwargs else text
 
 
-async def suggest_habits(profile: dict, claude: AsyncAnthropic, lang: str) -> str:
-    name = profile.get("name", "")
+async def suggest_habits(profile: dict, lang: str) -> str:    name = profile.get("name", "")
     interests = profile.get("interests", [])
     values = profile.get("values", [])
     fears = profile.get("fears", [])
