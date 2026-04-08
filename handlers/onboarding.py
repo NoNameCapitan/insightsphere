@@ -231,97 +231,28 @@ async def handle_message(message: Message, db: Database):
         injection = build_resistant_injection(resistant_count, lang)
 
     history.append({"role": "user", "content": user_text + injection})
-    
-    # Перетворюємо історію повідомлень у формат, який розуміє Gemini
-    history_text = "\n".join([f"{m['role']}: {m['content']}" for m in history])
-    full_prompt = f"{ONBOARDING_SYSTEM_PROMPT}\n\nІсторія діалогу:\n{history_text}"
+    try:
+        # Перетворюємо історію повідомлень у формат, який розуміє Gemini
+        history_text = "\n".join([f"{m['role']}: {m['content']}" for m in history])
+        full_prompt = f"{ONBOARDING_SYSTEM_PROMPT}\n\nІсторія діалогу:\n{history_text}"
 
-    # Запит до Gemini
-    response = await model.generate_content_async(full_prompt)
-    assistant_text = response.text
+        # Запит до Gemini
+        response = await model.generate_content_async(full_prompt)
+        assistant_text = response.text
 
-    visible_text, profile_data = extract_profile_from_response(assistant_text)
+        visible_text, profile_data = extract_profile_from_response(assistant_text)
 
-
-    if profile_data:
-            # Ensure language is saved in profile
-            profile_data["onboarding_complete"] = True
-            profile_data["language"] = lang
-            await db.save_profile(user_id, profile_data)
-
-            # Save clean history
-            clean_history = []
-            for h in history[:-1]:
-                clean_history.append(h)
-            clean_history.append({"role": "user", "content": user_text})
-            clean_history.append({"role": "assistant", "content": visible_text})
-            await db.save_conversation(user_id, clean_history)
-
-            name = profile_data.get("name", "")
-
-            completion_texts = {
-                "uk": (
-                    f"{'✨ ' + name + ', ось' if name else '✨ Ось'} що я тепер про тебе знаю — і це справді рідкісне поєднання.\n\n"
-                    f"{visible_text}\n\n"
-                    f"Доступні функції:\n"
-                    f"• /daily — персональний інсайт-звіт\n"
-                    f"• /habit — AI-трекер звичок\n"
-                    f"• /focus — режим фокусу\n"
-                    f"• /techniques — бібліотека технік\n"
-                    f"• /challenge — персональний виклик\n"
-                    f"• /stats — твій прогрес\n\n"
-                    f"*Хочеш отримати перший звіт прямо зараз — чи налаштуємо зручний час щоденної розсилки?*"
-                ),
-                "ru": (
-                    f"{'✨ ' + name + ', вот' if name else '✨ Вот'} что я теперь о тебе знаю — и это редкое сочетание.\n\n"
-                    f"{visible_text}\n\n"
-                    f"Доступные функции:\n"
-                    f"• /daily — персональный инсайт-отчёт\n"
-                    f"• /habit — AI-трекер привычек\n"
-                    f"• /focus — режим фокуса\n"
-                    f"• /techniques — библиотека техник\n"
-                    f"• /challenge — персональный вызов\n"
-                    f"• /stats — твой прогресс\n\n"
-                    f"*Хочешь получить первый отчёт прямо сейчас — или настроим удобное время ежедневной рассылки?*"
-                ),
-                "en": (
-                    f"{'✨ ' + name + ', here' if name else '✨ Here'}'s what I now know about you — and it's a truly rare combination.\n\n"
-                    f"{visible_text}\n\n"
-                    f"Available features:\n"
-                    f"• /daily — personal insight report\n"
-                    f"• /habit — AI habit tracker\n"
-                    f"• /focus — focus mode\n"
-                    f"• /techniques — techniques library\n"
-                    f"• /challenge — personal challenge\n"
-                    f"• /stats — your progress\n\n"
-                    f"*Want your first report right now — or shall we set a daily delivery time?*"
-                ),
-            }
-
-            from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-            now_btns = {"uk": "📊 Отримати зараз", "ru": "📊 Получить сейчас", "en": "📊 Get it now"}
-            time_btns = {"uk": "⏰ Налаштувати час", "ru": "⏰ Настроить время", "en": "⏰ Set a time"}
-            onboarding_done_kb = InlineKeyboardMarkup(inline_keyboard=[[
-                InlineKeyboardButton(text=now_btns.get(lang, now_btns["uk"]), callback_data="daily"),
-                InlineKeyboardButton(text=time_btns.get(lang, time_btns["uk"]), callback_data="settings"),
-            ]])
-
-            await message.answer(
-                completion_texts.get(lang, completion_texts["uk"]),
-                parse_mode="Markdown",
-                reply_markup=onboarding_done_kb
-            )
-    else:
-            # Normal onboarding step
-            clean_history = [h for h in history[:-1]]
-            clean_history.append({"role": "user", "content": user_text})
-            clean_history.append({"role": "assistant", "content": assistant_text})
-            await db.save_conversation(user_id, clean_history)
-            await db.increment_onboarding_step(user_id)
-            await message.answer(assistant_text, parse_mode="Markdown")
+        if profile_data:
+            await db.update_user_profile(message.from_user.id, profile_data)
+            await db.set_user_status(message.from_user.id, "active")
+            await message.answer(visible_text)
+        else:
+            await message.answer(visible_text)
 
     except Exception as e:
-        logger.error(f"Claude API error: {e}")
+        print(f"Error in onboarding: {e}")
+        await message.answer("Вибачте, сталася помилка. Спробуйте ще раз через хвилину.")
+
         err_msgs = {
             "uk": "Щось пішло не так — спробуй ще раз. Або /start щоб почати заново.",
             "ru": "Что-то пошло не так — попробуй ещё раз. Или /start чтобы начать заново.",
