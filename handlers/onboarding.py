@@ -251,11 +251,9 @@ async def handle_message(message: Message, db: Database):
 
     except Exception as e:
         print(f"Error in onboarding: {e}")
-        await message.answer("Вибачте, сталася помилка. Спробуйте ще раз через хвилину.")
-
         err_msgs = {
             "uk": "Щось пішло не так — спробуй ще раз. Або /start щоб почати заново.",
-            "ru": "Что-то пошло не так — попробуй ещё раз. Или /start чтобы начать заново.",
-            "en": "Something went wrong — try again. Or /start to restart.",
+            "ru": "Что-то пошло не так — попробуй еще раз. Или /start чтобы начать заново.",
+            "en": "Something went wrong — try again. Or /start to restart."
         }
         await message.answer(err_msgs.get(lang, err_msgs["uk"]))
