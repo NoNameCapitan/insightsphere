@@ -204,7 +204,7 @@ async def send_daily_report(
 # ─── Command handler ──────────────────────────────────────────────────────────
 
 @router.message(Command("daily"))
-async def cmd_daily(message: Message, db: Database, claude: AsyncAnthropic):
+async def cmd_daily(message: Message, db: Database):
     user_id = message.from_user.id
     lang = await db.get_language(user_id)
     profile = await db.get_profile(user_id)
@@ -228,7 +228,7 @@ async def cmd_daily(message: Message, db: Database, claude: AsyncAnthropic):
         chat_id=message.chat.id,
         profile=profile,
         db=db,
-        claude=claude,
+
         bot=message.bot,
         is_premium=is_prem,
         lang=lang,
