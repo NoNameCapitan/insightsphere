@@ -1,3 +1,4 @@
-aiogram==3.13.1
-anthropic>=0.40.0
-asyncpg>=0.29.0
+aiogram
+google-generativeai
+python-dotenv
+asyncpg
