@@ -232,7 +232,7 @@ async def handle_message(message: Message, db: Database):
 
     history.append({"role": "user", "content": user_text + injection})
         # Перетворюємо історію повідомлень у формат, який розуміє Gemini
-        history_text = "\n".join([f"{m['role']}: {m['content']}" for m in history])
+history_text = "\n".join([f"{m['role']}: {m['content']}" for m in history])
         full_prompt = f"{ONBOARDING_SYSTEM_PROMPT}\n\nІсторія діалогу:\n{history_text}"
 
         # Запит до Gemini
