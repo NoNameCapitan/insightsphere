@@ -118,7 +118,7 @@ Big Five: O={big_five.get('O',5)} C={big_five.get('C',5)} E={big_five.get('E',5)
 
     except Exception as e:
         logger.error(f"Habit suggestion error: {e}")
-        return ""
+habit_name: str, reason: str, profile: dict, lang: str
 
 
 async def analyze_missed_barrier(
