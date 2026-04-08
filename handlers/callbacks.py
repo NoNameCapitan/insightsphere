@@ -30,7 +30,8 @@ async def _lang(query: CallbackQuery, db: Database) -> str:
 # ─── Daily report ─────────────────────────────────────────────────────────────
 
 @router.callback_query(F.data == "daily")
-async def cb_daily(query: CallbackQuery, db: Database, claude: AsyncAnthropic):
+async def cb_daily(query: CallbackQuery, db: Database):
+
     await query.answer()
     user_id = query.from_user.id
     lang = await _lang(query, db)
