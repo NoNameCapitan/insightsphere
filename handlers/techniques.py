@@ -115,7 +115,7 @@ async def cb_technique(query: CallbackQuery, db: Database):
         return
 
     await query.bot.send_chat_action(chat_id=query.message.chat.id, action="typing")
-    explanation = await generate_technique_explanation(tech_id, profile or {}, lang, claude)
+explanation = await generate_technique_explanation(tech_id, profile or {}, lang)
     await query.message.answer(explanation, parse_mode="Markdown")
 
     # XP for learning a technique
