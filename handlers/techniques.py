@@ -122,7 +122,8 @@ explanation = await generate_technique_explanation(tech_id, profile or {}, lang)
     await db.add_xp(user_id, 5)
 
 
-async def generate_technique_explanation(tech_id: str, profile: dict, lang: str, claude: AsyncAnthropic) -> str:
+async def generate_technique_explanation(tech_id: str, profile: dict, lang: str) -> str:
+
     name = profile.get("name", "")
     big_five = profile.get("big_five", {})
     mindset = profile.get("mindset", "mixed")
