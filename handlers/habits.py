@@ -150,14 +150,14 @@ async def analyze_missed_barrier(
 Стиль: живий, теплий, як найкращий друг-коуч.
 """
     try:
-        response = await claude.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=400,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return response.content[0].text
+        # Запит до Gemini замість Claude
+        response = await model.generate_content_async(prompt)
+        return response.text
     except Exception as e:
-        logger.error(f"Barrier analysis error: {e}")
+        if 'logger' in globals():
+            logger.error(f"Barrier analysis error: {e}")
+        else:
+            print(f"Barrier analysis error: {e}")
         return reason
 
 
