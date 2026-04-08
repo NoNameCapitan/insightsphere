@@ -260,11 +260,10 @@ async def cb_set_hour(query: CallbackQuery, db: Database):
 # ─── Habit menu shortcut ──────────────────────────────────────────────────────
 
 @router.callback_query(F.data == "habit_menu")
+@router.callback_query(F.data == "habit_menu")
 async def cb_habit_menu(query: CallbackQuery, db: Database):
-    """Redirect habit_menu callback to the habit command handler"""
-    await query.answer()
-    from handlers.habits import cmd_habit
-await cmd_habit(query.message, db)
+    await cmd_habit(query.message, db)
+
 
 # ─── Focus menu shortcut ──────────────────────────────────────────────────────
 
