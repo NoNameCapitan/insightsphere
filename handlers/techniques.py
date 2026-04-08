@@ -159,12 +159,9 @@ async def generate_technique_explanation(tech_id: str, profile: dict, lang: str)
 💡 Порада від куратора: [1 речення, персоналізована інсайт]
 """
     try:
-        response = await claude.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=500,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return response.content[0].text
+        # Запит до Gemini замість Claude
+        response = await model.generate_content_async(prompt)
+        return response.text
     except Exception as e:
         logger.error(f"Technique explanation error: {e}")
-        return tech_id
+        return f"Техніка: {tech_id}. На жаль, не вдалося отримати опис через помилку ШІ."
