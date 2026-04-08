@@ -1,13 +1,9 @@
-import logging
-from anthropic import AsyncAnthropic
-from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
-from aiogram.filters import Command
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State, StatesGroup
+import google.generativeai as genai
+import os
 
-from db.database import Database
-from keyboards import habit_keyboard, habit_list_keyboard, premium_keyboard
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel('gemini-1.5-flash')
+
 
 logger = logging.getLogger(__name__)
 router = Router()
