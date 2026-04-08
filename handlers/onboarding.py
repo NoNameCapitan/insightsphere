@@ -311,7 +311,7 @@ async def handle_message(message: Message, db: Database):
                 parse_mode="Markdown",
                 reply_markup=onboarding_done_kb
             )
-        else:
+    else:
             # Normal onboarding step
             clean_history = [h for h in history[:-1]]
             clean_history.append({"role": "user", "content": user_text})
