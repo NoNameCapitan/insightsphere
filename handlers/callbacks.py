@@ -1,5 +1,10 @@
 import logging
-from anthropic import AsyncAnthropic
+import google.generativeai as genai
+import os
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel('gemini-1.5-flash')
+
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 
