@@ -240,9 +240,9 @@ async def handle_message(message: Message, db: Database):
     assistant_text = response.text
 
 
-visible_text, profile_data = extract_profile_from_response(assistant_text)
+    visible_text, profile_data = extract_profile_from_response(assistant_text)
 
-if profile_data:
+    if profile_data:
             # Ensure language is saved in profile
             profile_data["onboarding_complete"] = True
             profile_data["language"] = lang
