@@ -97,7 +97,7 @@ async def cb_reset(query: CallbackQuery, db: Database):
 # ─── Deeper / PDF ─────────────────────────────────────────────────────────────
 
 @router.callback_query(F.data.startswith("deeper:"))
-async def cb_deeper(query: CallbackQuery, db: Database, claude: AsyncAnthropic):
+async def cb_deeper(query: CallbackQuery, db: Database):
     await query.answer()
     topic = query.data.split("deeper:", 1)[1]
     user_id = query.from_user.id
