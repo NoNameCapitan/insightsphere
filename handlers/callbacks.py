@@ -57,7 +57,7 @@ async def cb_daily(query: CallbackQuery, db: Database):
 
     await send_daily_report(
         chat_id=query.message.chat.id, profile=profile,
-        db=db, claude=claude, bot=query.bot,
+        db=db, bot=query.bot,
         is_premium=is_prem, lang=lang,
     )
 
