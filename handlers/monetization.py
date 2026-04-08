@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from anthropic import AsyncAnthropic
+
 from aiogram import Router, F
 from aiogram.types import (
     Message, CallbackQuery,
