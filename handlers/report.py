@@ -98,7 +98,7 @@ def build_report_prompt(profile: dict, lang: str = "uk",
     depth_str = DEPTH_LABEL.get(lang, DEPTH_LABEL["uk"]).get(depth, depth)
     premium_str = PREMIUM_NOTE.get(lang, PREMIUM_NOTE["uk"]) if is_premium else ""
 
-    # Language instruction for Claude
+    # Language instruction for Gemini
     lang_instruction = {
         "uk": "Відповідай виключно українською мовою.",
         "ru": "Отвечай исключительно на русском языке.",
