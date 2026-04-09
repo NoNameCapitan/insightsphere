@@ -232,9 +232,18 @@ async def handle_message(message: Message, db: Database):
 
     history.append({"role": "user", "content": user_text + injection})
     try:
-        # Перетворюємо історію повідомлень у формат, який розуміє Gemini
-        history_text = "\n".join([f"{m['role']}: {m['content']}" for m in history])
+        # Безпечне формування історії (захист від KeyError)
+        processed_history = []
+        for m in history:
+            if isinstance(m, dict) and 'role' in m and 'content' in m:
+                processed_history.append(f"{m['role']}: {m['content']}")
+            else:
+                # Якщо формат невідомий, просто перетворюємо в текст
+                processed_history.append(f"message: {str(m)}")
+        
+        history_text = "\n".join(processed_history)
         full_prompt = f"{ONBOARDING_SYSTEM_PROMPT}\n\nІсторія діалогу:\n{history_text}"
+
 
         # Запит до Gemini
         response = await model.generate_content_async(full_prompt)
