@@ -259,8 +259,7 @@ async def cmd_challenge(message: Message, db: Database):
         return
 
     await message.bot.send_chat_action(chat_id=message.chat.id, action="typing")
-    challenge = await suggest_challenge(profile, lang, claude)
-
+challenge = await suggest_challenge(profile, lang)
     headers = {
         "uk": f"💪 *Персональний виклик для тебе*\n\n",
         "ru": f"💪 *Персональный вызов для тебя*\n\n",
