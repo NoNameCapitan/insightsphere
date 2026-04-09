@@ -147,7 +147,9 @@ async def dispatch_daily_reports(bot: Bot, db: Database, utc_hour: int):
             )
         except Exception as e:
             logger.error(f"Daily report error for {user['user_id']}: {e}")
+
         await asyncio.sleep(0.5)
+
 
 # --- Habit reminders ---
 
