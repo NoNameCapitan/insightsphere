@@ -16,8 +16,7 @@ from handlers.habits import router as habits_router
 from handlers.focus import router as focus_router
 from handlers.techniques import router as techniques_router
 from handlers.gamification import router as gamification_router
-from utils.scheduler import run_scheduler
-
+async def dispatch_daily_reports(bot: Bot, db: Database, utc_hour: int):
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(name)s | %(levelname)s | %(message)s"
