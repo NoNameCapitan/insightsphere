@@ -247,7 +247,7 @@ async def send_stats(chat_id: int, bot, db: Database, user_id: int, lang: str):
 
 
 @router.message(Command("challenge"))
-async def cmd_challenge(message: Message, db: Database, claude: AsyncAnthropic):
+async def cmd_challenge(message: Message, db: Database):
     """Suggest and start a personalized challenge"""
     user_id = message.from_user.id
     lang = await db.get_language(user_id)
