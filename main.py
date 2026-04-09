@@ -16,18 +16,22 @@ from handlers.habits import router as habits_router
 from handlers.focus import router as focus_router
 from handlers.techniques import router as techniques_router
 from handlers.gamification import router as gamification_router
-async def dispatch_daily_reports(bot: Bot, db: Database, utc_hour: int):
+
+# Налаштування логування (має бути на самому початку)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(name)s | %(levelname)s | %(message)s"
 )
 logger = logging.getLogger(__name__)
 
+async def dispatch_daily_reports(bot: Bot, db: Database, utc_hour: int):
+    # Тіло функції не може бути порожнім, додаємо заглушку
+    pass
+
 load_dotenv()
 TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 genai.configure(api_key=GEMINI_API_KEY)
-
 
 class DependencyMiddleware(BaseMiddleware):
     """Injects db into every handler via data dict."""
