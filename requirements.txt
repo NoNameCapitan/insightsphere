@@ -1,4 +1,4 @@
-aiogram
+aiogram==3.13.1
+dotenv-parser
 google-generativeai
-python-dotenv
-asyncpg
+asyncpg>=0.29.0
