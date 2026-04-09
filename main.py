@@ -1,3 +1,4 @@
+import asyncio
 async def main():
     # Ініціалізація бази даних
     db = Database()
