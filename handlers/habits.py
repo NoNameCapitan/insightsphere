@@ -1,9 +1,19 @@
-import google.generativeai as genai
+import logging
 import os
+import google.generativeai as genai
+from dotenv import load_dotenv
 
+load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel("gemini-1.5-flash")
+from aiogram import Router, F
+from aiogram.types import Message, CallbackQuery
+from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 
+from db.database import Database
+from keyboards import habit_keyboard, habit_list_keyboard, premium_keyboard
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -73,19 +83,50 @@ def t(key: str, lang: str, **kwargs) -> str:
 async def suggest_habits(profile: dict, lang: str) -> str:
     name = profile.get("name", "")
     interests = profile.get("interests", [])
-    goals = profile.get("goals", [])
+    values = profile.get("values", [])
+    fears = profile.get("fears", [])
+    mindset = profile.get("mindset", "mixed")
+    big_five = profile.get("big_five", {})
 
-response = await model.generate_content_async(prompt)
-return response.text
-except Exception as e:
-if 'logger' in globals():
-logger.error(f"Habit suggestion error: {e}")
-else:
-print(f"Habit suggestion error: {e}")
-return ""
-async def analyze_missed_barrier(habit_name: str, reason: str, profile: dict, lang: str) -> str:
-    
+    lang_instruction = {
+        "uk": "Відповідай виключно українською мовою.",
+        "ru": "Отвечай исключительно на русском языке.",
+        "en": "Reply exclusively in English.",
+    }.get(lang, "Відповідай виключно українською мовою.")
 
+    prompt = f"""
+{lang_instruction}
+
+Ти — AI-Куратор InsightSphere. На основі профілю запропонуй 2 персональні звички.
+
+Профіль: {name}, інтереси={interests}, цінності={values}, бар'єри={fears}, mindset={mindset},
+Big Five: O={big_five.get('O',5)} C={big_five.get('C',5)} E={big_five.get('E',5)} A={big_five.get('A',5)} N={big_five.get('N',5)}
+
+Для кожної звички:
+1. Назва (до 5 слів)
+2. Чому саме ця звичка підходить цій людині (1-2 речення, персоналізовано, пов'язано з Big Five і цінностями)
+3. Мінімальний перший крок (що зробити сьогодні, дуже конкретно)
+
+Формат:
+🌱 **[Назва 1]**
+[Обґрунтування]
+Перший крок: [дія]
+
+🌱 **[Назва 2]**
+[Обґрунтування]
+Перший крок: [дія]
+"""
+    try:
+        response = await model.generate_content_async(prompt)
+        return response.text
+    except Exception as e:
+        logger.error(f"Habit suggestion error: {e}")
+        return ""
+
+
+async def analyze_missed_barrier(
+    habit_name: str, reason: str, profile: dict, lang: str
+) -> str:
     """Generate empathetic barrier analysis and adaptation suggestion"""
     lang_instruction = {
         "uk": "Відповідай виключно українською.",
@@ -99,35 +140,33 @@ async def analyze_missed_barrier(habit_name: str, reason: str, profile: dict, la
 
     prompt = f"""
 {lang_instruction}
-    prompt += "Перший крок: [дія]"
-    
-    try:
-        # Запит до Gemini
-        response = await model.generate_content_async(prompt)
-        return response.text
-    except Exception as e:
-        print(f"Habit suggestion error: {e}")
-        return ""
 
+Ти — AI-Куратор InsightSphere. Користувач {name} пропустив звичку «{habit_name}».
+
+Причина: {reason}
+
+Профіль: mindset={mindset}, N={big_five.get('N',5)} (невротизм), C={big_five.get('C',5)} (сумлінність)
+
+Зроби:
+1. Affirmation (1 речення — підтримай, НЕ критикуй)
+2. Reflection — поверни причину у нейтральному ключі (1 речення)
+3. Аналіз бар'єру (1-2 речення — що насправді заважає, без психологічного жаргону)
 4. Конкретна адаптація звички (1-2 варіанти, дуже практично)
 5. Мотиваційне закінчення (1 речення)
 
 Стиль: живий, теплий, як найкращий друг-коуч.
 """
     try:
-        # Запит до Gemini замість Claude
         response = await model.generate_content_async(prompt)
         return response.text
     except Exception as e:
-        if 'logger' in globals():
-            logger.error(f"Barrier analysis error: {e}")
-        else:
-            print(f"Barrier analysis error: {e}")
+        logger.error(f"Barrier analysis error: {e}")
         return reason
 
 
 @router.message(Command("habit"))
-async def cmd_habit(message: Message, db: Database):    user_id = message.from_user.id
+async def cmd_habit(message: Message, db: Database):
+    user_id = message.from_user.id
     profile = await db.get_profile(user_id)
     lang = await db.get_language(user_id)
 
@@ -140,7 +179,7 @@ async def cmd_habit(message: Message, db: Database):    user_id = message.from_u
 
     if not habits:
         await message.bot.send_chat_action(chat_id=message.chat.id, action="typing")
-        suggestion = await suggest_habits(profile,suggestion = await suggest_habits(profile, lang)
+        suggestion = await suggest_habits(profile, lang)
 
         headers = {
             "uk": "🌱 *AI-Трекер звичок*\n\nНа основі твого профілю рекомендую:\n\n",
@@ -255,7 +294,7 @@ async def cb_habit_missed(query: CallbackQuery, db: Database, state: FSMContext)
 
 
 @router.message(HabitStates.waiting_for_missed_reason)
-async def missed_reason_received(message: Message, db: Database, claude: AsyncAnthropic, state: FSMContext):
+async def missed_reason_received(message: Message, db: Database, state: FSMContext):
     user_id = message.from_user.id
     lang = await db.get_language(user_id)
     profile = await db.get_profile(user_id)
@@ -266,7 +305,7 @@ async def missed_reason_received(message: Message, db: Database, claude: AsyncAn
     await state.clear()
     await message.bot.send_chat_action(chat_id=message.chat.id, action="typing")
 
-    analysis = await analyze_missed_barrier(habit_name, reason, profile or {}, lang, claude)
+    analysis = await analyze_missed_barrier(habit_name, reason, profile or {}, lang)
     await message.answer(analysis, parse_mode="Markdown")
 
 
