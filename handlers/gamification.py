@@ -314,8 +314,8 @@ async def cb_challenge_skip(query: CallbackQuery, db: Database):    await query.
     if not profile:
         return
 
-    challenge = await suggest_challenge(profile, lang, claude)
-challenge = await suggest_challenge(profile, lang)    start_btns = {"uk": "✅ Приймаю!", "ru": "✅ Принимаю!", "en": "✅ Accept!"}
+    challenge = await suggest_challenge(profile, lang)    
+    start_btns = {"uk": "✅ Приймаю!", "ru": "✅ Принимаю!", "en": "✅ Accept!"}
     from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
     kb = InlineKeyboardMarkup(inline_keyboard=[[
         InlineKeyboardButton(text=start_btns.get(lang, start_btns["uk"]), callback_data=f"challenge_start:{safe_name}"),
