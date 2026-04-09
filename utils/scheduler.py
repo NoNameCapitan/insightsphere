@@ -145,14 +145,9 @@ async def dispatch_daily_reports(bot: Bot, db: Database, utc_hour: int):
                 is_premium=is_prem or force_deep,
                 scheduled=True
             )
-
-            # Update activity streak
-            streak_result = await db.update_streak(user["user_id"])
-            await _handle_streak_milestone(bot, db, user["user_id"], streak_result, user.get("language", "uk"))
-
-            await asyncio.sleep(0.5)
         except Exception as e:
             logger.error(f"Daily report error for {user['user_id']}: {e}")
+        await asyncio.sleep(0.5)
 
 # --- Habit reminders ---
 
@@ -166,8 +161,9 @@ async def dispatch_habit_reminders(bot: Bot, db: Database):
             lang = user.get("language", "uk")
             text = HABIT_REMINDER_TEXTS.get(lang, HABIT_REMINDER_TEXTS["uk"])
 
-            # Simple gender-neutral form for Ukrainian
-            text = text.replace("{fem}", "а" if lang == "uk" else "")
+            # simple gender-neutral form for Ukrainian
+            text = text.replace("(а)", "а" if lang == "uk" else "")
+            
             await bot.send_message(
                 chat_id=user["user_id"],
                 text=text,
@@ -177,7 +173,6 @@ async def dispatch_habit_reminders(bot: Bot, db: Database):
         except Exception as e:
             logger.error(f"Habit reminder error for {user['user_id']}: {e}")
 
-
 async def dispatch_missed_habit_check(bot: Bot, db: Database):
     """Check for habits missed yesterday and send empathetic message"""
     users = await db.get_users_with_missed_habits_yesterday()
@@ -186,7 +181,6 @@ async def dispatch_missed_habit_check(bot: Bot, db: Database):
     for user in users:
         try:
             lang = user.get("language", "uk")
-            # Тут використовується глобальна модель Gemini, яку ми налаштували на початку файлу
             prompt = f"Користувач пропустив звичку. Напиши коротке емпатичне повідомлення підтримки мовою {lang}."
             
             response = await model.generate_content_async(prompt)
@@ -200,9 +194,3 @@ async def dispatch_missed_habit_check(bot: Bot, db: Database):
             await asyncio.sleep(0.5)
         except Exception as e:
             logger.error(f"Missed habit check error for {user['user_id']}: {e}")
-
-async def dispatch_weekly_topics(bot: Bot, db: Database):
-    """Send new reflection topics every Monday"""
-    # Логіка щотижневих тем
-    pass
-
