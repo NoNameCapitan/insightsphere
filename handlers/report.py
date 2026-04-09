@@ -1,9 +1,11 @@
 import logging
-import google.generativeai as genai
 import os
+import google.generativeai as genai
+from dotenv import load_dotenv
 
+load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel("gemini-1.5-flash")
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import Command
@@ -98,7 +100,7 @@ def build_report_prompt(profile: dict, lang: str = "uk",
     depth_str = DEPTH_LABEL.get(lang, DEPTH_LABEL["uk"]).get(depth, depth)
     premium_str = PREMIUM_NOTE.get(lang, PREMIUM_NOTE["uk"]) if is_premium else ""
 
-    # Language instruction for Gemini
+    # Language instruction for Claude
     lang_instruction = {
         "uk": "Відповідай виключно українською мовою.",
         "ru": "Отвечай исключительно на русском языке.",
@@ -126,7 +128,6 @@ async def send_daily_report(
     chat_id: int,
     profile: dict,
     db: Database,
-    
     bot,
     is_premium: bool = False,
     deeper_topic: str = None,
@@ -149,16 +150,10 @@ async def send_daily_report(
         prefix = SCHEDULED_PREFIX.get(lang, SCHEDULED_PREFIX["uk"]).format(name_part=name_part)
 
     try:
-        # Формуємо промпт для звіту
-        prompt_content = build_report_prompt(
-            profile, lang=lang, is_premium=is_premium, deeper_topic=deeper_topic
-        )
-        
-        # Запит до Gemini (об'єднуємо системний промпт та контент)
-        full_query = f"{DAILY_REPORT_SYSTEM_PROMPT}\n\n{prompt_content}"
-        
-        response = await model.generate_content_async(full_query)
+        prompt_content = build_report_prompt(profile, lang=lang, is_premium=is_premium, deeper_topic=deeper_topic)
+        response = await model.generate_content_async(DAILY_REPORT_SYSTEM_PROMPT + "\n\n" + prompt_content)
         report_text = response.text
+        topic = report_text.split('\n')[0].strip()[:100] or "Insight"
 
         await db.save_report(chat_id, report_text, topic, depth)
         await db.increment_reports_today(chat_id)
