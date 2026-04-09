@@ -111,11 +111,11 @@ async def suggest_challenge(profile: dict, lang: str) -> dict:
     templates = CHALLENGE_TEMPLATES.get(lang, CHALLENGE_TEMPLATES["uk"])
     interests = profile.get("interests", [])
     values = profile.get("values", [])
-
-mindset = profile.get("mindset", "mixed")
-
+    mindset = profile.get("mindset", "mixed")
+    big_five = profile.get("big_five", {})
 
     lang_instruction = {
+
         "uk": "Відповідай українською.",
         "ru": "Отвечай на русском.",
         "en": "Reply in English.",
