@@ -260,9 +260,10 @@ async def cmd_challenge(message: Message, db: Database):
         await message.answer(msgs.get(lang, msgs["uk"]))
         return
 
-    await message.bot.send_chat_action(chat_id=message.chat.id, action="typing")
-challenge = await suggest_challenge(profile, lang)
+    await message.answer("Генерую для тебе новий челендж...")
+    
     headers = {
+
         "uk": f"💪 *Персональний виклик для тебе*\n\n",
         "ru": f"💪 *Персональный вызов для тебя*\n\n",
         "en": f"💪 *Your Personal Challenge*\n\n",
