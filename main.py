@@ -19,18 +19,15 @@ from handlers.techniques import router as techniques_router
 from handlers.gamification import router as gamification_router
 from handlers.monetization import router as monetization_router
 
-async def dispatch_daily_reports(bot: Bot, db: Database, utc_hour: int):
-    pass  # Додайте цей рядок з відступом (4 пробіли)
-
+# Налаштування логування
 logging.basicConfig(
-
     level=logging.INFO,
     format="%(asctime)s | %(name)s | %(levelname)s | %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 async def dispatch_daily_reports(bot: Bot, db: Database, utc_hour: int):
-    # Тіло функції не може бути порожнім, додаємо заглушку
+    """Тіло функції не може бути порожнім, додаємо заглушку"""
     pass
 
 load_dotenv()
@@ -74,21 +71,17 @@ async def main():
     dp.message.middleware(middleware)
     dp.callback_query.middleware(middleware)
 
-    # Register routers — order matters (most specific first)
-    dp.include_router(onboarding.router)    # /start + onboarding dialog
-    dp.include_router(report.router)        # /daily
-    dp.include_router(profile.router)       # /profile
-    dp.include_router(monetization.router)  # /support + Stars payments + /ask
-    dp.include_router(habits_router)        # /habit
-    dp.include_router(focus_router)         # /focus + /done (FSM)
-    dp.include_router(techniques_router)    # /techniques
-    dp.include_router(gamification_router)  # /stats + /challenge
-    dp.include_router(callbacks.router)     # all inline button callbacks (last)
+    # Register routers - order matters
+    dp.include_router(onboarding_router)
+    dp.include_router(habits_router)
+    dp.include_router(focus_router)
+    dp.include_router(techniques_router)
+    dp.include_router(gamification_router)
+    dp.include_router(monetization_router)
 
     # Background scheduler: daily reports, habit reminders, weekly topics
-    asyncio.create_task(run_scheduler(bot, db))
-
-    logger.info("InsightSphere bot started ✅")
+    asyncio.create_task(run_scheduler(db, bot))
+    logger.info("InsightsSphere bot started ✅")
 
     try:
         await dp.start_polling(
@@ -99,7 +92,6 @@ async def main():
         await db.disconnect()
         await bot.session.close()
         logger.info("Bot stopped cleanly")
-
 
 if __name__ == "__main__":
     asyncio.run(main())
