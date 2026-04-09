@@ -134,13 +134,12 @@ async def suggest_challenge(profile: dict, lang: str) -> dict:    """Pick the mo
 {{"name": "назва виклику", "why": "персональне пояснення"}}
 """
     try:
-        response = await claude.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=300,
-            messages=[{"role": "user", "content": prompt}]
-        )
+        # Gemini request
+        response = await model.generate_content_async(prompt)
+        ai_text = response.text
+
         import json, re
-        match = re.search(r'\{.*\}', response.content[0].text, re.DOTALL)
+        match = re.search(r'\{.*\}', ai_text, re.DOTALL)
         if match:
             data = json.loads(match.group())
             # Find matching template
@@ -148,7 +147,7 @@ async def suggest_challenge(profile: dict, lang: str) -> dict:    """Pick the mo
                 if t["name"] == data.get("name"):
                     return {**t, "why": data.get("why", "")}
     except Exception as e:
-        logger.error(f"Challenge suggestion error: {e}")
+        print(f"Challenge suggestion error: {e}")
 
     # Fallback: first template
     t = templates[0]
