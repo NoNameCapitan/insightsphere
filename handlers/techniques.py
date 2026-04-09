@@ -1,10 +1,11 @@
 import logging
-import google.generativeai as genai
 import os
+import google.generativeai as genai
+from dotenv import load_dotenv
 
+load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel('gemini-1.5-flash')
-
+model = genai.GenerativeModel("gemini-1.5-flash")
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
@@ -122,9 +123,7 @@ async def cb_technique(query: CallbackQuery, db: Database):
     await db.add_xp(user_id, 5)
 
 
-
 async def generate_technique_explanation(tech_id: str, profile: dict, lang: str) -> str:
-
     name = profile.get("name", "")
     big_five = profile.get("big_five", {})
     mindset = profile.get("mindset", "mixed")
@@ -160,9 +159,8 @@ async def generate_technique_explanation(tech_id: str, profile: dict, lang: str)
 💡 Порада від куратора: [1 речення, персоналізована інсайт]
 """
     try:
-        # Запит до Gemini замість Claude
         response = await model.generate_content_async(prompt)
         return response.text
     except Exception as e:
         logger.error(f"Technique explanation error: {e}")
-        return f"Техніка: {tech_id}. На жаль, не вдалося отримати опис через помилку ШІ."
+        return tech_id
