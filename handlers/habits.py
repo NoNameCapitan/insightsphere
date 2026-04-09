@@ -102,17 +102,16 @@ async def analyze_missed_barrier(habit_name: str, reason: str, profile: dict, la
 
     prompt = f"""
 {lang_instruction}
+    prompt += "Перший крок: [дія]"
+    
+    try:
+        # Запит до Gemini
+        response = await model.generate_content_async(prompt)
+        return response.text
+    except Exception as e:
+        print(f"Habit suggestion error: {e}")
+        return ""
 
-Ти — AI-Куратор InsightSphere. Користувач {name} пропустив звичку «{habit_name}».
-
-Причина: {reason}
-
-Профіль: mindset={mindset}, N={big_five.get('N',5)} (невротизм), C={big_five.get('C',5)} (сумлінність)
-
-Зроби:
-1. Affirmation (1 речення — підтримай, НЕ критикуй)
-2. Reflection — поверни причину у нейтральному ключі (1 речення)
-3. Аналіз бар'єру (1-2 речення — що насправді заважає, без психологічного жаргону)
 4. Конкретна адаптація звички (1-2 варіанти, дуже практично)
 5. Мотиваційне закінчення (1 речення)
 
