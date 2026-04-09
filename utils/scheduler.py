@@ -1,13 +1,16 @@
-import asyncio
+import google.generativeai as genai
+import os
 import json
 import logging
 import re
 from datetime import datetime, timezone, date, timedelta
-from anthropic import AsyncAnthropic
+
 from aiogram import Bot
 
 from db.database import Database
 from handlers.report import send_daily_report
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 logger = logging.getLogger(__name__)
 
@@ -73,8 +76,7 @@ CHALLENGE_COMPLETE_TEXTS = {
 
 # ─── Main scheduler ───────────────────────────────────────────────────────────
 
-async def run_scheduler(bot: Bot, db: Database, claude: AsyncAnthropic):
-    logger.info("Scheduler v6 started")
+async def run_scheduler(db: Database, bot: Bot):    logger.info("Scheduler v6 started")
     last_hour_run = -1
     last_weekly_day = -1
     last_reminder_hour = -1
