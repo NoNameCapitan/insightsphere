@@ -257,3 +257,25 @@ async def handle_message(message: Message, db: Database):
             "en": "Something went wrong — try again. Or /start to restart."
         }
         await message.answer(err_msgs.get(lang, err_msgs["uk"]))
+
+def extract_profile_from_response(text: str):
+    import json
+    import re
+    
+    try:
+        # Шукаємо блок JSON у тексті відповіді ШІ
+        json_match = re.search(r'\{.*\}', text, re.DOTALL)
+        if json_match:
+            json_str = json_match.group()
+            profile_data = json.loads(json_str)
+            
+            # Видаляємо JSON та технічні позначки з тексту для користувача
+            visible_text = text.replace(json_str, "").strip()
+            visible_text = re.sub(r'```json|```', '', visible_text).strip()
+            
+            return visible_text, profile_data
+    except Exception as e:
+        print(f"Extraction error: {e}")
+    
+    return text, None
+
