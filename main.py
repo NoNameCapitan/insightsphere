@@ -18,6 +18,11 @@ from handlers.focus import router as focus_router
 from handlers.techniques import router as techniques_router
 from handlers.gamification import router as gamification_router
 from handlers.monetization import router as monetization_router
+from handlers.report import router as report_router
+from handlers.profile import router as profile_router
+from handlers.callbacks import router as callbacks_router
+
+from utils.scheduler import run_scheduler
 
 # Налаштування логування
 logging.basicConfig(
@@ -26,9 +31,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-async def dispatch_daily_reports(bot: Bot, db: Database, utc_hour: int):
-    """Тіло функції не може бути порожнім, додаємо заглушку"""
-    pass
 
 load_dotenv()
 TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
