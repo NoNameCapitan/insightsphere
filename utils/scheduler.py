@@ -103,12 +103,12 @@ async def run_scheduler(db: Database, bot: Bot):
 
             # ── Missed habit check at 08:00 UTC ───────────────────────────
             if h == 8 and m == 0:
-                await dispatch_missed_habit_check(bot, db, claude)
+                await dispatch_missed_habit_check(bot, db,)
 
             # ── Weekly topics every Sunday at 10:00 UTC ───────────────────
             if wd == 6 and h == 10 and m == 0 and wd != last_weekly_day:
                 last_weekly_day = wd
-                await dispatch_weekly_topics(bot, db, claude)
+                await dispatch_weekly_topics(bot, db,)
 
         except Exception as e:
             logger.error(f"Scheduler error: {e}")
@@ -118,7 +118,7 @@ async def run_scheduler(db: Database, bot: Bot):
 
 # ─── Daily reports ────────────────────────────────────────────────────────────
 
-async def dispatch_daily_reports(bot: Bot, db: Database, claude: AsyncAnthropic, utc_hour: int):
+async def dispatch_daily_reports(bot: Bot, db: Database, utc_hour: int):
     users = await db.get_users_for_daily(utc_hour)
     logger.info(f"Daily reports: {len(users)} users at UTC {utc_hour}")
 
@@ -137,16 +137,14 @@ async def dispatch_daily_reports(bot: Bot, db: Database, claude: AsyncAnthropic,
             streak_info = await db.get_gamification_status(user["user_id"])
             streak = streak_info.get("streak_days", 0)
             force_deep = streak in (7,) and not is_prem  # 7-day reward: deep report
+        await send_daily_report(
+            chat_id=user["user_id"],
+            profile=profile,
+            bot=bot,
+            is_premium=is_prem or force_deep,
+            scheduled=True
+        )
 
-            await send_daily_report(
-                chat_id=user["user_id"],
-                profile=profile,
-                db=db,
-                claude=claude,
-                bot=bot,
-                is_premium=is_prem or force_deep,
-                scheduled=True
-            )
 
             # Update activity streak
             streak_result = await db.update_streak(user["user_id"])
