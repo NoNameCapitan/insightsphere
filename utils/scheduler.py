@@ -76,9 +76,12 @@ CHALLENGE_COMPLETE_TEXTS = {
 
 # ─── Main scheduler ───────────────────────────────────────────────────────────
 
-async def run_scheduler(db: Database, bot: Bot):    logger.info("Scheduler v6 started")
+async def run_scheduler(db: Database, bot: Bot):
+    logger.info("Scheduler v6 started")
     last_hour_run = -1
     last_weekly_day = -1
+    last_reminder_hour = -1
+
     last_reminder_hour = -1
 
     while True:
