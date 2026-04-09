@@ -16,9 +16,11 @@ from handlers.habits import router as habits_router
 from handlers.focus import router as focus_router
 from handlers.techniques import router as techniques_router
 from handlers.gamification import router as gamification_router
+async def dispatch_daily_reports(bot: Bot, db: Database, utc_hour: int):
+    pass  # Додайте цей рядок з відступом (4 пробіли)
 
-# Налаштування логування (має бути на самому початку)
 logging.basicConfig(
+
     level=logging.INFO,
     format="%(asctime)s | %(name)s | %(levelname)s | %(message)s"
 )
