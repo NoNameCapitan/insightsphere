@@ -70,14 +70,11 @@ def t(key: str, lang: str, **kwargs) -> str:
     return text.format(**kwargs) if kwargs else text
 
 
-python
 async def suggest_habits(profile: dict, lang: str) -> str:
-name = profile.get("name", "")
-interests = profile.get("interests", [])
-goals = profile.get("goals", [])
-prompt = f"Користувач: {name}. Інтереси: {interests}. Цілі: {goals}. Згенеруй звички."
-try:
-# Запит до Gemini
+    name = profile.get("name", "")
+    interests = profile.get("interests", [])
+    goals = profile.get("goals", [])
+
 response = await model.generate_content_async(prompt)
 return response.text
 except Exception as e:
