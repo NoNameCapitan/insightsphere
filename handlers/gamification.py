@@ -309,16 +309,18 @@ async def cb_challenge_start(query: CallbackQuery, db: Database):
 
 
 @router.callback_query(F.data == "challenge_skip")
-async def cb_challenge_skip(query: CallbackQuery, db: Database):    await query.answer()
+async def cb_challenge_skip(query: CallbackQuery, db: Database):
+    await query.answer()
     # Re-trigger challenge command
     user_id = query.from_user.id
-    lang = await db.get_language(user_id)
-    profile = await db.get_profile(user_id)
+    lang = await db.get_user_language(user_id) or "uk"
+    profile = await db.get_user_profile(user_id)
+    
     if not profile:
         return
 
-    challenge = await suggest_challenge(profile, lang)    
-    start_btns = {"uk": "✅ Приймаю!", "ru": "✅ Принимаю!", "en": "✅ Accept!"}
+    challenge = await suggest_challenge(profile, lang)
+
     from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
     kb = InlineKeyboardMarkup(inline_keyboard=[[
         InlineKeyboardButton(text=start_btns.get(lang, start_btns["uk"]), callback_data=f"challenge_start:{safe_name}"),
