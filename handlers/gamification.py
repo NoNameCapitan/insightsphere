@@ -306,8 +306,7 @@ async def cb_challenge_start(query: CallbackQuery, db: Database):
 
 
 @router.callback_query(F.data == "challenge_skip")
-async def cb_challenge_skip(query: CallbackQuery, db: Database, claude: AsyncAnthropic):
-    await query.answer()
+async def cb_challenge_skip(query: CallbackQuery, db: Database):    await query.answer()
     # Re-trigger challenge command
     user_id = query.from_user.id
     lang = await db.get_language(user_id)
