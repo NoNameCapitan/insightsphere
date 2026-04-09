@@ -137,14 +137,14 @@ async def dispatch_daily_reports(bot: Bot, db: Database, utc_hour: int):
             streak_info = await db.get_gamification_status(user["user_id"])
             streak = streak_info.get("streak_days", 0)
             force_deep = streak in (7,) and not is_prem  # 7-day reward: deep report
-        await send_daily_report(
-            chat_id=user["user_id"],
-            profile=profile,
-            bot=bot,
-            is_premium=is_prem or force_deep,
-            scheduled=True
-        )
-
+        try:
+            await send_daily_report(
+                chat_id=user["user_id"],
+                profile=profile,
+                bot=bot,
+                is_premium=is_prem or force_deep,
+                scheduled=True
+            )
 
             # Update activity streak
             streak_result = await db.update_streak(user["user_id"])
@@ -154,8 +154,7 @@ async def dispatch_daily_reports(bot: Bot, db: Database, utc_hour: int):
         except Exception as e:
             logger.error(f"Daily report error for {user['user_id']}: {e}")
 
-
-# ─── Habit reminders ──────────────────────────────────────────────────────────
+# --- Habit reminders ---
 
 async def dispatch_habit_reminders(bot: Bot, db: Database):
     """Remind users who have active habits but haven't logged today"""
@@ -166,6 +165,7 @@ async def dispatch_habit_reminders(bot: Bot, db: Database):
         try:
             lang = user.get("language", "uk")
             text = HABIT_REMINDER_TEXTS.get(lang, HABIT_REMINDER_TEXTS["uk"])
+
             # Simple gender-neutral form for Ukrainian
             text = text.replace("{fem}", "а" if lang == "uk" else "")
             await bot.send_message(
@@ -178,7 +178,7 @@ async def dispatch_habit_reminders(bot: Bot, db: Database):
             logger.error(f"Habit reminder error for {user['user_id']}: {e}")
 
 
-async def dispatch_missed_habit_check(bot: Bot, db: Database, claude: AsyncAnthropic):
+async def dispatch_missed_habit_check(bot: Bot, db: Database):
     """Check for habits missed yesterday and send empathetic message"""
     users = await db.get_users_with_missed_habits_yesterday()
     logger.info(f"Missed habit check: {len(users)} users")
@@ -186,193 +186,23 @@ async def dispatch_missed_habit_check(bot: Bot, db: Database, claude: AsyncAnthr
     for user in users:
         try:
             lang = user.get("language", "uk")
-            for habit_name in user.get("missed_habits", []):
-                text = MISSED_HABIT_TEXTS.get(lang, MISSED_HABIT_TEXTS["uk"]).format(name=habit_name)
-                await bot.send_message(
-                    chat_id=user["user_id"],
-                    text=text,
-                    parse_mode="Markdown"
-                )
-                await asyncio.sleep(0.5)
+            # Тут використовується глобальна модель Gemini, яку ми налаштували на початку файлу
+            prompt = f"Користувач пропустив звичку. Напиши коротке емпатичне повідомлення підтримки мовою {lang}."
+            
+            response = await model.generate_content_async(prompt)
+            text = response.text
+
+            await bot.send_message(
+                chat_id=user["user_id"],
+                text=text,
+                parse_mode="Markdown"
+            )
+            await asyncio.sleep(0.5)
         except Exception as e:
             logger.error(f"Missed habit check error for {user['user_id']}: {e}")
 
+async def dispatch_weekly_topics(bot: Bot, db: Database):
+    """Send new reflection topics every Monday"""
+    # Логіка щотижневих тем
+    pass
 
-# ─── Streak milestones ────────────────────────────────────────────────────────
-
-async def _handle_streak_milestone(bot: Bot, db: Database, user_id: int, streak_result: dict, lang: str):
-    milestone = streak_result.get("milestone_hit")
-    if not milestone:
-        return
-
-    text = STREAK_REWARD_TEXTS.get(milestone, {}).get(lang)
-    if not text:
-        return
-
-    await bot.send_message(chat_id=user_id, text=text, parse_mode="Markdown")
-
-    # Grant achievement
-    ach_map = {7: "streak_7", 30: "streak_30", 100: "streak_100"}
-    if milestone in ach_map:
-        await db.grant_achievement(user_id, ach_map[milestone])
-
-    # 30-day reward: grant 3 bonus premium reports
-    if milestone == 30:
-        await db.grant_bonus_reports(user_id, 3)
-
-    # 100-day reward: grant 1 month premium
-    if milestone == 100:
-        await db.grant_temporary_premium(user_id, days=30)
-
-
-# ─── Weekly topics ────────────────────────────────────────────────────────────
-
-async def dispatch_weekly_topics(bot: Bot, db: Database, claude: AsyncAnthropic):
-    users = await db.get_users_for_weekly()
-    logger.info(f"Weekly topics: {len(users)} users")
-
-    for user in users:
-        try:
-            profile = dict(user["profile"]) if isinstance(user["profile"], dict) else {}
-            if not profile:
-                continue
-            lang = user.get("language", profile.get("language", "uk"))
-            await send_weekly_expansion(bot, db, claude, user["user_id"], profile, lang)
-            await db.update_last_weekly(user["user_id"])
-            await asyncio.sleep(1)
-        except Exception as e:
-            logger.error(f"Weekly topics error for {user['user_id']}: {e}")
-
-
-async def send_weekly_expansion(bot: Bot, db: Database, claude: AsyncAnthropic,
-                                 chat_id: int, profile: dict, lang: str):
-    name = profile.get("name", "")
-    interests = profile.get("interests", [])
-    values = profile.get("values", [])
-    current_topics = await db.get_weekly_topics(chat_id)
-
-    lang_instruction = {
-        "uk": "Відповідай виключно українською мовою.",
-        "ru": "Отвечай исключительно на русском языке.",
-        "en": "Reply exclusively in English.",
-    }.get(lang, "Відповідай виключно українською мовою.")
-
-    prompt = f"""
-{lang_instruction}
-
-Користувач {name} отримує персональні інсайт-звіти від InsightSphere.
-Його поточні інтереси: {', '.join(interests) if isinstance(interests, list) else interests}
-Його цінності: {', '.join(values) if isinstance(values, list) else values}
-Теми, що вже були запропоновані: {', '.join(current_topics) if current_topics else 'немає'}
-
-Запропонуй 4 нові теми, які:
-1. Логічно розширюють його поточні інтереси
-2. Пов'язані з його цінностями та цілями
-3. Ще не були в його профілі
-4. Достатньо конкретні (не «психологія», а «когнітивні викривлення у переговорах»)
-
-Відповідай СТРОГО у форматі JSON (лише JSON, без пояснень):
-{{"topics": ["тема 1", "тема 2", "тема 3", "тема 4"], "message": "коротке персональне повідомлення 2-3 речення чому ці теми підійдуть саме йому"}}
-"""
-
-    try:
-        response = await claude.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=600,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        text = response.content[0].text
-        json_match = re.search(r'\{.*\}', text, re.DOTALL)
-        if not json_match:
-            return
-
-        data = json.loads(json_match.group())
-        topics = data.get("topics", [])
-        message = data.get("message", "")
-        if not topics:
-            return
-
-        await db.save_weekly_topics(chat_id, topics)
-
-        strings = WEEKLY_TEXTS.get(lang, WEEKLY_TEXTS["uk"])
-        name_part = strings["name_part"].format(name=name) if name else ""
-        topics_text = "\n".join([f"  {i+1}. {t}" for i, t in enumerate(topics)])
-
-        text_out = (
-            strings["greeting"].format(name_part=name_part)
-            + message
-            + strings["add_prompt"]
-            + topics_text
-            + strings["footer"]
-        )
-
-        from keyboards import weekly_topics_keyboard
-        await bot.send_message(
-            chat_id=chat_id,
-            text=text_out,
-            parse_mode="Markdown",
-            reply_markup=weekly_topics_keyboard(topics, lang)
-        )
-    except Exception as e:
-        logger.error(f"Weekly expansion error: {e}")
-
-
-# ─── Challenges ───────────────────────────────────────────────────────────────
-
-async def dispatch_challenge_check(bot: Bot, db: Database, claude: AsyncAnthropic):
-    """Check completed challenges and send special reports"""
-    completed = await db.get_completed_challenges()
-    for item in completed:
-        try:
-            lang = item.get("language", "uk")
-            challenge_name = item.get("challenge_name", "")
-            user_id = item["user_id"]
-            profile = item.get("profile", {})
-
-            # Send completion message
-            text = CHALLENGE_COMPLETE_TEXTS.get(lang, CHALLENGE_COMPLETE_TEXTS["uk"]).format(
-                challenge=challenge_name
-            )
-            await bot.send_message(chat_id=user_id, text=text, parse_mode="Markdown")
-
-            # Generate special challenge report
-            await asyncio.sleep(2)
-            await send_challenge_report(bot, db, claude, user_id, profile, challenge_name, lang)
-
-            await db.mark_challenge_reported(user_id, challenge_name)
-            await db.grant_achievement(user_id, f"challenge_{challenge_name[:20].replace(' ', '_').lower()}")
-
-        except Exception as e:
-            logger.error(f"Challenge check error for {item.get('user_id')}: {e}")
-
-
-async def send_challenge_report(bot: Bot, db: Database, claude: AsyncAnthropic,
-                                  chat_id: int, profile: dict, challenge: str, lang: str):
-    from prompts.daily_report import DAILY_REPORT_SYSTEM_PROMPT
-    from handlers.report import build_report_prompt
-
-    lang_instruction = {
-        "uk": "Відповідай українською.",
-        "ru": "Отвечай на русском.",
-        "en": "Reply in English.",
-    }.get(lang, "Відповідай українською.")
-
-    special_prompt = (
-        f"{lang_instruction}\n\n"
-        f"Користувач щойно завершив особистий виклик: «{challenge}».\n"
-        f"Згенеруй спеціальний інсайт-звіт, присвячений цьому досягненню.\n"
-        f"Підкресли що він зробив, що це означає для його зростання, і який наступний рівень виклику.\n\n"
-        + build_report_prompt(profile, is_premium=True)
-    )
-
-    try:
-        response = await claude.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=1500,
-            system=DAILY_REPORT_SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": special_prompt}]
-        )
-        report = response.content[0].text
-        await bot.send_message(chat_id=chat_id, text=report, parse_mode="Markdown")
-    except Exception as e:
-        logger.error(f"Challenge report error: {e}")
