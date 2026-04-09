@@ -107,12 +107,12 @@ def build_xp_bar(xp: int) -> str:
     return "█" * filled + "░" * (10 - filled) + f" {progress}/100 XP"
 
 
-async def suggest_challenge(profile: dict, lang: str) -> dict:    """Pick the most relevant challenge for this profile"""
 async def suggest_challenge(profile: dict, lang: str) -> dict:
     templates = CHALLENGE_TEMPLATES.get(lang, CHALLENGE_TEMPLATES["uk"])
     interests = profile.get("interests", [])
     values = profile.get("values", [])
-    mindset = profile.get("mindset", "mixed")
+
+mindset = profile.get("mindset", "mixed")
 
 
     lang_instruction = {
