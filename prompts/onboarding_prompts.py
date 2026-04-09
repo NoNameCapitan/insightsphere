@@ -13,7 +13,7 @@ from aiogram.types import Message
 from aiogram.filters import Command
 
 from db.database import Database
-from prompts.onboarding_prompts import ONBOARDING_SYSTEM_PROMPT
+ONBOARDING_SYSTEM_PROMPT = """Ваш текст тут..."""
 from keyboards import main_keyboard
 
 logger = logging.getLogger(__name__)
