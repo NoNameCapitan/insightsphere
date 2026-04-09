@@ -11,7 +11,7 @@ from typing import Callable, Dict, Any, Awaitable
 from aiogram.types import TelegramObject
 
 from db.database import Database
-from handlers import onboarding, report, profile, callbacks, monetization
+from prompts.onboarding_prompts import ONBOARDING_SYSTEM_PROMPT
 from handlers.habits import router as habits_router
 from handlers.focus import router as focus_router
 from handlers.techniques import router as techniques_router
