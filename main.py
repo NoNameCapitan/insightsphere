@@ -1,25 +1,3 @@
-import asyncio
-import logging
-import os
-import google.generativeai as genai
-from dotenv import load_dotenv
-
-load_dotenv()
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-from aiogram import Bot, Dispatcher, BaseMiddleware
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
-from aiogram.fsm.storage.memory import MemoryStorage
-from typing import Callable, Dict, Any, Awaitable
-from aiogram.types import TelegramObject
-
-from db.database import Database
-from handlers import (
-    onboarding, focus, techniques, 
-    habits, report, callbacks, 
-    profile, monetization
-)
-
 async def main():
     # Ініціалізація бази даних
     db = Database()
@@ -47,10 +25,6 @@ async def main():
         await dp.start_polling(bot)
     finally:
         await bot.session.close()
-
-if __name__ == "__main__":
-    asyncio.run(main())
-
 
 if __name__ == "__main__":
     asyncio.run(main())
