@@ -13,7 +13,7 @@ from aiogram.types import Message
 from aiogram.filters import Command
 
 from db.database import Database
-from prompts.onboarding import ONBOARDING_SYSTEM_PROMPT
+from prompts.onboarding_prompts import ONBOARDING_SYSTEM_PROMPT
 from keyboards import main_keyboard
 
 logger = logging.getLogger(__name__)
