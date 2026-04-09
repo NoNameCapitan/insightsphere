@@ -1,11 +1,9 @@
 import json
 import logging
 import re
-import google.generativeai as genai
 import os
+import google.generativeai as genai
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel('gemini-2.5-flash-lite')
 from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.filters import Command
@@ -17,11 +15,30 @@ from keyboards import main_keyboard
 logger = logging.getLogger(__name__)
 router = Router()
 
+# ========================== GEMINI CONFIG ==========================
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+model = genai.GenerativeModel(
+    model_name='gemini-2.5-flash-lite',
+    generation_config={
+        "temperature": 0.75,
+        "max_output_tokens": 1500,
+        "top_p": 0.95,
+        "top_k": 40,
+    },
+    safety_settings=[
+        {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+        {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+    ]
+)
+# ================================================================
+
 RESISTANT_THRESHOLD = 2
 SHORT_ANSWER_WORDS = 5
 
 # ─── Language detection ───────────────────────────────────────────────────────
-
 LANG_TRIGGERS = {
     "uk": ["ua", "українська", "украинська", "украінська"],
     "ru": ["ru", "русский", "русский язык"],
@@ -73,45 +90,38 @@ LIMIT_MSG = {
     "en": "📊 Today's insight was already sent.\n\nWith *Premium* — unlimited reports + PhD depth ⭐\n/support",
 }
 
-
 def detect_language_from_text(text: str) -> str | None:
-    """Try to detect language from an explicit language choice message"""
     t = text.strip().lower()
     for lang, triggers in LANG_TRIGGERS.items():
-        if t in triggers:
+        if any(trigger in t for trigger in triggers):
             return lang
     return None
 
-
 def guess_language_from_text(text: str) -> str:
-    """Guess language from natural text content"""
-    # Simple heuristic: check for Ukrainian-specific letters
     ua_chars = set("іїєґ")
     ru_chars = set("ыъэё")
     text_lower = text.lower()
+    
     if any(c in text_lower for c in ua_chars):
         return "uk"
     if any(c in text_lower for c in ru_chars):
         return "ru"
-    # Check if it's mostly latin
+    
     latin = sum(1 for c in text_lower if c.isalpha() and ord(c) < 128)
     cyrillic = sum(1 for c in text_lower if '\u0400' <= c <= '\u04FF')
+    
     if latin > cyrillic:
         return "en"
-    if cyrillic > 0:
-        return "uk"  # Default to Ukrainian for Cyrillic without markers
     return "uk"
-
 
 def is_short_answer(text: str) -> bool:
     words = text.strip().split()
     evasive = any(phrase in text.lower() for phrase in [
         "не знаю", "незнаю", "може", "може бути", "не впевнений", "не уверен",
-        "не знаю", "наверное", "may be", "maybe", "i don't know", "dunno",
+        "наверное", "may be", "maybe", "i don't know", "dunno",
         "не хочу", "пропустити", "пропустить", "skip"
     ])
     return len(words) <= SHORT_ANSWER_WORDS or evasive
-
 
 def build_resistant_injection(count: int, lang: str) -> str:
     instructions = {
@@ -132,50 +142,46 @@ def build_resistant_injection(count: int, lang: str) -> str:
         },
     }
     tier = min(count, 3)
-    return instructions[tier].get(lang, instructions[tier]["uk"])
-
+    return instructions.get(tier, instructions[1]).get(lang, instructions[1]["uk"])
 
 def extract_profile_from_response(text: str) -> tuple[str, dict | None]:
     if "ONBOARDING_COMPLETE" not in text:
-        return text, None
+        return text.strip(), None
+    
     parts = text.split("ONBOARDING_COMPLETE", 1)
     visible_text = parts[0].strip()
-    profile = None
-    if len(parts) > 1:
-        json_match = re.search(r'\{.*\}', parts[1], re.DOTALL)
-        if json_match:
-            try:
-                profile = json.loads(json_match.group())
-            except json.JSONDecodeError as e:
-                logger.error(f"Profile JSON parse error: {e}")
-    return visible_text, profile
-
+    
+    json_match = re.search(r'\{.*\}', parts[1] if len(parts) > 1 else "", re.DOTALL)
+    if json_match:
+        try:
+            profile = json.loads(json_match.group())
+            return visible_text, profile
+        except json.JSONDecodeError as e:
+            logger.error(f"Profile JSON parse error: {e}")
+    
+    return visible_text, None
 
 # ─── Handlers ────────────────────────────────────────────────────────────────
-
 @router.message(Command("start"))
 async def cmd_start(message: Message, db: Database):
     user_id = message.from_user.id
     username = message.from_user.username
-
     await db.ensure_user(user_id, username)
     await db.reset_user(user_id)
-
-    # Show language selection first
+    
     await message.answer(
         LANG_SELECT_MSG["uk"],
         parse_mode="Markdown"
     )
 
-
 @router.message(F.text & ~F.text.startswith("/"))
 async def handle_message(message: Message, db: Database):
     user_id = message.from_user.id
     user_text = message.text.strip()
-
+    
     await db.ensure_user(user_id, message.from_user.username)
-
-    # Check if onboarding is done
+    
+    # Check if onboarding is already done
     profile = await db.get_profile(user_id)
     if profile and profile.get("onboarding_complete"):
         lang = profile.get("language", "uk")
@@ -186,105 +192,62 @@ async def handle_message(message: Message, db: Database):
         return
 
     # ── Language detection phase ──────────────────────────────────────────
-    history = await db.get_conversation(user_id)
     step = await db.get_onboarding_step(user_id)
-
-    # On first message, detect or ask language
+    
     if step == 0:
         explicit_lang = detect_language_from_text(user_text)
-        if explicit_lang:
-            lang = explicit_lang
-        else:
-            lang = guess_language_from_text(user_text)
-
-        # Save detected language to conversation meta
+        lang = explicit_lang or guess_language_from_text(user_text)
+        
         await db.save_language(user_id, lang)
         await db.increment_onboarding_step(user_id)
-
-        # Send welcome in detected language
+        
         await message.answer(
             WELCOME_MESSAGES.get(lang, WELCOME_MESSAGES["uk"]),
             parse_mode="Markdown"
         )
         return
 
-    # ── Get stored language ────────────────────────────────────────────────
+    # ── Main onboarding flow ─────────────────────────────────────────────
     lang = await db.get_language(user_id) or "uk"
-
-    # Check if user is changing language mid-conversation
+    
+    # Language change check
     explicit_lang = detect_language_from_text(user_text)
     if explicit_lang and explicit_lang != lang:
         await db.save_language(user_id, explicit_lang)
         lang = explicit_lang
 
-    # ── Resistant user detection ───────────────────────────────────────────
+    # Resistant user handling
     if is_short_answer(user_text):
         await db.increment_resistant(user_id)
     else:
         await db.reset_resistant(user_id)
-
+    
     resistant_count = await db.get_resistant_count(user_id)
+    injection = build_resistant_injection(resistant_count, lang) if resistant_count >= 1 else ""
 
-    # ── Build history with optional resistant injection ────────────────────
-    injection = ""
-    if resistant_count >= 1:
-        injection = build_resistant_injection(resistant_count, lang)
-
+    history = await db.get_conversation(user_id)
     history.append({"role": "user", "content": user_text + injection})
+
     try:
-        # Безпечне формування історії (захист від KeyError)
-        processed_history = []
-        for m in history:
-            if isinstance(m, dict) and 'role' in m and 'content' in m:
-                processed_history.append(f"{m['role']}: {m['content']}")
-            else:
-                # Якщо формат невідомий, просто перетворюємо в текст
-                processed_history.append(f"message: {str(m)}")
+        full_prompt = f"{ONBOARDING_SYSTEM_PROMPT}\n\nІсторія діалогу:\n" + \
+                      "\n".join([f"{m['role']}: {m['content']}" for m in history if isinstance(m, dict)])
         
-        history_text = "\n".join(processed_history)
-        full_prompt = f"{ONBOARDING_SYSTEM_PROMPT}\n\nІсторія діалогу:\n{history_text}"
-
-
-        # Запит до Gemini
         response = await model.generate_content_async(full_prompt)
         assistant_text = response.text
 
         visible_text, profile_data = extract_profile_from_response(assistant_text)
-
+        
         if profile_data:
-            await db.update_user_profile(message.from_user.id, profile_data)
-            await db.set_user_status(message.from_user.id, "active")
-            await message.answer(visible_text)
-        else:
-            await message.answer(visible_text)
-
+            await db.update_user_profile(user_id, profile_data)
+            await db.set_user_status(user_id, "active")
+        
+        await message.answer(visible_text)
+        
     except Exception as e:
-        print(f"Error in onboarding: {e}")
+        logger.error(f"Error in onboarding: {e}")
         err_msgs = {
             "uk": "Щось пішло не так — спробуй ще раз. Або /start щоб почати заново.",
             "ru": "Что-то пошло не так — попробуй еще раз. Или /start чтобы начать заново.",
             "en": "Something went wrong — try again. Or /start to restart."
         }
         await message.answer(err_msgs.get(lang, err_msgs["uk"]))
-
-def extract_profile_from_response(text: str):
-    import json
-    import re
-    
-    try:
-        # Шукаємо блок JSON у тексті відповіді ШІ
-        json_match = re.search(r'\{.*\}', text, re.DOTALL)
-        if json_match:
-            json_str = json_match.group()
-            profile_data = json.loads(json_str)
-            
-            # Видаляємо JSON та технічні позначки з тексту для користувача
-            visible_text = text.replace(json_str, "").strip()
-            visible_text = re.sub(r'```json|```', '', visible_text).strip()
-            
-            return visible_text, profile_data
-    except Exception as e:
-        print(f"Extraction error: {e}")
-    
-    return text, None
-
