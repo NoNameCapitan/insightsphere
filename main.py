@@ -12,10 +12,13 @@ from aiogram.types import TelegramObject
 
 from db.database import Database
 from prompts.onboarding_prompts import ONBOARDING_SYSTEM_PROMPT
+from handlers.onboarding import router as onboarding_router
 from handlers.habits import router as habits_router
 from handlers.focus import router as focus_router
 from handlers.techniques import router as techniques_router
 from handlers.gamification import router as gamification_router
+from handlers.monetization import router as monetization_router
+
 async def dispatch_daily_reports(bot: Bot, db: Database, utc_hour: int):
     pass  # Додайте цей рядок з відступом (4 пробіли)
 
