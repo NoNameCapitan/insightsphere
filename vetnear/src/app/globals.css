@@ -1,0 +1,850 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-canvas text-ink antialiased;
+  font-feature-settings: "ss01", "cv01";
+}
+
+/* Larger, finger-friendly tap targets on touch devices. */
+@layer base {
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight text-balance;
+  }
+  a {
+    @apply outline-none;
+  }
+  :focus-visible {
+    @apply ring-2 ring-brand ring-offset-2 ring-offset-canvas rounded-lg;
+  }
+}
+
+@layer components {
+  .container-px {
+    @apply mx-auto w-full max-w-3xl px-4;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5
+      text-base font-semibold transition-all duration-200 active:scale-[0.98]
+      disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-brand {
+    @apply btn bg-brand text-white shadow-card hover:bg-brand-600;
+  }
+  .btn-emergency {
+    @apply btn bg-emergency text-white shadow-card hover:bg-emergency-600;
+  }
+  .btn-ghost {
+    @apply btn border border-brand-100 bg-surface text-ink hover:bg-brand-50 hover:border-brand-200;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5
+      text-sm font-medium transition select-none;
+  }
+  .chip-off {
+    @apply chip border-brand-100 bg-surface text-ink/70 hover:border-brand-300;
+  }
+  .chip-on {
+    @apply chip border-brand bg-brand-50 text-brand-700;
+  }
+  .card {
+    @apply rounded-3xl border border-brand-100 bg-surface shadow-card
+      transition-all duration-200;
+  }
+}
+
+/* Soft premium hovers — desktop pointers only, so mobile taps stay calm. */
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 10px 28px -10px rgb(14 116 102 / 0.22),
+      0 4px 10px -6px rgb(15 34 40 / 0.1);
+    border-color: rgb(14 116 102 / 0.28);
+  }
+  .btn-brand:hover,
+  .btn-emergency:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px -8px rgb(15 34 40 / 0.3);
+  }
+  .btn-brand:active,
+  .btn-emergency:active,
+  .card:active {
+    transform: translateY(0) scale(0.98);
+  }
+}
+
+/* Respect reduced-motion preferences. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Keep the Leaflet map controls above page content but below modals. */
+.leaflet-container {
+  font: inherit;
+  z-index: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Animated paw helper for the landing hero CTA (AnimatedCTAButton.tsx).
+   A small white paw slides in from the left, taps the button, slips away —
+   then repeats from the right and from below. One cycle = 3.6s. Loops while
+   hovered/focused on fine pointers; touch devices get a single cycle via the
+   `animated-cta--tap` class set by the component. The paws are absolutely
+   positioned and pointer-events-free: no layout shift, no blocked clicks.
+--------------------------------------------------------------------------- */
+.animated-cta {
+  position: relative;
+}
+.animated-cta__label {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+}
+.animated-cta__paw {
+  position: absolute;
+  width: 62px;
+  height: 86px;
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 2px rgb(15 42 46 / 0.2))
+    drop-shadow(0 3px 6px rgb(15 42 46 / 0.16))
+    drop-shadow(0 10px 20px rgb(15 42 46 / 0.22));
+  will-change: transform, opacity;
+}
+/* Each paw is drawn pointing up; the static rotation aims its toes at the
+   button, so the keyframes only slide it along one axis. */
+.animated-cta__paw--left {
+  left: -70px;
+  top: 50%;
+  margin-top: -43px;
+  transform: rotate(90deg);
+}
+.animated-cta__paw--right {
+  right: -70px;
+  top: 50%;
+  margin-top: -43px;
+  transform: rotate(-90deg);
+}
+/* Anchored high and tapping deep, so the paw sits mostly on the button and
+   only brushes past the row of secondary buttons underneath. */
+.animated-cta__paw--bottom {
+  left: 62%;
+  top: calc(100% - 16px);
+  margin-left: -31px;
+}
+
+/* Loop while hovered — desktop pointers only, mirroring the hover block above. */
+@media (hover: hover) and (pointer: fine) {
+  .animated-cta:hover {
+    animation: ctaTapPulse 3.6s ease-in-out infinite;
+    box-shadow:
+      0 10px 26px -8px rgb(14 124 102 / 0.5),
+      0 2px 8px -2px rgb(15 42 46 / 0.18);
+  }
+  .animated-cta:hover .animated-cta__paw--left {
+    animation: pawTapLeft 3.6s ease-in-out infinite;
+  }
+  .animated-cta:hover .animated-cta__paw--right {
+    animation: pawTapRight 3.6s ease-in-out infinite;
+  }
+  .animated-cta:hover .animated-cta__paw--bottom {
+    animation: pawTapBottom 3.6s ease-in-out infinite;
+  }
+}
+
+/* Keyboard focus gets the same treatment on any device. */
+.animated-cta:focus-visible {
+  animation: ctaTapPulse 3.6s ease-in-out infinite;
+  box-shadow:
+    0 10px 26px -8px rgb(14 124 102 / 0.5),
+    0 2px 8px -2px rgb(15 42 46 / 0.18);
+}
+.animated-cta:focus-visible .animated-cta__paw--left {
+  animation: pawTapLeft 3.6s ease-in-out infinite;
+}
+.animated-cta:focus-visible .animated-cta__paw--right {
+  animation: pawTapRight 3.6s ease-in-out infinite;
+}
+.animated-cta:focus-visible .animated-cta__paw--bottom {
+  animation: pawTapBottom 3.6s ease-in-out infinite;
+}
+
+/* Single cycle on touch (class managed by AnimatedCTAButton). */
+.animated-cta--tap {
+  animation: ctaTapPulse 3.6s ease-in-out 1;
+}
+.animated-cta--tap .animated-cta__paw--left {
+  animation: pawTapLeft 3.6s ease-in-out 1;
+}
+.animated-cta--tap .animated-cta__paw--right {
+  animation: pawTapRight 3.6s ease-in-out 1;
+}
+.animated-cta--tap .animated-cta__paw--bottom {
+  animation: pawTapBottom 3.6s ease-in-out 1;
+}
+
+/* While pressed, drop the pulse so the .btn active compression shows through. */
+.animated-cta:active {
+  animation: none;
+}
+
+/* Paw travel is along its local axis: negative X/Y pushes the toes into the
+   button (the "tap"), positive retreats. Rotation must be restated in every
+   keyframe because `transform` is replaced, not merged. */
+@keyframes pawTapLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px) rotate(90deg);
+  }
+  4% {
+    opacity: 1;
+    transform: translateX(-18px) rotate(90deg);
+  }
+  11% {
+    transform: translateX(0) rotate(90deg);
+  }
+  14% {
+    transform: translateX(12px) rotate(90deg) scale(0.97);
+  }
+  18% {
+    transform: translateX(0) rotate(90deg);
+  }
+  22% {
+    opacity: 1;
+    transform: translateX(-8px) rotate(90deg);
+  }
+  27%,
+  100% {
+    opacity: 0;
+    transform: translateX(-30px) rotate(90deg);
+  }
+}
+@keyframes pawTapRight {
+  0%,
+  33% {
+    opacity: 0;
+    transform: translateX(30px) rotate(-90deg);
+  }
+  37% {
+    opacity: 1;
+    transform: translateX(18px) rotate(-90deg);
+  }
+  44% {
+    transform: translateX(0) rotate(-90deg);
+  }
+  47% {
+    transform: translateX(-12px) rotate(-90deg) scale(0.97);
+  }
+  51% {
+    transform: translateX(0) rotate(-90deg);
+  }
+  55% {
+    opacity: 1;
+    transform: translateX(8px) rotate(-90deg);
+  }
+  60%,
+  100% {
+    opacity: 0;
+    transform: translateX(30px) rotate(-90deg);
+  }
+}
+@keyframes pawTapBottom {
+  0%,
+  66% {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(10px);
+  }
+  77% {
+    transform: translateY(-4px);
+  }
+  80% {
+    transform: translateY(-14px) scale(0.97);
+  }
+  84% {
+    transform: translateY(-4px);
+  }
+  88% {
+    opacity: 1;
+    transform: translateY(6px);
+  }
+  92%,
+  100% {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+}
+/* The button breathes with each tap: keeps the hover lift, dips ~1.5% at the
+   three moments the paws land (14% / 47% / 80% of the cycle). */
+@keyframes ctaTapPulse {
+  0%,
+  13%,
+  18%,
+  46%,
+  51%,
+  79%,
+  84%,
+  100% {
+    transform: translateY(-1px) scale(1);
+  }
+  15%,
+  48%,
+  81% {
+    transform: translateY(0) scale(0.985);
+  }
+}
+
+/* Reduced motion: no paw, no pulse — the button stays a calm, styled CTA.
+   (The global rule above also collapses durations as a safety net.) */
+@media (prefers-reduced-motion: reduce) {
+  .animated-cta__paw {
+    display: none;
+  }
+  .animated-cta,
+  .animated-cta:hover,
+  .animated-cta:focus-visible,
+  .animated-cta--tap {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Service category cards (ServiceCategoryCard.tsx + icons/ServiceIcons.tsx).
+   Each card shows a custom inline-SVG icon in a soft badge; hovering/focusing
+   plays a small contextual animation (heartbeat, bag bounce, capsule tilt,
+   scissor snip, cozy rock, emergency pulse). Touch devices run one cycle via
+   `service-card--tap`, set by the component. Decorative details (bone, shine,
+   sparkles, Zzz, ring) are hidden until animated, so the static icon stays
+   clean and nothing shifts layout.
+--------------------------------------------------------------------------- */
+.service-card__icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #e8f5f1 0%, #ffffff 92%);
+  border: 1px solid rgb(14 124 102 / 0.14);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    0 1px 2px rgb(15 42 46 / 0.06);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+.service-card__icon svg {
+  width: 34px;
+  height: 34px;
+  display: block;
+}
+.service-card--emergency .service-card__icon {
+  background: linear-gradient(180deg, #fff1f4 0%, #ffffff 92%);
+  border-color: rgb(225 29 72 / 0.16);
+}
+
+/* Animated sub-elements: sensible transform boxes + hidden-until-animated. */
+.service-icon__pulse,
+.service-icon__capsule,
+.service-icon__spark,
+.service-icon__ring,
+.service-icon__soft,
+.service-icon__bag {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.service-icon__capsule {
+  transform: rotate(20deg);
+}
+.service-icon__bone,
+.service-icon__shine,
+.service-icon__spark,
+.service-icon__zzz,
+.service-icon__ring {
+  opacity: 0;
+}
+/* Scissor blades pivot on the screw; the basket rocks around its base. */
+.service-icon__blade {
+  transform-box: view-box;
+  transform-origin: 24px 24.5px;
+}
+.service-icon__blade--b {
+  --snip: 17deg;
+}
+.service-icon__blade--a {
+  --snip: -17deg;
+}
+.service-icon__bed {
+  transform-box: view-box;
+  transform-origin: 24px 38px;
+}
+
+/* Hover (desktop pointers): loopers loop gently, one-shots play once. */
+@media (hover: hover) and (pointer: fine) {
+  .service-card:hover {
+    background-image: linear-gradient(180deg, #ffffff 0%, #f2faf7 100%);
+    transform: translateY(-3px);
+    box-shadow:
+      0 14px 32px -12px rgb(14 116 102 / 0.28),
+      0 5px 12px -6px rgb(15 34 40 / 0.12);
+  }
+  .service-card:hover .service-card__icon {
+    border-color: rgb(14 124 102 / 0.3);
+    transform: scale(1.08);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.9),
+      0 5px 12px -5px rgb(14 124 102 / 0.35);
+  }
+  .service-card--emergency:hover {
+    background-image: linear-gradient(180deg, #ffffff 0%, #fff6f8 100%);
+  }
+  .service-card--emergency:hover .service-card__icon {
+    border-color: rgb(225 29 72 / 0.3);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.9),
+      0 5px 12px -5px rgb(225 29 72 / 0.3);
+  }
+  .service-card:hover .service-icon__pulse {
+    animation: clinicHeartbeat 1.8s ease-in-out infinite;
+  }
+  .service-card:hover .service-icon__bag {
+    animation: storeBagBounce 0.7s ease-out;
+  }
+  .service-card:hover .service-icon__bone {
+    animation: storeBonePop 0.7s ease-out forwards;
+  }
+  .service-card:hover .service-icon__capsule {
+    animation: pharmacyCapsuleTilt 0.9s ease-in-out forwards;
+  }
+  .service-card:hover .service-icon__shine {
+    animation: pharmacyShine 1s ease-in-out;
+  }
+  .service-card:hover .service-icon__plus {
+    animation: pharmacyPlusGlow 1.2s ease-in-out;
+  }
+  .service-card:hover .service-icon__blade {
+    animation: groomingSnip 0.7s ease-in-out;
+  }
+  .service-card:hover .service-icon__spark--1 {
+    animation: groomingSparkle 1.1s ease-out;
+  }
+  .service-card:hover .service-icon__spark--2 {
+    animation: groomingSparkle 1.1s ease-out 0.25s;
+  }
+  .service-card:hover .service-icon__bed {
+    animation: hotelSoftRock 3.4s ease-in-out infinite;
+  }
+  .service-card:hover .service-icon__zzz--1 {
+    animation: hotelZzz 2.8s ease-in-out infinite;
+  }
+  .service-card:hover .service-icon__zzz--2 {
+    animation: hotelZzz 2.8s ease-in-out 0.6s infinite;
+  }
+  .service-card:hover .service-icon__ring,
+  .emergency-cta:hover .service-icon__ring {
+    animation: emergencyPulse 2.2s ease-out infinite;
+  }
+  .service-card:hover .service-icon__soft {
+    animation: genericBreathe 2.6s ease-in-out infinite;
+  }
+}
+
+/* Pressing compresses the card even from the lifted hover state. */
+.service-card:active {
+  transform: scale(0.98);
+}
+
+/* Keyboard focus and touch tap: same animations, one finite run. */
+.service-card:focus-visible .service-icon__pulse,
+.service-card--tap .service-icon__pulse {
+  animation: clinicHeartbeat 1.8s ease-in-out 2;
+}
+.service-card:focus-visible .service-icon__bag,
+.service-card--tap .service-icon__bag {
+  animation: storeBagBounce 0.7s ease-out;
+}
+.service-card:focus-visible .service-icon__bone,
+.service-card--tap .service-icon__bone {
+  animation: storeBonePop 0.7s ease-out forwards;
+}
+.service-card:focus-visible .service-icon__capsule,
+.service-card--tap .service-icon__capsule {
+  animation: pharmacyCapsuleTilt 0.9s ease-in-out forwards;
+}
+.service-card:focus-visible .service-icon__shine,
+.service-card--tap .service-icon__shine {
+  animation: pharmacyShine 1s ease-in-out;
+}
+.service-card:focus-visible .service-icon__plus,
+.service-card--tap .service-icon__plus {
+  animation: pharmacyPlusGlow 1.2s ease-in-out;
+}
+.service-card:focus-visible .service-icon__blade,
+.service-card--tap .service-icon__blade {
+  animation: groomingSnip 0.7s ease-in-out;
+}
+.service-card:focus-visible .service-icon__spark--1,
+.service-card--tap .service-icon__spark--1 {
+  animation: groomingSparkle 1.1s ease-out;
+}
+.service-card:focus-visible .service-icon__spark--2,
+.service-card--tap .service-icon__spark--2 {
+  animation: groomingSparkle 1.1s ease-out 0.25s;
+}
+.service-card:focus-visible .service-icon__bed,
+.service-card--tap .service-icon__bed {
+  animation: hotelSoftRock 3.4s ease-in-out;
+}
+.service-card:focus-visible .service-icon__zzz--1,
+.service-card--tap .service-icon__zzz--1 {
+  animation: hotelZzz 2.8s ease-in-out;
+}
+.service-card:focus-visible .service-icon__zzz--2,
+.service-card--tap .service-icon__zzz--2 {
+  animation: hotelZzz 2.2s ease-in-out 0.6s;
+}
+.service-card:focus-visible .service-icon__ring,
+.service-card--tap .service-icon__ring,
+.emergency-cta:focus-visible .service-icon__ring {
+  animation: emergencyPulse 2.2s ease-out 1;
+}
+.service-card:focus-visible .service-icon__soft,
+.service-card--tap .service-icon__soft {
+  animation: genericBreathe 2.6s ease-in-out 1;
+}
+
+/* Contextual icon keyframes ------------------------------------------------ */
+@keyframes clinicHeartbeat {
+  0%,
+  56%,
+  100% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.18);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.13);
+  }
+}
+@keyframes storeBagBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-5px);
+  }
+  60% {
+    transform: translateY(0.6px);
+  }
+}
+@keyframes storeBonePop {
+  0% {
+    opacity: 0;
+    transform: translate(2px, 4px);
+  }
+  55% {
+    opacity: 1;
+    transform: translate(0, -1.5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+@keyframes pharmacyCapsuleTilt {
+  0% {
+    transform: rotate(20deg);
+  }
+  45% {
+    transform: rotate(3deg);
+  }
+  75% {
+    transform: rotate(14deg);
+  }
+  100% {
+    transform: rotate(10deg);
+  }
+}
+@keyframes pharmacyShine {
+  0% {
+    opacity: 0;
+    transform: translateX(-7px);
+  }
+  20% {
+    opacity: 0.85;
+  }
+  60%,
+  100% {
+    opacity: 0;
+    transform: translateX(22px);
+  }
+}
+@keyframes pharmacyPlusGlow {
+  0%,
+  100% {
+    filter: none;
+  }
+  40% {
+    filter: drop-shadow(0 0 3px rgb(46 164 135 / 0.9));
+  }
+}
+@keyframes groomingSnip {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(var(--snip, -17deg));
+  }
+  70% {
+    transform: rotate(calc(var(--snip, -17deg) * -0.18));
+  }
+}
+@keyframes groomingSparkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.4);
+  }
+  80% {
+    opacity: 0.4;
+    transform: scale(0.7);
+  }
+}
+@keyframes hotelSoftRock {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-2.8deg);
+  }
+  75% {
+    transform: rotate(2.8deg);
+  }
+}
+@keyframes hotelZzz {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  30% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+@keyframes emergencyPulse {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  55%,
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+@keyframes genericBreathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.07);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Emergency CTA (the rose "Термінова ситуація" hero button). A calm ambulance
+   signal, red/rose/white only: on hover/focus the button lifts and glows, two
+   soft rings expand around it, and the beacon icon does one light sweep and a
+   tiny bounce. Touch devices run one finite cycle via `emergency-cta--tap`
+   (set in HomeHero). One very soft idle ring fires every ~10s as a hint.
+--------------------------------------------------------------------------- */
+.emergency-cta {
+  position: relative;
+}
+.emergency-cta__pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.emergency-cta__pulse--one {
+  animation: emergencyIdlePulse 10s ease-out 3s infinite;
+}
+.emergency-cta__sweep {
+  opacity: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .emergency-cta:hover {
+    transform: translateY(-2px);
+    animation: emergencyButtonGlow 2.4s ease-in-out infinite;
+  }
+  .emergency-cta:hover .emergency-cta__pulse--one {
+    animation: emergencyPulseRing 1.8s ease-out infinite;
+  }
+  .emergency-cta:hover .emergency-cta__pulse--two {
+    animation: emergencyPulseRing 1.8s ease-out 0.6s infinite;
+  }
+  .emergency-cta:hover .emergency-cta__sweep {
+    animation: emergencySirenSweep 0.8s ease-in-out 2;
+  }
+  .emergency-cta:hover .emergency-cta__icon {
+    animation: emergencyIconBounce 0.6s ease-out;
+  }
+}
+
+/* Keyboard focus and touch tap: same signal, finite. */
+.emergency-cta:focus-visible {
+  transform: translateY(-2px);
+  animation: emergencyButtonGlow 2.4s ease-in-out infinite;
+}
+.emergency-cta--tap {
+  animation: emergencyButtonGlow 2.4s ease-in-out 1;
+}
+.emergency-cta:focus-visible .emergency-cta__pulse--one,
+.emergency-cta--tap .emergency-cta__pulse--one {
+  animation: emergencyPulseRing 1.8s ease-out;
+}
+.emergency-cta:focus-visible .emergency-cta__pulse--two,
+.emergency-cta--tap .emergency-cta__pulse--two {
+  animation: emergencyPulseRing 1.8s ease-out 0.6s;
+}
+.emergency-cta:focus-visible .emergency-cta__sweep,
+.emergency-cta--tap .emergency-cta__sweep {
+  animation: emergencySirenSweep 0.8s ease-in-out 2;
+}
+.emergency-cta:focus-visible .emergency-cta__icon,
+.emergency-cta--tap .emergency-cta__icon {
+  animation: emergencyIconBounce 0.6s ease-out;
+}
+
+/* Pressing reads as a real press, not an animation frame. */
+.emergency-cta:active {
+  animation: none;
+  transform: scale(0.98);
+}
+
+@keyframes emergencyPulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgb(225 29 72 / 0.35);
+  }
+  75%,
+  100% {
+    box-shadow: 0 0 0 14px rgb(225 29 72 / 0);
+  }
+}
+@keyframes emergencyIdlePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(225 29 72 / 0.22);
+  }
+  16%,
+  100% {
+    box-shadow: 0 0 0 12px rgb(225 29 72 / 0);
+  }
+}
+@keyframes emergencyButtonGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 6px 18px -6px rgb(225 29 72 / 0.45),
+      0 2px 6px -2px rgb(15 42 46 / 0.18);
+  }
+  50% {
+    box-shadow:
+      0 10px 28px -6px rgb(225 29 72 / 0.62),
+      0 2px 6px -2px rgb(15 42 46 / 0.18);
+  }
+}
+@keyframes emergencySirenSweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  30% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(6px);
+  }
+}
+@keyframes emergencyIconBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(-2px);
+  }
+  70% {
+    transform: translateY(0.5px);
+  }
+}
+
+/* Trust-strip popover: gentle fade-in, floats over content (no layout shift). */
+@keyframes trustPopIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+.trust-strip__popover {
+  animation: trustPopIn 0.16s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .trust-strip__popover {
+    animation: none;
+  }
+}
+
+/* Reduced motion: crisp static icons and hover styles only — no rings, no
+   sweep, no movement anywhere in the cards or the emergency CTA. */
+@media (prefers-reduced-motion: reduce) {
+  .service-card *,
+  .emergency-cta,
+  .emergency-cta * {
+    animation: none !important;
+  }
+}
