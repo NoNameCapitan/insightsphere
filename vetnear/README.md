@@ -60,7 +60,7 @@ A single place where a pet owner can, within ~2 minutes, find a relevant nearby:
 ```bash
 npm ci
 npm run dev        # http://localhost:3000
-npm run test       # vitest — 106 unit tests (triage, ranking, distance, assistant, validation, dataset, security)
+npm run test       # vitest — 109 unit tests (triage, ranking, distance, assistant, validation, dataset, security)
 npm run verify     # lint + tsc --noEmit + tests + production build
 npm audit --omit=dev
 ```

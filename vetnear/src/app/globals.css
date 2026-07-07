@@ -28,6 +28,23 @@ body {
   :focus-visible {
     @apply ring-2 ring-brand ring-offset-2 ring-offset-canvas rounded-lg;
   }
+  /* Every interactive element eases between states instead of snapping.
+     Component classes (.btn, .card, …) still override with transition-all. */
+  a,
+  button,
+  summary {
+    @apply transition-colors duration-150 ease-out;
+  }
+  input,
+  select,
+  textarea {
+    @apply transition-[border-color,box-shadow] duration-150 ease-out;
+  }
+  input:hover,
+  select:hover,
+  textarea:hover {
+    border-color: rgb(14 124 102 / 0.35);
+  }
 }
 
 @layer components {
@@ -47,6 +64,15 @@ body {
   }
   .btn-ghost {
     @apply btn border border-brand-100 bg-surface text-ink hover:bg-brand-50 hover:border-brand-200;
+  }
+  /* Quiet secondary quick links under the hero CTA: equal-size compact cards
+     that stay a full visual step below the primary button. */
+  .quick-link {
+    @apply flex min-h-[44px] items-center justify-center gap-1 rounded-xl border
+      border-brand-100/80 bg-surface/80 px-2 py-2 text-center text-xs font-medium
+      leading-tight text-ink/65 transition-all duration-150
+      hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700
+      active:scale-[0.98];
   }
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5
@@ -78,11 +104,29 @@ body {
     transform: translateY(-1px);
     box-shadow: 0 8px 20px -8px rgb(15 34 40 / 0.3);
   }
+  .btn-ghost:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px -8px rgb(15 34 40 / 0.18);
+  }
   .btn-brand:active,
   .btn-emergency:active,
+  .btn-ghost:active,
   .card:active {
     transform: translateY(0) scale(0.98);
   }
+}
+
+/* Quiet inline links (footer, header nav) get an eased underline reveal. */
+.link-quiet {
+  text-decoration-line: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: transparent;
+  transition:
+    color 0.15s ease-out,
+    text-decoration-color 0.15s ease-out;
+}
+.link-quiet:hover {
+  text-decoration-color: currentColor;
 }
 
 /* Respect reduced-motion preferences. */

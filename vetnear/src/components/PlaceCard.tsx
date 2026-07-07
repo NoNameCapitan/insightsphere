@@ -73,7 +73,7 @@ export function PlaceCard({
             <Link
               href={`/place/${place.slug}`}
               onClick={() => track("place_profile_opened", { placeId: place.id })}
-              className="font-display text-base font-bold leading-snug text-ink hover:text-brand"
+              className="font-display text-base font-bold leading-snug text-ink transition-colors hover:text-brand"
             >
               {place.name}
             </Link>

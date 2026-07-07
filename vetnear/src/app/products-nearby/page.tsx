@@ -81,8 +81,13 @@ export default function ProductsNearbyPage() {
 
   return (
     <div className="container-px mx-auto max-w-3xl py-6">
-      <h1 className="font-display text-2xl font-extrabold text-ink">Товари поруч</h1>
-      <p className="mt-1 text-ink/60">Демо-каталог. Наявність орієнтовна — телефонуйте, щоб підтвердити.</p>
+      <div className="flex flex-wrap items-center gap-2">
+        <h1 className="font-display text-2xl font-extrabold text-ink">Товари поруч</h1>
+        <span className="inline-flex items-center gap-1 rounded-full border border-amber/30 bg-amber/10 px-2.5 py-1 text-[11px] font-semibold text-amber">
+          <span aria-hidden>◇</span> демо-каталог
+        </span>
+      </div>
+      <p className="mt-1 text-ink/60">Наявність орієнтовна — телефонуйте, щоб підтвердити.</p>
 
       <div className="mt-4 space-y-2">
         <input
@@ -123,7 +128,7 @@ export default function ProductsNearbyPage() {
                     <Link
                       href={`/place/${place!.slug}`}
                       onClick={() => track("product_result_clicked", { productId: product.id, placeId: place!.id })}
-                      className="font-medium text-ink hover:text-brand"
+                      className="font-medium text-ink transition-colors hover:text-brand"
                     >
                       {place!.name}
                     </Link>

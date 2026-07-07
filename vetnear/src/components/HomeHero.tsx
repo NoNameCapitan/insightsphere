@@ -81,7 +81,7 @@ export function HomeHero() {
         </div>
       </div>
 
-      <div className="container-px pb-8 pt-12 text-center">
+      <div className="container-px pb-10 pt-12 text-center">
         <p className="mx-auto inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-surface/70 px-3 py-1 text-xs font-semibold text-brand-700 backdrop-blur">
           <span aria-hidden>📍</span> Київ · послуги для тварин поруч
         </p>
@@ -93,46 +93,62 @@ export function HomeHero() {
           перетримку в Києві. Без діагнозів і призначень.
         </p>
 
-        <div className="mx-auto mt-7 flex max-w-md flex-col gap-2.5">
-          <AnimatedCTAButton href="/help" className="btn btn-brand text-lg" playOnMount>
+        {/* One clear primary action; everything below it is deliberately quieter. */}
+        <div className="mx-auto mt-8 flex max-w-md flex-col">
+          <AnimatedCTAButton href="/help" className="btn btn-brand py-4 text-lg" playOnMount>
             <span aria-hidden className="text-xl">🐾</span> Знайти допомогу поруч
           </AnimatedCTAButton>
-          <div className="grid grid-cols-3 gap-2">
-            <Link href="/nearby?category=veterinary_clinic&sort=distance" className="btn btn-ghost px-2 text-xs">
-              🩺 Ветклініки
+
+          {/* Secondary quick links — one compact row of equal, low-weight cards. */}
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            <Link href="/nearby?category=veterinary_clinic&sort=distance" className="quick-link">
+              <span aria-hidden>🩺</span> Ветклініки
             </Link>
-            <Link href="/assistant" className="btn btn-ghost px-2 text-xs">
-              ✨ ШІ-асистент
+            <Link href="/assistant" className="quick-link">
+              <span aria-hidden>✨</span> ШІ-асистент
             </Link>
-            <Link href="/my-pets/new" className="btn btn-ghost px-2 text-xs">
-              {hasPets ? "🐾 Улюбленці" : "🐾 Профіль"}
+            <Link href="/my-pets/new" className="quick-link">
+              <span aria-hidden>🐾</span> {hasPets ? "Улюбленці" : "Профіль"}
             </Link>
           </div>
+
+          {/* Safety-critical CTA: set apart by its rose color and outline, not by
+              size or shouting — it must not compete with the primary CTA above. */}
           <Link
             href={EMERGENCY_HREF}
-            className={`btn btn-emergency text-sm emergency-cta${emergencyTap ? " emergency-cta--tap" : ""}`}
+            className={`btn mt-6 border border-emergency/25 bg-emergency-50 py-3 text-sm text-emergency-700 hover:border-emergency/45 hover:bg-emergency-100 emergency-cta${emergencyTap ? " emergency-cta--tap" : ""}`}
             onPointerDown={handleEmergencyPointerDown}
           >
             <span aria-hidden className="emergency-cta__pulse emergency-cta__pulse--one" />
             <span aria-hidden className="emergency-cta__pulse emergency-cta__pulse--two" />
-            <EmergencyCtaIcon className="emergency-cta__icon" /> Термінова ситуація — найближчі ветклініки
+            <span aria-hidden className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-emergency">
+              <EmergencyCtaIcon className="emergency-cta__icon" />
+            </span>
+            Термінова ситуація — найближчі ветклініки
           </Link>
-          <Link href="/add-place" className="text-sm text-brand hover:underline">
-            Я представляю зообізнес → додати безкоштовно
-          </Link>
-          <Link
-            href="/demo"
-            className="mx-auto inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-surface/70 px-3 py-1 text-xs font-medium text-ink/55 transition hover:border-brand-300 hover:text-brand-700"
-          >
-            <span aria-hidden>🎬</span> Демо для журі
-          </Link>
+
+          {/* Tertiary links share one quiet chip style instead of competing. */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            <Link
+              href="/add-place"
+              className="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-surface/70 px-3 py-1.5 text-xs font-medium text-ink/55 transition hover:border-brand-300 hover:text-brand-700"
+            >
+              <span aria-hidden>🏥</span> Я представляю зообізнес — додати безкоштовно
+            </Link>
+            <Link
+              href="/demo"
+              className="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-surface/70 px-3 py-1.5 text-xs font-medium text-ink/55 transition hover:border-brand-300 hover:text-brand-700"
+            >
+              <span aria-hidden>🎬</span> Демо для журі
+            </Link>
+          </div>
         </div>
 
         {/* Static interface preview: shows what a found result looks like.
             Explicitly labeled as an example — no fake map or live data. */}
         <div
           aria-hidden
-          className="pointer-events-none mx-auto mt-8 max-w-md select-none animate-rise text-left"
+          className="pointer-events-none mx-auto mt-10 max-w-md select-none animate-rise text-left"
         >
           <div className="card p-4 shadow-pop">
             <div className="flex items-center justify-between">
@@ -174,8 +190,8 @@ export function HomeHero() {
         </div>
       </div>
 
-      <div className="container-px">
-        <p className="mb-2 text-center text-sm font-semibold text-ink/50">
+      <div className="container-px pt-2">
+        <p className="mb-3 text-center text-sm font-semibold text-ink/50">
           Або оберіть категорію
         </p>
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">

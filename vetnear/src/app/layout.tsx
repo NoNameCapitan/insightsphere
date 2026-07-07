@@ -64,11 +64,11 @@ function Header() {
           {t.brand}
         </Link>
         <div className="flex items-center gap-0.5 overflow-x-auto text-sm">
-          <Link className="whitespace-nowrap rounded-lg px-2.5 py-1.5 hover:bg-brand-50" href="/my-pets">Мої тварини</Link>
-          <Link className="whitespace-nowrap rounded-lg px-2.5 py-1.5 hover:bg-brand-50" href="/nearby">Поруч</Link>
-          <Link className="whitespace-nowrap rounded-lg px-2.5 py-1.5 hover:bg-brand-50" href="/assistant">ШІ-асистент</Link>
-          <Link className="whitespace-nowrap rounded-lg px-2.5 py-1.5 hover:bg-brand-50" href="/add-place">Додати</Link>
-          <Link className="whitespace-nowrap rounded-lg px-2.5 py-1.5 hover:bg-brand-50" href="/for-partners">Партнерам</Link>
+          <Link className="whitespace-nowrap rounded-lg px-2.5 py-1.5 transition-colors hover:bg-brand-50 hover:text-brand-700" href="/my-pets">Мої тварини</Link>
+          <Link className="whitespace-nowrap rounded-lg px-2.5 py-1.5 transition-colors hover:bg-brand-50 hover:text-brand-700" href="/nearby">Поруч</Link>
+          <Link className="whitespace-nowrap rounded-lg px-2.5 py-1.5 transition-colors hover:bg-brand-50 hover:text-brand-700" href="/assistant">ШІ-асистент</Link>
+          <Link className="whitespace-nowrap rounded-lg px-2.5 py-1.5 transition-colors hover:bg-brand-50 hover:text-brand-700" href="/add-place">Додати</Link>
+          <Link className="whitespace-nowrap rounded-lg px-2.5 py-1.5 transition-colors hover:bg-brand-50 hover:text-brand-700" href="/for-partners">Партнерам</Link>
         </div>
       </nav>
     </header>
@@ -83,20 +83,20 @@ function Footer() {
         <p className="mt-2">{t.disclaimerShort}</p>
         <p className="mt-4 text-xs">© {new Date().getFullYear()} {SITE.name}. {t.footer.rights}</p>
         <nav className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-          <Link className="hover:text-brand" href="/pet-services-near-me">Послуги поруч</Link>
-          <Link className="hover:text-brand" href="/pet-map-kyiv">Карта Києва</Link>
-          <Link className="hover:text-brand" href="/vet-clinic-near-me">Ветклініки</Link>
-          <Link className="hover:text-brand" href="/emergency-vet-near-me">Термінова ситуація</Link>
-          <Link className="hover:text-brand" href="/pet-store-near-me">Зоомагазини</Link>
-          <Link className="hover:text-brand" href="/vet-pharmacy-near-me">Ветаптеки</Link>
-          <Link className="hover:text-brand" href="/grooming-near-me">Грумінг</Link>
-          <Link className="hover:text-brand" href="/products-nearby">Товари поруч</Link>
-          <Link className="hover:text-brand" href="/lost-found">Загублені/знайдені</Link>
-          <Link className="hover:text-brand" href="/pet-scan">Скан улюбленця</Link>
-          <Link className="hover:text-brand" href="/city/kyiv/pet-services">Київ: послуги</Link>
-          <Link className="hover:text-brand" href="/city/kyiv/shelters">Київ: притулки</Link>
-          <Link className="hover:text-brand" href="/for-partners">Партнерам</Link>
-          <Link className="hover:text-brand" href="/demo">Демо для журі</Link>
+          <Link className="link-quiet hover:text-brand" href="/pet-services-near-me">Послуги поруч</Link>
+          <Link className="link-quiet hover:text-brand" href="/pet-map-kyiv">Карта Києва</Link>
+          <Link className="link-quiet hover:text-brand" href="/vet-clinic-near-me">Ветклініки</Link>
+          <Link className="link-quiet hover:text-brand" href="/emergency-vet-near-me">Термінова ситуація</Link>
+          <Link className="link-quiet hover:text-brand" href="/pet-store-near-me">Зоомагазини</Link>
+          <Link className="link-quiet hover:text-brand" href="/vet-pharmacy-near-me">Ветаптеки</Link>
+          <Link className="link-quiet hover:text-brand" href="/grooming-near-me">Грумінг</Link>
+          <Link className="link-quiet hover:text-brand" href="/products-nearby">Товари поруч</Link>
+          <Link className="link-quiet hover:text-brand" href="/lost-found">Загублені/знайдені</Link>
+          <Link className="link-quiet hover:text-brand" href="/pet-scan">Скан улюбленця</Link>
+          <Link className="link-quiet hover:text-brand" href="/city/kyiv/pet-services">Київ: послуги</Link>
+          <Link className="link-quiet hover:text-brand" href="/city/kyiv/shelters">Київ: притулки</Link>
+          <Link className="link-quiet hover:text-brand" href="/for-partners">Партнерам</Link>
+          <Link className="link-quiet hover:text-brand" href="/demo">Демо для журі</Link>
         </nav>
       </div>
     </footer>

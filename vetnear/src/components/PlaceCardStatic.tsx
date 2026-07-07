@@ -38,7 +38,7 @@ export function PlaceCardStatic({ place }: { place: Place }) {
         <div className="min-w-0 flex-1">
           <Link
             href={`/place/${place.slug}`}
-            className="font-display font-bold text-ink hover:text-brand"
+            className="font-display font-bold text-ink transition-colors hover:text-brand"
           >
             {place.name}
           </Link>

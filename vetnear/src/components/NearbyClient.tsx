@@ -113,13 +113,13 @@ export function NearbyClient() {
         <div className="flex overflow-hidden rounded-xl border border-brand-100">
           <button
             onClick={() => setView("list")}
-            className={`px-3 py-1.5 text-sm ${view === "list" ? "bg-brand text-white" : "text-ink/60"}`}
+            className={`px-3 py-1.5 text-sm transition-colors ${view === "list" ? "bg-brand text-white" : "text-ink/60 hover:bg-brand-50 hover:text-brand-700"}`}
           >
             Список
           </button>
           <button
             onClick={() => setView("map")}
-            className={`px-3 py-1.5 text-sm ${view === "map" ? "bg-brand text-white" : "text-ink/60"}`}
+            className={`px-3 py-1.5 text-sm transition-colors ${view === "map" ? "bg-brand text-white" : "text-ink/60 hover:bg-brand-50 hover:text-brand-700"}`}
           >
             Карта
           </button>

@@ -1,15 +1,28 @@
 import { BADGE_LABELS } from "@/lib/labels";
 import type { TrustBadge } from "@/lib/types";
 
+// Premium badge styling: icon + explicit color code per trust level
+// (green = confirmed, gray = neutral, amber = caution, rose = emergency).
 const TONE: Record<TrustBadge, string> = {
-  verified: "bg-brand-50 text-brand-700",
-  claimed: "bg-brand-50 text-brand-700",
-  partner: "bg-brand-50 text-brand-700",
-  updated_recently: "bg-brand-50 text-brand-700",
-  open_now: "bg-brand-50 text-brand-700",
-  emergency: "bg-emergency-50 text-emergency-700",
-  data_outdated: "bg-amber/10 text-amber",
-  free: "bg-ink/5 text-ink/60",
+  verified: "border-brand-200 bg-brand-50 text-brand-700",
+  claimed: "border-brand-200 bg-brand-50 text-brand-700",
+  partner: "border-brand-200 bg-brand-50 text-brand-700",
+  updated_recently: "border-brand-200 bg-brand-50 text-brand-700",
+  open_now: "border-brand-200 bg-brand-50 text-brand-700",
+  emergency: "border-emergency/20 bg-emergency-50 text-emergency-700",
+  data_outdated: "border-amber/30 bg-amber/10 text-amber",
+  free: "border-ink/10 bg-ink/5 text-ink/60",
+};
+
+const ICON: Record<TrustBadge, string> = {
+  verified: "✓",
+  claimed: "✓",
+  partner: "★",
+  updated_recently: "↻",
+  open_now: "●",
+  emergency: "＋",
+  data_outdated: "⏳",
+  free: "○",
 };
 
 export function TrustBadges({
@@ -25,8 +38,9 @@ export function TrustBadges({
       {badges.map((b) => (
         <span
           key={b}
-          className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${TONE[b]}`}
+          className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium ${TONE[b]}`}
         >
+          <span aria-hidden>{ICON[b]}</span>
           {BADGE_LABELS[b]}
         </span>
       ))}

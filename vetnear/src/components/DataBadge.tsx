@@ -7,18 +7,30 @@ import type { Place } from "@/lib/types";
 // Computed once at module load (not during render) to satisfy purity rules.
 const STALE_BEFORE_MS = Date.now() - 180 * 24 * 60 * 60 * 1000;
 
+// Provenance chips carry an icon + color code (green = verified, amber =
+// pending/demo, gray = unverified) so data transparency reads as a feature.
 const TONE: Record<string, string> = {
-  demo: "bg-amber/15 text-amber",
-  unverified: "bg-amber/10 text-ink/60",
-  review: "bg-amber/10 text-amber",
-  verified: "bg-brand-50 text-brand-700",
+  demo: "border-amber/30 bg-amber/10 text-amber",
+  unverified: "border-ink/10 bg-ink/5 text-ink/60",
+  review: "border-amber/30 bg-amber/10 text-amber",
+  verified: "border-brand-200 bg-brand-50 text-brand-700",
+};
+
+const TONE_ICON: Record<string, string> = {
+  demo: "◇",
+  unverified: "○",
+  review: "⏳",
+  verified: "✓",
 };
 
 export function DataBadgeChip({ place, className = "" }: { place: Place; className?: string }) {
   const badge = getDataBadge(place);
   if (!badge) return null;
   return (
-    <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${TONE[badge.tone]} ${className}`}>
+    <span
+      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium ${TONE[badge.tone]} ${className}`}
+    >
+      <span aria-hidden>{TONE_ICON[badge.tone]}</span>
       {badge.label}
     </span>
   );
@@ -72,7 +84,7 @@ export function VerifiedMeta({
 
   return (
     <div className={`flex flex-wrap items-center gap-1.5 text-[11px] ${className}`}>
-      <span className="rounded-full bg-brand-50 px-2 py-0.5 font-medium text-brand-700">✓ {verificationLabel(place)}</span>
+      <span className="rounded-full border border-brand-200 bg-brand-50 px-2 py-0.5 font-medium text-brand-700">✓ {verificationLabel(place)}</span>
       {checked && (
         <span className="rounded-full bg-ink/5 px-2 py-0.5 text-ink/60">Востаннє перевірено: {checked}</span>
       )}
@@ -89,7 +101,7 @@ export function VerifiedMeta({
         </span>
       )}
       {stale && (
-        <span className="rounded-full bg-amber/15 px-2 py-0.5 text-amber">Дані можуть бути застарілими</span>
+        <span className="rounded-full border border-amber/30 bg-amber/10 px-2 py-0.5 text-amber">Дані можуть бути застарілими</span>
       )}
     </div>
   );

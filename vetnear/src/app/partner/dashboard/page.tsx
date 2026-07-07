@@ -53,7 +53,9 @@ export default function PartnerDashboardPage() {
       <section className="mt-8">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-lg font-bold text-ink">Показники профілю</h2>
-          <span className="rounded-full bg-amber/15 px-2 py-0.5 text-[11px] font-medium text-amber">демо-дані</span>
+          <span className="inline-flex items-center gap-1 rounded-full border border-amber/30 bg-amber/10 px-2.5 py-1 text-[11px] font-semibold text-amber">
+            <span aria-hidden>◇</span> демо-дані
+          </span>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
           {([

@@ -24,11 +24,11 @@ export default function HomePage() {
     <>
       <HomeHero />
 
-      <TrustStrip className="pt-6" />
+      <TrustStrip className="pt-8" />
 
       {/* Natural local-keyword prose — compact by default, full text kept in
           the DOM (inside <details>) for readers and search engines. */}
-      <section className="container-px mx-auto max-w-3xl py-10">
+      <section className="container-px mx-auto max-w-3xl py-12">
         <h2 className="font-display text-xl font-bold text-ink">
           Ветеринарна допомога поруч — швидко й зрозуміло
         </h2>
@@ -65,9 +65,9 @@ export default function HomePage() {
         </details>
       </section>
 
-      <SocialImpact compact className="pb-4" />
+      <SocialImpact compact />
 
-      <section className="container-px mx-auto max-w-3xl pb-10 pt-4">
+      <section className="container-px mx-auto max-w-3xl pb-8 pt-12">
         <h2 className="font-display text-lg font-bold text-ink">
           Популярні розділи
         </h2>

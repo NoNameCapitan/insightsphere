@@ -53,7 +53,7 @@ localStorage залишається offline-копією — без бекенд
 
 ## 6. Перевірка
 ```bash
-npm run verify   # lint + tsc + 106 тестів + build
+npm run verify   # lint + tsc + 109 тестів + build
 # локально:
 curl -X POST localhost:3000/api/submissions -H 'Content-Type: application/json' \
   -d '{"name":"Тест","category":"veterinary_clinic","district":"obolon","address":"вул. Тестова, 1","phone":"+380441234567","services":[],"animalTypes":["cat"],"tags":[],"emergencyAvailable":true}'
