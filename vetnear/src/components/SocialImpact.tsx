@@ -4,18 +4,20 @@ export function SocialImpact({ className = "", compact = false }: { className?: 
   return (
     <section className={`container-px mx-auto max-w-3xl ${className}`}>
       <div className="overflow-hidden rounded-3xl border border-brand-100 bg-gradient-to-b from-brand-50/60 to-surface shadow-card">
-        <div className="flex items-start gap-4 p-5 sm:gap-6">
+        <div className={`flex items-start gap-4 ${compact ? "p-4" : "p-5 sm:gap-6"}`}>
           <p
             aria-hidden
-            className="font-display text-5xl font-extrabold leading-none text-brand sm:text-6xl"
+            className={`font-display font-extrabold leading-none text-brand ${
+              compact ? "text-4xl" : "text-5xl sm:text-6xl"
+            }`}
           >
             10%
           </p>
           <div className="min-w-0">
-            <h2 className="font-display text-lg font-bold text-ink">
+            <h2 className={`font-display font-bold text-ink ${compact ? "text-base" : "text-lg"}`}>
               Соціальний внесок VetNear
             </h2>
-            <p className="mt-1.5 text-sm text-ink/75">
+            <p className={`mt-1.5 text-ink/75 ${compact ? "text-xs" : "text-sm"}`}>
               10% від платних партнерських підписок, рекламних розміщень та
               спонсорських доходів VetNear буде спрямовано на реабілітацію та
               протезування людей, які постраждали внаслідок російсько-української

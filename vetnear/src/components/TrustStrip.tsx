@@ -13,12 +13,12 @@ import { isSearchablePublicPlace } from "@/lib/data/provenance";
  */
 
 const PUBLIC = PLACES.filter(isSearchablePublicPlace);
-const TOTAL = PUBLIC.length;
-const VERIFIED = PUBLIC.filter((p) => p.verificationStatus === "verified").length;
+export const TOTAL = PUBLIC.length;
+export const VERIFIED = PUBLIC.filter((p) => p.verificationStatus === "verified").length;
 const PENDING = PUBLIC.filter((p) => p.verificationStatus === "needs_review").length;
 
 /** Ukrainian plural form for "місце" (1 місце / 2 місця / 5 місць). */
-function placesWord(n: number): string {
+export function placesWord(n: number): string {
   const d = n % 10;
   const h = n % 100;
   if (d === 1 && h !== 11) return "місце";
@@ -72,20 +72,9 @@ export function TrustStrip({ className = "" }: { className?: string }) {
       className={`container-px mx-auto max-w-3xl ${className}`}
       onKeyDown={(e) => e.key === "Escape" && setOpen(null)}
     >
-      {/* Always-visible trust summary. */}
-      <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-xs font-medium text-ink/55">
-        <span>Пілотна база Києва</span>
-        <span aria-hidden>·</span>
-        <span>
-          {TOTAL} {placesWord(TOTAL)}
-        </span>
-        <span aria-hidden>·</span>
-        <span>{VERIFIED} перевірено</span>
-        <span aria-hidden>·</span>
-        <span>VetNear не замінює ветеринара</span>
-      </p>
-
-      <div ref={stripRef} className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      {/* The one-line trust summary now lives in the hero (HomeHero), so this
+          section is just the four compact disclosures — no repetition. */}
+      <div ref={stripRef} className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {ITEMS.map((item, i) => (
           <div
             key={item.title}

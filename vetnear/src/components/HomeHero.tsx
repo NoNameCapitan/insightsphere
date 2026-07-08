@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { AnimatedCTAButton } from "@/components/AnimatedCTAButton";
 import { EmergencyCtaIcon, ServiceIcon } from "@/components/icons/ServiceIcons";
+import { OrbitalHeroBackground } from "@/components/OrbitalHeroBackground";
 import { ServiceCategoryCard } from "@/components/ServiceCategoryCard";
+import { placesWord, TOTAL, VERIFIED } from "@/components/TrustStrip";
 import { PLACES } from "@/lib/data/places";
 import { isSearchablePublicPlace } from "@/lib/data/provenance";
 import { hasPhoneConfirmedEmergency, SAFE_EMERGENCY_CTA_HREF } from "@/lib/data/verification";
@@ -68,18 +70,7 @@ export function HomeHero() {
 
   return (
     <section className="relative overflow-hidden">
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 grid place-items-center">
-        <div className="relative h-[120vw] max-h-[640px] w-[120vw] max-w-[640px]">
-          {[0.25, 0.45, 0.7, 1].map((s, i) => (
-            <span
-              key={i}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-brand/15"
-              style={{ width: `${s * 100}%`, height: `${s * 100}%` }}
-            />
-          ))}
-          <span className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand" />
-        </div>
-      </div>
+      <OrbitalHeroBackground />
 
       <div className="container-px pb-10 pt-12 text-center">
         <p className="mx-auto inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-surface/70 px-3 py-1 text-xs font-semibold text-brand-700 backdrop-blur">
@@ -142,6 +133,12 @@ export function HomeHero() {
               <span aria-hidden>🎬</span> Демо для журі
             </Link>
           </div>
+
+          {/* Compact trust line — the honest one-liner, stated once. */}
+          <p className="mt-5 text-xs text-ink/45">
+            Пілотна база Києва · {TOTAL} {placesWord(TOTAL)} · {VERIFIED} перевірено ·
+            не замінює ветеринара
+          </p>
         </div>
 
         {/* Static interface preview: shows what a found result looks like.

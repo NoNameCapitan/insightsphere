@@ -863,6 +863,189 @@ body {
   }
 }
 
+/* ---------------------------------------------------------------------------
+   Orbital hero background (OrbitalHeroBackground.tsx). An abstract, low-key
+   "orbital system": thin teal rings, a soft central glow, a few translucent
+   bodies drifting along the orbits and blurred spheres for depth. Everything
+   is transform/opacity only (GPU-friendly), masked to fade at the edges, and
+   fully static under prefers-reduced-motion.
+--------------------------------------------------------------------------- */
+.orbital-bg {
+  mask-image: linear-gradient(to bottom, black 0%, black 62%, transparent 96%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 62%, transparent 96%);
+}
+.orbital-bg__system {
+  position: absolute;
+  left: 50%;
+  top: 300px;
+  width: 680px;
+  height: 680px;
+  transform: translate(-50%, -50%);
+}
+.orbital-bg__core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 220px;
+  height: 220px;
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgb(14 124 102 / 0.12) 0%, rgb(14 124 102 / 0.04) 55%, transparent 72%);
+  animation: orbitalBreathe 9s ease-in-out infinite;
+}
+.orbital-bg__ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  border: 1px solid rgb(14 124 102 / 0.12);
+}
+.orbital-bg__ring--1 { width: 190px; height: 190px; border-color: rgb(14 124 102 / 0.16); }
+.orbital-bg__ring--2 { width: 310px; height: 310px; }
+.orbital-bg__ring--3 { width: 430px; height: 430px; border-color: rgb(14 124 102 / 0.1); }
+.orbital-bg__ring--4 { width: 550px; height: 550px; border-color: rgb(14 124 102 / 0.08); }
+.orbital-bg__ring--5 { width: 670px; height: 670px; border-color: rgb(14 124 102 / 0.06); }
+
+/* An orbit is an invisible rotating disc the size of its ring; the "planet"
+   sits on its top edge, so rotating the disc moves the body along the orbit. */
+.orbital-bg__orbit {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 9999px;
+  will-change: transform;
+}
+.orbital-bg__orbit--1 {
+  width: 190px;
+  height: 190px;
+  margin: -95px 0 0 -95px;
+  animation: orbitalSpin 44s linear infinite;
+}
+.orbital-bg__orbit--2 {
+  width: 310px;
+  height: 310px;
+  margin: -155px 0 0 -155px;
+  animation: orbitalSpin 62s linear infinite reverse;
+}
+.orbital-bg__orbit--3 {
+  width: 430px;
+  height: 430px;
+  margin: -215px 0 0 -215px;
+  animation: orbitalSpin 80s linear infinite;
+}
+.orbital-bg__orbit--4 {
+  width: 550px;
+  height: 550px;
+  margin: -275px 0 0 -275px;
+  animation: orbitalSpin 100s linear infinite reverse;
+}
+.orbital-bg__planet {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  display: block;
+  border-radius: 9999px;
+}
+.orbital-bg__planet--teal {
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  background: radial-gradient(circle at 32% 30%, rgb(255 255 255 / 0.9), rgb(14 124 102 / 0.55) 70%);
+  box-shadow: 0 0 12px 2px rgb(14 124 102 / 0.25);
+  opacity: 0.55;
+}
+.orbital-bg__planet--cream {
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  background: radial-gradient(circle at 32% 30%, rgb(255 255 255 / 0.95), rgb(217 164 65 / 0.5) 72%);
+  box-shadow: 0 0 10px 2px rgb(217 164 65 / 0.22);
+  opacity: 0.5;
+}
+.orbital-bg__planet--teal-sm {
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  background: radial-gradient(circle at 32% 30%, rgb(255 255 255 / 0.9), rgb(46 164 135 / 0.55) 70%);
+  box-shadow: 0 0 8px 1px rgb(46 164 135 / 0.22);
+  opacity: 0.5;
+}
+/* The single, deliberately faint rose accent — a quiet nod to the emergency
+   theme, far too subtle to read as alarm. */
+.orbital-bg__planet--rose {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: radial-gradient(circle at 32% 30%, rgb(255 255 255 / 0.9), rgb(225 29 72 / 0.4) 72%);
+  box-shadow: 0 0 8px 1px rgb(225 29 72 / 0.14);
+  opacity: 0.35;
+}
+
+/* Blurred translucent spheres — parallax-like depth, drifting very slowly. */
+.orbital-bg__sphere {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(18px);
+  will-change: transform;
+}
+.orbital-bg__sphere--1 {
+  left: 12%;
+  top: 18%;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgb(14 124 102 / 0.14), transparent 70%);
+  animation: orbitalDrift1 18s ease-in-out infinite alternate;
+}
+.orbital-bg__sphere--2 {
+  right: 10%;
+  top: 30%;
+  width: 90px;
+  height: 90px;
+  background: radial-gradient(circle, rgb(217 164 65 / 0.12), transparent 70%);
+  animation: orbitalDrift2 22s ease-in-out infinite alternate;
+}
+.orbital-bg__sphere--3 {
+  left: 22%;
+  bottom: 16%;
+  width: 70px;
+  height: 70px;
+  background: radial-gradient(circle, rgb(46 164 135 / 0.13), transparent 70%);
+  animation: orbitalDrift2 16s ease-in-out infinite alternate-reverse;
+}
+.orbital-bg__sphere--4 {
+  right: 24%;
+  bottom: 24%;
+  width: 110px;
+  height: 110px;
+  background: radial-gradient(circle, rgb(14 124 102 / 0.1), transparent 70%);
+  animation: orbitalDrift1 26s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes orbitalSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes orbitalBreathe {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.07); opacity: 0.85; }
+}
+@keyframes orbitalDrift1 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(14px, -10px); }
+}
+@keyframes orbitalDrift2 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-12px, 12px); }
+}
+
+/* Reduced motion: the orbital system stays as a static decoration. */
+@media (prefers-reduced-motion: reduce) {
+  .orbital-bg * {
+    animation: none !important;
+  }
+}
+
 /* Trust-strip popover: gentle fade-in, floats over content (no layout shift). */
 @keyframes trustPopIn {
   from {
