@@ -190,10 +190,17 @@ export function NearbyClient() {
         </ul>
       )}
 
-      <div className="mt-4 text-center text-xs text-ink/40">
-        {geo.coords
-          ? "Локацію визначено"
-          : "Локація не визначена — увімкніть геолокацію або оберіть район"}
+      <div className="mt-4 text-center text-xs text-ink/40" role="status">
+        {geo.status === "prompting" && !geo.coords ? (
+          <span className="inline-flex items-center gap-1.5">
+            <span aria-hidden className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand" />
+            Визначаємо вашу локацію…
+          </span>
+        ) : geo.coords ? (
+          "Локацію визначено"
+        ) : (
+          "Локація не визначена — увімкніть геолокацію або оберіть район"
+        )}
       </div>
     </div>
   );

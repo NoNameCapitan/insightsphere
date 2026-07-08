@@ -23,6 +23,7 @@ export default function MyPetsPage() {
       </div>
       <p className="mt-1 text-ink/60">
         Додайте улюбленця один раз — і пошук буде підбирати релевантні заклади.
+        Дані профілю зберігаються лише у вашому браузері.
       </p>
 
       {pets.length === 0 ? (

@@ -172,6 +172,42 @@ Deployment must run `npm run verify`, not `npm run build` alone.
 - **Env:** set `NEXT_PUBLIC_SITE_URL` (canonical/OG/sitemap); optional `NEXT_PUBLIC_PETSCAN_PROVIDER`; `NEXT_PUBLIC_SHOW_DEMO_EMERGENCY=false` by default (see below). Set `NEXT_TELEMETRY_DISABLED=1` in CI.
 - **Security:** on Next 16.2.9, `npm audit --omit=dev` reports **0 vulnerabilities**.
 
+### Deploy to Vercel (step by step)
+
+1. Push the project to a GitHub/GitLab repository (the app lives at the repo root
+   or point Vercel's **Root Directory** at the folder containing `package.json`).
+2. In Vercel: **Add New → Project → Import** the repository. Framework preset:
+   **Next.js** (auto-detected). Build command `npm run build`, install `npm ci` —
+   the defaults work; no `vercel.json` is required.
+3. Set the environment variables (Project → Settings → Environment Variables):
+   - `NEXT_PUBLIC_SITE_URL` — the production URL (enables correct canonical/OG/sitemap);
+   - everything else is **optional**: `ANTHROPIC_API_KEY` (assistant smart mode),
+     `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` + `ADMIN_TOKEN` +
+     `NEXT_PUBLIC_BACKEND_ENABLED=1` (server submissions/moderation). The app
+     deploys fine with **no env vars at all** (local-data MVP mode).
+4. Deploy. Then re-set `NEXT_PUBLIC_SITE_URL` to the final domain and redeploy once
+   if the first deploy used a preview URL.
+5. Post-deploy smoke test: `/` renders, `/nearby` asks for location and lists
+   places, a `/place/[id]` profile opens with call/route buttons, `/demo` works,
+   and OSM map tiles load from the deployed origin.
+
+### Automation roadmap (n8n — future, external)
+
+n8n is **not** part of this frontend and is intentionally not installed. It is the
+planned external automation layer once the pilot needs recurring data work:
+
+- **Google Places import** — scheduled n8n workflow calls the Places API, writes
+  candidates into the existing review queue format (`data/imports/`), so
+  `/admin/imports/google-places` keeps working unchanged;
+- **Provider submissions** — webhook from the submission API → notification to a
+  moderator (Telegram/email) → manual approve in the moderation panel;
+- **Moderation sync** — push approved places to Supabase / a spreadsheet or
+  Airtable mirror for non-technical review;
+- **Lead notifications** — forward service requests to partners once real
+  partner accounts exist;
+- **Scheduled data refresh** — periodic re-check of phone/website liveness with
+  a "needs re-verification" flag written back into the queue.
+
 ### Emergency demo visibility
 
 Demo/unverified emergency listings are **hidden from public emergency-first results** by
@@ -288,6 +324,7 @@ real one:
 4. **Partner analytics** — replace the demo dashboard numbers with real view/call/route/website events.
 5. **First pilot partners** — onboard a handful of real Kyiv clinics/stores/groomers.
 6. **Production moderation workflow** — queues, audit log, and roles instead of the local demo.
+7. **External automation (n8n)** — scheduled Google Places imports, moderator notifications, data-freshness re-checks (see "Automation roadmap" above; runs outside this frontend).
 
 ## Deployment checklist
 
