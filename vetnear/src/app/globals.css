@@ -65,15 +65,6 @@ body {
   .btn-ghost {
     @apply btn border border-brand-100 bg-surface text-ink hover:bg-brand-50 hover:border-brand-200;
   }
-  /* Quiet secondary quick links under the hero CTA: equal-size compact cards
-     that stay a full visual step below the primary button. */
-  .quick-link {
-    @apply flex min-h-[44px] items-center justify-center gap-1 rounded-xl border
-      border-brand-100/80 bg-surface/80 px-2 py-2 text-center text-xs font-medium
-      leading-tight text-ink/65 transition-all duration-150
-      hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700
-      active:scale-[0.98];
-  }
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5
       text-sm font-medium transition select-none;
@@ -407,6 +398,24 @@ body {
 .service-card--emergency .service-card__icon {
   background: linear-gradient(180deg, #fff1f4 0%, #ffffff 92%);
   border-color: rgb(225 29 72 / 0.16);
+}
+
+/* Care-path cards: a faint per-need background tint (mint for health/meds,
+   peach for food/care, cream for boarding). Hover keeps its own gradient. */
+.service-card--clinic {
+  background-image: linear-gradient(180deg, #ffffff 0%, #eff9f4 100%);
+}
+.service-card--pharmacy {
+  background-image: linear-gradient(180deg, #ffffff 0%, #ecf7f1 100%);
+}
+.service-card--store {
+  background-image: linear-gradient(180deg, #ffffff 0%, #fdf2ec 100%);
+}
+.service-card--grooming {
+  background-image: linear-gradient(180deg, #ffffff 0%, #fbf0e9 100%);
+}
+.service-card--hotel {
+  background-image: linear-gradient(180deg, #ffffff 0%, #faf6ef 100%);
 }
 
 /* Animated sub-elements: sensible transform boxes + hidden-until-animated. */
@@ -864,205 +873,196 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
-   Orbital hero background (OrbitalHeroBackground.tsx). An abstract, low-key
-   "orbital system": thin teal rings, a soft central glow, a few translucent
-   bodies drifting along the orbits and blurred spheres for depth. Everything
-   is transform/opacity only (GPU-friendly), masked to fade at the edges, and
-   fully static under prefers-reduced-motion.
+   Pet-care hero (HomeHero + PetCareCockpit.tsx). The old abstract orbital
+   system is replaced by a warm "care" signature: soft mint/peach aura glows
+   behind the hero, and a premium phone-like cockpit mockup with a pet at the
+   top, a dashed care ring, floating distance chips and a gently beating
+   heart. Pure CSS, transform/opacity only; fully static under reduced motion.
 --------------------------------------------------------------------------- */
-.orbital-bg {
-  mask-image: linear-gradient(to bottom, black 0%, black 62%, transparent 96%);
-  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 62%, transparent 96%);
+.hero-aura {
+  mask-image: linear-gradient(to bottom, black 0%, black 72%, transparent 98%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 72%, transparent 98%);
 }
-.orbital-bg__system {
+.hero-aura__glow {
   position: absolute;
-  left: 50%;
-  top: 300px;
-  width: 680px;
-  height: 680px;
-  transform: translate(-50%, -50%);
-}
-.orbital-bg__core {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 220px;
-  height: 220px;
-  transform: translate(-50%, -50%);
   border-radius: 9999px;
-  background: radial-gradient(circle, rgb(14 124 102 / 0.12) 0%, rgb(14 124 102 / 0.04) 55%, transparent 72%);
-  animation: orbitalBreathe 9s ease-in-out infinite;
+  filter: blur(46px);
 }
-.orbital-bg__ring {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 9999px;
-  border: 1px solid rgb(14 124 102 / 0.12);
+.hero-aura__glow--mint {
+  left: -140px;
+  top: -120px;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgb(14 124 102 / 0.12), transparent 70%);
 }
-.orbital-bg__ring--1 { width: 190px; height: 190px; border-color: rgb(14 124 102 / 0.16); }
-.orbital-bg__ring--2 { width: 310px; height: 310px; }
-.orbital-bg__ring--3 { width: 430px; height: 430px; border-color: rgb(14 124 102 / 0.1); }
-.orbital-bg__ring--4 { width: 550px; height: 550px; border-color: rgb(14 124 102 / 0.08); }
-.orbital-bg__ring--5 { width: 670px; height: 670px; border-color: rgb(14 124 102 / 0.06); }
+.hero-aura__glow--peach {
+  right: -160px;
+  top: 40px;
+  width: 560px;
+  height: 560px;
+  background: radial-gradient(circle, rgb(232 130 95 / 0.13), transparent 70%);
+}
+.hero-aura__glow--soft {
+  left: 30%;
+  top: 260px;
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgb(46 164 135 / 0.08), transparent 70%);
+}
 
-/* An orbit is an invisible rotating disc the size of its ring; the "planet"
-   sits on its top edge, so rotating the disc moves the body along the orbit. */
-.orbital-bg__orbit {
+/* --- Cockpit composition ---------------------------------------------------
+   .cockpit is a fixed-size stage (phone card + floating chips around it).
+   The chips are absolutely positioned INSIDE the stage padding, so nothing
+   can overflow the viewport on 375px screens. */
+.cockpit {
+  position: relative;
+}
+/* Soft care aura immediately behind the phone. */
+.cockpit__aura {
   position: absolute;
   left: 50%;
   top: 50%;
+  width: 130%;
+  height: 110%;
+  transform: translate(-50%, -50%);
   border-radius: 9999px;
+  background:
+    radial-gradient(closest-side, rgb(232 130 95 / 0.14), transparent 78%),
+    radial-gradient(closest-side, rgb(14 124 102 / 0.1) 30%, transparent 80%);
+  filter: blur(6px);
+}
+/* Dashed "care ring" — the search-radius motif, now around the pet. */
+.cockpit__ring {
+  position: absolute;
+  inset: -26px -20px;
+  border: 1.5px dashed rgb(14 124 102 / 0.22);
+  border-radius: 44px;
+}
+.cockpit__ring::before,
+.cockpit__ring::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: rgb(14 124 102 / 0.45);
+}
+.cockpit__ring::before {
+  left: -4px;
+  top: 34%;
+}
+.cockpit__ring::after {
+  right: -4px;
+  bottom: 26%;
+  background: rgb(232 130 95 / 0.55);
+}
+/* Floating distance chips. */
+.cockpit__chip {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  border: 1px solid rgb(14 124 102 / 0.16);
+  background: rgb(255 255 255 / 0.92);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 6px 18px -8px rgb(15 42 46 / 0.25);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgb(15 42 46 / 0.75);
+  white-space: nowrap;
   will-change: transform;
 }
-.orbital-bg__orbit--1 {
-  width: 190px;
-  height: 190px;
-  margin: -95px 0 0 -95px;
-  animation: orbitalSpin 44s linear infinite;
+.cockpit__chip svg {
+  width: 16px;
+  height: 16px;
 }
-.orbital-bg__orbit--2 {
-  width: 310px;
-  height: 310px;
-  margin: -155px 0 0 -155px;
-  animation: orbitalSpin 62s linear infinite reverse;
+/* Chips hang over the card edge, anchored to the gaps BETWEEN content rows
+   so they never cover the mockup's text. Offsets shrink a little on very
+   narrow screens (the hero section clips overflow, so no page scroll). */
+.cockpit__chip--pharmacy {
+  right: -34px;
+  top: 62px;
+  animation: cockpitFloat 7s ease-in-out infinite;
 }
-.orbital-bg__orbit--3 {
-  width: 430px;
-  height: 430px;
-  margin: -215px 0 0 -215px;
-  animation: orbitalSpin 80s linear infinite;
+.cockpit__chip--grooming {
+  left: -38px;
+  top: 131px;
+  animation: cockpitFloat 8.5s ease-in-out 1.2s infinite;
 }
-.orbital-bg__orbit--4 {
-  width: 550px;
-  height: 550px;
-  margin: -275px 0 0 -275px;
-  animation: orbitalSpin 100s linear infinite reverse;
+.cockpit__chip--store {
+  right: -26px;
+  bottom: -14px;
+  animation: cockpitFloat 7.6s ease-in-out 0.6s infinite;
 }
-.orbital-bg__planet {
+@media (max-width: 400px) {
+  .cockpit__chip--pharmacy {
+    right: -20px;
+  }
+  .cockpit__chip--grooming {
+    left: -22px;
+  }
+  .cockpit__chip--store {
+    right: -14px;
+  }
+}
+/* Tiny beating heart on the pet header. */
+.cockpit__heart {
+  animation: cockpitHeart 2.6s ease-in-out infinite;
+  transform-origin: center;
+}
+/* Faint paw prints wandering out of the bottom-left corner. */
+.cockpit__paw {
   position: absolute;
-  left: 50%;
-  top: 0;
-  display: block;
-  border-radius: 9999px;
+  opacity: 0.14;
 }
-.orbital-bg__planet--teal {
-  width: 12px;
-  height: 12px;
-  margin: -6px 0 0 -6px;
-  background: radial-gradient(circle at 32% 30%, rgb(255 255 255 / 0.9), rgb(14 124 102 / 0.55) 70%);
-  box-shadow: 0 0 12px 2px rgb(14 124 102 / 0.25);
-  opacity: 0.55;
+.cockpit__paw--1 {
+  left: -6px;
+  bottom: -20px;
+  width: 26px;
+  height: 26px;
+  transform: rotate(-24deg);
 }
-.orbital-bg__planet--cream {
-  width: 9px;
-  height: 9px;
-  margin: -4.5px 0 0 -4.5px;
-  background: radial-gradient(circle at 32% 30%, rgb(255 255 255 / 0.95), rgb(217 164 65 / 0.5) 72%);
-  box-shadow: 0 0 10px 2px rgb(217 164 65 / 0.22);
-  opacity: 0.5;
-}
-.orbital-bg__planet--teal-sm {
-  width: 7px;
-  height: 7px;
-  margin: -3.5px 0 0 -3.5px;
-  background: radial-gradient(circle at 32% 30%, rgb(255 255 255 / 0.9), rgb(46 164 135 / 0.55) 70%);
-  box-shadow: 0 0 8px 1px rgb(46 164 135 / 0.22);
-  opacity: 0.5;
-}
-/* The single, deliberately faint rose accent — a quiet nod to the emergency
-   theme, far too subtle to read as alarm. */
-.orbital-bg__planet--rose {
-  width: 6px;
-  height: 6px;
-  margin: -3px 0 0 -3px;
-  background: radial-gradient(circle at 32% 30%, rgb(255 255 255 / 0.9), rgb(225 29 72 / 0.4) 72%);
-  box-shadow: 0 0 8px 1px rgb(225 29 72 / 0.14);
-  opacity: 0.35;
+.cockpit__paw--2 {
+  left: 32px;
+  bottom: -38px;
+  width: 20px;
+  height: 20px;
+  transform: rotate(-8deg);
 }
 
-/* Blurred translucent spheres — parallax-like depth, drifting very slowly. */
-.orbital-bg__sphere {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(18px);
-  will-change: transform;
+@keyframes cockpitFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
-.orbital-bg__sphere--1 {
-  left: 12%;
-  top: 18%;
-  width: 120px;
-  height: 120px;
-  background: radial-gradient(circle, rgb(14 124 102 / 0.14), transparent 70%);
-  animation: orbitalDrift1 18s ease-in-out infinite alternate;
-}
-.orbital-bg__sphere--2 {
-  right: 10%;
-  top: 30%;
-  width: 90px;
-  height: 90px;
-  background: radial-gradient(circle, rgb(217 164 65 / 0.12), transparent 70%);
-  animation: orbitalDrift2 22s ease-in-out infinite alternate;
-}
-.orbital-bg__sphere--3 {
-  left: 22%;
-  bottom: 16%;
-  width: 70px;
-  height: 70px;
-  background: radial-gradient(circle, rgb(46 164 135 / 0.13), transparent 70%);
-  animation: orbitalDrift2 16s ease-in-out infinite alternate-reverse;
-}
-.orbital-bg__sphere--4 {
-  right: 24%;
-  bottom: 24%;
-  width: 110px;
-  height: 110px;
-  background: radial-gradient(circle, rgb(14 124 102 / 0.1), transparent 70%);
-  animation: orbitalDrift1 26s ease-in-out infinite alternate-reverse;
+@keyframes cockpitHeart {
+  0%,
+  55%,
+  100% {
+    transform: scale(1);
+  }
+  8% {
+    transform: scale(1.22);
+  }
+  20% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.14);
+  }
 }
 
-@keyframes orbitalSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-@keyframes orbitalBreathe {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-  50% { transform: translate(-50%, -50%) scale(1.07); opacity: 0.85; }
-}
-@keyframes orbitalDrift1 {
-  from { transform: translate(0, 0); }
-  to { transform: translate(14px, -10px); }
-}
-@keyframes orbitalDrift2 {
-  from { transform: translate(0, 0); }
-  to { transform: translate(-12px, 12px); }
-}
-
-/* Reduced motion: the orbital system stays as a static decoration. */
+/* Reduced motion: the cockpit becomes a calm static mockup. */
 @media (prefers-reduced-motion: reduce) {
-  .orbital-bg * {
+  .cockpit__chip,
+  .cockpit__heart {
     animation: none !important;
-  }
-}
-
-/* Trust-strip popover: gentle fade-in, floats over content (no layout shift). */
-@keyframes trustPopIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 4px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-.trust-strip__popover {
-  animation: trustPopIn 0.16s ease-out;
-}
-@media (prefers-reduced-motion: reduce) {
-  .trust-strip__popover {
-    animation: none;
   }
 }
 

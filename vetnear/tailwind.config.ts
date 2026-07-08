@@ -11,8 +11,17 @@ const config: Config = {
     extend: {
       colors: {
         ink: "#0F2A2E", // deep teal-charcoal text
-        canvas: "#F3F7F5", // soft mint-gray page background
+        canvas: "#FAF6EF", // warm cream page background (pet-care warmth)
         surface: "#FFFFFF",
+        // Warm pet-care accent — used for emotion (aura, care details, tints),
+        // never for urgent actions (rose stays reserved for emergency).
+        peach: {
+          DEFAULT: "#E8825F",
+          50: "#FDF2EC",
+          100: "#F9E0D3",
+          200: "#F2C2AB",
+          700: "#B85C3F",
+        },
         brand: {
           DEFAULT: "#0E7C66", // deep trustworthy teal
           50: "#E8F5F1",

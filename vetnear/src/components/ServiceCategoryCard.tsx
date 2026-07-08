@@ -24,6 +24,8 @@ const CARD_VARIANT: Partial<Record<PlaceCategory, string>> = {
 type ServiceCategoryCardProps = {
   category: PlaceCategory;
   label: string;
+  /** Optional one-line explanation shown under the label (care-path cards). */
+  description?: string;
   /** Renders a next/link when set; otherwise a <button> using onClick. */
   href?: string;
   onClick?: () => void;
@@ -41,6 +43,7 @@ type ServiceCategoryCardProps = {
 export function ServiceCategoryCard({
   category,
   label,
+  description,
   href,
   onClick,
   className,
@@ -82,9 +85,14 @@ export function ServiceCategoryCard({
       <span aria-hidden className="service-card__icon">
         <ServiceIcon category={category} />
       </span>
-      <span className="service-card__label text-xs font-semibold leading-tight">
+      <span className="service-card__label text-sm font-bold leading-tight">
         {label}
       </span>
+      {description && (
+        <span className="text-[11px] font-normal leading-snug text-ink/55">
+          {description}
+        </span>
+      )}
     </>
   );
 
