@@ -1,8 +1,14 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import test from "node:test";
 
 import { ARTICLE_ANCHORS } from "../lib/vlk-anchors.ts";
-import { ARTICLE_EXPLANATIONS, EXPLANATION_EDITION } from "../lib/vlk-explanations.ts";
+import {
+  EXPLANATION_DIGEST,
+  EXPLANATION_EDITION,
+  EXPLANATION_META,
+  loadArticleExplanation,
+} from "../lib/vlk-explanations.ts";
 import { OFFICIAL_ARTICLE_EDITION, OFFICIAL_ARTICLE_TEXTS } from "../lib/vlk-official-articles.ts";
 import { ARTICLE_RULES } from "../lib/vlk-rules.ts";
 import { ARTICLES, SPECIALTIES } from "../lib/vlk-sample-data.ts";
@@ -87,47 +93,87 @@ test("every specialty exposes its complete article list", () => {
     dermatologist: 16,
   };
 
+  const specialtyIds = new Set(SPECIALTIES.map((specialty) => specialty.id));
+  const covered = new Set();
+
   for (const specialty of SPECIALTIES) {
     const count = ARTICLES.filter((article) => article.specialties.includes(specialty.id)).length;
     assert.equal(count, expected[specialty.id], specialty.label);
   }
-});
-
-test("every article has an explicit official-explanation status", () => {
-  assert.equal(EXPLANATION_EDITION, "22.08.2025");
-  assert.equal(Object.keys(ARTICLE_EXPLANATIONS).length, 87);
 
   for (const article of ARTICLES) {
-    const explanation = ARTICLE_EXPLANATIONS[article.article];
-    assert.ok(explanation, `Стаття ${article.article}: статус пояснення відсутній`);
-    assert.equal(explanation.article, article.article);
+    for (const id of article.specialties) {
+      assert.ok(specialtyIds.has(id), `Стаття ${article.article}: невідома спеціальність ${id}`);
+      covered.add(article.article);
+    }
+  }
+
+  assert.equal(covered.size, 87, "Кожна з 87 статей має бути доступною через спеціальність");
+});
+
+test("every article has an explicit official-explanation status", async () => {
+  assert.equal(EXPLANATION_EDITION, "22.08.2025");
+  assert.equal(Object.keys(EXPLANATION_META).length, 87);
+
+  let paragraphCount = 0;
+  for (const article of ARTICLES) {
+    const meta = EXPLANATION_META[article.article];
+    assert.ok(meta, `Стаття ${article.article}: статус пояснення відсутній`);
+
+    const explanation = await loadArticleExplanation(article.article);
 
     if (article.article === "87") {
+      assert.equal(meta.status, "absent");
+      assert.equal(meta.anchor, null);
+      assert.equal(meta.paragraphs, 0);
       assert.equal(explanation.status, "absent");
-      assert.equal(explanation.anchor, null);
       assert.deepEqual(explanation.paragraphs, []);
       continue;
     }
 
-    assert.equal(explanation.status, "official", `Стаття ${article.article}: очікується офіційне пояснення`);
+    assert.equal(meta.status, "official", `Стаття ${article.article}: очікується офіційне пояснення`);
+    assert.equal(meta.anchor, ARTICLE_ANCHORS[article.article]);
+    assert.equal(explanation.article, article.article);
     assert.equal(explanation.anchor, ARTICLE_ANCHORS[article.article]);
     assert.ok(explanation.paragraphs.length, `Стаття ${article.article}: порожнє пояснення`);
+    assert.equal(meta.paragraphs, explanation.paragraphs.length);
     assert.match(explanation.paragraphs[0], new RegExp(`Стаття ${article.article}(?:\\b|:)`));
+    paragraphCount += explanation.paragraphs.length;
   }
 
-  const paragraphCount = Object.values(ARTICLE_EXPLANATIONS).reduce(
-    (total, explanation) => total + explanation.paragraphs.length,
-    0,
-  );
   assert.ok(paragraphCount >= 2000, "Масив офіційних пояснень виглядає неповним");
+
+  const article39 = await loadArticleExplanation("39");
   assert.ok(
-    ARTICLE_EXPLANATIONS["39"].paragraphs.some((paragraph) => paragraph.includes("органів-мішеней")),
+    article39.paragraphs.some((paragraph) => paragraph.includes("органів-мішеней")),
     "Стаття 39: контрольний критерій не знайдено",
   );
+  const article86 = await loadArticleExplanation("86");
   assert.ok(
-    ARTICLE_EXPLANATIONS["86"].paragraphs.every((paragraph) => !paragraph.startsWith("{Додаток 2")),
+    article86.paragraphs.every((paragraph) => !paragraph.startsWith("{Додаток 2")),
     "Службова примітка Додатка 2 не повинна входити до пояснення статті 86",
   );
+});
+
+test("split explanation modules reproduce the verified corpus byte for byte", async () => {
+  const numbers = Object.keys(EXPLANATION_META).sort((a, b) => Number(a) - Number(b));
+  assert.equal(numbers.length, 87);
+
+  const parts = [];
+  for (const number of numbers) {
+    const explanation = await loadArticleExplanation(number);
+    parts.push(
+      JSON.stringify({
+        article: explanation.article,
+        status: explanation.status,
+        anchor: explanation.anchor,
+        paragraphs: explanation.paragraphs,
+      }),
+    );
+  }
+
+  const digest = createHash("sha256").update(parts.join("\n")).digest("hex");
+  assert.equal(digest, EXPLANATION_DIGEST, "Дослівний текст пояснень змінився");
 });
 
 test("every TDV row references an existing article and point", () => {
