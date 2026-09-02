@@ -16,6 +16,7 @@ import { TDV_DOCX_URL, TDV_URL } from "@/lib/vlk-links";
 import { ARTICLE_RULES } from "@/lib/vlk-rules";
 import { ARTICLES, type VlkArticle } from "@/lib/vlk-sample-data";
 import { TDV_COLUMNS, TDV_RULES } from "@/lib/vlk-tdv";
+import { TDV_GENERAL_ROWS } from "@/lib/vlk-tdv-general";
 
 type TdvRow = {
   key: string;
@@ -121,7 +122,8 @@ export function TdvDialog({
             Таблиця додаткових вимог · Додаток 3 до Наказу №402
           </DialogTitle>
           <DialogDescription>
-            Усі {TDV_ROWS.length} рядків таблиці для {TDV_ARTICLE_COUNT} статей Розкладу хвороб.
+            Загальні вимоги (зріст, вага, зір, слух) та всі {TDV_ROWS.length} рядків для{" "}
+            {TDV_ARTICLE_COUNT} статей Розкладу хвороб.
             {article
               ? ` Підсвічено статтю ${article.article}${articleRowCount ? "" : " (окремого рядка ТДВ не має)"}.`
               : ""}{" "}
@@ -167,6 +169,60 @@ export function TdvDialog({
               </tr>
             </thead>
             <tbody>
+              <tr>
+                <th
+                  scope="colgroup"
+                  colSpan={TDV_COLUMNS.length + 1}
+                  className={`sticky left-0 bg-[#f4f7f5] px-3 py-2 text-left text-[11px] font-black uppercase tracking-[0.1em] text-[#34736d] ${CELL_GRID} ${GROUP_GRID}`}
+                >
+                  Загальні вимоги до стану здоров’я · передують статті 1
+                </th>
+              </tr>
+              {TDV_GENERAL_ROWS.map((row, index) => {
+                const startsGroup =
+                  index === 0 ||
+                  (TDV_GENERAL_ROWS[index - 1].group ?? TDV_GENERAL_ROWS[index - 1].label) !==
+                    (row.group ?? row.label);
+                const groupBorder = startsGroup ? GROUP_GRID : "";
+                return (
+                  <tr key={row.id} className="bg-white">
+                    <th
+                      scope="row"
+                      className={`sticky left-0 z-10 w-[300px] min-w-[300px] bg-white px-3 py-2 text-left align-top text-[11px] font-bold ${CELL_GRID} ${groupBorder}`}
+                    >
+                      {row.group ? (
+                        <span className="block text-[#34736d]">{row.group}</span>
+                      ) : null}
+                      <span className="block font-bold">{row.label}</span>
+                      {row.note ? (
+                        <span className="mt-0.5 block text-[10px] font-normal leading-4 text-[#8a6a2c]">
+                          {row.note}
+                        </span>
+                      ) : null}
+                    </th>
+                    {TDV_COLUMNS.map((column) => {
+                      const value = row.values[column.id];
+                      return (
+                        <td
+                          key={column.id}
+                          className={`px-2 py-2 text-center align-middle text-[11px] leading-4 ${CELL_GRID} ${groupBorder} ${value ? "font-bold text-[#123f40]" : "text-[#9aa9a7]"}`}
+                        >
+                          {value ?? "—"}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+              <tr>
+                <th
+                  scope="colgroup"
+                  colSpan={TDV_COLUMNS.length + 1}
+                  className={`sticky left-0 bg-[#f4f7f5] px-3 py-2 text-left text-[11px] font-black uppercase tracking-[0.1em] text-[#34736d] ${CELL_GRID} ${GROUP_GRID}`}
+                >
+                  Статті Розкладу хвороб
+                </th>
+              </tr>
               {TDV_ROWS.map((row, index) => {
                 const sameArticle = Boolean(article) && row.article === article?.article;
                 // Кожна стаття відокремлена від попередньої потовщеною лінією.
@@ -219,6 +275,12 @@ export function TdvDialog({
               })}
             </tbody>
           </table>
+
+          <p className="mt-3 text-[10px] leading-4 text-[#6d572d]">
+            Загальні вимоги (зріст, вага, гострота зору, кольоровідчуття, поля зору, рефракція,
+            слух) внесені дослівно з наданого фрагмента Додатка 3 редакції від 22.08.2025.
+            Перед використанням у постанові звірте їх з офіційною таблицею за посиланням угорі.
+          </p>
 
           <h3 className="mt-5 text-[11px] font-black uppercase tracking-[0.12em] text-[#50716e]">
             Повні назви граф{selectedPoint ? ` · позначки для ${pointTitleGenitive(selectedPoint)}` : ""}
