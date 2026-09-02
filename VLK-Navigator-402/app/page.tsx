@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
+  ArrowLeft,
   BookOpen,
   Check,
   ClipboardCheck,
@@ -189,6 +190,8 @@ export default function Home() {
   const [explanation, setExplanation] = useState<ArticleExplanation | undefined>();
   const [explanationState, setExplanationState] = useState<"loading" | "ready" | "error">("ready");
   const listRef = useRef<HTMLDivElement>(null);
+  /** Чи додано запис в історію браузера при переході на робочий екран. */
+  const historyPushedRef = useRef(false);
 
   useEffect(() => {
     const setConnected = () => setOnline(true);
@@ -233,6 +236,30 @@ export default function Home() {
     localStorage.setItem(SESSION_KEY, serializeSession({ basket, examineeType, mode, directory }));
   }, [basket, directory, examineeType, hydrated, mode]);
 
+  /** Повертає застосунок на головний екран вибору спеціальності. */
+  const resetToHome = useCallback(() => {
+    setSpecialty("");
+    setQuery("");
+    setSelectedId("");
+    setSelectedRuleIndex("");
+    setOutcomeFilter("all");
+    setChecked([]);
+    setCopied("");
+  }, []);
+
+  // Апаратна або браузерна кнопка «назад» повертає на головний екран,
+  // а не виводить із застосунку.
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const state = event.state as { vlk?: string } | null;
+      if (state?.vlk === "dashboard") return;
+      historyPushedRef.current = false;
+      resetToHome();
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [resetToHome]);
+
   const searchHits = useMemo(
     () => (query.trim() ? searchArticles(query, directory) : []),
     [directory, query],
@@ -269,6 +296,22 @@ export default function Home() {
   const selectedSpecialty = SPECIALTIES.find((item) => item.id === specialty);
   /** Робочий екран відкривається лише після вибору спеціальності або пошуку. */
   const showDashboard = Boolean(specialty) || Boolean(query.trim());
+
+  useEffect(() => {
+    if (!showDashboard || historyPushedRef.current) return;
+    window.history.pushState({ vlk: "dashboard" }, "");
+    historyPushedRef.current = true;
+  }, [showDashboard]);
+
+  /** Кнопка «назад» у застосунку: віддає крок історії, якщо він наш. */
+  const goHome = useCallback(() => {
+    if (historyPushedRef.current) {
+      historyPushedRef.current = false;
+      window.history.back();
+      return;
+    }
+    resetToHome();
+  }, [resetToHome]);
   const articleRules = selected ? (ARTICLE_RULES[selected.article] ?? []) : [];
   const selectedRule = selectedRuleIndex === "" ? undefined : articleRules[Number(selectedRuleIndex)];
   const articleNumber = selected?.article;
@@ -499,18 +542,58 @@ export default function Home() {
 
       <header className="relative z-30 border-b border-[#173f40]/12 bg-white">
         <div className="mx-auto flex max-w-[1720px] flex-wrap items-center gap-2 px-3 py-2 lg:flex-nowrap lg:px-5">
-          <div className="flex shrink-0 items-center gap-2.5">
-            <div className="grid size-9 place-items-center rounded-lg bg-[#123f40] text-xs font-black text-white">
-              402
-            </div>
+          <div className="flex shrink-0 items-center gap-1.5">
+            {showDashboard ? (
+              <button
+                type="button"
+                onClick={goHome}
+                aria-label="Назад до вибору спеціальності"
+                title="Назад до вибору спеціальності"
+                className={`grid size-10 shrink-0 place-items-center rounded-lg border border-[#173f40]/12 bg-white text-[#2d6f69] transition hover:bg-[#edf4f0] ${FOCUS_RING}`}
+              >
+                <ArrowLeft className="size-4" />
+              </button>
+            ) : null}
+
+            {showDashboard ? (
+              <button
+                type="button"
+                onClick={goHome}
+                aria-label="На головну — вибір спеціальності"
+                title="На головну — вибір спеціальності"
+                className={`grid size-9 shrink-0 place-items-center rounded-lg bg-[#123f40] text-xs font-black text-white transition hover:bg-[#1a5554] ${FOCUS_RING}`}
+              >
+                402
+              </button>
+            ) : (
+              <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#123f40] text-xs font-black text-white">
+                402
+              </div>
+            )}
+
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-bold leading-none">VLK Навігатор</h1>
+                <h1 className="font-bold leading-none">
+                  {showDashboard ? (
+                    <button
+                      type="button"
+                      onClick={goHome}
+                      title="На головну — вибір спеціальності"
+                      className={`rounded font-bold transition hover:text-[#2d6f69] ${FOCUS_RING}`}
+                    >
+                      VLK Навігатор
+                    </button>
+                  ) : (
+                    "VLK Навігатор"
+                  )}
+                </h1>
                 <span className="rounded-full bg-[#e8f1ed] px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#27645f]">
                   MVP
                 </span>
               </div>
-              <p className="mt-1 text-[11px] text-[#657b7a]">Навігація по Наказу МОУ №402</p>
+              <p className="mt-1 text-[11px] text-[#657b7a]">
+                {showDashboard ? "Натисніть, щоб повернутися на головну" : "Навігація по Наказу МОУ №402"}
+              </p>
             </div>
           </div>
 
