@@ -1,8 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { classifyOutcome, outcomeStyles, strictestOutcome } from "../lib/vlk-outcomes.ts";
+import {
+  classifyOutcome,
+  matchesOutcomeFilter,
+  outcomeStyles,
+  OUTCOME_FILTERS,
+  strictestOutcome,
+} from "../lib/vlk-outcomes.ts";
 import { ARTICLE_RULES } from "../lib/vlk-rules.ts";
+import { ARTICLES } from "../lib/vlk-sample-data.ts";
 
 test("every literal outcome in the schedule is classified explicitly", () => {
   const outcomes = new Set();
@@ -97,4 +104,26 @@ test("the summary picks the strictest literal orientation", () => {
   ];
   assert.equal(strictestOutcome(onlyNeutral).article, "73");
   assert.equal(strictestOutcome([]), undefined);
+});
+
+test("the outcome filter selects articles that contain such a literal point", () => {
+  const outcomesOf = (article) => (ARTICLE_RULES[article] ?? []).map((rule) => rule.outcome);
+
+  assert.ok(matchesOutcomeFilter(outcomesOf("39"), "all"));
+  // Стаття 73 має лише пункти з результатом «-».
+  assert.ok(matchesOutcomeFilter(outcomesOf("73"), "literal"));
+  assert.ok(!matchesOutcomeFilter(outcomesOf("73"), "fit"));
+  assert.ok(!matchesOutcomeFilter(outcomesOf("73"), "unfit"));
+  // Стаття 2 — «Непридатні… з переоглядом», теж категорія «Непридатний».
+  assert.ok(matchesOutcomeFilter(outcomesOf("2"), "unfit"));
+  assert.ok(matchesOutcomeFilter(outcomesOf("61"), "unfit"));
+  assert.ok(matchesOutcomeFilter(outcomesOf("61"), "fit"));
+
+  const filtered = ARTICLES.filter((article) =>
+    matchesOutcomeFilter(outcomesOf(article.article), "unfit"),
+  );
+  assert.ok(filtered.length > 0 && filtered.length < ARTICLES.length);
+  for (const filter of OUTCOME_FILTERS) {
+    assert.equal(typeof filter.label, "string");
+  }
 });

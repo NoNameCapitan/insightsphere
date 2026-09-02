@@ -167,3 +167,27 @@ export function strictestOutcome<T extends { outcome: string }>(items: readonly 
   }
   return best;
 }
+
+/**
+ * Фільтр списку статей за категорією результату.
+ *
+ * Фільтр показує статті, у яких є хоча б один пункт із таким дослівним
+ * результатом. Він не приписує статті єдину категорію придатності — у більшості
+ * статей пункти мають різні результати.
+ */
+export const OUTCOME_FILTERS = [
+  { id: "all", label: "Усі результати", kinds: [] as OutcomeKind[] },
+  { id: "unfit", label: "Непридатний", kinds: ["unfit", "unfit-review"] as OutcomeKind[] },
+  { id: "temporary", label: "Тимчасово непридатний", kinds: ["temporary"] as OutcomeKind[] },
+  { id: "limited", label: "Визначені види служби", kinds: ["limited"] as OutcomeKind[] },
+  { id: "fit", label: "Придатний", kinds: ["fit"] as OutcomeKind[] },
+  { id: "literal", label: "Без готової категорії", kinds: ["none", "unknown"] as OutcomeKind[] },
+] as const;
+
+export type OutcomeFilterId = (typeof OUTCOME_FILTERS)[number]["id"];
+
+export function matchesOutcomeFilter(outcomes: readonly string[], filter: OutcomeFilterId) {
+  const entry = OUTCOME_FILTERS.find((item) => item.id === filter);
+  if (!entry || !entry.kinds.length) return true;
+  return outcomes.some((outcome) => entry.kinds.includes(classifyOutcome(outcome).kind));
+}

@@ -89,3 +89,21 @@ test("highlighting marks the matched fragment", () => {
   const apostrophe = highlightParts("хвороби м’яких тканин", "мяких");
   assert.ok(apostrophe.some((part) => part.match && part.text === "м’яких"));
 });
+
+test("highlighting follows word forms and Cyrillic ICD codes", () => {
+  const marked = (text, query) =>
+    highlightParts(text, query)
+      .filter((part) => part.match)
+      .map((part) => part.text);
+
+  // Запит «гіпертонія» має підсвітити «гіпертонічна» у дослівному тексті.
+  assert.deepEqual(
+    marked("Включено: хвороби з підвищеним тиском I10-I15 (гіпертонічна хвороба)", "гіпертонія"),
+    ["гіпертонічна"],
+  );
+  // Офіційний текст пише коди кирилицею.
+  assert.deepEqual(marked("підвищеним тиском І10-І15", "I10"), ["І10-І15"]);
+  // Коротка основа не повинна чіпати чужі слова.
+  assert.deepEqual(marked("менінгіт, ураження меніска коліна", "меніск"), ["меніска"]);
+  assert.deepEqual(marked("Хвороби з підвищеним тиском", ""), []);
+});

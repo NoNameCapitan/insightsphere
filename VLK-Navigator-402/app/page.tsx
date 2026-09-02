@@ -11,6 +11,7 @@ import {
   FileText,
   History,
   ListPlus,
+  Maximize2,
   Plus,
   Printer,
   RotateCcw,
@@ -48,6 +49,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SwRegister } from "@/components/sw-register";
+import { TdvDialog } from "@/components/vlk/tdv-dialog";
 import { ARTICLE_RULES, type ArticleRule } from "@/lib/vlk-rules";
 import {
   ARTICLES,
@@ -57,7 +59,13 @@ import {
   type SpecialtyId,
   type VlkArticle,
 } from "@/lib/vlk-sample-data";
-import { outcomeStyles, strictestOutcome } from "@/lib/vlk-outcomes";
+import {
+  matchesOutcomeFilter,
+  outcomeStyles,
+  OUTCOME_FILTERS,
+  strictestOutcome,
+  type OutcomeFilterId,
+} from "@/lib/vlk-outcomes";
 import {
   highlightParts,
   REASON_LABELS,
@@ -170,6 +178,7 @@ export default function Home() {
   const [directory, setDirectory] = useState<DoctorDirectory>(EMPTY_DIRECTORY);
   const [draftOpen, setDraftOpen] = useState(false);
   const [allTdvColumns, setAllTdvColumns] = useState(false);
+  const [outcomeFilter, setOutcomeFilter] = useState<OutcomeFilterId>("all");
   const [copied, setCopied] = useState<"reference" | "draft" | "">("");
   const [online, setOnline] = useState(true);
   const [hydrated, setHydrated] = useState(false);
@@ -237,7 +246,21 @@ export default function Home() {
     [specialty],
   );
 
-  const listArticles = query.trim() ? searchResults : specialtyArticles;
+  const baseArticles = query.trim() ? searchResults : specialtyArticles;
+  // Фільтр показує статті, у яких є хоча б один пункт із такою категорією
+  // дослівного результату. Стаття не отримує єдиної категорії придатності.
+  const listArticles = useMemo(
+    () =>
+      outcomeFilter === "all"
+        ? baseArticles
+        : baseArticles.filter((article) =>
+            matchesOutcomeFilter(
+              (ARTICLE_RULES[article.article] ?? []).map((rule) => rule.outcome),
+              outcomeFilter,
+            ),
+          ),
+    [baseArticles, outcomeFilter],
+  );
   const selected =
     listArticles.find((article) => article.id === selectedId) ?? listArticles[0];
   const selectedSpecialty = SPECIALTIES.find((item) => item.id === specialty)!;
@@ -671,6 +694,31 @@ export default function Home() {
                 );
               })}
             </div>
+            <div className="mt-2">
+              <label className="block text-[10px] font-black uppercase tracking-[0.12em] text-[#5b7472]" htmlFor="outcome-filter">
+                Фільтр за результатом
+              </label>
+              <Select
+                value={outcomeFilter}
+                onValueChange={(value) => setOutcomeFilter(value as OutcomeFilterId)}
+              >
+                <SelectTrigger id="outcome-filter" className="mt-1 h-10 w-full bg-[#f7faf8] text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {OUTCOME_FILTERS.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {outcomeFilter === "all" ? null : (
+                <p className="mt-1 text-[10px] leading-4 text-[#607775]">
+                  Показано статті, де є хоча б один пункт із таким дослівним результатом.
+                </p>
+              )}
+            </div>
           </div>
 
           <div
@@ -684,7 +732,6 @@ export default function Home() {
                   const isSelected = selected?.id === article.id;
                   const hit = hitsById.get(article.id);
                   const reasons = hit?.reasons ?? [];
-                  const rules = ARTICLE_RULES[article.article] ?? [];
                   return (
                     <li key={article.id}>
                       <button
@@ -729,27 +776,6 @@ export default function Home() {
                         </span>
                       </button>
 
-                      {isSelected && rules.length ? (
-                        <div className="mt-1 flex flex-wrap gap-1 px-1 pb-1">
-                          {rules.map((rule, index) => {
-                            const style = outcomeStyles(rule.outcome);
-                            const active = selectedRuleIndex === String(index);
-                            return (
-                              <button
-                                key={`${article.article}-${rule.point}-${index}`}
-                                type="button"
-                                onClick={() => selectRule(String(index))}
-                                aria-pressed={active}
-                                title={rule.condition}
-                                className={`flex min-h-9 items-center gap-1.5 rounded-md border px-2 py-1 text-[10px] font-bold transition ${FOCUS_RING} ${active ? "border-[#c58b28]/45 bg-[#fff8e7]" : "border-[#173f40]/10 bg-white hover:bg-[#f4f8f6]"}`}
-                              >
-                                <span className={`size-2 rounded-full ${style.dot}`} aria-hidden />
-                                {pointLabel(rule.point)}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      ) : null}
                     </li>
                   );
                 })}
@@ -783,10 +809,10 @@ export default function Home() {
                         Стаття {selected.article} · {specialtyLabels(selected)}
                       </p>
                       <h2 className="mt-1 text-lg font-bold leading-tight sm:text-xl">
-                        {selected.title}
+                        <Highlighted text={selected.title} query={query} />
                       </h2>
                       <p className="mt-1 break-words text-xs font-black text-[#123f40]">
-                        МКХ-10: {selected.icd}
+                        МКХ-10: <Highlighted text={selected.icd} query={query} />
                       </p>
                     </div>
                   </div>
@@ -829,23 +855,41 @@ export default function Home() {
                         Включено · дослівно
                       </p>
                       <p className="mt-1 max-h-40 overflow-y-auto break-words pr-1 text-[11px] leading-[1.15rem] text-[#425f5d] scrollbar-thin">
-                        {selected.officialIncluded}
+                        <Highlighted text={selected.officialIncluded} query={query} />
                       </p>
                     </div>
                     <div className="mt-2 border-t border-[#173f40]/8 pt-2">
                       <p className="text-[9px] font-black uppercase tracking-[0.11em] text-[#6a7e7c]">
                         Коротко для навігації · не нормативний текст
                       </p>
-                      <p className="mt-1 text-xs leading-5 text-[#5d7472]">{selected.summary}</p>
+                      <p className="mt-1 text-xs leading-5 text-[#5d7472]">
+                        <Highlighted text={selected.summary} query={query} />
+                      </p>
                     </div>
                   </div>
 
                   <div
                     className={`min-w-0 rounded-lg border p-3 ${selectedRule && tdvRule ? "border-[#ba4a4a]/18 bg-[#fff3f1]" : "border-[#173f40]/10 bg-white"}`}
                   >
-                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#50716e]">
-                      ТДВ · Додаток 3
-                    </p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#50716e]">
+                        ТДВ · Додаток 3
+                      </p>
+                      <TdvDialog
+                        article={selected}
+                        selectedPoint={selectedRule?.point}
+                        trigger={
+                          <button
+                            type="button"
+                            aria-label="Відкрити таблицю додаткових вимог на весь екран"
+                            title="Відкрити таблицю на весь екран"
+                            className={`grid size-7 shrink-0 place-items-center rounded-md border border-[#173f40]/12 bg-white text-[#2d6f69] hover:bg-[#edf5f1] ${FOCUS_RING}`}
+                          >
+                            <Maximize2 className="size-3.5" />
+                          </button>
+                        }
+                      />
+                    </div>
                     {!selectedRule ? (
                       <>
                         <p className="mt-1 text-sm font-bold">Оберіть пункт</p>
@@ -905,7 +949,7 @@ export default function Home() {
                             {pointLabel(rule.point)}
                           </span>
                           <span className="mt-0.5 block text-xs leading-5 text-[#294b4b] sm:text-sm">
-                            {rule.condition}
+                            <Highlighted text={rule.condition} query={query} />
                           </span>
                           <span className="mt-1 block text-[11px] leading-4 text-[#4a6664]">
                             Результат за Розкладом: «{rule.outcome}»
@@ -1030,7 +1074,7 @@ export default function Home() {
                                   key={`${selected.article}-${selectedRule.point}-${index}`}
                                   className="text-[11px] leading-[1.2rem] text-[#4d4937]"
                                 >
-                                  {paragraph}
+                                  <Highlighted text={paragraph} query={query} />
                                 </p>
                               ))}
                             </div>
@@ -1063,7 +1107,7 @@ export default function Home() {
                                   key={`${selected.article}-explanation-${index}`}
                                   className="text-[11px] leading-5 text-[#405c5a]"
                                 >
-                                  {paragraph}
+                                  <Highlighted text={paragraph} query={query} />
                                 </p>
                               ))}
                             </div>
@@ -1116,7 +1160,21 @@ export default function Home() {
                         Порожня клітинка не є автоматичним підтвердженням придатності.
                       </p>
                     </div>
-                    <div className="flex shrink-0 gap-1">
+                    <div className="flex shrink-0 flex-wrap gap-1">
+                      <TdvDialog
+                        article={selected}
+                        selectedPoint={selectedRule?.point}
+                        trigger={
+                          <Button
+                            type="button"
+                            size="sm"
+                            className="h-9 bg-[#123f40] text-[10px] text-white hover:bg-[#1a5554]"
+                          >
+                            <Maximize2 />
+                            Відкрити на весь екран
+                          </Button>
+                        }
+                      />
                       <Button asChild variant="outline" size="sm" className="h-9 text-[10px]">
                         <a href={TDV_URL} target="_blank" rel="noreferrer">
                           ТДВ у №402 <ExternalLink />

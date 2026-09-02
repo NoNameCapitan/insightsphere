@@ -315,27 +315,58 @@ export function searchArticles(
 
 export type HighlightPart = { text: string; match: boolean };
 
+const WORD_PATTERN = /[\p{L}\p{N}][\p{L}\p{N}’'`´ʼ.\-]*/gu;
+
+/** Регістронезалежне слово без апострофів і кінцевої пунктуації. */
+function foldWord(value: string) {
+  return value
+    .toLocaleLowerCase("uk")
+    .replace(APOSTROPHES, "")
+    .replace(/^[.\-]+|[.\-]+$/g, "");
+}
+
 /**
- * Розбиває текст на частини для підсвічування збігу. Апостроф у тексті
- * ігнорується, щоб «мязів» підсвітило «м’язів».
+ * Основа слова для підсвічування словоформ: «гіпертонія» підсвічує
+ * «гіпертонічна», але «меніск» не чіпає «менінгіт».
+ */
+function highlightStem(term: string) {
+  return term.length > 5 ? term.slice(0, Math.max(5, term.length - 2)) : term;
+}
+
+/**
+ * Розбиває текст на частини для підсвічування збігу. Підсвічується ціле слово:
+ * словоформа того самого кореня, а для кодів МКХ — кирилиця нарівні з
+ * латиницею («I10» підсвічує «І10-І15»).
  */
 export function highlightParts(text: string, query: string): HighlightPart[] {
   const terms = foldText(query)
     .split(" ")
-    .filter((term) => term.length >= 2)
-    .sort((a, b) => b.length - a.length);
+    .filter((term) => term.length >= 2);
   if (!terms.length) return [{ text, match: false }];
 
-  const patterns = terms.map((term) => {
-    const escaped = [...term].map((character) => character.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-    return escaped.join("[’'`´ʼ‘]?");
-  });
-  const regex = new RegExp(`(${patterns.join("|")})`, "giu");
+  const stems = terms.map((term) => ({
+    term,
+    stem: highlightStem(term),
+    code: parseQueryCode(term) ? latinizeCode(term) : "",
+  }));
+
+  const matchesTerm = (word: string) => {
+    const folded = foldWord(word);
+    if (!folded) return false;
+    const latin = latinizeCode(folded);
+    return stems.some(({ term, stem, code }) => {
+      if (folded === term) return true;
+      if (term.length >= 4 && folded.startsWith(stem)) return true;
+      if (code && latin.startsWith(code)) return true;
+      return false;
+    });
+  };
 
   const parts: HighlightPart[] = [];
   let lastIndex = 0;
-  for (const match of text.matchAll(regex)) {
+  for (const match of text.matchAll(WORD_PATTERN)) {
     const start = match.index ?? 0;
+    if (!matchesTerm(match[0])) continue;
     if (start > lastIndex) parts.push({ text: text.slice(lastIndex, start), match: false });
     parts.push({ text: match[0], match: true });
     lastIndex = start + match[0].length;
