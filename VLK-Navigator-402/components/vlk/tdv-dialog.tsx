@@ -60,6 +60,7 @@ function buildRows(): TdvRow[] {
 }
 
 const TDV_ROWS = buildRows();
+const TDV_ARTICLE_COUNT = new Set(TDV_ROWS.map((row) => row.article)).size;
 
 function tdvRowFor(article: string, point: string) {
   return TDV_RULES[point === "—" ? article : `${article}-${point}`] ?? TDV_RULES[article];
@@ -77,14 +78,21 @@ export function TdvDialog({
   selectedPoint,
   trigger,
 }: {
-  article: VlkArticle;
+  /** Стаття, рядок якої треба підсвітити. Без неї таблиця відкривається повністю. */
+  article?: VlkArticle;
   selectedPoint?: string;
   trigger: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const activeRowRef = useRef<HTMLTableRowElement>(null);
-  const activeMarks = selectedPoint ? tdvRowFor(article.article, selectedPoint) : undefined;
-  const articleRowCount = TDV_ROWS.filter((row) => row.article === article.article).length;
+  const activeMarks =
+    article && selectedPoint ? tdvRowFor(article.article, selectedPoint) : undefined;
+  const articleRows = article ? TDV_ROWS.filter((row) => row.article === article.article) : [];
+  const articleRowCount = articleRows.length;
+  // Прокручуємо до рядка вибраного пункту, а якщо пункт ще не обраний —
+  // до першого рядка відкритої статті.
+  const scrollKey =
+    articleRows.find((row) => row.point === selectedPoint)?.key ?? articleRows[0]?.key;
 
   useEffect(() => {
     if (!open) return;
@@ -103,9 +111,11 @@ export function TdvDialog({
             Таблиця додаткових вимог · Додаток 3 до Наказу №402
           </DialogTitle>
           <DialogDescription>
-            Усі {TDV_ROWS.length} рядків таблиці. Підсвічено стаття {article.article}
-            {articleRowCount ? "" : " (окремого рядка ТДВ не має)"}. Порожня клітинка не є
-            автоматичним підтвердженням придатності.
+            Усі {TDV_ROWS.length} рядків таблиці для {TDV_ARTICLE_COUNT} статей Розкладу хвороб.
+            {article
+              ? ` Підсвічено статтю ${article.article}${articleRowCount ? "" : " (окремого рядка ТДВ не має)"}.`
+              : ""}{" "}
+            Порожня клітинка не є автоматичним підтвердженням придатності.
           </DialogDescription>
           <div className="mt-2 flex flex-wrap gap-1.5">
             <Button asChild variant="outline" size="sm" className="h-9 text-[11px]">
@@ -148,13 +158,13 @@ export function TdvDialog({
             </thead>
             <tbody>
               {TDV_ROWS.map((row) => {
-                const sameArticle = row.article === article.article;
+                const sameArticle = Boolean(article) && row.article === article?.article;
                 const active = sameArticle && (selectedPoint ?? "") === row.point;
                 const background = active ? "bg-[#fff8e7]" : sameArticle ? "bg-[#eef7f3]" : "bg-white";
                 return (
                   <tr
                     key={row.key}
-                    ref={active ? activeRowRef : undefined}
+                    ref={row.key === scrollKey ? activeRowRef : undefined}
                     aria-current={active ? "true" : undefined}
                     className={`border-t border-[#173f40]/10 ${background}`}
                   >

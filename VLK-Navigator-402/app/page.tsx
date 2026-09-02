@@ -16,6 +16,7 @@ import {
   Printer,
   RotateCcw,
   ShieldCheck,
+  Table2,
   UsersRound,
   Wifi,
   WifiOff,
@@ -589,6 +590,22 @@ export default function Home() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+            <TdvDialog
+              article={selected}
+              selectedPoint={selectedRule?.point}
+              trigger={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-10 bg-white"
+                  title="Відкрити повну таблицю додаткових вимог (Додаток 3)"
+                >
+                  <Table2 />
+                  <span className="hidden sm:inline">ТДВ</span>
+                </Button>
+              }
+            />
             <Button asChild variant="outline" size="sm" className="h-10 bg-white">
               <a href={SOURCE_URL} target="_blank" rel="noreferrer">
                 <History />
@@ -1408,6 +1425,15 @@ export default function Home() {
           <p className="mt-5 text-xs leading-5 text-[#617775]">
             Або скористайтеся пошуком угорі — за діагнозом, кодом МКХ-10 чи номером статті.
           </p>
+
+          <TdvDialog
+            trigger={
+              <Button type="button" variant="outline" className="mt-4 h-10 bg-white">
+                <Table2 />
+                Таблиця додаткових вимог (ТДВ)
+              </Button>
+            }
+          />
 
           {basket.length ? (
             <Button
