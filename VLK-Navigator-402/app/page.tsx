@@ -168,10 +168,12 @@ function Highlighted({ text, query }: { text: string; query: string }) {
 
 export default function Home() {
   const [mode, setMode] = useState<Mode>("express");
-  const [specialty, setSpecialty] = useState<SpecialtyId>("therapist");
+  // Порожнє значення означає, що лікар ще не обрав спеціальність:
+  // до цього моменту перший екран лишається чистим.
+  const [specialty, setSpecialty] = useState<SpecialtyId | "">("");
   const [examineeType, setExamineeType] = useState<string>(EXAMINEE_TYPES[0]);
   const [query, setQuery] = useState("");
-  const [selectedId, setSelectedId] = useState("article-1");
+  const [selectedId, setSelectedId] = useState("");
   const [selectedRuleIndex, setSelectedRuleIndex] = useState("");
   const [checked, setChecked] = useState<string[]>([]);
   const [basket, setBasket] = useState<BasketItem[]>([]);
@@ -242,7 +244,7 @@ export default function Home() {
   }, [searchHits]);
 
   const specialtyArticles = useMemo(
-    () => ARTICLES.filter((article) => article.specialties.includes(specialty)),
+    () => (specialty ? ARTICLES.filter((article) => article.specialties.includes(specialty)) : []),
     [specialty],
   );
 
@@ -263,7 +265,9 @@ export default function Home() {
   );
   const selected =
     listArticles.find((article) => article.id === selectedId) ?? listArticles[0];
-  const selectedSpecialty = SPECIALTIES.find((item) => item.id === specialty)!;
+  const selectedSpecialty = SPECIALTIES.find((item) => item.id === specialty);
+  /** Робочий екран відкривається лише після вибору спеціальності або пошуку. */
+  const showDashboard = Boolean(specialty) || Boolean(query.trim());
   const articleRules = selected ? (ARTICLE_RULES[selected.article] ?? []) : [];
   const selectedRule = selectedRuleIndex === "" ? undefined : articleRules[Number(selectedRuleIndex)];
   const articleNumber = selected?.article;
@@ -595,6 +599,8 @@ export default function Home() {
         </div>
       </header>
 
+      {showDashboard ? (
+        <>
       <div className="border-b border-[#173f40]/10 bg-white">
         <div className="mx-auto flex max-w-[1720px] flex-wrap items-center justify-between gap-2 px-3 py-1.5 lg:px-5">
           <div className="flex items-center gap-1 rounded-lg bg-[#eef3f0] p-1" aria-label="Режим роботи">
@@ -637,7 +643,7 @@ export default function Home() {
                 <h2 className="mt-0.5 truncate text-sm font-bold">
                   {query.trim()
                     ? `Знайдено ${articleCountLabel(searchResults.length)}`
-                    : selectedSpecialty.label}
+                    : (selectedSpecialty?.label ?? "Усі статті")}
                 </h2>
               </div>
               {query.trim() ? (
@@ -727,7 +733,7 @@ export default function Home() {
             className="min-h-0 flex-1 overflow-y-auto p-2 scrollbar-thin"
           >
             {listArticles.length ? (
-              <ul className="space-y-1" aria-label={query.trim() ? "Знайдені статті" : `Статті · ${selectedSpecialty.label}`}>
+              <ul className="space-y-1" aria-label={query.trim() ? "Знайдені статті" : `Статті · ${selectedSpecialty?.label ?? "усі"}`}>
                 {listArticles.map((article) => {
                   const isSelected = selected?.id === article.id;
                   const hit = hitsById.get(article.id);
@@ -1373,6 +1379,53 @@ export default function Home() {
           </div>
         </aside>
       </div>
+        </>
+      ) : (
+        <div className="mx-auto flex max-w-[900px] flex-col items-center px-4 py-10 text-center lg:py-16">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#34736d]">Крок 1</p>
+          <h2 className="mt-2 text-2xl font-bold">Оберіть свою спеціальність</h2>
+          <p className="mt-2 max-w-lg text-sm leading-6 text-[#5d7472]">
+            Далі відкриється перелік статей Розкладу хвороб цього лікаря.
+          </p>
+
+          <div className="mt-6 grid w-full grid-cols-2 gap-2 sm:grid-cols-4">
+            {SPECIALTIES.map((item) => {
+              const count = ARTICLES.filter((article) => article.specialties.includes(item.id)).length;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => changeSpecialty(item.id)}
+                  className={`min-h-16 rounded-xl border border-[#173f40]/12 bg-white px-3 py-3 text-left transition hover:border-[#2d7872]/45 hover:bg-[#f4f8f6] ${FOCUS_RING}`}
+                >
+                  <span className="block text-sm font-bold">{item.label}</span>
+                  <span className="mt-0.5 block text-[11px] text-[#738583]">{articleCountLabel(count)}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <p className="mt-5 text-xs leading-5 text-[#617775]">
+            Або скористайтеся пошуком угорі — за діагнозом, кодом МКХ-10 чи номером статті.
+          </p>
+
+          {basket.length ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDraftOpen(true)}
+              className="mt-5 h-10 bg-white"
+            >
+              <ListPlus />
+              Відкрити збережене зведення · {basket.length}
+            </Button>
+          ) : null}
+
+          <p className="mt-8 text-[11px] text-[#7a8a88]">
+            База перевірена за редакцією Наказу №402 від {EDITION}
+          </p>
+        </div>
+      )}
 
       <Dialog open={draftOpen} onOpenChange={setDraftOpen}>
         <DialogContent className="max-h-[90vh] overflow-hidden p-0 sm:max-w-3xl">
