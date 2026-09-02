@@ -32,6 +32,42 @@
 навігаційний опис завжди позначений окремо від офіційного тексту, а результат
 аналізатора подається лише як попередній орієнтир, а не постанова ВЛК.
 
+## Деплой
+
+Проєкт збирається двома шляхами; обидва працюють з одного коду.
+
+### Vercel
+
+1. У налаштуваннях проєкту Vercel вкажіть **Root Directory** = `VLK-Navigator-402`
+   (якщо репозиторій підключено цілком), інакше Vercel не побачить `package.json`.
+2. Framework Preset — **Next.js**. Команда збірки береться з `vercel.json`
+   (`next build`); скрипт `vercel-build` у `package.json` дає той самий результат,
+   якщо конфіг не читається.
+3. Змінні середовища не потрібні: застосунок повністю клієнтський і не звертається
+   до жодного бекенду.
+
+Локальний еквівалент того, що робить Vercel:
+
+```bash
+npm ci
+npm run build:next     # next build
+npm run start:next     # next start
+```
+
+Файли `worker/`, `db/`, `drizzle/`, `examples/`, `vite.config.ts` потрібні лише
+збірці для Cloudflare Workers: вони виключені з перевірки типів Next.js
+(`tsconfig.json` → `exclude`) і з завантаження на Vercel (`.vercelignore`).
+Без цього `next build` падав на `Cannot find module 'cloudflare:workers'`.
+
+### Cloudflare Workers / Sites
+
+Без змін: `npm run build` (vinext) і `npm run start`. Саме цей шлях описаний
+нижче в розділі про Sites lifecycle.
+
+Service worker однаково кешує хешовані ресурси обох збірок
+(`/assets/…` для vinext і `/_next/static/…` для Next.js), тому офлайн-режим
+працює на будь-якому з хостингів.
+
 ## Перевірка
 
 ```bash

@@ -1,0 +1,16 @@
+# Файли, потрібні лише збірці для Cloudflare Workers.
+worker
+db
+drizzle
+examples
+build
+vite.config.ts
+drizzle.config.ts
+.openai
+
+# Артефакти локальних збірок.
+dist
+.next
+.wrangler
+.sites-runtime
+node_modules

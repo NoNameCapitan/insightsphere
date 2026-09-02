@@ -2,7 +2,8 @@ const CACHE_NAME = "vlk-402-shell-v3";
 const SHELL = ["/", "/manifest.webmanifest", "/favicon.svg"];
 
 // Ресурси зі стабільним хешем в імені: їх достатньо взяти з кешу один раз.
-const IMMUTABLE_ASSET = /\/assets\/[^/]+-[A-Za-z0-9_-]{6,}\.(?:js|css|woff2?)$/;
+// Перший шаблон — збірка Cloudflare (vinext), другий — збірка Next.js (Vercel).
+const IMMUTABLE_ASSET = /\/assets\/[^/]+-[A-Za-z0-9_-]{6,}\.(?:js|css|woff2?)$|^\/_next\/static\//;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL)));
