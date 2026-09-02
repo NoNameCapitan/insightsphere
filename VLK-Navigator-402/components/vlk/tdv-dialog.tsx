@@ -62,6 +62,16 @@ function buildRows(): TdvRow[] {
 const TDV_ROWS = buildRows();
 const TDV_ARTICLE_COUNT = new Set(TDV_ROWS.map((row) => row.article)).size;
 
+/**
+ * Сітка таблиці: чорні лінії малюються на кожній клітинці окремо
+ * (border-separate), щоб вони не зникали під час прокручування під
+ * закріпленою шапкою та закріпленим першим стовпцем.
+ */
+const CELL_GRID = "border-b border-r border-black";
+/** Потовщена лінія під шапкою та між статтями. */
+const HEAD_GRID = "border-b-2 border-r border-black";
+const GROUP_GRID = "border-t-2 border-black";
+
 function tdvRowFor(article: string, point: string) {
   return TDV_RULES[point === "—" ? article : `${article}-${point}`] ?? TDV_RULES[article];
 }
@@ -132,7 +142,7 @@ export function TdvDialog({
         </DialogHeader>
 
         <div className="min-h-0 flex-1 overflow-auto p-4 scrollbar-thin">
-          <table className="w-full min-w-[860px] border-collapse text-left">
+          <table className="w-full min-w-[860px] border-separate border-spacing-0 border-l border-t border-black text-left">
             <caption className="sr-only">
               Позначки «НП» за 12 графами Додатка 3 для кожної статті та пункту
             </caption>
@@ -140,7 +150,7 @@ export function TdvDialog({
               <tr className="bg-[#eef3f0]">
                 <th
                   scope="col"
-                  className="sticky left-0 z-30 w-[300px] min-w-[300px] bg-[#eef3f0] px-3 py-2 text-[11px] font-black uppercase tracking-[0.1em] text-[#34736d]"
+                  className={`sticky left-0 z-30 w-[300px] min-w-[300px] bg-[#eef3f0] px-3 py-2 text-[11px] font-black uppercase tracking-[0.1em] text-[#34736d] ${HEAD_GRID}`}
                 >
                   Стаття · пункт
                 </th>
@@ -149,7 +159,7 @@ export function TdvDialog({
                     key={column.id}
                     scope="col"
                     title={column.label}
-                    className="bg-[#eef3f0] px-2 py-2 text-center text-[11px] font-black text-[#34736d]"
+                    className={`bg-[#eef3f0] px-2 py-2 text-center text-[11px] font-black text-[#34736d] ${HEAD_GRID}`}
                   >
                     {column.id}
                   </th>
@@ -157,8 +167,11 @@ export function TdvDialog({
               </tr>
             </thead>
             <tbody>
-              {TDV_ROWS.map((row) => {
+              {TDV_ROWS.map((row, index) => {
                 const sameArticle = Boolean(article) && row.article === article?.article;
+                // Кожна стаття відокремлена від попередньої потовщеною лінією.
+                const startsArticle = index === 0 || TDV_ROWS[index - 1].article !== row.article;
+                const groupBorder = startsArticle ? GROUP_GRID : "";
                 const active = sameArticle && (selectedPoint ?? "") === row.point;
                 const background = active ? "bg-[#fff8e7]" : sameArticle ? "bg-[#eef7f3]" : "bg-white";
                 return (
@@ -166,11 +179,11 @@ export function TdvDialog({
                     key={row.key}
                     ref={row.key === scrollKey ? activeRowRef : undefined}
                     aria-current={active ? "true" : undefined}
-                    className={`border-t border-[#173f40]/10 ${background}`}
+                    className={background}
                   >
                     <th
                       scope="row"
-                      className={`sticky left-0 z-10 w-[300px] min-w-[300px] px-3 py-2 text-left align-top text-[11px] font-bold ${background}`}
+                      className={`sticky left-0 z-10 w-[300px] min-w-[300px] px-3 py-2 text-left align-top text-[11px] font-bold ${background} ${CELL_GRID} ${groupBorder}`}
                     >
                       <span className="flex items-start gap-2">
                         <span
@@ -195,7 +208,7 @@ export function TdvDialog({
                       return (
                         <td
                           key={column.id}
-                          className={`px-2 py-2 text-center text-[11px] font-black ${mark ? "text-[#8a3030]" : "text-[#9aa9a7]"}`}
+                          className={`px-2 py-2 text-center text-[11px] font-black ${CELL_GRID} ${groupBorder} ${mark ? "text-[#8a3030]" : "text-[#9aa9a7]"}`}
                         >
                           {mark ?? "—"}
                         </td>
@@ -216,9 +229,9 @@ export function TdvDialog({
               return (
                 <div
                   key={column.id}
-                  className={`flex items-start gap-2 rounded-md border p-2 ${mark ? "border-[#ba4a4a]/18 bg-[#fff3f1]" : "border-[#173f40]/10 bg-white"}`}
+                  className={`flex items-start gap-2 border border-black p-2 ${mark ? "bg-[#fff3f1]" : "bg-white"}`}
                 >
-                  <span className="grid size-6 shrink-0 place-items-center rounded-md bg-[#e7eeea] text-[10px] font-black">
+                  <span className="grid size-6 shrink-0 place-items-center border border-black bg-[#e7eeea] text-[10px] font-black">
                     {column.id}
                   </span>
                   <div className="min-w-0">
