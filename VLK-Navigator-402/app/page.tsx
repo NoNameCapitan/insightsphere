@@ -117,7 +117,7 @@ import {
   warmExplanations,
   type ArticleExplanation,
 } from "@/lib/vlk-explanations";
-import { explanationSignals, pointExplanation } from "@/lib/vlk-explanation-view";
+import { pointExplanation } from "@/lib/vlk-explanation-view";
 import { buildDraftText, buildReferenceText } from "@/lib/vlk-report";
 import {
   explanationUrl as buildExplanationUrl,
@@ -209,7 +209,6 @@ export default function Home() {
   const [basket, setBasket] = useState<BasketItem[]>([]);
   const [directory, setDirectory] = useState<DoctorDirectory>(EMPTY_DIRECTORY);
   const [draftOpen, setDraftOpen] = useState(false);
-  const [allTdvColumns, setAllTdvColumns] = useState(false);
   const [outcomeFilter, setOutcomeFilter] = useState<OutcomeFilterId>("all");
   const [copied, setCopied] = useState<"reference" | "draft" | "">("");
   const [online, setOnline] = useState(true);
@@ -439,7 +438,6 @@ export default function Home() {
   const selectedPointExplanation = selectedRule
     ? pointExplanation(explanation, selectedRule.point)
     : [];
-  const selectedExplanationSignals = explanationSignals(explanation);
   const explanationUrl = buildExplanationUrl(explanationMeta?.anchor, EXPLANATION_SOURCE_URL);
 
   const sourceUrl = selected ? officialRuleUrl(selected.article, selectedRule) : SOURCE_URL;
@@ -454,10 +452,6 @@ export default function Home() {
     ? (TDV_RULES[tdvKey] ?? (selected ? TDV_RULES[selected.article] : undefined))
     : undefined;
   const tdvMarks = tdvRule ? TDV_COLUMNS.filter((column) => tdvRule[column.id]) : [];
-  // У детальному режимі показуються всі 12 граф ТДВ, в експресі — лише ті,
-  // де є позначка. Повну таблицю завжди можна розгорнути однією кнопкою.
-  const showAllTdvColumns = allTdvColumns || mode === "detailed";
-  const visibleTdvColumns = showAllTdvColumns ? TDV_COLUMNS : tdvMarks;
 
   const summaryItem = strictestOutcome(basket);
   const summaryStyle = summaryItem ? outcomeStyles(summaryItem.outcome) : undefined;
@@ -1226,7 +1220,7 @@ export default function Home() {
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto p-2.5 scrollbar-thin">
-                <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_220px]">
+                <div className="grid items-start gap-2 sm:grid-cols-[minmax(0,1fr)_230px]">
                   <div className="min-w-0 rounded-lg border border-[#173f40]/10 bg-[#f7faf8] p-3">
                     <div className="flex items-start justify-between gap-3">
                       <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#50716e]">
@@ -1242,14 +1236,6 @@ export default function Home() {
                       </p>
                       <p className="mt-1 max-h-40 overflow-y-auto break-words pr-1 text-[11px] leading-[1.15rem] text-[#425f5d] scrollbar-thin">
                         <Highlighted text={selected.officialIncluded} query={query} />
-                      </p>
-                    </div>
-                    <div className="mt-2 border-t border-[#173f40]/8 pt-2">
-                      <p className="text-[9px] font-black uppercase tracking-[0.11em] text-[#6a7e7c]">
-                        Коротко для навігації · не нормативний текст
-                      </p>
-                      <p className="mt-1 text-xs leading-5 text-[#5d7472]">
-                        <Highlighted text={selected.summary} query={query} />
                       </p>
                     </div>
                   </div>
@@ -1307,6 +1293,18 @@ export default function Home() {
                         </p>
                       </>
                     )}
+                    <div className="mt-2 flex flex-wrap gap-1 border-t border-[#173f40]/10 pt-2">
+                      <Button asChild variant="outline" size="sm" className="h-8 bg-white text-[10px]">
+                        <a href={TDV_URL} target="_blank" rel="noreferrer">
+                          ТДВ у №402 <ExternalLink />
+                        </a>
+                      </Button>
+                      <Button asChild variant="ghost" size="sm" className="h-8 text-[10px]">
+                        <a href={TDV_DOCX_URL} target="_blank" rel="noreferrer">
+                          DOCX <BookOpen />
+                        </a>
+                      </Button>
+                    </div>
                   </div>
                 </div>
 
@@ -1428,31 +1426,12 @@ export default function Home() {
                     </div>
                   ) : (
                     <div className="p-3">
-                      {selectedExplanationSignals.length ? (
-                        <div>
-                          <p className="text-[9px] font-black uppercase tracking-[0.11em] text-[#587471]">
-                            У поясненні згадано
-                          </p>
-                          <div className="mt-1.5 flex flex-wrap gap-1">
-                            {selectedExplanationSignals.map((signal) => (
-                              <span
-                                key={signal}
-                                className="rounded-full border border-[#2d7771]/12 bg-white px-2 py-1 text-[9px] font-bold text-[#426965]"
-                              >
-                                {signal}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      ) : null}
-
-                      <div className="mt-2 rounded-md border border-[#b88a2e]/18 bg-[#fff9e9] p-2.5">
+                      {selectedRule ? (
+                      <div className="rounded-md border border-[#b88a2e]/18 bg-[#fff9e9] p-2.5">
                         <p className="text-[9px] font-black uppercase tracking-[0.11em] text-[#755b22]">
-                          {selectedRule
-                            ? `Автоматично до ${pointLabelGenitive(selectedRule.point)}`
-                            : "Спочатку оберіть пункт статті"}
+                          Автоматично до {pointLabelGenitive(selectedRule.point)}
                         </p>
-                        {selectedRule ? (
+                        {
                           selectedPointExplanation.length ? (
                             <div className="mt-1.5 max-h-52 space-y-1.5 overflow-y-auto pr-1 scrollbar-gutter-stable scrollbar-thin">
                               {selectedPointExplanation.map((paragraph, index) => (
@@ -1470,13 +1449,9 @@ export default function Home() {
                               повний офіційний текст нижче — він застосовується до статті загалом.
                             </p>
                           )
-                        ) : (
-                          <p className="mt-1.5 text-[11px] leading-4 text-[#685e44]">
-                            Після вибору пункту система покаже пов’язані з ним офіційні критерії та
-                            параметри.
-                          </p>
-                        )}
+                        }
                       </div>
+                      ) : null}
 
                       <Accordion type="single" collapsible className="mt-2">
                         <AccordionItem
@@ -1512,113 +1487,6 @@ export default function Home() {
                   )}
                 </section>
 
-                <div className="mt-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#5b7472]">
-                      Що ще треба перевірити
-                    </p>
-                    <span className="text-[10px] font-bold text-[#617775]">
-                      {checked.length}/{ANALYSIS_CHECKS.length}
-                    </span>
-                  </div>
-                  <div className="mt-1.5 grid gap-1.5 sm:grid-cols-2">
-                    {ANALYSIS_CHECKS.map((step) => (
-                      <label
-                        key={step}
-                        className="flex min-h-11 cursor-pointer items-start gap-2 rounded-lg border border-[#173f40]/10 bg-white p-2"
-                      >
-                        <Checkbox
-                          checked={checked.includes(step)}
-                          onCheckedChange={(value) => toggleCheck(step, value === true)}
-                          className="mt-0.5"
-                        />
-                        <span className="text-xs leading-4">{step}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <section className="mt-3 rounded-lg border border-[#173f40]/10 bg-[#f7faf8] p-3">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <h3 className="text-sm font-bold">Таблиця додаткових вимог</h3>
-                      <p className="mt-1 text-[10px] leading-4 text-[#5d7472]">
-                        Порожня клітинка не є автоматичним підтвердженням придатності.
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 flex-wrap gap-1">
-                      <TdvDialog
-                        article={selected}
-                        selectedPoint={selectedRule?.point}
-                        trigger={
-                          <Button
-                            type="button"
-                            size="sm"
-                            className="h-9 bg-[#123f40] text-[10px] text-white hover:bg-[#1a5554]"
-                          >
-                            <Maximize2 />
-                            Відкрити на весь екран
-                          </Button>
-                        }
-                      />
-                      <Button asChild variant="outline" size="sm" className="h-9 text-[10px]">
-                        <a href={TDV_URL} target="_blank" rel="noreferrer">
-                          ТДВ у №402 <ExternalLink />
-                        </a>
-                      </Button>
-                      <Button asChild variant="ghost" size="sm" className="h-9 text-[10px]">
-                        <a href={TDV_DOCX_URL} target="_blank" rel="noreferrer">
-                          DOCX <BookOpen />
-                        </a>
-                      </Button>
-                    </div>
-                  </div>
-                  {!selectedRule ? (
-                    <div className="mt-2 rounded-md border border-dashed border-[#2d7771]/30 bg-white p-3 text-center text-xs text-[#617775]">
-                      Оберіть пункт статті — відповідний рядок ТДВ з’явиться тут без переходу на іншу
-                      вкладку.
-                    </div>
-                  ) : tdvRule ? (
-                    <>
-                    <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
-                      {visibleTdvColumns.map((column) => {
-                        const mark = tdvRule[column.id];
-                        return (
-                          <div
-                            key={column.id}
-                            className={`flex items-start gap-2 rounded-md border p-2 ${mark ? "border-[#ba4a4a]/18 bg-[#fff3f1]" : "border-[#173f40]/10 bg-white"}`}
-                          >
-                            <span className="grid size-6 shrink-0 place-items-center rounded-md bg-[#e7eeea] text-[10px] font-black">
-                              {column.id}
-                            </span>
-                            <div className="min-w-0">
-                              <p className="text-[10px] font-semibold leading-4">{column.label}</p>
-                              <p
-                                className={`mt-1 text-[10px] font-black ${mark ? "text-[#8a3030]" : "text-[#5c7773]"}`}
-                              >
-                                {mark ?? "Окремої позначки НП немає"}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    {showAllTdvColumns ? null : (
-                      <button
-                        type="button"
-                        onClick={() => setAllTdvColumns(true)}
-                        className={`mt-1.5 rounded-md border border-[#173f40]/12 bg-white px-2.5 py-1.5 text-[10px] font-bold text-[#2d6f69] ${FOCUS_RING}`}
-                      >
-                        Показати всі 12 граф ТДВ
-                      </button>
-                    )}
-                    </>
-                  ) : (
-                    <div className="mt-2 rounded-md bg-[#fff8e6] p-3 text-xs leading-5 text-[#6d572d]">
-                      Для цього пункту немає окремого рядка ТДВ. Звірте повну офіційну таблицю.
-                    </div>
-                  )}
-                </section>
               </div>
             </>
           ) : (
@@ -1825,9 +1693,36 @@ export default function Home() {
               Статті, пункти, ТДВ, чекліст і джерела. Довідкова навігація, не рішення ВЛК.
             </DialogDescription>
           </DialogHeader>
-          <pre className="max-h-[58vh] overflow-y-auto whitespace-pre-wrap break-words bg-[#f8faf8] p-4 font-sans text-xs leading-5 text-[#294b4b] scrollbar-thin">
-            {draftText}
-          </pre>
+          <div className="max-h-[58vh] overflow-y-auto scrollbar-thin">
+            <div className="border-b border-[#173f40]/10 bg-white px-4 py-3">
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#5b7472]">
+                  Що ще треба перевірити перед постановою
+                </p>
+                <span className="text-[10px] font-bold text-[#617775]">
+                  {checked.length}/{ANALYSIS_CHECKS.length}
+                </span>
+              </div>
+              <div className="mt-1.5 grid gap-1.5 sm:grid-cols-2">
+                {ANALYSIS_CHECKS.map((step) => (
+                  <label
+                    key={step}
+                    className="flex min-h-10 cursor-pointer items-start gap-2 rounded-lg border border-[#173f40]/10 bg-white p-2"
+                  >
+                    <Checkbox
+                      checked={checked.includes(step)}
+                      onCheckedChange={(value) => toggleCheck(step, value === true)}
+                      className="mt-0.5"
+                    />
+                    <span className="text-xs leading-4">{step}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <pre className="whitespace-pre-wrap break-words bg-[#f8faf8] p-4 font-sans text-xs leading-5 text-[#294b4b]">
+              {draftText}
+            </pre>
+          </div>
           <DialogFooter className="border-t border-[#173f40]/10 p-3">
             <Button variant="outline" onClick={() => copyText(draftText, "draft")}>
               {copied === "draft" ? (

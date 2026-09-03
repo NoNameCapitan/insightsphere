@@ -144,7 +144,7 @@ export function TdvDialog({
         </DialogHeader>
 
         <div className="min-h-0 flex-1 overflow-auto p-4 scrollbar-thin">
-          <table className="w-full min-w-[860px] border-separate border-spacing-0 border-l border-t border-black text-left">
+          <table className="w-full min-w-[760px] border-separate border-spacing-0 border-l border-t border-black text-left">
             <caption className="sr-only">
               Позначки «НП» за 12 графами Додатка 3 для кожної статті та пункту
             </caption>
@@ -152,7 +152,7 @@ export function TdvDialog({
               <tr className="bg-[#eef3f0]">
                 <th
                   scope="col"
-                  className={`sticky left-0 z-30 w-[300px] min-w-[300px] bg-[#eef3f0] px-3 py-2 text-[11px] font-black uppercase tracking-[0.1em] text-[#34736d] ${HEAD_GRID}`}
+                  className={`sticky left-0 z-30 w-[190px] min-w-[190px] bg-[#eef3f0] px-3 py-2 text-[11px] font-black uppercase tracking-[0.1em] text-[#34736d] ${HEAD_GRID}`}
                 >
                   Стаття · пункт
                 </th>
@@ -188,7 +188,7 @@ export function TdvDialog({
                   <tr key={row.id} className="bg-white">
                     <th
                       scope="row"
-                      className={`sticky left-0 z-10 w-[300px] min-w-[300px] bg-white px-3 py-2 text-left align-top text-[11px] font-bold ${CELL_GRID} ${groupBorder}`}
+                      className={`sticky left-0 z-10 w-[190px] min-w-[190px] bg-white px-3 py-2 text-left align-top text-[11px] font-bold ${CELL_GRID} ${groupBorder}`}
                     >
                       {row.group ? (
                         <span className="block text-[#34736d]">{row.group}</span>
@@ -239,24 +239,15 @@ export function TdvDialog({
                   >
                     <th
                       scope="row"
-                      className={`sticky left-0 z-10 w-[300px] min-w-[300px] px-3 py-2 text-left align-top text-[11px] font-bold ${background} ${CELL_GRID} ${groupBorder}`}
+                      className={`sticky left-0 z-10 w-[190px] min-w-[190px] px-3 py-2 text-left align-top text-[11px] font-bold ${background} ${CELL_GRID} ${groupBorder}`}
                     >
-                      <span className="flex items-start gap-2">
+                      <span className="flex items-center gap-2">
                         <span
                           className={`grid size-6 shrink-0 place-items-center rounded-md text-[10px] font-black ${sameArticle ? "bg-[#123f40] text-white" : "bg-[#e7efeb] text-[#205f59]"}`}
                         >
                           {row.article}
                         </span>
-                        <span className="min-w-0">
-                          <span className="block leading-4">
-                            {row.title} · {pointTitle(row.point)}
-                          </span>
-                          {row.condition ? (
-                            <span className="mt-0.5 block text-[10px] font-normal leading-4 text-[#5f7573]">
-                              {row.condition}
-                            </span>
-                          ) : null}
-                        </span>
+                        <span>{pointTitle(row.point)}</span>
                       </span>
                     </th>
                     {TDV_COLUMNS.map((column) => {
