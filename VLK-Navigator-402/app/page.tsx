@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   BookOpen,
   Check,
+  ChevronDown,
   ClipboardCheck,
   Copy,
   ExternalLink,
@@ -43,7 +44,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -94,6 +94,14 @@ import {
   SEARCH_HISTORY_KEY,
 } from "@/lib/vlk-search-history";
 import {
+  addRecent,
+  readWorkspace,
+  serializeWorkspace,
+  WORKSPACE_KEY,
+  type RecentEntry,
+} from "@/lib/vlk-workspace";
+import { EDITION_NOTICE } from "@/lib/vlk-edition";
+import {
   createBasketItem,
   EMPTY_DIRECTORY,
   EXAMINEE_TYPES,
@@ -109,7 +117,6 @@ import {
 import { TDV_COLUMNS, TDV_RULES } from "@/lib/vlk-tdv";
 import {
   EXPLANATION_ARTICLES,
-  EXPLANATION_EDITION,
   EXPLANATION_META,
   EXPLANATION_SOURCE_URL,
   getLoadedExplanation,
@@ -220,6 +227,8 @@ export default function Home() {
   const [directoryOpen, setDirectoryOpen] = useState(false);
   const [activeHit, setActiveHit] = useState(-1);
   const [history, setHistory] = useState<string[]>([]);
+  const [lastSpecialty, setLastSpecialty] = useState<SpecialtyId | "">("");
+  const [recent, setRecent] = useState<RecentEntry[]>([]);
   const listRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const searchBoxRef = useRef<HTMLDivElement>(null);
@@ -255,6 +264,9 @@ export default function Home() {
         );
       }
       setHistory(readSearchHistory(localStorage.getItem(SEARCH_HISTORY_KEY)));
+      const workspace = readWorkspace(localStorage.getItem(WORKSPACE_KEY));
+      setLastSpecialty(workspace.specialty);
+      setRecent(workspace.recent);
       setHydrated(true);
     }, 0);
 
@@ -274,6 +286,14 @@ export default function Home() {
     if (!hydrated) return;
     localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
   }, [history, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    localStorage.setItem(
+      WORKSPACE_KEY,
+      serializeWorkspace({ specialty: lastSpecialty, recent }),
+    );
+  }, [hydrated, lastSpecialty, recent]);
 
   // Клік поза пошуком закриває випадний список.
   useEffect(() => {
@@ -326,19 +346,38 @@ export default function Home() {
   );
 
   const baseArticles = query.trim() ? searchResults : specialtyArticles;
-  // Фільтр показує статті, у яких є хоча б один пункт із такою категорією
-  // дослівного результату. Стаття не отримує єдиної категорії придатності.
-  const listArticles = useMemo(
-    () =>
-      outcomeFilter === "all"
-        ? baseArticles
-        : baseArticles.filter((article) =>
-            matchesOutcomeFilter(
-              (ARTICLE_RULES[article.article] ?? []).map((rule) => rule.outcome),
-              outcomeFilter,
-            ),
-          ),
-    [baseArticles, outcomeFilter],
+
+  /** Чи є у статті хоча б один пункт із вибраною категорією результату. */
+  const articleMatchesFilter = useCallback(
+    (article: VlkArticle) =>
+      outcomeFilter === "all" ||
+      matchesOutcomeFilter(
+        (ARTICLE_RULES[article.article] ?? []).map((rule) => rule.outcome),
+        outcomeFilter,
+      ),
+    [outcomeFilter],
+  );
+
+  // Фільтр нічого не ховає: релевантні статті піднімаються вгору, решта
+  // лишається в списку приглушеною.
+  const listArticles = useMemo(() => {
+    if (outcomeFilter === "all") return baseArticles;
+    return [...baseArticles].sort(
+      (a, b) => Number(articleMatchesFilter(b)) - Number(articleMatchesFilter(a)),
+    );
+  }, [articleMatchesFilter, baseArticles, outcomeFilter]);
+
+  /** Остання спеціальність піднімається першою в сітці вибору. */
+  const welcomeSpecialties = useMemo(() => {
+    if (!lastSpecialty) return [...SPECIALTIES];
+    return [...SPECIALTIES].sort(
+      (a, b) => Number(b.id === lastSpecialty) - Number(a.id === lastSpecialty),
+    );
+  }, [lastSpecialty]);
+
+  const filteredCount = useMemo(
+    () => (outcomeFilter === "all" ? 0 : baseArticles.filter(articleMatchesFilter).length),
+    [articleMatchesFilter, baseArticles, outcomeFilter],
   );
   // Вибрана стаття тримається за власним id, а не за поточним списком: набір
   // запиту фільтрує список, але не перемикає відкриту статтю.
@@ -435,9 +474,11 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated]);
 
-  const selectedPointExplanation = selectedRule
-    ? pointExplanation(explanation, selectedRule.point)
-    : [];
+  /** Дослівні фрагменти пояснення для конкретного пункту статті. */
+  const pointExplanationFor = useCallback(
+    (point: string) => pointExplanation(explanation, point),
+    [explanation],
+  );
   const explanationUrl = buildExplanationUrl(explanationMeta?.anchor, EXPLANATION_SOURCE_URL);
 
   const sourceUrl = selected ? officialRuleUrl(selected.article, selectedRule) : SOURCE_URL;
@@ -455,15 +496,16 @@ export default function Home() {
 
   const summaryItem = strictestOutcome(basket);
   const summaryStyle = summaryItem ? outcomeStyles(summaryItem.outcome) : undefined;
-  const selectedInBasket =
-    selected && selectedRule
-      ? basket.some((item) => item.id === `${selected.article}-${selectedRule.point}`)
-      : false;
 
   const draftText = useMemo(() => buildDraftText(basket, examineeType), [basket, examineeType]);
 
   const referenceText =
     selected && selectedRule ? buildReferenceText(selected, selectedRule) : "";
+
+  /** Записує відкриту статтю або пункт в останні перегляди. */
+  function rememberView(article: string, point = "") {
+    setRecent((current) => addRecent(current, { article, point }));
+  }
 
   function resetArticleReview() {
     setChecked([]);
@@ -489,15 +531,20 @@ export default function Home() {
     if (options.notify) toast("Пошук очищено");
   }
 
-  /** Вибір результату пошуку: відкриває статтю та її спеціальність. */
-  function chooseHit(hit: SearchHit) {
+  /** Вибір результату пошуку: відкриває статтю, за потреби — конкретний пункт. */
+  function chooseHit(hit: SearchHit, pointIndex?: number) {
     const article = hit.article;
     setSelectedId(article.id);
     setSpecialty(article.specialties[0]);
+    setLastSpecialty(article.specialties[0]);
     setHistory((current) => addSearchHistory(current, query));
     setSearchOpen(false);
     setActiveHit(-1);
-    resetArticleReview();
+    setChecked([]);
+    setCopied("");
+    setSelectedRuleIndex(pointIndex === undefined ? "" : String(pointIndex));
+    const rules = ARTICLE_RULES[article.article] ?? [];
+    rememberView(article.article, pointIndex === undefined ? "" : (rules[pointIndex]?.point ?? ""));
   }
 
   function runQuery(value: string) {
@@ -541,6 +588,7 @@ export default function Home() {
   function changeSpecialty(next: SpecialtyId) {
     const first = ARTICLES.find((article) => article.specialties.includes(next));
     setSpecialty(next);
+    setLastSpecialty(next);
     setQuery("");
     if (first) setSelectedId(first.id);
     resetArticleReview();
@@ -548,6 +596,7 @@ export default function Home() {
 
   function selectFromList(article: VlkArticle) {
     if (article.id === selectedId) return;
+    rememberView(article.article);
     setSelectedId(article.id);
     if (query.trim()) setSpecialty(article.specialties[0]);
     resetArticleReview();
@@ -556,6 +605,9 @@ export default function Home() {
   function selectRule(index: string) {
     setSelectedRuleIndex(index);
     setCopied("");
+    if (index !== "" && selected) {
+      rememberView(selected.article, articleRules[Number(index)]?.point ?? "");
+    }
   }
 
   function toggleCheck(step: string, next: boolean) {
@@ -566,6 +618,8 @@ export default function Home() {
 
   function addArticleRuleToBasket(article: VlkArticle, rule: ArticleRule) {
     const articleChanged = selected?.id !== article.id;
+    rememberView(article.article, rule.point);
+    setLastSpecialty(article.specialties[0]);
     setSelectedId(article.id);
     if (query.trim()) setSpecialty(article.specialties[0]);
     const ruleIndex = (ARTICLE_RULES[article.article] ?? []).findIndex(
@@ -581,14 +635,29 @@ export default function Home() {
     );
   }
 
-  function addToBasket() {
-    if (!selected || !selectedRule) return;
-    addArticleRuleToBasket(selected, selectedRule);
+
+  /** Відкриває запис з останніх переглядів. */
+  function openRecent(entry: RecentEntry) {
+    const article = ARTICLES.find((item) => item.article === entry.article);
+    if (!article) return;
+    setQuery("");
+    setSearchOpen(false);
+    setSpecialty(article.specialties[0]);
+    setLastSpecialty(article.specialties[0]);
+    setSelectedId(article.id);
+    setChecked([]);
+    setCopied("");
+    const index = (ARTICLE_RULES[article.article] ?? []).findIndex(
+      (rule) => rule.point === entry.point,
+    );
+    setSelectedRuleIndex(entry.point && index >= 0 ? String(index) : "");
+    rememberView(entry.article, entry.point);
   }
 
   function openBasketItem(item: BasketItem) {
     const article = ARTICLES.find((entry) => entry.id === item.articleId);
     if (!article) return;
+    rememberView(article.article, item.point);
     setQuery("");
     setSpecialty(article.specialties[0]);
     setSelectedId(article.id);
@@ -757,35 +826,75 @@ export default function Home() {
                         Знайдено {articleCountLabel(searchHits.length)}
                       </p>
                       <ul className="max-h-[52vh] overflow-y-auto scrollbar-thin">
-                        {searchHits.slice(0, 8).map((hit, index) => (
-                          <li key={hit.article.id}>
-                            <button
-                              type="button"
-                              id={`vlk-hit-${index}`}
-                              role="option"
-                              aria-selected={index === activeHit}
-                              onMouseEnter={() => setActiveHit(index)}
-                              onClick={() => chooseHit(hit)}
-                              className={`flex w-full items-start gap-2 px-3 py-2 text-left transition ${index === activeHit ? "bg-[#eef5f2]" : "hover:bg-[#f4f8f6]"}`}
+                        {searchHits.slice(0, 8).map((hit, index) => {
+                          const hitRules = ARTICLE_RULES[hit.article.article] ?? [];
+                          return (
+                            <li
+                              key={hit.article.id}
+                              className={`border-b border-[#173f40]/8 last:border-b-0 ${index === activeHit ? "bg-[#eef5f2]" : ""}`}
                             >
-                              <span className="grid size-7 shrink-0 place-items-center rounded-md bg-[#e7efeb] text-[11px] font-black text-[#205f59]">
-                                {hit.article.article}
-                              </span>
-                              <span className="min-w-0 flex-1">
-                                <span className="block truncate text-xs font-semibold">
-                                  <Highlighted text={hit.article.title} query={query} />
+                              <button
+                                type="button"
+                                id={`vlk-hit-${index}`}
+                                role="option"
+                                aria-selected={index === activeHit}
+                                onMouseEnter={() => setActiveHit(index)}
+                                onClick={() => chooseHit(hit)}
+                                className={`flex w-full items-start gap-2 px-3 pt-2 text-left ${FOCUS_RING}`}
+                              >
+                                <span className="grid size-7 shrink-0 place-items-center rounded-md bg-[#e7efeb] text-[11px] font-black text-[#205f59]">
+                                  {hit.article.article}
                                 </span>
-                                <span className="mt-0.5 block truncate text-[10px] text-[#687d7b]">
-                                  <Highlighted text={hit.article.icd} query={query} /> ·{" "}
-                                  {specialtyLabels(hit.article)}
+                                <span className="min-w-0 flex-1">
+                                  <span className="block truncate text-xs font-semibold">
+                                    <Highlighted text={hit.article.title} query={query} />
+                                  </span>
+                                  <span className="mt-0.5 block truncate text-[10px] text-[#687d7b]">
+                                    <Highlighted text={hit.article.icd} query={query} /> ·{" "}
+                                    {MATCH_TYPE_LABELS[hit.matches[0]]}
+                                  </span>
                                 </span>
-                                <span className="mt-0.5 block text-[10px] font-bold text-[#3c6b66]">
-                                  {MATCH_TYPE_LABELS[hit.matches[0]]}
-                                </span>
-                              </span>
-                            </button>
-                          </li>
-                        ))}
+                              </button>
+
+                              <div className="flex flex-wrap gap-1 px-3 pb-2 pl-12 pt-1.5">
+                                {hitRules.map((rule, pointIndex) => {
+                                  const style = outcomeStyles(rule.outcome);
+                                  const inBasket = basket.some(
+                                    (item) => item.id === `${hit.article.article}-${rule.point}`,
+                                  );
+                                  return (
+                                    <span
+                                      key={`${hit.article.id}-${rule.point}-${pointIndex}`}
+                                      className="flex items-stretch overflow-hidden rounded-md border border-[#173f40]/12 bg-white"
+                                    >
+                                      <button
+                                        type="button"
+                                        onClick={() => chooseHit(hit, pointIndex)}
+                                        title={rule.condition}
+                                        className={`flex items-center gap-1.5 px-1.5 py-1 text-[10px] font-bold hover:bg-[#f4f8f6] ${FOCUS_RING}`}
+                                      >
+                                        <span className={`size-2 shrink-0 rounded-full ${style.dot}`} aria-hidden />
+                                        {rule.point === "—" ? "без поділу" : rule.point.toUpperCase()}
+                                        <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-black ${style.badge}`}>
+                                          {style.label}
+                                        </span>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        aria-label={`Додати статтю ${hit.article.article}, ${pointLabel(rule.point)} до зведення`}
+                                        title={inBasket ? "Уже у зведенні" : "Додати до зведення"}
+                                        onClick={() => addArticleRuleToBasket(hit.article, rule)}
+                                        className={`grid w-6 place-items-center border-l border-[#173f40]/12 ${inBasket ? "bg-[#dcece5] text-[#205f51]" : "text-[#2d6f69] hover:bg-[#edf5f1]"} ${FOCUS_RING}`}
+                                      >
+                                        {inBasket ? <Check className="size-3" /> : <Plus className="size-3" />}
+                                      </button>
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </li>
+                          );
+                        })}
                       </ul>
                       <p className="border-t border-[#173f40]/10 px-3 py-1.5 text-[10px] text-[#7a8a88]">
                         ↑↓ — вибір, Enter — відкрити, Esc — закрити
@@ -1074,7 +1183,8 @@ export default function Home() {
               </Select>
               {outcomeFilter === "all" ? null : (
                 <p className="mt-1 text-[10px] leading-4 text-[#607775]">
-                  Показано статті, де є хоча б один пункт із таким дослівним результатом.
+                  Угорі — {articleCountLabel(filteredCount)} із таким дослівним результатом. Решта
+                  лишається в списку приглушеною.
                 </p>
               )}
             </div>
@@ -1091,11 +1201,13 @@ export default function Home() {
                   const isSelected = selected?.id === article.id;
                   const hit = hitsById.get(article.id);
                   const matches = hit?.matches ?? [];
+                  const dimmed = !articleMatchesFilter(article);
                   return (
-                    <li key={article.id}>
+                    <li key={article.id} className={dimmed ? "opacity-45" : ""}>
                       <button
                         type="button"
                         data-article-row
+                        data-dimmed={dimmed ? "true" : undefined}
                         aria-current={isSelected ? "true" : undefined}
                         onClick={() => selectFromList(article)}
                         className={`flex w-full min-h-11 items-start gap-2 rounded-lg border px-2 py-2 text-left transition ${FOCUS_RING} ${isSelected ? "border-[#2d7872]/45 bg-[#e9f2ee]" : "border-[#173f40]/10 bg-white hover:bg-[#f4f8f6]"}`}
@@ -1221,23 +1333,19 @@ export default function Home() {
 
               <div className="min-h-0 flex-1 overflow-y-auto p-2.5 scrollbar-thin">
                 <div className="grid items-start gap-2 sm:grid-cols-[minmax(0,1fr)_230px]">
-                  <div className="min-w-0 rounded-lg border border-[#173f40]/10 bg-[#f7faf8] p-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#50716e]">
-                        Дослівно з Наказу №402 · третя графа
-                      </p>
-                      <span className="shrink-0 rounded-full bg-[#e1ece7] px-2 py-1 text-[9px] font-black text-[#28665f]">
-                        без узагальнень
-                      </span>
-                    </div>
-                    <div className="mt-2 rounded-md border border-[#2d7771]/14 bg-white p-2.5">
-                      <p className="text-[9px] font-black uppercase tracking-[0.11em] text-[#34736d]">
-                        Включено · дослівно
-                      </p>
-                      <p className="mt-1 max-h-40 overflow-y-auto break-words pr-1 text-[11px] leading-[1.15rem] text-[#425f5d] scrollbar-thin">
-                        <Highlighted text={selected.officialIncluded} query={query} />
-                      </p>
-                    </div>
+                  <div className="min-w-0 overflow-hidden rounded-lg border border-[#173f40]/10 bg-[#f7faf8]">
+                    <Accordion type="single" collapsible>
+                      <AccordionItem value="included" className="border-none px-3">
+                        <AccordionTrigger className="py-2.5 text-[10px] font-black uppercase tracking-[0.12em] text-[#50716e] hover:no-underline">
+                          Дослівно з Наказу №402 · «Включено»
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <p className="break-words pb-3 text-[11px] leading-[1.15rem] text-[#425f5d]">
+                            <Highlighted text={selected.officialIncluded} query={query} />
+                          </p>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
                   </div>
 
                   <div
@@ -1262,37 +1370,13 @@ export default function Home() {
                         }
                       />
                     </div>
-                    {!selectedRule ? (
-                      <>
-                        <p className="mt-1 text-sm font-bold">Оберіть пункт</p>
-                        <p className="mt-1 text-[10px] leading-4 text-[#617775]">
-                          Позначки з’являться автоматично.
-                        </p>
-                      </>
-                    ) : tdvRule ? (
-                      <>
-                        <p className="mt-1 text-sm font-black text-[#8a3030]">
-                          {tdvMarks.length} спец. позначок
-                        </p>
-                        <div className="mt-1.5 flex flex-wrap gap-1">
-                          {tdvMarks.map((column) => (
-                            <span
-                              key={column.id}
-                              className="rounded bg-white px-1.5 py-0.5 text-[9px] font-black text-[#8a3030]"
-                            >
-                              {column.id}: {tdvRule[column.id]}
-                            </span>
-                          ))}
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <p className="mt-1 text-sm font-bold text-[#5c7773]">Окремих позначок немає</p>
-                        <p className="mt-1 text-[10px] leading-4 text-[#617775]">
-                          Це не є автоматичним підтвердженням придатності.
-                        </p>
-                      </>
-                    )}
+                    <p className="mt-1 text-xs font-bold">
+                      {!selectedRule
+                        ? "Оберіть пункт"
+                        : tdvRule
+                          ? `${tdvMarks.length} спец. позначок`
+                          : "Окремих позначок немає"}
+                    </p>
                     <div className="mt-2 flex flex-wrap gap-1 border-t border-[#173f40]/10 pt-2">
                       <Button asChild variant="outline" size="sm" className="h-8 bg-white text-[10px]">
                         <a href={TDV_URL} target="_blank" rel="noreferrer">
@@ -1310,183 +1394,241 @@ export default function Home() {
 
                 <div className="mt-2.5 flex items-center justify-between">
                   <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#50716e]">
-                    Пункти статті · дослівно
+                    Пункти статті
                   </p>
-                  <span className="text-[10px] text-[#617775]">{pointCountLabel(articleRules.length)}</span>
+                  <span className="text-[10px] text-[#617775]">
+                    {pointCountLabel(articleRules.length)}
+                  </span>
                 </div>
-                <RadioGroup value={selectedRuleIndex} onValueChange={selectRule} className="mt-1.5 gap-1.5">
+
+                <ul className="mt-1.5 space-y-1.5">
                   {articleRules.map((rule, index) => {
                     const active = selectedRuleIndex === String(index);
                     const style = outcomeStyles(rule.outcome);
+                    const inBasket = basket.some(
+                      (item) => item.id === `${selected.article}-${rule.point}`,
+                    );
+                    // Фільтр не ховає пункти: нерелевантні лише приглушені.
+                    const dimmed =
+                      outcomeFilter !== "all" && !matchesOutcomeFilter([rule.outcome], outcomeFilter);
+                    const pointText = pointExplanationFor(rule.point);
+                    const pointTdv =
+                      TDV_RULES[rule.point === "—" ? selected.article : `${selected.article}-${rule.point}`] ??
+                      TDV_RULES[selected.article];
+                    const pointMarks = pointTdv
+                      ? TDV_COLUMNS.filter((column) => pointTdv[column.id])
+                      : [];
+
                     return (
-                      <label
-                        key={`${rule.point}-${index}`}
-                        className={`grid cursor-pointer grid-cols-[28px_minmax(0,1fr)] gap-2 rounded-lg border p-2.5 transition sm:grid-cols-[28px_minmax(0,1fr)_auto] ${active ? "border-[#c58b28]/45 bg-[#fff8e7]" : "border-[#173f40]/10 bg-[#fafbf9] hover:border-[#2c756f]/25"}`}
-                      >
-                        <RadioGroupItem
-                          value={String(index)}
-                          className="mt-1"
-                          aria-label={`${pointLabel(rule.point)}: ${rule.condition}`}
-                        />
-                        <span className="min-w-0">
-                          <span className="block text-[10px] font-black uppercase tracking-[0.12em] text-[#36716c]">
-                            {pointLabel(rule.point)}
-                          </span>
-                          <span className="mt-0.5 block text-xs leading-5 text-[#294b4b] sm:text-sm">
-                            <Highlighted text={rule.condition} query={query} />
-                          </span>
-                          <span className="mt-1 block text-[11px] leading-4 text-[#4a6664]">
-                            Результат за Розкладом: «{rule.outcome}»
-                          </span>
-                        </span>
-                        <span
-                          className={`col-start-2 self-start rounded-full px-2 py-1 text-[10px] font-black sm:col-start-3 ${style.badge}`}
+                      <li key={`${rule.point}-${index}`} className={dimmed ? "opacity-45" : ""}>
+                        <div
+                          className={`overflow-hidden rounded-lg border transition ${active ? "border-[#c58b28]/45 bg-[#fff8e7]" : "border-[#173f40]/10 bg-white hover:border-[#2c756f]/25"}`}
                         >
-                          {style.label}
-                        </span>
-                      </label>
+                          <button
+                            type="button"
+                            data-point-row
+                            onClick={() => selectRule(active ? "" : String(index))}
+                            aria-expanded={active}
+                            className={`flex w-full items-center gap-2 p-2.5 text-left ${FOCUS_RING}`}
+                          >
+                            <span
+                              className={`grid size-8 shrink-0 place-items-center rounded-md text-xs font-black uppercase ${active ? "bg-[#123f40] text-white" : "bg-[#e7efeb] text-[#205f59]"}`}
+                            >
+                              {rule.point === "—" ? "•" : rule.point}
+                            </span>
+                            <span className="min-w-0 flex-1 truncate text-xs leading-5 text-[#294b4b] sm:text-sm">
+                              <Highlighted text={rule.condition} query={query} />
+                            </span>
+                            <span
+                              className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-black ${style.badge}`}
+                            >
+                              {style.label}
+                            </span>
+                            <ChevronDown
+                              className={`size-4 shrink-0 text-[#4d706d] transition ${active ? "rotate-180" : ""}`}
+                            />
+                          </button>
+
+                          {active ? (
+                            <div className="border-t border-[#173f40]/10 bg-white/70 px-2.5 pb-2.5 pt-2">
+                              <p className="text-[9px] font-black uppercase tracking-[0.11em] text-[#5e7472]">
+                                Стан за пунктом · дослівно
+                              </p>
+                              <p className="mt-1 text-xs leading-5 text-[#294b4b]">
+                                <Highlighted text={rule.condition} query={query} />
+                              </p>
+
+                              <div className={`mt-2 rounded-md border p-2.5 ${style.box}`}>
+                                <p className="text-[9px] font-black uppercase tracking-[0.11em] text-[#5e7472]">
+                                  Попередній нормативний орієнтир · не рішення ВЛК
+                                </p>
+                                <p className="mt-1 text-sm font-bold leading-5">«{rule.outcome}»</p>
+                                {style.requiresLiteralReading ? (
+                                  <p className="mt-1 text-[10px] leading-4 text-[#5e7472]">
+                                    У четвертій графі Розкладу хвороб для цього пункту немає готової
+                                    категорії придатності — рішення приймається за поясненнями та
+                                    відповідною графою.
+                                  </p>
+                                ) : null}
+                              </div>
+
+                              <div className="mt-2 rounded-md border border-[#173f40]/10 bg-white p-2.5">
+                                <p className="text-[9px] font-black uppercase tracking-[0.11em] text-[#5e7472]">
+                                  ТДВ для {pointLabelGenitive(rule.point)}
+                                </p>
+                                {pointMarks.length ? (
+                                  <div className="mt-1.5 flex flex-wrap gap-1">
+                                    {pointMarks.map((column) => (
+                                      <span
+                                        key={column.id}
+                                        title={column.label}
+                                        className="rounded bg-[#fff1ef] px-1.5 py-0.5 text-[9px] font-black text-[#8a3030]"
+                                      >
+                                        {column.id}: {pointTdv?.[column.id]}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <p className="mt-1 text-[10px] leading-4 text-[#617775]">
+                                    Окремих позначок немає. Це не є автоматичним підтвердженням
+                                    придатності.
+                                  </p>
+                                )}
+                              </div>
+
+                              {explanationMeta?.status === "absent" ? null : pointText.length ? (
+                                <Accordion type="single" collapsible className="mt-2">
+                                  <AccordionItem
+                                    value="point-explanation"
+                                    className="overflow-hidden rounded-md border border-[#b88a2e]/25 bg-[#fff9e9] px-2.5"
+                                  >
+                                    <AccordionTrigger className="py-2 text-[10px] font-black uppercase tracking-[0.11em] text-[#755b22] hover:no-underline">
+                                      Офіційне пояснення до {pointLabelGenitive(rule.point)} ·{" "}
+                                      {pointText.length}
+                                    </AccordionTrigger>
+                                    <AccordionContent>
+                                      <div className="max-h-52 space-y-1.5 overflow-y-auto border-t border-[#b88a2e]/20 py-2 pr-1 scrollbar-thin">
+                                        {pointText.map((paragraph, position) => (
+                                          <p
+                                            key={`${selected.article}-${rule.point}-${position}`}
+                                            className="text-[11px] leading-[1.2rem] text-[#4d4937]"
+                                          >
+                                            <Highlighted text={paragraph} query={query} />
+                                          </p>
+                                        ))}
+                                      </div>
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                </Accordion>
+                              ) : null}
+
+                              <div className="mt-2 flex flex-wrap gap-1.5">
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  onClick={() => addArticleRuleToBasket(selected, rule)}
+                                  disabled={inBasket}
+                                  className="h-9 bg-[#123f40] text-xs text-white hover:bg-[#1a5554]"
+                                >
+                                  {inBasket ? (
+                                    <>
+                                      <Check />У зведенні
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Plus />
+                                      Додати до зведення
+                                    </>
+                                  )}
+                                </Button>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => copyText(buildReferenceText(selected, rule), "reference")}
+                                  className="h-9 bg-white text-xs"
+                                >
+                                  <Copy />
+                                  Копіювати
+                                </Button>
+                                <Button asChild size="sm" variant="outline" className="h-9 bg-white text-xs">
+                                  <a
+                                    href={officialRuleUrl(selected.article, rule)}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    Відкрити у №402 <ExternalLink />
+                                  </a>
+                                </Button>
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+                      </li>
                     );
                   })}
-                </RadioGroup>
+                </ul>
 
-                {selectedRule ? (
-                  <div
-                    className={`mt-2.5 flex flex-col gap-2 rounded-lg border p-2.5 sm:flex-row sm:items-center sm:justify-between ${outcomeStyles(selectedRule.outcome).box}`}
+                <Accordion type="single" collapsible className="mt-2.5">
+                  <AccordionItem
+                    value="article-explanation"
+                    className="overflow-hidden rounded-lg border border-[#2d7771]/18 bg-[#f6faf8] px-3"
                   >
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-black uppercase tracking-[0.11em] text-[#5e7472]">
-                        Попередній нормативний орієнтир · не рішення ВЛК
-                      </p>
-                      <p className="mt-1 text-sm font-bold leading-5">«{selectedRule.outcome}»</p>
-                      {outcomeStyles(selectedRule.outcome).requiresLiteralReading ? (
-                        <p className="mt-1 text-[10px] leading-4 text-[#5e7472]">
-                          У четвертій графі Розкладу хвороб для цього пункту немає готової категорії
-                          придатності — рішення приймається за поясненнями та відповідною графою.
+                    <AccordionTrigger className="py-2.5 text-xs font-bold hover:no-underline">
+                      <span className="flex flex-wrap items-center gap-1.5">
+                        <BookOpen className="size-4 shrink-0 text-[#286c65]" />
+                        Офіційні пояснення до статті {selected.article}
+                        <span className="rounded-full bg-white px-2 py-0.5 text-[9px] font-black text-[#28665f]">
+                          {explanationMeta?.status === "absent"
+                            ? "немає в Додатку 2"
+                            : `дослівно · ${explanationMeta?.paragraphs ?? 0} фрагментів`}
+                        </span>
+                      </span>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      {explanationMeta?.status === "absent" ? (
+                        <p className="pb-3 text-xs leading-5 text-[#627775]">
+                          Для статті {selected.article} окремого пояснення в Додатку 2 чинної
+                          редакції немає. Використовуйте дослівний рядок Розкладу хвороб, обраний
+                          пункт і ТДВ.
                         </p>
-                      ) : null}
-                    </div>
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={addToBasket}
-                      disabled={selectedInBasket}
-                      className="h-10 shrink-0 bg-[#123f40] text-white hover:bg-[#1a5554]"
-                    >
-                      {selectedInBasket ? (
-                        <>
-                          <Check />У зведенні
-                        </>
+                      ) : explanationState === "loading" ? (
+                        <p className="pb-3 text-xs text-[#627775]" aria-live="polite">
+                          Завантаження дослівного пояснення…
+                        </p>
+                      ) : explanationState === "error" ? (
+                        <p className="pb-3 text-xs text-[#7d4a2c]" aria-live="polite">
+                          Пояснення не завантажилося. Перевірте з’єднання або відкрийте офіційне
+                          джерело.
+                        </p>
                       ) : (
-                        <>
-                          <Plus />
-                          Додати до зведення
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                ) : null}
-
-                <section className="mt-2.5 overflow-hidden rounded-lg border border-[#2d7771]/18 bg-[#f6faf8]">
-                  <div className="flex flex-col gap-2 border-b border-[#173f40]/10 bg-[#eaf3ef] px-3 py-2.5 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="flex items-start gap-2">
-                      <BookOpen className="mt-0.5 size-4 shrink-0 text-[#286c65]" />
-                      <div>
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <h3 className="text-sm font-bold">
-                            Офіційні пояснення до статті {selected.article}
-                          </h3>
-                          <span className="rounded-full bg-white px-2 py-0.5 text-[9px] font-black text-[#28665f]">
-                            дослівно · {EXPLANATION_EDITION}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-[10px] leading-4 text-[#5c7472]">
-                          Додаток 2 до Наказу №402. Текст не скорочено й не переказано.
-                        </p>
-                      </div>
-                    </div>
-                    <Button asChild variant="outline" size="sm" className="h-9 shrink-0 bg-white text-[10px]">
-                      <a href={explanationUrl} target="_blank" rel="noreferrer">
-                        Джерело <ExternalLink />
-                      </a>
-                    </Button>
-                  </div>
-
-                  {explanationMeta?.status === "absent" ? (
-                    <div className="p-3 text-xs leading-5 text-[#627775]">
-                      Для статті {selected.article} окремого пояснення в Додатку 2 чинної редакції
-                      немає. Використовуйте дослівний рядок Розкладу хвороб, обраний пункт і ТДВ.
-                    </div>
-                  ) : explanationState === "loading" ? (
-                    <div className="p-3 text-xs leading-5 text-[#627775]" aria-live="polite">
-                      Завантаження дослівного пояснення…
-                    </div>
-                  ) : explanationState === "error" ? (
-                    <div className="p-3 text-xs leading-5 text-[#7d4a2c]" aria-live="polite">
-                      Пояснення не завантажилося. Перевірте з’єднання або відкрийте офіційне джерело.
-                    </div>
-                  ) : (
-                    <div className="p-3">
-                      {selectedRule ? (
-                      <div className="rounded-md border border-[#b88a2e]/18 bg-[#fff9e9] p-2.5">
-                        <p className="text-[9px] font-black uppercase tracking-[0.11em] text-[#755b22]">
-                          Автоматично до {pointLabelGenitive(selectedRule.point)}
-                        </p>
-                        {
-                          selectedPointExplanation.length ? (
-                            <div className="mt-1.5 max-h-52 space-y-1.5 overflow-y-auto pr-1 scrollbar-gutter-stable scrollbar-thin">
-                              {selectedPointExplanation.map((paragraph, index) => (
-                                <p
-                                  key={`${selected.article}-${selectedRule.point}-${index}`}
-                                  className="text-[11px] leading-[1.2rem] text-[#4d4937]"
-                                >
-                                  <Highlighted text={paragraph} query={query} />
-                                </p>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="mt-1.5 text-[11px] leading-4 text-[#685e44]">
-                              У поясненні немає окремого підрозділу для цього пункту. Перегляньте
-                              повний офіційний текст нижче — він застосовується до статті загалом.
+                        <div className="pb-3">
+                          <div className="max-h-72 space-y-2 overflow-y-auto border-y border-[#173f40]/8 py-2 pr-1 scrollbar-gutter-stable scrollbar-thin">
+                            {explanation?.paragraphs.map((paragraph, index) => (
+                              <p
+                                key={`${selected.article}-explanation-${index}`}
+                                className="text-[11px] leading-5 text-[#405c5a]"
+                              >
+                                <Highlighted text={paragraph} query={query} />
+                              </p>
+                            ))}
+                          </div>
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                            <Button asChild variant="outline" size="sm" className="h-8 bg-white text-[10px]">
+                              <a href={explanationUrl} target="_blank" rel="noreferrer">
+                                Джерело · Додаток 2 <ExternalLink />
+                              </a>
+                            </Button>
+                            <p className="text-[9px] leading-4 text-[#56706d]">
+                              Пояснення допомагає звірити критерії, але не встановлює діагноз і не
+                              замінює постанову ВЛК.
                             </p>
-                          )
-                        }
-                      </div>
-                      ) : null}
-
-                      <Accordion type="single" collapsible className="mt-2">
-                        <AccordionItem
-                          value="full-explanation"
-                          className="overflow-hidden rounded-md border border-[#173f40]/10 bg-white px-2.5"
-                        >
-                          <AccordionTrigger className="py-2 text-xs font-bold hover:no-underline">
-                            Повне офіційне пояснення · {explanationMeta?.paragraphs ?? 0} фрагментів
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <div className="max-h-72 space-y-2 overflow-y-auto border-t border-[#173f40]/8 py-2 pr-1 scrollbar-gutter-stable scrollbar-thin">
-                              {explanation?.paragraphs.map((paragraph, index) => (
-                                <p
-                                  key={`${selected.article}-explanation-${index}`}
-                                  className="text-[11px] leading-5 text-[#405c5a]"
-                                >
-                                  <Highlighted text={paragraph} query={query} />
-                                </p>
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-
-                      <div className="mt-2 flex items-start gap-2 rounded-md bg-[#edf4f1] p-2">
-                        <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-[#2e6e67]" />
-                        <p className="text-[9px] leading-4 text-[#56706d]">
-                          Пояснення допомагає звірити критерії, але не встановлює діагноз і не
-                          замінює оцінку лікаря, постанову ВЛК, графу Розкладу хвороб та ТДВ.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </section>
-
+                          </div>
+                        </div>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </div>
             </>
           ) : (
@@ -1629,15 +1771,93 @@ export default function Home() {
       </div>
         </>
       ) : (
-        <div className="mx-auto flex max-w-[900px] flex-col items-center px-4 py-10 text-center lg:py-16">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#34736d]">Крок 1</p>
-          <h2 className="mt-2 text-2xl font-bold">Оберіть свою спеціальність</h2>
+        <div className="mx-auto flex max-w-[900px] flex-col items-center px-4 py-8 text-center lg:py-12">
+          {EDITION_NOTICE ? (
+            <a
+              href={EDITION_NOTICE.url}
+              target="_blank"
+              rel="noreferrer"
+              className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border border-[#b98b31]/25 bg-[#fff8e6] px-3 py-2 text-xs font-bold text-[#6f592d]"
+            >
+              <AlertTriangle className="size-4" />
+              {EDITION_NOTICE.message}
+            </a>
+          ) : null}
+
+          {lastSpecialty ? (
+            <Button
+              type="button"
+              onClick={() => changeSpecialty(lastSpecialty)}
+              className="h-11 bg-[#123f40] px-5 text-sm text-white hover:bg-[#1a5554]"
+            >
+              Продовжити як{" "}
+              {SPECIALTIES.find((item) => item.id === lastSpecialty)?.label ?? "лікар"}
+              <ChevronDown className="-rotate-90" />
+            </Button>
+          ) : null}
+
+          <p
+            className={`text-[10px] font-black uppercase tracking-[0.18em] text-[#34736d] ${lastSpecialty ? "mt-6" : ""}`}
+          >
+            {lastSpecialty ? "Або почніть спочатку" : "Крок 1"}
+          </p>
+          <h2 className="mt-2 text-2xl font-bold">Знайдіть статтю або оберіть спеціальність</h2>
           <p className="mt-2 max-w-lg text-sm leading-6 text-[#5d7472]">
-            Далі відкриється перелік статей Розкладу хвороб цього лікаря.
+            Пошук працює за діагнозом, кодом МКХ-10 і номером статті — вибирати спеціальність
+            не обов’язково.
           </p>
 
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
+            <span className="text-[11px] font-bold text-[#5b7472]">Спробуйте:</span>
+            {POPULAR_QUERIES.slice(0, 4).map((example) => (
+              <button
+                key={example}
+                type="button"
+                onClick={() => runQuery(example)}
+                className={`rounded-full border border-[#2b6e68]/25 bg-white px-2.5 py-1 text-[11px] font-bold text-[#2d6f69] hover:bg-[#edf4f0] ${FOCUS_RING}`}
+              >
+                {example}
+              </button>
+            ))}
+          </div>
+
+          {recent.length ? (
+            <div className="mt-5 w-full">
+              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#5b7472]">
+                Нещодавно переглянуті
+              </p>
+              <div className="mt-1.5 flex flex-wrap justify-center gap-1">
+                {recent.map((entry) => {
+                  const article = ARTICLES.find((item) => item.article === entry.article);
+                  if (!article) return null;
+                  const rules = ARTICLE_RULES[entry.article] ?? [];
+                  const index = entry.point ? rules.findIndex((rule) => rule.point === entry.point) : -1;
+                  const style = index >= 0 ? outcomeStyles(rules[index].outcome) : undefined;
+                  return (
+                    <button
+                      key={`${entry.article}-${entry.point}`}
+                      type="button"
+                      onClick={() => openRecent(entry)}
+                      title={article.title}
+                      className={`flex items-center gap-1.5 rounded-full border border-[#173f40]/12 bg-white px-2 py-1 text-[11px] font-semibold text-[#3c6b66] hover:bg-[#f4f8f6] ${FOCUS_RING}`}
+                    >
+                      {style ? (
+                        <span className={`size-2 rounded-full ${style.dot}`} aria-hidden />
+                      ) : null}
+                      Стаття {entry.article}
+                      {entry.point ? ` · ${entry.point}` : ""}
+                      <span className="max-w-[160px] truncate font-normal text-[#687d7b]">
+                        {article.title}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+
           <div className="mt-6 grid w-full grid-cols-2 gap-2 sm:grid-cols-4">
-            {SPECIALTIES.map((item) => {
+            {welcomeSpecialties.map((item) => {
               const count = ARTICLES.filter((article) => article.specialties.includes(item.id)).length;
               return (
                 <button
