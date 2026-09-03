@@ -18,34 +18,84 @@
   scrollbar-gutter: stable;
 }
 
+/* Якісна поверхня: волосяна межа плюс дві м'які тіні. */
+@utility surface {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-soft);
+}
+
+@utility surface-muted {
+  background: var(--surface-muted);
+  border: 1px solid var(--hairline);
+}
+
+/* Елегантний hover: легке підняття і глибша тінь. */
+@utility lift {
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 220ms ease,
+    background-color 220ms ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-raised);
+  }
+}
+
 :root {
-  --background: #f4f1e9;
-  --foreground: #102b2c;
+  /* Тепла нейтральна основа: відчуття дорогого паперу, а не сірого екрана. */
+  --background: #f5f2ec;
+  --surface: #ffffff;
+  --surface-muted: #faf8f4;
+  --surface-sunken: #f0ece4;
+
+  --foreground: #17211f;
+  --ink-soft: #55635f;
+  --ink-muted: #68766f;
+
   --card: #ffffff;
-  --card-foreground: #102b2c;
+  --card-foreground: #17211f;
   --popover: #ffffff;
-  --popover-foreground: #102b2c;
-  --primary: #123f40;
+  --popover-foreground: #17211f;
+
+  /* Глибокий стриманий акцент замість яскравого бірюзового. */
+  --primary: #0f3733;
+  --primary-hover: #16514b;
   --primary-foreground: #ffffff;
-  --secondary: #e7efeb;
-  --secondary-foreground: #173f40;
-  --muted: #edf2ef;
-  --muted-foreground: #617675;
-  --accent: #e3eeea;
-  --accent-foreground: #173f40;
-  --destructive: #b73333;
-  --border: #d7dfda;
-  --input: #cad7d2;
-  --ring: #2e817b;
-  --radius: 0.75rem;
-  --sidebar: #f5f6f1;
-  --sidebar-foreground: #173f40;
-  --sidebar-primary: #123f40;
+  --accent-ink: #2c6b63;
+  --accent-ink-strong: #1f564f;
+
+  --secondary: #e8ede8;
+  --secondary-foreground: #1f2e2b;
+  --muted: #f0ede7;
+  --muted-foreground: #6f7d78;
+  --accent: #e8ede8;
+  --accent-foreground: #1f2e2b;
+  --destructive: #8c3a35;
+
+  /* Волосяні лінії замість різких контрастних бордерів. */
+  --hairline: rgba(23, 33, 31, 0.07);
+  --hairline-strong: rgba(23, 33, 31, 0.12);
+  --border: rgba(23, 33, 31, 0.09);
+  --input: rgba(23, 33, 31, 0.14);
+  --ring: #2c6b63;
+
+  --radius: 1rem;
+
+  --sidebar: #faf8f4;
+  --sidebar-foreground: #1f2e2b;
+  --sidebar-primary: #0f3733;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e7efeb;
-  --sidebar-accent-foreground: #173f40;
-  --sidebar-border: #d7dfda;
-  --sidebar-ring: #2e817b;
+  --sidebar-accent: #e8ede8;
+  --sidebar-accent-foreground: #1f2e2b;
+  --sidebar-border: rgba(23, 33, 31, 0.09);
+  --sidebar-ring: #2c6b63;
+
+  /* Дві м'які тіні: контактна і розсіяна. Ніякої «пластмаси». */
+  --shadow-soft: 0 1px 2px rgba(23, 33, 31, 0.04), 0 12px 28px -20px rgba(23, 33, 31, 0.28);
+  --shadow-raised: 0 1px 2px rgba(23, 33, 31, 0.05), 0 18px 40px -24px rgba(23, 33, 31, 0.34);
 }
 
 @theme inline {
@@ -75,11 +125,11 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-sans: Inter, "SF Pro Text", "Segoe UI", Arial, sans-serif;
+  --font-sans: var(--font-inter), "SF Pro Text", "Segoe UI", system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
@@ -88,18 +138,59 @@
 }
 
 html {
-  background: #f4f1e9;
+  background: var(--background);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
-  background:
-    linear-gradient(rgba(18, 63, 64, 0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(18, 63, 64, 0.022) 1px, transparent 1px),
-    #f4f1e9;
-  background-size: 28px 28px;
+  background: var(--background);
   color: var(--foreground);
-  font-family: Inter, "SF Pro Text", "Segoe UI", Arial, sans-serif;
+  font-family: var(--font-inter), "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: -0.006em;
+  font-variant-ligatures: common-ligatures;
+}
+
+/* Заголовки: щільніший трекінг і спокійна вага. */
+h1,
+h2,
+h3 {
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* Один стиль штриха для всіх іконок. */
+.lucide {
+  stroke-width: 1.5px;
+}
+
+/* Тонкі скроллбари в тон інтерфейсу. */
+.scrollbar-thin {
+  scrollbar-color: rgba(23, 33, 31, 0.18) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(23, 33, 31, 0.16);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(23, 33, 31, 0.26);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 button,
@@ -108,7 +199,7 @@ input {
 }
 
 ::selection {
-  background: rgba(46, 129, 123, 0.22);
+  background: rgba(44, 107, 99, 0.18);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -142,7 +142,7 @@ const ANALYSIS_CHECKS = [
 ];
 
 const FOCUS_RING =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2e817b] focus-visible:ring-offset-1 focus-visible:ring-offset-white";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2c6b63] focus-visible:ring-offset-1 focus-visible:ring-offset-white";
 
 function articleCountLabel(count: number) {
   const lastTwo = count % 100;
@@ -177,6 +177,18 @@ function specialtyName(item: (typeof SPECIALTIES)[number]) {
   return isAbbreviation ? `${item.label} (${item.short})` : item.label;
 }
 
+/**
+ * М'який перенос для найдовшої назви спеціальності, щоб у вузькій колонці
+ * слово розривалося по складу («Дермато-венеролог»), а не будь-де.
+ */
+const SOFT_HYPHENS: Partial<Record<SpecialtyId, string>> = {
+  dermatologist: "Дермато\u00ADвенеролог",
+};
+
+function compactSpecialtyName(item: (typeof SPECIALTIES)[number]) {
+  return SOFT_HYPHENS[item.id] ?? specialtyName(item);
+}
+
 function pointLabel(point: string) {
   return point === "—" ? "без поділу" : `пункт «${point}»`;
 }
@@ -192,7 +204,7 @@ function Highlighted({ text, query }: { text: string; query: string }) {
     <>
       {highlightParts(text, query).map((part, index) =>
         part.match ? (
-          <mark key={index} className="rounded-[3px] bg-[#fdeaae] px-0.5 text-inherit">
+          <mark key={index} className="rounded-[3px] bg-[#f7e7b4] px-0.5 text-inherit">
             {part.text}
           </mark>
         ) : (
@@ -687,7 +699,7 @@ export default function Home() {
     const target = window.open("", "_blank", "width=860,height=720");
     if (!target) return;
     target.document.write(
-      `<html lang="uk"><head><title>Чернетка ВЛК 402</title><style>body{font-family:Arial,sans-serif;margin:42px;color:#142f30}pre{white-space:pre-wrap;font:14px/1.55 Arial,sans-serif}h1{font-size:20px}@media print{body{margin:20mm}}</style></head><body><h1>VLK Навігатор · Чернетка</h1><pre>${safe}</pre></body></html>`,
+      `<html lang="uk"><head><title>Чернетка ВЛК 402</title><style>body{font-family:Arial,sans-serif;margin:42px;color:#17211f}pre{white-space:pre-wrap;font:14px/1.55 Arial,sans-serif}h1{font-size:20px}@media print{body{margin:20mm}}</style></head><body><h1>VLK Навігатор · Чернетка</h1><pre>${safe}</pre></body></html>`,
     );
     target.document.close();
     target.focus();
@@ -714,11 +726,11 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#eef2ef] text-[#102d2e] xl:h-screen xl:overflow-hidden">
+    <main className="min-h-screen bg-[#f5f2ec] text-[#17211f] xl:h-screen xl:overflow-hidden">
       <SwRegister />
       <Toaster position="bottom-center" />
 
-      <header className="sticky top-0 z-30 border-b border-[#173f40]/12 bg-white xl:relative">
+      <header className="sticky top-0 z-30 border-b border-[var(--hairline)] bg-white xl:relative">
         <div className="mx-auto flex max-w-[1720px] flex-wrap items-center gap-2 px-3 py-2 lg:flex-nowrap lg:px-5">
           <div className="flex shrink-0 items-center gap-1.5">
             {showDashboard ? (
@@ -727,7 +739,7 @@ export default function Home() {
                 onClick={goHome}
                 aria-label="Назад до вибору спеціальності"
                 title="Назад до вибору спеціальності"
-                className={`grid size-10 shrink-0 place-items-center rounded-lg border border-[#173f40]/12 bg-white text-[#2d6f69] transition hover:bg-[#edf4f0] ${FOCUS_RING}`}
+                className={`grid size-10 shrink-0 place-items-center rounded-lg border border-[var(--hairline)] bg-white text-[#2c6b63] transition hover:bg-[#f1eee7] ${FOCUS_RING}`}
               >
                 <ArrowLeft className="size-4" />
               </button>
@@ -739,12 +751,12 @@ export default function Home() {
                 onClick={goHome}
                 aria-label="На головну — вибір спеціальності"
                 title="На головну — вибір спеціальності"
-                className={`grid size-9 shrink-0 place-items-center rounded-lg bg-[#123f40] text-xs font-black text-white transition hover:bg-[#1a5554] ${FOCUS_RING}`}
+                className={`grid size-9 shrink-0 place-items-center rounded-lg bg-[#0f3733] text-xs font-black text-white transition hover:bg-[#16514b] ${FOCUS_RING}`}
               >
                 402
               </button>
             ) : (
-              <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#123f40] text-xs font-black text-white">
+              <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#0f3733] text-xs font-black text-white">
                 402
               </div>
             )}
@@ -757,7 +769,7 @@ export default function Home() {
                       type="button"
                       onClick={goHome}
                       title="На головну — вибір спеціальності"
-                      className={`rounded font-bold transition hover:text-[#2d6f69] ${FOCUS_RING}`}
+                      className={`rounded font-bold transition hover:text-[#2c6b63] ${FOCUS_RING}`}
                     >
                       VLK Навігатор
                     </button>
@@ -765,11 +777,11 @@ export default function Home() {
                     "VLK Навігатор"
                   )}
                 </h1>
-                <span className="rounded-full bg-[#e8f1ed] px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#27645f]">
+                <span className="rounded-full bg-[#e8ede8] px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#1f564f]">
                   MVP
                 </span>
               </div>
-              <p className="mt-1 text-[11px] text-[#657b7a]">
+              <p className="mt-1 text-[11px] text-[#68766f]">
                 {showDashboard ? "Натисніть, щоб повернутися на головну" : "Навігація по Наказу МОУ №402"}
               </p>
             </div>
@@ -783,7 +795,7 @@ export default function Home() {
               Пошук статті за діагнозом, кодом МКХ-10 або номером статті
             </label>
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-3.5 size-4 text-[#4d706d]" />
+              <Search className="pointer-events-none absolute left-3 top-3.5 size-4 text-[#55635f]" />
               <Input
                 id="vlk-search"
                 ref={searchRef}
@@ -798,14 +810,14 @@ export default function Home() {
                 aria-controls="vlk-search-results"
                 aria-autocomplete="list"
                 aria-activedescendant={activeHit >= 0 ? `vlk-hit-${activeHit}` : undefined}
-                className="h-11 w-full border-[#2b6e68]/35 bg-white pl-9 pr-10 text-sm shadow-sm"
+                className="h-11 w-full border-[#2c6b63]/35 bg-white pl-9 pr-10 text-sm shadow-sm"
               />
               {query ? (
                 <button
                   type="button"
                   onClick={() => clearQuery({ focus: true, notify: true })}
                   aria-label="Очистити пошук"
-                  className={`absolute right-1 top-1 grid size-9 place-items-center rounded-md text-[#4d706d] hover:bg-[#edf4f0] ${FOCUS_RING}`}
+                  className={`absolute right-1 top-1 grid size-9 place-items-center rounded-md text-[#55635f] hover:bg-[#f1eee7] ${FOCUS_RING}`}
                 >
                   <X className="size-4" />
                 </button>
@@ -817,12 +829,12 @@ export default function Home() {
                 id="vlk-search-results"
                 role="listbox"
                 aria-label="Результати пошуку"
-                className="absolute left-0 right-0 top-12 z-50 overflow-hidden rounded-xl border border-[#173f40]/15 bg-white shadow-lg"
+                className="absolute left-0 right-0 top-12 z-50 overflow-hidden rounded-xl border border-[var(--hairline)] bg-white shadow-lg"
               >
                 {query.trim() ? (
                   searchHits.length ? (
                     <>
-                      <p className="border-b border-[#173f40]/10 bg-[#f7faf8] px-3 py-1.5 text-[10px] font-bold text-[#5b7472]">
+                      <p className="border-b border-[var(--hairline)] bg-[#faf8f4] px-3 py-1.5 text-[10px] font-bold text-[#55635f]">
                         Знайдено {articleCountLabel(searchHits.length)}
                       </p>
                       <ul className="max-h-[52vh] overflow-y-auto scrollbar-thin">
@@ -831,7 +843,7 @@ export default function Home() {
                           return (
                             <li
                               key={hit.article.id}
-                              className={`border-b border-[#173f40]/8 last:border-b-0 ${index === activeHit ? "bg-[#eef5f2]" : ""}`}
+                              className={`border-b border-[var(--hairline)] last:border-b-0 ${index === activeHit ? "bg-[#f1eee7]" : ""}`}
                             >
                               <button
                                 type="button"
@@ -842,14 +854,14 @@ export default function Home() {
                                 onClick={() => chooseHit(hit)}
                                 className={`flex w-full items-start gap-2 px-3 pt-2 text-left ${FOCUS_RING}`}
                               >
-                                <span className="grid size-7 shrink-0 place-items-center rounded-md bg-[#e7efeb] text-[11px] font-black text-[#205f59]">
+                                <span className="grid size-7 shrink-0 place-items-center rounded-md bg-[#e8ede8] text-[11px] font-black text-[#1f564f]">
                                   {hit.article.article}
                                 </span>
                                 <span className="min-w-0 flex-1">
                                   <span className="block truncate text-xs font-semibold">
                                     <Highlighted text={hit.article.title} query={query} />
                                   </span>
-                                  <span className="mt-0.5 block truncate text-[10px] text-[#687d7b]">
+                                  <span className="mt-0.5 block truncate text-[10px] text-[#68766f]">
                                     <Highlighted text={hit.article.icd} query={query} /> ·{" "}
                                     {MATCH_TYPE_LABELS[hit.matches[0]]}
                                   </span>
@@ -865,13 +877,13 @@ export default function Home() {
                                   return (
                                     <span
                                       key={`${hit.article.id}-${rule.point}-${pointIndex}`}
-                                      className="flex items-stretch overflow-hidden rounded-md border border-[#173f40]/12 bg-white"
+                                      className="flex items-stretch overflow-hidden rounded-md border border-[var(--hairline)] bg-white"
                                     >
                                       <button
                                         type="button"
                                         onClick={() => chooseHit(hit, pointIndex)}
                                         title={rule.condition}
-                                        className={`flex items-center gap-1.5 px-1.5 py-1 text-[10px] font-bold hover:bg-[#f4f8f6] ${FOCUS_RING}`}
+                                        className={`flex items-center gap-1.5 px-1.5 py-1 text-[10px] font-bold hover:bg-[#f5f2ec] ${FOCUS_RING}`}
                                       >
                                         <span className={`size-2 shrink-0 rounded-full ${style.dot}`} aria-hidden />
                                         {rule.point === "—" ? "без поділу" : rule.point.toUpperCase()}
@@ -884,7 +896,7 @@ export default function Home() {
                                         aria-label={`Додати статтю ${hit.article.article}, ${pointLabel(rule.point)} до зведення`}
                                         title={inBasket ? "Уже у зведенні" : "Додати до зведення"}
                                         onClick={() => addArticleRuleToBasket(hit.article, rule)}
-                                        className={`grid w-6 place-items-center border-l border-[#173f40]/12 ${inBasket ? "bg-[#dcece5] text-[#205f51]" : "text-[#2d6f69] hover:bg-[#edf5f1]"} ${FOCUS_RING}`}
+                                        className={`grid w-6 place-items-center border-l border-[var(--hairline)] ${inBasket ? "bg-[#dfe8de] text-[#255c49]" : "text-[#2c6b63] hover:bg-[#f1eee7]"} ${FOCUS_RING}`}
                                       >
                                         {inBasket ? <Check className="size-3" /> : <Plus className="size-3" />}
                                       </button>
@@ -896,14 +908,14 @@ export default function Home() {
                           );
                         })}
                       </ul>
-                      <p className="border-t border-[#173f40]/10 px-3 py-1.5 text-[10px] text-[#7a8a88]">
+                      <p className="border-t border-[var(--hairline)] px-3 py-1.5 text-[10px] text-[#8d9994]">
                         ↑↓ — вибір, Enter — відкрити, Esc — закрити
                       </p>
                     </>
                   ) : (
                     <div className="p-3">
                       <p className="text-xs font-bold">Нічого не знайдено</p>
-                      <p className="mt-1 text-[11px] leading-4 text-[#617775]">
+                      <p className="mt-1 text-[11px] leading-4 text-[#68766f]">
                         Спробуйте коротший запит, код МКХ-10 або номер статті. Приклади:
                       </p>
                       <div className="mt-2 flex flex-wrap gap-1">
@@ -912,7 +924,7 @@ export default function Home() {
                             key={example}
                             type="button"
                             onClick={() => runQuery(example)}
-                            className={`rounded-full border border-[#173f40]/12 bg-[#f7faf8] px-2 py-1 text-[10px] font-bold text-[#2d6f69] hover:bg-[#edf4f0] ${FOCUS_RING}`}
+                            className={`rounded-full border border-[var(--hairline)] bg-[#faf8f4] px-2 py-1 text-[10px] font-bold text-[#2c6b63] hover:bg-[#f1eee7] ${FOCUS_RING}`}
                           >
                             {example}
                           </button>
@@ -924,7 +936,7 @@ export default function Home() {
                   <div className="p-3">
                     {history.length ? (
                       <>
-                        <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#5b7472]">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#55635f]">
                           Останні запити
                         </p>
                         <div className="mt-1.5 flex flex-wrap gap-1">
@@ -933,7 +945,7 @@ export default function Home() {
                               key={item}
                               type="button"
                               onClick={() => runQuery(item)}
-                              className={`rounded-full border border-[#173f40]/12 bg-white px-2 py-1 text-[10px] font-semibold text-[#3c6b66] hover:bg-[#f4f8f6] ${FOCUS_RING}`}
+                              className={`rounded-full border border-[var(--hairline)] bg-white px-2 py-1 text-[10px] font-semibold text-[#2c6b63] hover:bg-[#f5f2ec] ${FOCUS_RING}`}
                             >
                               {item}
                             </button>
@@ -941,7 +953,7 @@ export default function Home() {
                         </div>
                       </>
                     ) : null}
-                    <p className="mt-2 text-[10px] font-black uppercase tracking-[0.12em] text-[#5b7472]">
+                    <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#55635f]">
                       Популярні запити
                     </p>
                     <div className="mt-1.5 flex flex-wrap gap-1">
@@ -950,7 +962,7 @@ export default function Home() {
                           key={example}
                           type="button"
                           onClick={() => runQuery(example)}
-                          className={`rounded-full border border-[#173f40]/12 bg-[#f7faf8] px-2 py-1 text-[10px] font-bold text-[#2d6f69] hover:bg-[#edf4f0] ${FOCUS_RING}`}
+                          className={`rounded-full border border-[var(--hairline)] bg-[#faf8f4] px-2 py-1 text-[10px] font-bold text-[#2c6b63] hover:bg-[#f1eee7] ${FOCUS_RING}`}
                         >
                           {example}
                         </button>
@@ -967,13 +979,13 @@ export default function Home() {
               href={SOURCE_URL}
               target="_blank"
               rel="noreferrer"
-              className={`hidden items-center gap-1.5 rounded-full bg-[#edf7f2] px-2.5 py-1 text-[11px] font-bold text-[#236757] hover:bg-[#e2f0ea] sm:flex ${FOCUS_RING}`}
+              className={`hidden items-center gap-1.5 rounded-full border border-[var(--hairline)] bg-white/70 px-3 py-1.5 text-[11px] font-medium text-[#55635f] transition hover:border-[#2c6b63]/25 hover:text-[#1f564f] sm:flex ${FOCUS_RING}`}
               title={`База статей, пунктів, пояснень і ТДВ звірена за редакцією Наказу №402 від ${EDITION}. Автоматичної перевірки нових редакцій немає.`}
             >
               <ShieldCheck className="size-3.5" /> Оновлено: {EDITION}
             </a>
             <span
-              className={`hidden items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold md:flex ${online ? "bg-[#edf7f2] text-[#236757]" : "bg-[#fff4df] text-[#765612]"}`}
+              className={`hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-medium md:flex ${online ? "text-[#68766f]" : "bg-[#faf3e4] text-[#6b5423]"}`}
             >
               {online ? <Wifi className="size-3.5" /> : <WifiOff className="size-3.5" />}
               {online ? "Онлайн" : "Офлайн"}
@@ -997,7 +1009,7 @@ export default function Home() {
                           setDirectory((current) => ({ ...current, [item.id]: event.target.value }))
                         }
                         placeholder="Напр. Іваненко, Петренко"
-                        className="mt-1 bg-[#f8faf8] font-normal"
+                        className="mt-1 bg-[#faf8f4] font-normal"
                       />
                     </label>
                   ))}
@@ -1015,9 +1027,9 @@ export default function Home() {
               trigger={
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
-                  className="h-10 bg-white"
+                  className="h-10 text-[#55635f] hover:bg-[#f0ece4] hover:text-[#17211f]"
                   title="Відкрити повну таблицю додаткових вимог (Додаток 3)"
                 >
                   <Table2 />
@@ -1029,9 +1041,9 @@ export default function Home() {
               <DropdownMenuTrigger asChild>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
-                  className="h-10 bg-white"
+                  className="h-10 text-[#55635f] hover:bg-[#f0ece4] hover:text-[#17211f]"
                   aria-label="Ще дії"
                 >
                   <MoreHorizontal />
@@ -1052,7 +1064,7 @@ export default function Home() {
                   </a>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuLabel className="text-[10px] font-normal text-[#617775]">
+                <DropdownMenuLabel className="text-[10px] font-normal text-[#68766f]">
                   Оновлено: редакція від {EDITION}
                 </DropdownMenuLabel>
               </DropdownMenuContent>
@@ -1063,29 +1075,29 @@ export default function Home() {
 
       {showDashboard ? (
         <>
-      <div className="border-b border-[#173f40]/10 bg-white">
+      <div className="border-b border-[var(--hairline)] bg-white">
         <div className="mx-auto flex max-w-[1720px] flex-wrap items-center justify-between gap-2 px-3 py-1.5 lg:px-5">
-          <div className="flex items-center gap-1 rounded-lg bg-[#eef3f0] p-1" aria-label="Режим роботи">
+          <div className="flex items-center gap-0.5 rounded-full border border-[var(--hairline)] bg-white p-1" aria-label="Режим роботи">
             {(["express", "detailed"] as const).map((value) => (
               <button
                 key={value}
                 type="button"
                 onClick={() => setMode(value)}
                 aria-pressed={mode === value}
-                className={`min-h-9 rounded-md px-3 py-1.5 text-xs font-bold transition ${FOCUS_RING} ${mode === value ? "bg-[#123f40] text-white shadow-sm" : "text-[#5c7472]"}`}
+                className={`min-h-9 rounded-full px-3.5 py-1.5 text-xs font-medium transition ${FOCUS_RING} ${mode === value ? "bg-[#0f3733] text-white shadow-[var(--shadow-soft)]" : "text-[#55635f] hover:text-[#17211f]"}`}
               >
                 {value === "express" ? "Експрес" : "Детальний"}
               </button>
             ))}
           </div>
-          <p className="hidden items-center gap-1.5 text-xs text-[#607775] md:flex">
-            <ShieldCheck className="size-3.5 text-[#2e6e67]" />
+          <p className="hidden items-center gap-1.5 text-xs text-[#68766f] md:flex">
+            <ShieldCheck className="size-3.5 text-[#2c6b63]" />
             Довідкова навігація, не рішення ВЛК
           </p>
           <button
             type="button"
             onClick={() => setDraftOpen(true)}
-            className={`flex min-h-9 items-center gap-2 rounded-lg border border-[#b88a2e]/20 bg-[#fff7df] px-3 py-1.5 text-xs font-bold text-[#6e531d] ${FOCUS_RING}`}
+            className={`flex min-h-9 items-center gap-2 rounded-full border border-[#a8792f]/20 bg-[#faf3e4] px-3.5 py-1.5 text-xs font-medium text-[#6b5423] transition hover:border-[#a8792f]/35 ${FOCUS_RING}`}
           >
             <ListPlus className="size-4" />
             Кошик діагнозів · {basket.length}
@@ -1094,11 +1106,11 @@ export default function Home() {
       </div>
 
       <div className="mx-auto grid max-w-[1720px] gap-2 p-2 lg:p-3 xl:h-[calc(100vh-105px)] xl:grid-cols-[330px_minmax(430px,1fr)_320px] xl:overflow-hidden">
-        <aside className="flex min-h-[520px] flex-col overflow-hidden rounded-xl border border-[#173f40]/12 bg-white xl:min-h-0">
-          <div className="border-b border-[#173f40]/10 p-2.5">
+        <aside className="flex min-h-[520px] flex-col overflow-hidden rounded-2xl border border-[var(--hairline)] bg-white shadow-[var(--shadow-soft)] xl:min-h-0">
+          <div className="border-b border-[var(--hairline)] p-2.5">
             <div className="flex items-center justify-between">
               <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.13em] text-[#34736d]">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c6b63]">
                   Навігація
                 </p>
                 <h2 className="mt-0.5 truncate text-sm font-bold">
@@ -1127,7 +1139,7 @@ export default function Home() {
                 Категорія оглядуваного
               </label>
               <Select value={examineeType} onValueChange={setExamineeType}>
-                <SelectTrigger id="examinee-type" className="h-10 w-full bg-[#f7faf8] text-xs">
+                <SelectTrigger id="examinee-type" className="h-10 w-full bg-[#faf8f4] text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1152,10 +1164,12 @@ export default function Home() {
                     type="button"
                     onClick={() => changeSpecialty(item.id)}
                     aria-pressed={active}
-                    className={`min-h-11 shrink-0 rounded-md border px-2 py-1.5 text-left text-[11px] transition sm:shrink ${FOCUS_RING} ${active ? "border-[#123f40] bg-[#123f40] text-white" : "border-[#173f40]/10 bg-[#f7f9f7] hover:bg-[#edf4f0]"}`}
+                    className={`min-h-[52px] shrink-0 rounded-xl border px-3 py-2 text-left text-[11px] transition sm:shrink ${FOCUS_RING} ${active ? "border-[#0f3733] bg-[#0f3733] text-white shadow-[var(--shadow-soft)]" : "border-[var(--hairline)] bg-white hover:border-[#2c6b63]/25 hover:bg-[#faf8f4]"}`}
                   >
-                    <span className="block font-bold leading-tight">{specialtyName(item)}</span>
-                    <span className={`text-[10px] ${active ? "text-[#b8d7d3]" : "text-[#738583]"}`}>
+                    <span className="block break-words font-semibold leading-[1.3]">
+                      {compactSpecialtyName(item)}
+                    </span>
+                    <span className={`text-[10px] ${active ? "text-[#b9cbc4]" : "text-[#8d9994]"}`}>
                       {articleCountLabel(count)}
                     </span>
                   </button>
@@ -1163,14 +1177,14 @@ export default function Home() {
               })}
             </div>
             <div className="mt-2">
-              <label className="block text-[10px] font-black uppercase tracking-[0.12em] text-[#5b7472]" htmlFor="outcome-filter">
+              <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#55635f]" htmlFor="outcome-filter">
                 Фільтр за результатом
               </label>
               <Select
                 value={outcomeFilter}
                 onValueChange={(value) => setOutcomeFilter(value as OutcomeFilterId)}
               >
-                <SelectTrigger id="outcome-filter" className="mt-1 h-10 w-full bg-[#f7faf8] text-xs">
+                <SelectTrigger id="outcome-filter" className="mt-1 h-10 w-full bg-[#faf8f4] text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1182,7 +1196,7 @@ export default function Home() {
                 </SelectContent>
               </Select>
               {outcomeFilter === "all" ? null : (
-                <p className="mt-1 text-[10px] leading-4 text-[#607775]">
+                <p className="mt-1 text-[10px] leading-4 text-[#68766f]">
                   Угорі — {articleCountLabel(filteredCount)} із таким дослівним результатом. Решта
                   лишається в списку приглушеною.
                 </p>
@@ -1210,10 +1224,10 @@ export default function Home() {
                         data-dimmed={dimmed ? "true" : undefined}
                         aria-current={isSelected ? "true" : undefined}
                         onClick={() => selectFromList(article)}
-                        className={`flex w-full min-h-11 items-start gap-2 rounded-lg border px-2 py-2 text-left transition ${FOCUS_RING} ${isSelected ? "border-[#2d7872]/45 bg-[#e9f2ee]" : "border-[#173f40]/10 bg-white hover:bg-[#f4f8f6]"}`}
+                        className={`flex w-full min-h-11 items-start gap-2 rounded-lg border px-2 py-2 text-left transition ${FOCUS_RING} ${isSelected ? "border-[#2c6b63]/45 bg-[#eaefe9]" : "border-[var(--hairline)] bg-white hover:bg-[#f5f2ec]"}`}
                       >
                         <span
-                          className={`grid size-8 shrink-0 place-items-center rounded-md text-xs font-black ${isSelected ? "bg-[#123f40] text-white" : "bg-[#e7efeb] text-[#205f59]"}`}
+                          className={`grid size-8 shrink-0 place-items-center rounded-md text-xs font-black ${isSelected ? "bg-[#0f3733] text-white" : "bg-[#e8ede8] text-[#1f564f]"}`}
                         >
                           {article.article}
                         </span>
@@ -1221,7 +1235,7 @@ export default function Home() {
                           <span className="block text-xs font-semibold leading-4">
                             <Highlighted text={article.title} query={query} />
                           </span>
-                          <span className="mt-0.5 block break-words text-[10px] leading-4 text-[#687d7b]">
+                          <span className="mt-0.5 block break-words text-[10px] leading-4 text-[#68766f]">
                             <Highlighted text={article.icd} query={query} />
                           </span>
                           {matches.length ? (
@@ -1230,7 +1244,7 @@ export default function Home() {
                                 <span
                                   key={match}
                                   title={MATCH_TYPE_LABELS[match]}
-                                  className="rounded-full bg-[#eef3f0] px-1.5 py-0.5 text-[9px] font-bold text-[#3c6b66]"
+                                  className="rounded-full bg-[#f0ece4] px-1.5 py-0.5 text-[9px] font-bold text-[#2c6b63]"
                                 >
                                   збіг: {MATCH_TYPE_SHORT[match]}
                                 </span>
@@ -1238,7 +1252,7 @@ export default function Home() {
                             </span>
                           ) : null}
                           {hit?.evidence ? (
-                            <span className="mt-1 block text-[9px] leading-3.5 text-[#6b807e]">
+                            <span className="mt-1 block text-[9px] leading-3.5 text-[#68766f]">
                               <Highlighted
                                 text={snippetAround(hit.evidence.text, query)}
                                 query={query}
@@ -1253,57 +1267,59 @@ export default function Home() {
                 })}
               </ul>
             ) : (
-              <div className="p-5 text-center text-sm text-[#667d7b]">
-                Нічого не знайдено. Спробуйте коротшу назву, номер статті або код МКХ-10.
+              <div className="px-5 py-10 text-center text-xs leading-6 text-[#68766f]">
+                Нічого не знайдено.
+                <br />
+                Спробуйте коротшу назву, номер статті або код МКХ-10.
               </div>
             )}
           </div>
 
-          <div className="shrink-0 border-t border-[#173f40]/10 px-2.5 py-2 text-[10px] leading-4 text-[#607775]">
-            <span className="block font-bold text-[#2d6f69]">
+          <div className="shrink-0 border-t border-[var(--hairline)] px-2.5 py-2 text-[10px] leading-4 text-[#68766f]">
+            <span className="block font-bold text-[#2c6b63]">
               База перевірена за редакцією Наказу №402 від {EDITION}
             </span>
             У списку: {articleCountLabel(listArticles.length)}. Стрілки ↑↓ переміщують фокус списком.
           </div>
         </aside>
 
-        <section className="flex min-h-[620px] flex-col overflow-hidden rounded-xl border border-[#173f40]/12 bg-white xl:min-h-0">
+        <section className="flex min-h-[620px] flex-col overflow-hidden rounded-2xl border border-[var(--hairline)] bg-white shadow-[var(--shadow-soft)] xl:min-h-0">
           {selected ? (
             <>
-              <div className="shrink-0 border-b border-[#173f40]/10 px-3 py-2.5">
+              <div className="shrink-0 border-b border-[var(--hairline)] px-3 py-2.5">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex min-w-0 items-start gap-2.5">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-[#123f40] text-sm font-black text-white">
+                    <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-[#0f3733] text-sm font-black text-white">
                       {selected.article}
                     </span>
                     <div className="min-w-0">
                       <nav
                         aria-label="Шлях"
-                        className="flex flex-wrap items-center gap-1 text-[10px] font-bold text-[#5b7472]"
+                        className="flex flex-wrap items-center gap-1 text-[10px] font-bold text-[#55635f]"
                       >
                         <button
                           type="button"
                           onClick={goHome}
-                          className={`rounded px-1 text-[#2d6f69] hover:underline ${FOCUS_RING}`}
+                          className={`rounded px-1 text-[#2c6b63] hover:underline ${FOCUS_RING}`}
                         >
                           {query.trim() ? "Пошук" : (selectedSpecialty?.label ?? "Спеціальність")}
                         </button>
                         <span aria-hidden>/</span>
-                        <span className="text-[#102d2e]">Стаття {selected.article}</span>
+                        <span className="text-[#17211f]">Стаття {selected.article}</span>
                         {selectedRule ? (
                           <>
                             <span aria-hidden>/</span>
-                            <span className="text-[#102d2e]">{pointLabel(selectedRule.point)}</span>
+                            <span className="text-[#17211f]">{pointLabel(selectedRule.point)}</span>
                           </>
                         ) : null}
                       </nav>
-                      <p className="mt-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#34736d]">
+                      <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c6b63]">
                         {specialtyLabels(selected)}
                       </p>
-                      <h2 className="mt-1 text-lg font-bold leading-tight sm:text-xl">
+                      <h2 className="mt-1.5 text-xl font-semibold leading-tight tracking-[-0.02em] sm:text-[22px]">
                         <Highlighted text={selected.title} query={query} />
                       </h2>
-                      <p className="mt-1 break-words text-xs font-black text-[#123f40]">
+                      <p className="mt-1 break-words text-xs font-black text-[#0f3733]">
                         МКХ-10: <Highlighted text={selected.icd} query={query} />
                       </p>
                     </div>
@@ -1322,7 +1338,7 @@ export default function Home() {
                         {copied === "reference" ? "Скопійовано" : "Копіювати"}
                       </span>
                     </Button>
-                    <Button asChild size="sm" className="h-9 bg-[#123f40] text-white hover:bg-[#1a5554]">
+                    <Button asChild size="sm" className="h-9 bg-[#0f3733] text-white hover:bg-[#16514b]">
                       <a href={sourceUrl} target="_blank" rel="noreferrer">
                         Відкрити у №402 <ExternalLink />
                       </a>
@@ -1331,16 +1347,16 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="min-h-0 flex-1 overflow-y-auto p-2.5 scrollbar-thin">
-                <div className="grid items-start gap-2 sm:grid-cols-[minmax(0,1fr)_230px]">
-                  <div className="min-w-0 overflow-hidden rounded-lg border border-[#173f40]/10 bg-[#f7faf8]">
+              <div className="min-h-0 flex-1 overflow-y-auto p-4 scrollbar-thin">
+                <div className="grid items-start gap-3 sm:grid-cols-[minmax(0,1fr)_230px]">
+                  <div className="min-w-0 overflow-hidden rounded-lg border border-[var(--hairline)] bg-[#faf8f4]">
                     <Accordion type="single" collapsible>
                       <AccordionItem value="included" className="border-none px-3">
-                        <AccordionTrigger className="py-2.5 text-[10px] font-black uppercase tracking-[0.12em] text-[#50716e] hover:no-underline">
+                        <AccordionTrigger className="py-2.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#55635f] hover:no-underline">
                           Дослівно з Наказу №402 · «Включено»
                         </AccordionTrigger>
                         <AccordionContent>
-                          <p className="break-words pb-3 text-[11px] leading-[1.15rem] text-[#425f5d]">
+                          <p className="break-words pb-3 text-[11px] leading-[1.15rem] text-[#3c4a46]">
                             <Highlighted text={selected.officialIncluded} query={query} />
                           </p>
                         </AccordionContent>
@@ -1349,10 +1365,10 @@ export default function Home() {
                   </div>
 
                   <div
-                    className={`min-w-0 rounded-lg border p-3 ${selectedRule && tdvRule ? "border-[#ba4a4a]/18 bg-[#fff3f1]" : "border-[#173f40]/10 bg-white"}`}
+                    className={`min-w-0 rounded-lg border p-3 ${selectedRule && tdvRule ? "border-[#8c3a35]/18 bg-[#fbf1ed]" : "border-[var(--hairline)] bg-white"}`}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#50716e]">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#55635f]">
                         ТДВ · Додаток 3
                       </p>
                       <TdvDialog
@@ -1363,7 +1379,7 @@ export default function Home() {
                             type="button"
                             aria-label="Відкрити таблицю додаткових вимог на весь екран"
                             title="Відкрити таблицю на весь екран"
-                            className={`grid size-7 shrink-0 place-items-center rounded-md border border-[#173f40]/12 bg-white text-[#2d6f69] hover:bg-[#edf5f1] ${FOCUS_RING}`}
+                            className={`grid size-7 shrink-0 place-items-center rounded-md border border-[var(--hairline)] bg-white text-[#2c6b63] hover:bg-[#f1eee7] ${FOCUS_RING}`}
                           >
                             <Maximize2 className="size-3.5" />
                           </button>
@@ -1377,7 +1393,7 @@ export default function Home() {
                           ? `${tdvMarks.length} спец. позначок`
                           : "Окремих позначок немає"}
                     </p>
-                    <div className="mt-2 flex flex-wrap gap-1 border-t border-[#173f40]/10 pt-2">
+                    <div className="mt-2 flex flex-wrap gap-1 border-t border-[var(--hairline)] pt-2">
                       <Button asChild variant="outline" size="sm" className="h-8 bg-white text-[10px]">
                         <a href={TDV_URL} target="_blank" rel="noreferrer">
                           ТДВ у №402 <ExternalLink />
@@ -1392,16 +1408,16 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="mt-2.5 flex items-center justify-between">
-                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#50716e]">
+                <div className="mt-5 flex items-center justify-between">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#55635f]">
                     Пункти статті
                   </p>
-                  <span className="text-[10px] text-[#617775]">
+                  <span className="text-[10px] text-[#68766f]">
                     {pointCountLabel(articleRules.length)}
                   </span>
                 </div>
 
-                <ul className="mt-1.5 space-y-1.5">
+                <ul className="mt-2 space-y-2">
                   {articleRules.map((rule, index) => {
                     const active = selectedRuleIndex === String(index);
                     const style = outcomeStyles(rule.outcome);
@@ -1422,21 +1438,21 @@ export default function Home() {
                     return (
                       <li key={`${rule.point}-${index}`} className={dimmed ? "opacity-45" : ""}>
                         <div
-                          className={`overflow-hidden rounded-lg border transition ${active ? "border-[#c58b28]/45 bg-[#fff8e7]" : "border-[#173f40]/10 bg-white hover:border-[#2c756f]/25"}`}
+                          className={`overflow-hidden rounded-xl border transition ${active ? "border-[#a8792f]/35 bg-[#fbf5e8] shadow-[var(--shadow-soft)]" : "border-[var(--hairline)] bg-white shadow-[var(--shadow-soft)] hover:border-[#2c6b63]/20"}`}
                         >
                           <button
                             type="button"
                             data-point-row
                             onClick={() => selectRule(active ? "" : String(index))}
                             aria-expanded={active}
-                            className={`flex w-full items-center gap-2 p-2.5 text-left ${FOCUS_RING}`}
+                            className={`flex w-full items-center gap-3 p-3 text-left ${FOCUS_RING}`}
                           >
                             <span
-                              className={`grid size-8 shrink-0 place-items-center rounded-md text-xs font-black uppercase ${active ? "bg-[#123f40] text-white" : "bg-[#e7efeb] text-[#205f59]"}`}
+                              className={`grid size-8 shrink-0 place-items-center rounded-md text-xs font-black uppercase ${active ? "bg-[#0f3733] text-white" : "bg-[#e8ede8] text-[#1f564f]"}`}
                             >
                               {rule.point === "—" ? "•" : rule.point}
                             </span>
-                            <span className="min-w-0 flex-1 truncate text-xs leading-5 text-[#294b4b] sm:text-sm">
+                            <span className="min-w-0 flex-1 truncate text-xs leading-5 text-[#22302c] sm:text-sm">
                               <Highlighted text={rule.condition} query={query} />
                             </span>
                             <span
@@ -1445,26 +1461,26 @@ export default function Home() {
                               {style.label}
                             </span>
                             <ChevronDown
-                              className={`size-4 shrink-0 text-[#4d706d] transition ${active ? "rotate-180" : ""}`}
+                              className={`size-4 shrink-0 text-[#55635f] transition ${active ? "rotate-180" : ""}`}
                             />
                           </button>
 
                           {active ? (
-                            <div className="border-t border-[#173f40]/10 bg-white/70 px-2.5 pb-2.5 pt-2">
-                              <p className="text-[9px] font-black uppercase tracking-[0.11em] text-[#5e7472]">
+                            <div className="border-t border-[var(--hairline)] bg-white/70 px-2.5 pb-2.5 pt-2">
+                              <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#55635f]">
                                 Стан за пунктом · дослівно
                               </p>
-                              <p className="mt-1 text-xs leading-5 text-[#294b4b]">
+                              <p className="mt-1 text-xs leading-5 text-[#22302c]">
                                 <Highlighted text={rule.condition} query={query} />
                               </p>
 
                               <div className={`mt-2 rounded-md border p-2.5 ${style.box}`}>
-                                <p className="text-[9px] font-black uppercase tracking-[0.11em] text-[#5e7472]">
+                                <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#55635f]">
                                   Попередній нормативний орієнтир · не рішення ВЛК
                                 </p>
                                 <p className="mt-1 text-sm font-bold leading-5">«{rule.outcome}»</p>
                                 {style.requiresLiteralReading ? (
-                                  <p className="mt-1 text-[10px] leading-4 text-[#5e7472]">
+                                  <p className="mt-1 text-[10px] leading-4 text-[#55635f]">
                                     У четвертій графі Розкладу хвороб для цього пункту немає готової
                                     категорії придатності — рішення приймається за поясненнями та
                                     відповідною графою.
@@ -1472,8 +1488,8 @@ export default function Home() {
                                 ) : null}
                               </div>
 
-                              <div className="mt-2 rounded-md border border-[#173f40]/10 bg-white p-2.5">
-                                <p className="text-[9px] font-black uppercase tracking-[0.11em] text-[#5e7472]">
+                              <div className="mt-2 rounded-md border border-[var(--hairline)] bg-white p-2.5">
+                                <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#55635f]">
                                   ТДВ для {pointLabelGenitive(rule.point)}
                                 </p>
                                 {pointMarks.length ? (
@@ -1482,14 +1498,14 @@ export default function Home() {
                                       <span
                                         key={column.id}
                                         title={column.label}
-                                        className="rounded bg-[#fff1ef] px-1.5 py-0.5 text-[9px] font-black text-[#8a3030]"
+                                        className="rounded bg-[#fbf1ed] px-1.5 py-0.5 text-[9px] font-black text-[#7e3630]"
                                       >
                                         {column.id}: {pointTdv?.[column.id]}
                                       </span>
                                     ))}
                                   </div>
                                 ) : (
-                                  <p className="mt-1 text-[10px] leading-4 text-[#617775]">
+                                  <p className="mt-1 text-[10px] leading-4 text-[#68766f]">
                                     Окремих позначок немає. Це не є автоматичним підтвердженням
                                     придатності.
                                   </p>
@@ -1500,18 +1516,18 @@ export default function Home() {
                                 <Accordion type="single" collapsible className="mt-2">
                                   <AccordionItem
                                     value="point-explanation"
-                                    className="overflow-hidden rounded-md border border-[#b88a2e]/25 bg-[#fff9e9] px-2.5"
+                                    className="overflow-hidden rounded-md border border-[#a8792f]/25 bg-[#fbf5e8] px-2.5"
                                   >
-                                    <AccordionTrigger className="py-2 text-[10px] font-black uppercase tracking-[0.11em] text-[#755b22] hover:no-underline">
+                                    <AccordionTrigger className="py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6b5423] hover:no-underline">
                                       Офіційне пояснення до {pointLabelGenitive(rule.point)} ·{" "}
                                       {pointText.length}
                                     </AccordionTrigger>
                                     <AccordionContent>
-                                      <div className="max-h-52 space-y-1.5 overflow-y-auto border-t border-[#b88a2e]/20 py-2 pr-1 scrollbar-thin">
+                                      <div className="max-h-52 space-y-1.5 overflow-y-auto border-t border-[#a8792f]/20 py-2 pr-1 scrollbar-thin">
                                         {pointText.map((paragraph, position) => (
                                           <p
                                             key={`${selected.article}-${rule.point}-${position}`}
-                                            className="text-[11px] leading-[1.2rem] text-[#4d4937]"
+                                            className="text-[11px] leading-[1.2rem] text-[#4a4638]"
                                           >
                                             <Highlighted text={paragraph} query={query} />
                                           </p>
@@ -1528,7 +1544,7 @@ export default function Home() {
                                   size="sm"
                                   onClick={() => addArticleRuleToBasket(selected, rule)}
                                   disabled={inBasket}
-                                  className="h-9 bg-[#123f40] text-xs text-white hover:bg-[#1a5554]"
+                                  className="h-9 bg-[#0f3733] text-xs text-white hover:bg-[#16514b]"
                                 >
                                   {inBasket ? (
                                     <>
@@ -1569,16 +1585,16 @@ export default function Home() {
                   })}
                 </ul>
 
-                <Accordion type="single" collapsible className="mt-2.5">
+                <Accordion type="single" collapsible className="mt-5">
                   <AccordionItem
                     value="article-explanation"
-                    className="overflow-hidden rounded-lg border border-[#2d7771]/18 bg-[#f6faf8] px-3"
+                    className="overflow-hidden rounded-lg border border-[var(--hairline)] bg-[#faf8f4] px-3"
                   >
                     <AccordionTrigger className="py-2.5 text-xs font-bold hover:no-underline">
                       <span className="flex flex-wrap items-center gap-1.5">
-                        <BookOpen className="size-4 shrink-0 text-[#286c65]" />
+                        <BookOpen className="size-4 shrink-0 text-[#2c6b63]" />
                         Офіційні пояснення до статті {selected.article}
-                        <span className="rounded-full bg-white px-2 py-0.5 text-[9px] font-black text-[#28665f]">
+                        <span className="rounded-full bg-white px-2 py-0.5 text-[9px] font-black text-[#1f564f]">
                           {explanationMeta?.status === "absent"
                             ? "немає в Додатку 2"
                             : `дослівно · ${explanationMeta?.paragraphs ?? 0} фрагментів`}
@@ -1587,27 +1603,27 @@ export default function Home() {
                     </AccordionTrigger>
                     <AccordionContent>
                       {explanationMeta?.status === "absent" ? (
-                        <p className="pb-3 text-xs leading-5 text-[#627775]">
+                        <p className="pb-3 text-xs leading-5 text-[#68766f]">
                           Для статті {selected.article} окремого пояснення в Додатку 2 чинної
                           редакції немає. Використовуйте дослівний рядок Розкладу хвороб, обраний
                           пункт і ТДВ.
                         </p>
                       ) : explanationState === "loading" ? (
-                        <p className="pb-3 text-xs text-[#627775]" aria-live="polite">
+                        <p className="pb-3 text-xs text-[#68766f]" aria-live="polite">
                           Завантаження дослівного пояснення…
                         </p>
                       ) : explanationState === "error" ? (
-                        <p className="pb-3 text-xs text-[#7d4a2c]" aria-live="polite">
+                        <p className="pb-3 text-xs text-[#7e3630]" aria-live="polite">
                           Пояснення не завантажилося. Перевірте з’єднання або відкрийте офіційне
                           джерело.
                         </p>
                       ) : (
                         <div className="pb-3">
-                          <div className="max-h-72 space-y-2 overflow-y-auto border-y border-[#173f40]/8 py-2 pr-1 scrollbar-gutter-stable scrollbar-thin">
+                          <div className="max-h-72 space-y-2 overflow-y-auto border-y border-[var(--hairline)] py-2 pr-1 scrollbar-gutter-stable scrollbar-thin">
                             {explanation?.paragraphs.map((paragraph, index) => (
                               <p
                                 key={`${selected.article}-explanation-${index}`}
-                                className="text-[11px] leading-5 text-[#405c5a]"
+                                className="text-[11px] leading-5 text-[#3c4a46]"
                               >
                                 <Highlighted text={paragraph} query={query} />
                               </p>
@@ -1619,7 +1635,7 @@ export default function Home() {
                                 Джерело · Додаток 2 <ExternalLink />
                               </a>
                             </Button>
-                            <p className="text-[9px] leading-4 text-[#56706d]">
+                            <p className="text-[9px] leading-4 text-[#68766f]">
                               Пояснення допомагає звірити критерії, але не встановлює діагноз і не
                               замінює постанову ВЛК.
                             </p>
@@ -1632,10 +1648,10 @@ export default function Home() {
               </div>
             </>
           ) : (
-            <div className="grid flex-1 place-items-center p-8 text-center">
+            <div className="grid flex-1 place-items-center p-10 text-center">
               <div>
-                <h2 className="font-bold">Нічого не знайдено</h2>
-                <p className="mt-1 text-sm text-[#647876]">
+                <h2 className="text-base font-semibold tracking-tight">Нічого не знайдено</h2>
+                <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-[#68766f]">
                   Скоротіть запит або введіть код МКХ-10.
                 </p>
               </div>
@@ -1643,22 +1659,22 @@ export default function Home() {
           )}
         </section>
 
-        <aside className="flex min-h-[520px] flex-col overflow-hidden rounded-xl border border-[#173f40]/12 bg-[#f7f9f7] xl:min-h-0">
-          <div className="flex items-center justify-between border-b border-[#173f40]/10 bg-white px-3 py-2.5">
+        <aside className="flex min-h-[520px] flex-col overflow-hidden rounded-2xl border border-[var(--hairline)] bg-[#faf8f4] shadow-[var(--shadow-soft)] xl:min-h-0">
+          <div className="flex items-center justify-between border-b border-[var(--hairline)] bg-white px-3 py-2.5">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.13em] text-[#34736d]">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c6b63]">
                 Резюме стану
               </p>
               <h2 className="mt-0.5 text-sm font-bold">Попереднє зведення</h2>
             </div>
-            <span className="rounded-full bg-[#e7efeb] px-2 py-1 text-[10px] font-bold text-[#326762]">
+            <span className="rounded-full bg-[#e8ede8] px-2 py-1 text-[10px] font-bold text-[#1f564f]">
               локально
             </span>
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto p-2.5 scrollbar-thin">
             {restoreNotice ? (
-              <div className="mb-2 rounded-lg border border-[#b98b31]/25 bg-[#fff8e6] p-2 text-[10px] leading-4 text-[#6f592d]">
+              <div className="mb-2 rounded-lg border border-[#a8792f]/25 bg-[#fbf5e8] p-2 text-[10px] leading-4 text-[#6b5423]">
                 {restoreNotice}
               </div>
             ) : null}
@@ -1669,36 +1685,36 @@ export default function Home() {
                   <span className={`rounded-full px-2 py-1 text-[10px] font-black ${summaryStyle.badge}`}>
                     {summaryStyle.label}
                   </span>
-                  <span className="text-[10px] font-bold text-[#5e7472]">найсуворіший орієнтир</span>
+                  <span className="text-[10px] font-bold text-[#55635f]">найсуворіший орієнтир</span>
                 </div>
                 <h3 className="mt-2 font-black">
                   Стаття {summaryItem.article}
                   {summaryItem.point === "—" ? "" : `, пункт «${summaryItem.point}»`}
                 </h3>
                 <p className="mt-1.5 text-xs font-semibold leading-5">«{summaryItem.outcome}»</p>
-                <p className="mt-2 text-[10px] leading-4 text-[#617775]">
+                <p className="mt-2 text-[10px] leading-4 text-[#68766f]">
                   Категорія: {examineeType}. Остаточна звірка — лікарем за графою і ТДВ.
                 </p>
               </div>
             ) : (
-              <div className="rounded-lg border border-dashed border-[#2d7771]/30 bg-white p-4 text-center">
-                <ClipboardCheck className="mx-auto size-5 text-[#37766f]" />
-                <h3 className="mt-2 text-sm font-bold">Кошик порожній</h3>
-                <p className="mt-1 text-xs leading-5 text-[#617775]">
+              <div className="rounded-2xl border border-dashed border-[#2c6b63]/20 bg-white px-5 py-8 text-center">
+                <ClipboardCheck className="mx-auto size-6 text-[#2c6b63]/70" />
+                <h3 className="mt-3 text-sm font-semibold tracking-tight">Кошик порожній</h3>
+                <p className="mx-auto mt-1.5 max-w-[220px] text-xs leading-6 text-[#68766f]">
                   Оберіть пункт статті та додайте його до зведення.
                 </p>
               </div>
             )}
 
             <div className="mt-3 flex items-center justify-between">
-              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#5b7472]">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#55635f]">
                 Кошик діагнозів · {basket.length}
               </p>
               {basket.length ? (
                 <button
                   type="button"
                   onClick={() => setBasket([])}
-                  className={`rounded px-1 py-0.5 text-[10px] font-bold text-[#8a3b37] ${FOCUS_RING}`}
+                  className={`rounded px-1 py-0.5 text-[10px] font-bold text-[#8c3a35] ${FOCUS_RING}`}
                 >
                   Очистити
                 </button>
@@ -1708,7 +1724,7 @@ export default function Home() {
               {basket.map((item) => {
                 const style = outcomeStyles(item.outcome);
                 return (
-                  <div key={item.id} className="rounded-lg border border-[#173f40]/10 bg-white p-2">
+                  <div key={item.id} className="rounded-lg border border-[var(--hairline)] bg-white p-2">
                     <div className="flex items-start justify-between gap-2">
                       <button
                         type="button"
@@ -1719,7 +1735,7 @@ export default function Home() {
                           Стаття {item.article}
                           {item.point === "—" ? "" : `-${item.point}`} · {item.title}
                         </span>
-                        <span className="mt-0.5 block break-words text-[10px] text-[#697d7b]">
+                        <span className="mt-0.5 block break-words text-[10px] text-[#68766f]">
                           {item.icd} · {item.doctors}
                         </span>
                       </button>
@@ -1727,7 +1743,7 @@ export default function Home() {
                         type="button"
                         aria-label={`Видалити статтю ${item.article} зі зведення`}
                         onClick={() => setBasket((current) => current.filter((entry) => entry.id !== item.id))}
-                        className={`grid size-9 shrink-0 place-items-center rounded-md text-[#7b4a45] hover:bg-[#fff1ef] ${FOCUS_RING}`}
+                        className={`grid size-9 shrink-0 place-items-center rounded-md text-[#8c3a35] hover:bg-[#fbf1ed] ${FOCUS_RING}`}
                       >
                         <X className="size-3.5" />
                       </button>
@@ -1740,10 +1756,10 @@ export default function Home() {
               })}
             </div>
 
-            <div className="mt-3 rounded-lg border border-[#b98b31]/20 bg-[#fff8e6] p-2.5">
+            <div className="mt-3 rounded-lg border border-[#a8792f]/20 bg-[#fbf5e8] p-2.5">
               <div className="flex items-start gap-2">
-                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-[#956d1f]" />
-                <p className="text-[10px] leading-4 text-[#6f592d]">
+                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-[#8a6427]" />
+                <p className="text-[10px] leading-4 text-[#6b5423]">
                   Алгоритм показує найсуворіший попередній орієнтир, але не враховує медичну
                   взаємодію кількох станів і не замінює постанову ВЛК.
                 </p>
@@ -1751,18 +1767,18 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="shrink-0 space-y-1.5 border-t border-[#173f40]/10 bg-white p-2.5">
+          <div className="shrink-0 space-y-1.5 border-t border-[var(--hairline)] bg-white p-2.5">
             <Button
               type="button"
               size="sm"
               onClick={() => setDraftOpen(true)}
               disabled={!basket.length}
-              className="h-10 w-full bg-[#123f40] text-xs text-white hover:bg-[#1a5554]"
+              className="h-10 w-full bg-[#0f3733] text-xs text-white hover:bg-[#16514b]"
             >
               <FileText />
               Створити зведення
             </Button>
-            <div className="flex items-center justify-center gap-1.5 pt-1 text-[9px] text-[#718482]">
+            <div className="flex items-center justify-center gap-1.5 pt-1 text-[9px] text-[#8d9994]">
               <ShieldCheck className="size-3" />
               Дані зберігаються тільки в цьому браузері
             </div>
@@ -1771,13 +1787,13 @@ export default function Home() {
       </div>
         </>
       ) : (
-        <div className="mx-auto flex max-w-[900px] flex-col items-center px-4 py-8 text-center lg:py-12">
+        <div className="mx-auto flex max-w-[940px] flex-col items-center px-4 py-14 text-center sm:px-6 lg:py-20">
           {EDITION_NOTICE ? (
             <a
               href={EDITION_NOTICE.url}
               target="_blank"
               rel="noreferrer"
-              className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border border-[#b98b31]/25 bg-[#fff8e6] px-3 py-2 text-xs font-bold text-[#6f592d]"
+              className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border border-[#a8792f]/25 bg-[#fbf5e8] px-3 py-2 text-xs font-bold text-[#6b5423]"
             >
               <AlertTriangle className="size-4" />
               {EDITION_NOTICE.message}
@@ -1788,7 +1804,7 @@ export default function Home() {
             <Button
               type="button"
               onClick={() => changeSpecialty(lastSpecialty)}
-              className="h-11 bg-[#123f40] px-5 text-sm text-white hover:bg-[#1a5554]"
+              className="h-11 bg-[#0f3733] px-5 text-sm text-white hover:bg-[#16514b]"
             >
               Продовжити як{" "}
               {SPECIALTIES.find((item) => item.id === lastSpecialty)?.label ?? "лікар"}
@@ -1797,24 +1813,26 @@ export default function Home() {
           ) : null}
 
           <p
-            className={`text-[10px] font-black uppercase tracking-[0.18em] text-[#34736d] ${lastSpecialty ? "mt-6" : ""}`}
+            className={`text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c6b63] ${lastSpecialty ? "mt-6" : ""}`}
           >
             {lastSpecialty ? "Або почніть спочатку" : "Крок 1"}
           </p>
-          <h2 className="mt-2 text-2xl font-bold">Знайдіть статтю або оберіть спеціальність</h2>
-          <p className="mt-2 max-w-lg text-sm leading-6 text-[#5d7472]">
+          <h2 className="mt-3 max-w-2xl text-[28px] font-semibold leading-[1.15] tracking-[-0.02em] sm:text-[34px]">
+            Знайдіть статтю або оберіть спеціальність
+          </h2>
+          <p className="mt-4 max-w-xl text-[15px] leading-7 text-[#55635f]">
             Пошук працює за діагнозом, кодом МКХ-10 і номером статті — вибирати спеціальність
             не обов’язково.
           </p>
 
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
-            <span className="text-[11px] font-bold text-[#5b7472]">Спробуйте:</span>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-2">
+            <span className="text-[11px] font-bold text-[#55635f]">Спробуйте:</span>
             {POPULAR_QUERIES.slice(0, 4).map((example) => (
               <button
                 key={example}
                 type="button"
                 onClick={() => runQuery(example)}
-                className={`rounded-full border border-[#2b6e68]/25 bg-white px-2.5 py-1 text-[11px] font-bold text-[#2d6f69] hover:bg-[#edf4f0] ${FOCUS_RING}`}
+                className={`rounded-full border border-[var(--hairline)] bg-white px-3.5 py-1.5 text-[12px] font-medium text-[#2c6b63] shadow-[var(--shadow-soft)] transition hover:border-[#2c6b63]/25 hover:text-[#1f564f] ${FOCUS_RING}`}
               >
                 {example}
               </button>
@@ -1822,8 +1840,8 @@ export default function Home() {
           </div>
 
           {recent.length ? (
-            <div className="mt-5 w-full">
-              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#5b7472]">
+            <div className="mt-9 w-full">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#55635f]">
                 Нещодавно переглянуті
               </p>
               <div className="mt-1.5 flex flex-wrap justify-center gap-1">
@@ -1839,14 +1857,14 @@ export default function Home() {
                       type="button"
                       onClick={() => openRecent(entry)}
                       title={article.title}
-                      className={`flex items-center gap-1.5 rounded-full border border-[#173f40]/12 bg-white px-2 py-1 text-[11px] font-semibold text-[#3c6b66] hover:bg-[#f4f8f6] ${FOCUS_RING}`}
+                      className={`flex items-center gap-1.5 rounded-full border border-[var(--hairline)] bg-white px-2 py-1 text-[11px] font-semibold text-[#2c6b63] hover:bg-[#f5f2ec] ${FOCUS_RING}`}
                     >
                       {style ? (
                         <span className={`size-2 rounded-full ${style.dot}`} aria-hidden />
                       ) : null}
                       Стаття {entry.article}
                       {entry.point ? ` · ${entry.point}` : ""}
-                      <span className="max-w-[160px] truncate font-normal text-[#687d7b]">
+                      <span className="max-w-[160px] truncate font-normal text-[#68766f]">
                         {article.title}
                       </span>
                     </button>
@@ -1856,7 +1874,7 @@ export default function Home() {
             </div>
           ) : null}
 
-          <div className="mt-6 grid w-full grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="mt-10 grid w-full grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
             {welcomeSpecialties.map((item) => {
               const count = ARTICLES.filter((article) => article.specialties.includes(item.id)).length;
               return (
@@ -1864,18 +1882,20 @@ export default function Home() {
                   key={item.id}
                   type="button"
                   onClick={() => changeSpecialty(item.id)}
-                  className={`min-h-16 rounded-xl border border-[#173f40]/12 bg-white px-3 py-3 text-left transition hover:border-[#2d7872]/45 hover:bg-[#f4f8f6] ${FOCUS_RING}`}
+                  className={`lift min-h-[86px] rounded-2xl border border-[var(--hairline)] bg-white px-4 py-4 text-left shadow-[var(--shadow-soft)] hover:border-[#2c6b63]/25 ${FOCUS_RING}`}
                 >
-                  <span className="block text-sm font-bold">{specialtyName(item)}</span>
-                  <span className="mt-0.5 block text-[11px] text-[#738583]">{articleCountLabel(count)}</span>
+                  <span className="block hyphens-auto break-words text-[15px] font-semibold leading-snug tracking-tight">
+                    {specialtyName(item)}
+                  </span>
+                  <span className="mt-1.5 block text-[11px] text-[#8d9994]">
+                    {articleCountLabel(count)}
+                  </span>
                 </button>
               );
             })}
           </div>
 
-          <p className="mt-5 text-xs leading-5 text-[#617775]">
-            Або скористайтеся пошуком угорі — за діагнозом, кодом МКХ-10 чи номером статті.
-          </p>
+
 
           <TdvDialog
             trigger={
@@ -1898,7 +1918,7 @@ export default function Home() {
             </Button>
           ) : null}
 
-          <p className="mt-8 flex items-center gap-1.5 text-[11px] text-[#7a8a88]">
+          <p className="mt-12 flex items-center gap-1.5 text-[11px] text-[#8d9994]">
             <ShieldCheck className="size-3.5" />
             Довідкова навігація, не рішення ВЛК · оновлено: редакція від {EDITION}
           </p>
@@ -1907,19 +1927,19 @@ export default function Home() {
 
       <Dialog open={draftOpen} onOpenChange={setDraftOpen}>
         <DialogContent className="max-h-[90vh] overflow-hidden p-0 sm:max-w-3xl">
-          <DialogHeader className="border-b border-[#173f40]/10 p-4 pr-12">
+          <DialogHeader className="border-b border-[var(--hairline)] p-4 pr-12">
             <DialogTitle>Зведення для перевірки лікарем</DialogTitle>
             <DialogDescription>
               Статті, пункти, ТДВ, чекліст і джерела. Довідкова навігація, не рішення ВЛК.
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-[58vh] overflow-y-auto scrollbar-thin">
-            <div className="border-b border-[#173f40]/10 bg-white px-4 py-3">
+            <div className="border-b border-[var(--hairline)] bg-white px-4 py-3">
               <div className="flex items-center justify-between">
-                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#5b7472]">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#55635f]">
                   Що ще треба перевірити перед постановою
                 </p>
-                <span className="text-[10px] font-bold text-[#617775]">
+                <span className="text-[10px] font-bold text-[#68766f]">
                   {checked.length}/{ANALYSIS_CHECKS.length}
                 </span>
               </div>
@@ -1927,7 +1947,7 @@ export default function Home() {
                 {ANALYSIS_CHECKS.map((step) => (
                   <label
                     key={step}
-                    className="flex min-h-10 cursor-pointer items-start gap-2 rounded-lg border border-[#173f40]/10 bg-white p-2"
+                    className="flex min-h-10 cursor-pointer items-start gap-2 rounded-lg border border-[var(--hairline)] bg-white p-2"
                   >
                     <Checkbox
                       checked={checked.includes(step)}
@@ -1939,11 +1959,11 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            <pre className="whitespace-pre-wrap break-words bg-[#f8faf8] p-4 font-sans text-xs leading-5 text-[#294b4b]">
+            <pre className="whitespace-pre-wrap break-words bg-[#faf8f4] p-4 font-sans text-xs leading-5 text-[#22302c]">
               {draftText}
             </pre>
           </div>
-          <DialogFooter className="border-t border-[#173f40]/10 p-3">
+          <DialogFooter className="border-t border-[var(--hairline)] p-3">
             <Button variant="outline" onClick={() => copyText(draftText, "draft")}>
               {copied === "draft" ? (
                 <>
@@ -1961,7 +1981,7 @@ export default function Home() {
               <Printer />
               Друк / зберегти PDF
             </Button>
-            <Button onClick={() => setDraftOpen(false)} className="bg-[#123f40] text-white">
+            <Button onClick={() => setDraftOpen(false)} className="bg-[#0f3733] text-white">
               Готово
             </Button>
           </DialogFooter>

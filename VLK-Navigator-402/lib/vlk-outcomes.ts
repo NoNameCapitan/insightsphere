@@ -33,24 +33,24 @@ export type OutcomeClass = {
 
 const TONE_STYLES: Record<OutcomeTone, { box: string; badge: string; dot: string }> = {
   critical: {
-    box: "border-[#ba4a4a]/22 bg-[#fff1ef]",
-    badge: "bg-[#f3ceca] text-[#7d2929]",
-    dot: "bg-[#b23f3f]",
+    box: "border-[#8c3a35]/22 bg-[#fbf1ed]",
+    badge: "bg-[#f0dcd6] text-[#6f2f2a]",
+    dot: "bg-[#8c3a35]",
   },
   warning: {
-    box: "border-[#c58b28]/25 bg-[#fff8e7]",
-    badge: "bg-[#f2ddaa] text-[#6d4d12]",
-    dot: "bg-[#c58b28]",
+    box: "border-[#a8792f]/25 bg-[#fbf5e8]",
+    badge: "bg-[#eedebd] text-[#6b5423]",
+    dot: "bg-[#a8792f]",
   },
   positive: {
-    box: "border-[#2f806f]/20 bg-[#edf7f2]",
-    badge: "bg-[#cfe8dd] text-[#205f51]",
-    dot: "bg-[#2f806f]",
+    box: "border-[#2e6b57]/20 bg-[#eaf1ea]",
+    badge: "bg-[#d8e6d9] text-[#255c49]",
+    dot: "bg-[#2e6b57]",
   },
   neutral: {
-    box: "border-[#173f40]/15 bg-[#f2f5f3]",
-    badge: "bg-[#e0e7e3] text-[#41585a]",
-    dot: "bg-[#6b807e]",
+    box: "border-[#17211f]/15 bg-[#f2efe9]",
+    badge: "bg-[#e6e2da] text-[#3c4a46]",
+    dot: "bg-[#7d8a85]",
   },
 };
 
