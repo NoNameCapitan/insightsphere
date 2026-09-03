@@ -13,7 +13,9 @@ import {
   History,
   ListPlus,
   Maximize2,
+  MoreHorizontal,
   Plus,
+  Search,
   Printer,
   RotateCcw,
   ShieldCheck,
@@ -39,7 +41,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -50,6 +51,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 import { SwRegister } from "@/components/sw-register";
 import { TdvDialog } from "@/components/vlk/tdv-dialog";
 import { ARTICLE_RULES, type ArticleRule } from "@/lib/vlk-rules";
@@ -70,11 +81,18 @@ import {
 } from "@/lib/vlk-outcomes";
 import {
   highlightParts,
-  REASON_LABELS,
+  MATCH_TYPE_LABELS,
+  MATCH_TYPE_SHORT,
+  POPULAR_QUERIES,
   searchArticles,
   snippetAround,
   type SearchHit,
 } from "@/lib/vlk-search";
+import {
+  addSearchHistory,
+  readSearchHistory,
+  SEARCH_HISTORY_KEY,
+} from "@/lib/vlk-search-history";
 import {
   createBasketItem,
   EMPTY_DIRECTORY,
@@ -142,6 +160,16 @@ function pointCountLabel(count: number) {
   return `${count} пунктів`;
 }
 
+/**
+ * Єдиний стиль назви спеціальності: повна назва, а справжня абревіатура
+ * (ЛОР) — у дужках. Скорочена назва-синонім у дужки не виноситься.
+ */
+function specialtyName(item: (typeof SPECIALTIES)[number]) {
+  const isAbbreviation =
+    item.short !== item.label && item.short === item.short.toLocaleUpperCase("uk");
+  return isAbbreviation ? `${item.label} (${item.short})` : item.label;
+}
+
 function pointLabel(point: string) {
   return point === "—" ? "без поділу" : `пункт «${point}»`;
 }
@@ -189,7 +217,13 @@ export default function Home() {
   const [restoreNotice, setRestoreNotice] = useState("");
   const [explanation, setExplanation] = useState<ArticleExplanation | undefined>();
   const [explanationState, setExplanationState] = useState<"loading" | "ready" | "error">("ready");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [directoryOpen, setDirectoryOpen] = useState(false);
+  const [activeHit, setActiveHit] = useState(-1);
+  const [history, setHistory] = useState<string[]>([]);
   const listRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const searchBoxRef = useRef<HTMLDivElement>(null);
   /** Чи додано запис в історію браузера при переході на робочий екран. */
   const historyPushedRef = useRef(false);
 
@@ -221,6 +255,7 @@ export default function Home() {
           `${restored.dropped} збережених пунктів не знайдено в чинній редакції — їх прибрано зі зведення.`,
         );
       }
+      setHistory(readSearchHistory(localStorage.getItem(SEARCH_HISTORY_KEY)));
       setHydrated(true);
     }, 0);
 
@@ -235,6 +270,21 @@ export default function Home() {
     if (!hydrated) return;
     localStorage.setItem(SESSION_KEY, serializeSession({ basket, examineeType, mode, directory }));
   }, [basket, directory, examineeType, hydrated, mode]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
+  }, [history, hydrated]);
+
+  // Клік поза пошуком закриває випадний список.
+  useEffect(() => {
+    if (!searchOpen) return;
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!searchBoxRef.current?.contains(event.target as Node)) setSearchOpen(false);
+    };
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [searchOpen]);
 
   /** Повертає застосунок на головний екран вибору спеціальності. */
   const resetToHome = useCallback(() => {
@@ -291,8 +341,10 @@ export default function Home() {
           ),
     [baseArticles, outcomeFilter],
   );
+  // Вибрана стаття тримається за власним id, а не за поточним списком: набір
+  // запиту фільтрує список, але не перемикає відкриту статтю.
   const selected =
-    listArticles.find((article) => article.id === selectedId) ?? listArticles[0];
+    ARTICLES.find((article) => article.id === selectedId) ?? specialtyArticles[0];
   const selectedSpecialty = SPECIALTIES.find((item) => item.id === specialty);
   /** Робочий екран відкривається лише після вибору спеціальності або пошуку. */
   const showDashboard = Boolean(specialty) || Boolean(query.trim());
@@ -425,14 +477,71 @@ export default function Home() {
     setCopied("");
   }
 
+  /**
+   * Набір запиту лише фільтрує список: вибрана стаття не змінюється, доки
+   * лікар сам не обере результат.
+   */
   function changeQuery(value: string) {
     setQuery(value);
-    const first = value.trim() ? searchArticles(value, directory)[0]?.article : undefined;
-    if (first) {
-      setSelectedId(first.id);
-      setSpecialty(first.specialties[0]);
-    }
+    setSearchOpen(true);
+    setActiveHit(-1);
+  }
+
+  function clearQuery(options: { focus?: boolean; notify?: boolean } = {}) {
+    setQuery("");
+    setActiveHit(-1);
+    setSearchOpen(false);
+    if (options.focus) searchRef.current?.focus();
+    if (options.notify) toast("Пошук очищено");
+  }
+
+  /** Вибір результату пошуку: відкриває статтю та її спеціальність. */
+  function chooseHit(hit: SearchHit) {
+    const article = hit.article;
+    setSelectedId(article.id);
+    setSpecialty(article.specialties[0]);
+    setHistory((current) => addSearchHistory(current, query));
+    setSearchOpen(false);
+    setActiveHit(-1);
     resetArticleReview();
+  }
+
+  function runQuery(value: string) {
+    setQuery(value);
+    setSearchOpen(true);
+    setActiveHit(-1);
+    searchRef.current?.focus();
+  }
+
+  function handleSearchKeys(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      if (searchOpen) setSearchOpen(false);
+      else clearQuery({ focus: true });
+      return;
+    }
+    if (!searchHits.length) return;
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setSearchOpen(true);
+      setActiveHit((current) => (current + 1) % Math.min(searchHits.length, 8));
+      return;
+    }
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setSearchOpen(true);
+      setActiveHit((current) => {
+        const limit = Math.min(searchHits.length, 8);
+        return current <= 0 ? limit - 1 : current - 1;
+      });
+      return;
+    }
+    if (event.key === "Enter") {
+      event.preventDefault();
+      const hit = searchHits[activeHit >= 0 ? activeHit : 0];
+      if (hit) chooseHit(hit);
+    }
   }
 
   function changeSpecialty(next: SpecialtyId) {
@@ -473,6 +582,9 @@ export default function Home() {
     setCopied("");
     const item = createBasketItem(article, rule);
     setBasket((current) => [...current.filter((entry) => entry.id !== item.id), item]);
+    toast.success(
+      `Стаття ${item.article}${item.point === "—" ? "" : `, пункт «${item.point}»`} — у зведенні`,
+    );
   }
 
   function addToBasket() {
@@ -496,9 +608,11 @@ export default function Home() {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(type);
+      toast.success(type === "draft" ? "Зведення скопійовано" : "Формулювання скопійовано");
       window.setTimeout(() => setCopied(""), 1600);
     } catch {
       setCopied("");
+      toast.error("Не вдалося скопіювати. Скопіюйте текст вручну.");
     }
   }
 
@@ -539,8 +653,9 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#eef2ef] text-[#102d2e] xl:h-screen xl:overflow-hidden">
       <SwRegister />
+      <Toaster position="bottom-center" />
 
-      <header className="relative z-30 border-b border-[#173f40]/12 bg-white">
+      <header className="sticky top-0 z-30 border-b border-[#173f40]/12 bg-white xl:relative">
         <div className="mx-auto flex max-w-[1720px] flex-wrap items-center gap-2 px-3 py-2 lg:flex-nowrap lg:px-5">
           <div className="flex shrink-0 items-center gap-1.5">
             {showDashboard ? (
@@ -597,23 +712,35 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="order-3 w-full lg:order-none lg:mx-auto lg:max-w-2xl">
+          <div
+            ref={searchBoxRef}
+            className="relative order-3 w-full lg:order-none lg:mx-auto lg:max-w-2xl"
+          >
             <label className="sr-only" htmlFor="vlk-search">
-              Розумний глобальний пошук
+              Пошук статті за діагнозом, кодом МКХ-10 або номером статті
             </label>
             <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-3.5 size-4 text-[#4d706d]" />
               <Input
                 id="vlk-search"
+                ref={searchRef}
                 value={query}
                 onChange={(event) => changeQuery(event.target.value)}
-                placeholder="Діагноз, МКХ-10, стаття, ключове слово або лікар…"
+                onFocus={() => setSearchOpen(true)}
+                onKeyDown={handleSearchKeys}
+                placeholder="Діагноз, код МКХ-10, номер статті або прізвище лікаря…"
                 autoComplete="off"
-                className="h-11 w-full border-[#2b6e68]/25 bg-[#f7faf8] pr-10 shadow-none"
+                role="combobox"
+                aria-expanded={searchOpen}
+                aria-controls="vlk-search-results"
+                aria-autocomplete="list"
+                aria-activedescendant={activeHit >= 0 ? `vlk-hit-${activeHit}` : undefined}
+                className="h-11 w-full border-[#2b6e68]/35 bg-white pl-9 pr-10 text-sm shadow-sm"
               />
               {query ? (
                 <button
                   type="button"
-                  onClick={() => changeQuery("")}
+                  onClick={() => clearQuery({ focus: true, notify: true })}
                   aria-label="Очистити пошук"
                   className={`absolute right-1 top-1 grid size-9 place-items-center rounded-md text-[#4d706d] hover:bg-[#edf4f0] ${FOCUS_RING}`}
                 >
@@ -621,28 +748,134 @@ export default function Home() {
                 </button>
               ) : null}
             </div>
+
+            {searchOpen ? (
+              <div
+                id="vlk-search-results"
+                role="listbox"
+                aria-label="Результати пошуку"
+                className="absolute left-0 right-0 top-12 z-50 overflow-hidden rounded-xl border border-[#173f40]/15 bg-white shadow-lg"
+              >
+                {query.trim() ? (
+                  searchHits.length ? (
+                    <>
+                      <p className="border-b border-[#173f40]/10 bg-[#f7faf8] px-3 py-1.5 text-[10px] font-bold text-[#5b7472]">
+                        Знайдено {articleCountLabel(searchHits.length)}
+                      </p>
+                      <ul className="max-h-[52vh] overflow-y-auto scrollbar-thin">
+                        {searchHits.slice(0, 8).map((hit, index) => (
+                          <li key={hit.article.id}>
+                            <button
+                              type="button"
+                              id={`vlk-hit-${index}`}
+                              role="option"
+                              aria-selected={index === activeHit}
+                              onMouseEnter={() => setActiveHit(index)}
+                              onClick={() => chooseHit(hit)}
+                              className={`flex w-full items-start gap-2 px-3 py-2 text-left transition ${index === activeHit ? "bg-[#eef5f2]" : "hover:bg-[#f4f8f6]"}`}
+                            >
+                              <span className="grid size-7 shrink-0 place-items-center rounded-md bg-[#e7efeb] text-[11px] font-black text-[#205f59]">
+                                {hit.article.article}
+                              </span>
+                              <span className="min-w-0 flex-1">
+                                <span className="block truncate text-xs font-semibold">
+                                  <Highlighted text={hit.article.title} query={query} />
+                                </span>
+                                <span className="mt-0.5 block truncate text-[10px] text-[#687d7b]">
+                                  <Highlighted text={hit.article.icd} query={query} /> ·{" "}
+                                  {specialtyLabels(hit.article)}
+                                </span>
+                                <span className="mt-0.5 block text-[10px] font-bold text-[#3c6b66]">
+                                  {MATCH_TYPE_LABELS[hit.matches[0]]}
+                                </span>
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="border-t border-[#173f40]/10 px-3 py-1.5 text-[10px] text-[#7a8a88]">
+                        ↑↓ — вибір, Enter — відкрити, Esc — закрити
+                      </p>
+                    </>
+                  ) : (
+                    <div className="p-3">
+                      <p className="text-xs font-bold">Нічого не знайдено</p>
+                      <p className="mt-1 text-[11px] leading-4 text-[#617775]">
+                        Спробуйте коротший запит, код МКХ-10 або номер статті. Приклади:
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {POPULAR_QUERIES.map((example) => (
+                          <button
+                            key={example}
+                            type="button"
+                            onClick={() => runQuery(example)}
+                            className={`rounded-full border border-[#173f40]/12 bg-[#f7faf8] px-2 py-1 text-[10px] font-bold text-[#2d6f69] hover:bg-[#edf4f0] ${FOCUS_RING}`}
+                          >
+                            {example}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                ) : (
+                  <div className="p-3">
+                    {history.length ? (
+                      <>
+                        <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#5b7472]">
+                          Останні запити
+                        </p>
+                        <div className="mt-1.5 flex flex-wrap gap-1">
+                          {history.map((item) => (
+                            <button
+                              key={item}
+                              type="button"
+                              onClick={() => runQuery(item)}
+                              className={`rounded-full border border-[#173f40]/12 bg-white px-2 py-1 text-[10px] font-semibold text-[#3c6b66] hover:bg-[#f4f8f6] ${FOCUS_RING}`}
+                            >
+                              {item}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    ) : null}
+                    <p className="mt-2 text-[10px] font-black uppercase tracking-[0.12em] text-[#5b7472]">
+                      Популярні запити
+                    </p>
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {POPULAR_QUERIES.map((example) => (
+                        <button
+                          key={example}
+                          type="button"
+                          onClick={() => runQuery(example)}
+                          className={`rounded-full border border-[#173f40]/12 bg-[#f7faf8] px-2 py-1 text-[10px] font-bold text-[#2d6f69] hover:bg-[#edf4f0] ${FOCUS_RING}`}
+                        >
+                          {example}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : null}
           </div>
 
           <div className="ml-auto flex shrink-0 items-center gap-1.5">
-            <span
-              className="hidden items-center gap-1.5 rounded-full bg-[#edf7f2] px-2.5 py-1 text-[11px] font-bold text-[#236757] sm:flex"
+            <a
+              href={SOURCE_URL}
+              target="_blank"
+              rel="noreferrer"
+              className={`hidden items-center gap-1.5 rounded-full bg-[#edf7f2] px-2.5 py-1 text-[11px] font-bold text-[#236757] hover:bg-[#e2f0ea] sm:flex ${FOCUS_RING}`}
               title={`База статей, пунктів, пояснень і ТДВ звірена за редакцією Наказу №402 від ${EDITION}. Автоматичної перевірки нових редакцій немає.`}
             >
-              <ShieldCheck className="size-3.5" /> База перевірена за редакцією від {EDITION}
-            </span>
+              <ShieldCheck className="size-3.5" /> Оновлено: {EDITION}
+            </a>
             <span
               className={`hidden items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold md:flex ${online ? "bg-[#edf7f2] text-[#236757]" : "bg-[#fff4df] text-[#765612]"}`}
             >
               {online ? <Wifi className="size-3.5" /> : <WifiOff className="size-3.5" />}
               {online ? "Онлайн" : "Офлайн"}
             </span>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="h-10 bg-white">
-                  <UsersRound />
-                  <span className="hidden sm:inline">Лікарі</span>
-                </Button>
-              </DialogTrigger>
+            <Dialog open={directoryOpen} onOpenChange={setDirectoryOpen}>
               <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-xl">
                 <DialogHeader>
                   <DialogTitle>Локальний довідник лікарів</DialogTitle>
@@ -689,12 +922,38 @@ export default function Home() {
                 </Button>
               }
             />
-            <Button asChild variant="outline" size="sm" className="h-10 bg-white">
-              <a href={SOURCE_URL} target="_blank" rel="noreferrer">
-                <History />
-                <span className="hidden sm:inline">Останні зміни</span>
-              </a>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-10 bg-white"
+                  aria-label="Ще дії"
+                >
+                  <MoreHorizontal />
+                  <span className="hidden sm:inline">Ще</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuLabel>Додаткові дії</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => setDirectoryOpen(true)}>
+                  <UsersRound />
+                  Довідник лікарів ВЛК
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a href={SOURCE_URL} target="_blank" rel="noreferrer">
+                    <History />
+                    Останні зміни в Наказі №402
+                  </a>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-[10px] font-normal text-[#617775]">
+                  Оновлено: редакція від {EDITION}
+                </DropdownMenuLabel>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
@@ -716,10 +975,9 @@ export default function Home() {
               </button>
             ))}
           </div>
-          <p className="hidden text-xs text-[#607775] md:block">
-            {mode === "express"
-              ? "Швидкий сценарій: спеціальність → стаття → пункт → копіювання"
-              : "Повна звірка: МКХ-10 → пояснення → ТДВ → зведення"}
+          <p className="hidden items-center gap-1.5 text-xs text-[#607775] md:flex">
+            <ShieldCheck className="size-3.5 text-[#2e6e67]" />
+            Довідкова навігація, не рішення ВЛК
           </p>
           <button
             type="button"
@@ -751,11 +1009,12 @@ export default function Home() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() => changeQuery("")}
+                  onClick={() => clearQuery({ notify: true })}
                   className="h-9 shrink-0 text-xs"
+                  title="Повернутися до списку статей вибраної спеціальності"
                 >
                   <RotateCcw />
-                  Профіль
+                  Скинути пошук
                 </Button>
               ) : null}
             </div>
@@ -792,7 +1051,7 @@ export default function Home() {
                     aria-pressed={active}
                     className={`min-h-11 shrink-0 rounded-md border px-2 py-1.5 text-left text-[11px] transition sm:shrink ${FOCUS_RING} ${active ? "border-[#123f40] bg-[#123f40] text-white" : "border-[#173f40]/10 bg-[#f7f9f7] hover:bg-[#edf4f0]"}`}
                   >
-                    <span className="block truncate font-bold">{item.short}</span>
+                    <span className="block font-bold leading-tight">{specialtyName(item)}</span>
                     <span className={`text-[10px] ${active ? "text-[#b8d7d3]" : "text-[#738583]"}`}>
                       {articleCountLabel(count)}
                     </span>
@@ -837,7 +1096,7 @@ export default function Home() {
                 {listArticles.map((article) => {
                   const isSelected = selected?.id === article.id;
                   const hit = hitsById.get(article.id);
-                  const reasons = hit?.reasons ?? [];
+                  const matches = hit?.matches ?? [];
                   return (
                     <li key={article.id}>
                       <button
@@ -859,14 +1118,15 @@ export default function Home() {
                           <span className="mt-0.5 block break-words text-[10px] leading-4 text-[#687d7b]">
                             <Highlighted text={article.icd} query={query} />
                           </span>
-                          {reasons.length ? (
+                          {matches.length ? (
                             <span className="mt-1 flex flex-wrap gap-1">
-                              {reasons.map((reason) => (
+                              {matches.map((match) => (
                                 <span
-                                  key={reason}
+                                  key={match}
+                                  title={MATCH_TYPE_LABELS[match]}
                                   className="rounded-full bg-[#eef3f0] px-1.5 py-0.5 text-[9px] font-bold text-[#3c6b66]"
                                 >
-                                  збіг: {REASON_LABELS[reason]}
+                                  збіг: {MATCH_TYPE_SHORT[match]}
                                 </span>
                               ))}
                             </span>
@@ -911,8 +1171,28 @@ export default function Home() {
                       {selected.article}
                     </span>
                     <div className="min-w-0">
-                      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#34736d]">
-                        Стаття {selected.article} · {specialtyLabels(selected)}
+                      <nav
+                        aria-label="Шлях"
+                        className="flex flex-wrap items-center gap-1 text-[10px] font-bold text-[#5b7472]"
+                      >
+                        <button
+                          type="button"
+                          onClick={goHome}
+                          className={`rounded px-1 text-[#2d6f69] hover:underline ${FOCUS_RING}`}
+                        >
+                          {query.trim() ? "Пошук" : (selectedSpecialty?.label ?? "Спеціальність")}
+                        </button>
+                        <span aria-hidden>/</span>
+                        <span className="text-[#102d2e]">Стаття {selected.article}</span>
+                        {selectedRule ? (
+                          <>
+                            <span aria-hidden>/</span>
+                            <span className="text-[#102d2e]">{pointLabel(selectedRule.point)}</span>
+                          </>
+                        ) : null}
+                      </nav>
+                      <p className="mt-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#34736d]">
+                        {specialtyLabels(selected)}
                       </p>
                       <h2 className="mt-1 text-lg font-bold leading-tight sm:text-xl">
                         <Highlighted text={selected.title} query={query} />
@@ -1470,7 +1750,7 @@ export default function Home() {
               className="h-10 w-full bg-[#123f40] text-xs text-white hover:bg-[#1a5554]"
             >
               <FileText />
-              Сформувати чернетку
+              Створити зведення
             </Button>
             <div className="flex items-center justify-center gap-1.5 pt-1 text-[9px] text-[#718482]">
               <ShieldCheck className="size-3" />
@@ -1498,7 +1778,7 @@ export default function Home() {
                   onClick={() => changeSpecialty(item.id)}
                   className={`min-h-16 rounded-xl border border-[#173f40]/12 bg-white px-3 py-3 text-left transition hover:border-[#2d7872]/45 hover:bg-[#f4f8f6] ${FOCUS_RING}`}
                 >
-                  <span className="block text-sm font-bold">{item.label}</span>
+                  <span className="block text-sm font-bold">{specialtyName(item)}</span>
                   <span className="mt-0.5 block text-[11px] text-[#738583]">{articleCountLabel(count)}</span>
                 </button>
               );
@@ -1530,8 +1810,9 @@ export default function Home() {
             </Button>
           ) : null}
 
-          <p className="mt-8 text-[11px] text-[#7a8a88]">
-            База перевірена за редакцією Наказу №402 від {EDITION}
+          <p className="mt-8 flex items-center gap-1.5 text-[11px] text-[#7a8a88]">
+            <ShieldCheck className="size-3.5" />
+            Довідкова навігація, не рішення ВЛК · оновлено: редакція від {EDITION}
           </p>
         </div>
       )}
@@ -1539,8 +1820,10 @@ export default function Home() {
       <Dialog open={draftOpen} onOpenChange={setDraftOpen}>
         <DialogContent className="max-h-[90vh] overflow-hidden p-0 sm:max-w-3xl">
           <DialogHeader className="border-b border-[#173f40]/10 p-4 pr-12">
-            <DialogTitle>Чернетка навігаційного зведення</DialogTitle>
-            <DialogDescription>Для перевірки лікарем. Не є постановою ВЛК.</DialogDescription>
+            <DialogTitle>Зведення для перевірки лікарем</DialogTitle>
+            <DialogDescription>
+              Статті, пункти, ТДВ, чекліст і джерела. Довідкова навігація, не рішення ВЛК.
+            </DialogDescription>
           </DialogHeader>
           <pre className="max-h-[58vh] overflow-y-auto whitespace-pre-wrap break-words bg-[#f8faf8] p-4 font-sans text-xs leading-5 text-[#294b4b] scrollbar-thin">
             {draftText}

@@ -4,36 +4,97 @@
  * Модуль знаходить статтю лише за даними, які вже є в нормативній базі
  * (номер статті, офіційні коди МКХ-10, дослівний блок «Включено», пункти,
  * навігаційні синоніми та локальний довідник лікарів). Він не створює нових
- * відповідностей між діагнозом і статтею.
+ * відповідностей між діагнозом і статтею й не змінює нормативний текст.
+ *
+ * Логіка розкладена на чисті функції: normalizeSearchQuery, parseArticleNumber,
+ * normalizeIcdCode, getSearchMatchType, scoreSearchResult і searchArticles.
  */
 
 import { DIAGNOSIS_ALIASES } from "./diagnosis-aliases.ts";
 import { ARTICLE_RULES } from "./vlk-rules.ts";
 import { ARTICLES, SPECIALTIES, type SpecialtyId, type VlkArticle } from "./vlk-sample-data.ts";
 
-export type MatchReason = "icd" | "article" | "diagnosis" | "included" | "point" | "doctor" | "specialty";
+export type MatchType =
+  | "article"
+  | "icd"
+  | "title"
+  | "synonym"
+  | "summary"
+  | "official"
+  | "doctor"
+  | "point"
+  | "specialty"
+  | "fuzzy";
+
+/** Ваги збігів. Порядок відповідає таблиці пріоритетів технічного завдання. */
+export const SEARCH_WEIGHTS: Record<MatchType | "titlePrefix" | "titleWord", number> = {
+  article: 100,
+  icd: 95,
+  title: 90,
+  titlePrefix: 80,
+  titleWord: 70,
+  synonym: 60,
+  doctor: 55,
+  point: 50,
+  summary: 45,
+  specialty: 35,
+  official: 30,
+  fuzzy: 20,
+};
+
+/** Розгорнуте пояснення, чому знайдено результат. */
+export const MATCH_TYPE_LABELS: Record<MatchType, string> = {
+  article: "Збіг за номером статті",
+  icd: "Збіг за кодом МКХ-10",
+  title: "Збіг у назві діагнозу",
+  synonym: "Збіг у синонімі",
+  summary: "Збіг у короткому описі",
+  official: "Збіг у нормативному тексті",
+  doctor: "Збіг за прізвищем лікаря",
+  point: "Збіг за пунктом статті",
+  specialty: "Збіг за спеціальністю",
+  fuzzy: "Виправлено ймовірну помилку",
+};
+
+/** Коротка позначка для компактного підпису під результатом. */
+export const MATCH_TYPE_SHORT: Record<MatchType, string> = {
+  article: "стаття",
+  icd: "МКХ-10",
+  title: "назва",
+  synonym: "синонім",
+  summary: "опис",
+  official: "нормативний текст",
+  doctor: "лікар",
+  point: "пункт",
+  specialty: "спеціальність",
+  fuzzy: "виправлення",
+};
+
+const MATCH_ORDER: MatchType[] = [
+  "article",
+  "icd",
+  "title",
+  "synonym",
+  "doctor",
+  "point",
+  "summary",
+  "specialty",
+  "official",
+  "fuzzy",
+];
 
 export type SearchHit = {
   article: VlkArticle;
   score: number;
-  reasons: MatchReason[];
+  matches: MatchType[];
   /** Дослівний фрагмент бази, у якому стався найвагоміший збіг. */
-  evidence?: { reason: MatchReason; text: string };
+  evidence?: { match: MatchType; text: string };
 };
 
 export type DoctorDirectory = Partial<Record<SpecialtyId, string>>;
 
-export const REASON_LABELS: Record<MatchReason, string> = {
-  icd: "МКХ",
-  article: "стаття",
-  diagnosis: "діагноз",
-  included: "Включено",
-  point: "пункт",
-  doctor: "лікар",
-  specialty: "спеціальність",
-};
-
-const REASON_ORDER: MatchReason[] = ["icd", "article", "diagnosis", "included", "point", "doctor", "specialty"];
+/** Приклади запитів для першого знайомства з пошуком. */
+export const POPULAR_QUERIES = ["астма", "J45", "стаття 47", "гіпертонія", "меніск", "I10"];
 
 /** Кириличні літери, візуально тотожні латинським у кодах МКХ-10. */
 const CODE_HOMOGLYPHS: Record<string, string> = {
@@ -43,15 +104,25 @@ const CODE_HOMOGLYPHS: Record<string, string> = {
 
 const APOSTROPHES = /[’'`´ʼ‘]/g;
 const DASHES = /[-‑–—−]/g;
+const ARTICLE_WORDS = /^(?:стаття|статті|статтю|статей|ст)$/u;
+const POINT_WORDS = /^(?:пункт|пункту|пункти|пунктом|пунктів|п)$/u;
 
-/** Регістронезалежна форма без апострофів; дефіси стають пробілами. */
-export function foldText(value: string) {
+/**
+ * Нормалізує запит: нижній регістр, єдиний дефіс, без апострофів,
+ * без повторних пробілів. Українські літери не транслітеруються.
+ */
+export function normalizeSearchQuery(value: string) {
   return value
     .toLocaleLowerCase("uk")
     .replace(APOSTROPHES, "")
-    .replace(DASHES, " ")
+    .replace(DASHES, "-")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+/** Регістронезалежна форма для порівняння текстів: дефіси стають пробілами. */
+export function foldText(value: string) {
+  return normalizeSearchQuery(value).replace(/-/g, " ").replace(/\s+/g, " ").trim();
 }
 
 /** Кодовий токен: кирилиця зводиться до латиниці, регістр — до верхнього. */
@@ -61,62 +132,74 @@ export function latinizeCode(value: string) {
     .replace(/[А-ЯЇІЄҐЈЅ]/gu, (letter) => CODE_HOMOGLYPHS[letter] ?? letter);
 }
 
-type IcdCode = { letter: string; value: number; precise: boolean };
-type IcdRange = { letter: string; from: number; to: number };
-
-const CODE_PATTERN = /^([A-Z])(\d{1,2})(?:[.,](\d{1,2}))?$/;
-
-function parseCode(token: string): IcdCode | null {
-  const match = CODE_PATTERN.exec(latinizeCode(token));
-  if (!match) return null;
-  const [, letter, whole, fraction] = match;
-  const value = Number(fraction ? `${whole}.${fraction}` : whole);
-  return { letter, value, precise: Boolean(fraction) };
+/**
+ * Номер статті із запиту: «47», «стаття 47», «ст. 47», «ст.47».
+ * Повертає рядок з номером або null.
+ */
+export function parseArticleNumber(value: string): string | null {
+  const normalized = normalizeSearchQuery(value)
+    .replace(/\./g, " ")
+    .replace(/([а-яіїєґ])(\d)/gu, "$1 $2")
+    .replace(/\s+/g, " ")
+    .trim();
+  const match = /^(?:(?:стаття|статті|статтю|статей|ст)\s+)?(\d{1,2})$/u.exec(normalized);
+  return match ? String(Number(match[1])) : null;
 }
 
-/** Верхня межа коду: «A09» покриває A09.9, «U07.2» — U07.29. */
-function upperBound(code: IcdCode) {
-  return code.value + (code.precise ? 0.0999 : 0.9999);
+/**
+ * Канонічний код МКХ-10: «j45» → «J45», «j45.0» → «J45.0», «j450» → «J45.0».
+ * Кирилиця в кодах зводиться до латиниці.
+ */
+export function normalizeIcdCode(value: string): string | null {
+  const token = latinizeCode(normalizeSearchQuery(value)).replace(/\s+/g, "");
+  const match = /^([A-Z])(\d{2})(?:[.,]?(\d{1,2}))?$/.exec(token);
+  if (!match) return null;
+  const [, letter, whole, fraction] = match;
+  return fraction ? `${letter}${whole}.${fraction}` : `${letter}${whole}`;
+}
+
+type IcdRange = { letter: string; from: number; to: number };
+
+function codeValue(code: string) {
+  const [, digits] = /^[A-Z](\d{2}(?:\.\d{1,2})?)$/.exec(code) ?? [];
+  return digits ? Number(digits) : Number.NaN;
+}
+
+function upperBound(code: string) {
+  return codeValue(code) + (code.includes(".") ? 0.0999 : 0.9999);
+}
+
+/** Діапазон кодів: «J45-J46», «J45–J46», «S60-69» або окремий код. */
+export function parseIcdRange(value: string): IcdRange | null {
+  const parts = normalizeSearchQuery(value).split("-").map((part) => part.trim()).filter(Boolean);
+  if (!parts.length || parts.length > 2) return null;
+
+  const start = normalizeIcdCode(parts[0]);
+  if (!start) return null;
+  const letter = start[0];
+  if (parts.length === 1) {
+    return { letter, from: codeValue(start), to: upperBound(start) };
+  }
+
+  const endRaw = /^\d/.test(parts[1]) ? `${letter}${parts[1]}` : parts[1];
+  const end = normalizeIcdCode(endRaw);
+  if (!end || end[0] !== letter) {
+    return { letter, from: codeValue(start), to: upperBound(start) };
+  }
+  return { letter, from: codeValue(start), to: upperBound(end) };
 }
 
 /** Розбирає офіційне поле МКХ статті у діапазони: «A00-A09; Z22; S60-69». */
-function parseIcdRanges(icd: string): IcdRange[] {
+function parseArticleRanges(icd: string): IcdRange[] {
   const ranges: IcdRange[] = [];
-  for (const rawPart of icd.split(/[;,]/)) {
-    const part = rawPart.trim();
-    if (!part || part === "—") continue;
-    const [rawStart, rawEnd] = part.split(DASHES).map((piece) => piece.trim());
-    const start = parseCode(rawStart);
-    if (!start) continue;
-    if (!rawEnd) {
-      ranges.push({ letter: start.letter, from: start.value, to: upperBound(start) });
-      continue;
-    }
-    // «S60-69»: кінець діапазону успадковує літеру початку.
-    const end = parseCode(/^\d/.test(rawEnd) ? `${start.letter}${rawEnd}` : rawEnd);
-    if (!end || end.letter !== start.letter) {
-      ranges.push({ letter: start.letter, from: start.value, to: upperBound(start) });
-      continue;
-    }
-    ranges.push({ letter: start.letter, from: start.value, to: upperBound(end) });
+  for (const part of icd.split(/[;,]/)) {
+    const range = parseIcdRange(part);
+    if (range) ranges.push(range);
   }
   return ranges;
 }
 
-type QueryCode = { letter: string; from: number; to: number };
-
-/** Кодовий запит: окремий код «I10» або діапазон «I10-I15». */
-function parseQueryCode(term: string): QueryCode | null {
-  const [rawStart, rawEnd] = term.split(DASHES).map((piece) => piece.trim());
-  const start = parseCode(rawStart);
-  if (!start) return null;
-  if (!rawEnd) return { letter: start.letter, from: start.value, to: upperBound(start) };
-  const end = parseCode(/^\d/.test(rawEnd) ? `${start.letter}${rawEnd}` : rawEnd);
-  if (!end || end.letter !== start.letter) return { letter: start.letter, from: start.value, to: upperBound(start) };
-  return { letter: start.letter, from: start.value, to: upperBound(end) };
-}
-
-function overlaps(range: IcdRange, query: QueryCode) {
+function overlaps(range: IcdRange, query: IcdRange) {
   return range.letter === query.letter && query.from <= range.to && query.to >= range.from;
 }
 
@@ -124,8 +207,10 @@ type ArticleIndex = {
   article: VlkArticle;
   ranges: IcdRange[];
   title: string;
+  titleWords: string[];
   summary: string;
   included: string;
+  includedLatin: string;
   aliases: string[];
   points: string[];
   conditions: string;
@@ -145,9 +230,7 @@ function buildIndex(article: VlkArticle): ArticleIndex {
   const summary = foldText(article.summary);
   const included = foldText(article.officialIncluded);
   const specialtyLabels = foldText(
-    article.specialties
-      .map((id) => SPECIALTIES.find((item) => item.id === id)?.label ?? "")
-      .join(" "),
+    article.specialties.map((id) => SPECIALTIES.find((item) => item.id === id)?.label ?? "").join(" "),
   );
   const conditions = foldText(rules.map((rule) => `${rule.condition} ${rule.outcome}`).join(" "));
   const tokens = new Set(
@@ -158,10 +241,12 @@ function buildIndex(article: VlkArticle): ArticleIndex {
 
   const index: ArticleIndex = {
     article,
-    ranges: parseIcdRanges(article.icd),
+    ranges: parseArticleRanges(article.icd),
     title,
+    titleWords: title.split(" ").filter(Boolean),
     summary,
     included,
+    includedLatin: latinizeCode(included),
     aliases,
     points: rules.map((rule) => foldText(rule.point)),
     conditions,
@@ -204,55 +289,172 @@ function fuzzyToken(tokens: Set<string>, term: string) {
   return false;
 }
 
-const DIRECTIVE_ARTICLE = /^(?:стаття|статті|статтю|статей|ст)$/u;
-const DIRECTIVE_POINT = /^(?:пункт|пункту|пункти|пунктом|п)$/u;
+export type QueryTerm =
+  | { kind: "article"; value: string }
+  | { kind: "icd"; value: string; range: IcdRange }
+  | { kind: "point"; value: string }
+  | { kind: "text"; value: string };
 
-type TermScore = { score: number; reason: MatchReason; evidence?: string } | null;
+/**
+ * Розбирає запит на терміни: номер статті, код або діапазон МКХ, пункт, слово.
+ * Службові слова «стаття», «ст.», «пункт» прибираються, якщо після них лишається
+ * номер або літера пункту.
+ */
+export function parseSearchQuery(query: string): QueryTerm[] {
+  const normalized = normalizeSearchQuery(query);
+  if (!normalized) return [];
 
-function scoreTerm(index: ArticleIndex, term: string, directory: DoctorDirectory, pointTerm: boolean): TermScore {
-  const code = parseQueryCode(term);
-  if (code && index.ranges.some((range) => overlaps(range, code))) {
-    return { score: 1000, reason: "icd" };
+  const raw = normalized.split(" ").filter(Boolean);
+  const terms: QueryTerm[] = [];
+  let expectArticle = false;
+  let expectPoint = false;
+
+  for (const token of raw) {
+    const bare = token.replace(/\.$/, "");
+
+    if (ARTICLE_WORDS.test(bare)) {
+      expectArticle = true;
+      continue;
+    }
+    if (POINT_WORDS.test(bare)) {
+      expectPoint = true;
+      continue;
+    }
+
+    if (expectArticle && /^\d{1,2}$/.test(bare)) {
+      terms.push({ kind: "article", value: String(Number(bare)) });
+      expectArticle = false;
+      continue;
+    }
+    if (expectPoint && /^[а-ґ]$/u.test(bare)) {
+      terms.push({ kind: "point", value: bare });
+      expectPoint = false;
+      continue;
+    }
+    expectArticle = false;
+    expectPoint = false;
+
+    const attached = parseArticleNumber(token);
+    if (attached && /[а-яіїєґ]/u.test(bare)) {
+      terms.push({ kind: "article", value: attached });
+      continue;
+    }
+
+    const range = parseIcdRange(token);
+    if (range) {
+      terms.push({ kind: "icd", value: token, range });
+      continue;
+    }
+    if (/^\d{1,2}$/.test(bare)) {
+      terms.push({ kind: "article", value: String(Number(bare)) });
+      continue;
+    }
+    for (const part of token.split("-").filter(Boolean)) {
+      terms.push({ kind: "text", value: part });
+    }
   }
 
-  if (/^\d{1,2}$/.test(term)) {
-    if (index.article.article === term) return { score: 950, reason: "article" };
+  return terms;
+}
+
+type TermMatch = { score: number; match: MatchType; evidence?: string } | null;
+
+/** Тип збігу терміна з конкретною статтею або null, якщо збігу немає. */
+export function getSearchMatchType(
+  index: ArticleIndex,
+  term: QueryTerm,
+  directory: DoctorDirectory,
+): TermMatch {
+  if (term.kind === "article") {
+    return index.article.article === term.value
+      ? { score: SEARCH_WEIGHTS.article, match: "article" }
+      : null;
   }
 
-  const doctorNames = index.article.specialties
+  if (term.kind === "icd") {
+    return index.ranges.some((range) => overlaps(range, term.range))
+      ? { score: SEARCH_WEIGHTS.icd, match: "icd", evidence: index.article.officialIncluded }
+      : null;
+  }
+
+  if (term.kind === "point") {
+    return index.points.includes(term.value)
+      ? { score: SEARCH_WEIGHTS.point, match: "point" }
+      : null;
+  }
+
+  const value = term.value;
+
+  const doctors = index.article.specialties
     .map((id) => foldText(directory[id] ?? ""))
     .filter(Boolean)
     .join(" ");
-  if (term.length >= 3 && doctorNames && doctorNames.split(/[\s,;]+/).some((name) => name.startsWith(term))) {
-    return { score: 800, reason: "doctor" };
+  if (value.length >= 3 && doctors && doctors.split(/[\s,;]+/).some((name) => name.startsWith(value))) {
+    return { score: SEARCH_WEIGHTS.doctor, match: "doctor" };
   }
 
-  if (pointTerm && index.points.includes(term)) return { score: 620, reason: "point" };
-
-  const exactAlias = index.aliases.find((alias) => alias === term);
-  if (exactAlias) return { score: 900, reason: "diagnosis", evidence: index.article.officialIncluded };
-  if (index.title === term) return { score: 880, reason: "diagnosis" };
-  if (index.aliases.some((alias) => alias.split(" ").some((word) => word.startsWith(term)))) {
-    return { score: 760, reason: "diagnosis", evidence: index.article.officialIncluded };
+  if (index.title === value) return { score: SEARCH_WEIGHTS.title, match: "title" };
+  if (index.title.startsWith(value)) return { score: SEARCH_WEIGHTS.titlePrefix, match: "title" };
+  if (index.titleWords.some((word) => word.startsWith(value))) {
+    return { score: SEARCH_WEIGHTS.titleWord, match: "title" };
   }
-  if (index.title.split(" ").some((word) => word.startsWith(term))) return { score: 700, reason: "diagnosis" };
-  if (index.title.includes(term)) return { score: 660, reason: "diagnosis" };
-  if (index.summary.includes(term)) return { score: 560, reason: "diagnosis", evidence: index.article.summary };
-  if (index.included.includes(term)) {
-    return { score: 500, reason: "included", evidence: index.article.officialIncluded };
+  if (index.aliases.includes(value)) {
+    return { score: SEARCH_WEIGHTS.synonym, match: "synonym", evidence: index.article.officialIncluded };
   }
-  if (latinizeCode(index.included).includes(latinizeCode(term)) && /\d/.test(term)) {
-    return { score: 480, reason: "included", evidence: index.article.officialIncluded };
+  if (index.aliases.some((alias) => alias.split(" ").some((word) => word.startsWith(value)))) {
+    return { score: SEARCH_WEIGHTS.synonym, match: "synonym", evidence: index.article.officialIncluded };
   }
-  if (index.conditions.includes(term)) {
+  if (index.title.includes(value)) return { score: SEARCH_WEIGHTS.titleWord, match: "title" };
+  if (index.summary.includes(value)) {
+    return { score: SEARCH_WEIGHTS.summary, match: "summary", evidence: index.article.summary };
+  }
+  if (index.included.includes(value) || (/\d/.test(value) && index.includedLatin.includes(latinizeCode(value)))) {
+    return { score: SEARCH_WEIGHTS.official, match: "official", evidence: index.article.officialIncluded };
+  }
+  if (index.specialtyLabels.includes(value)) {
+    return { score: SEARCH_WEIGHTS.specialty, match: "specialty" };
+  }
+  if (index.conditions.includes(value)) {
     const rules = ARTICLE_RULES[index.article.article] ?? [];
-    const rule = rules.find((entry) => foldText(entry.condition).includes(term));
-    return { score: 420, reason: "point", evidence: rule?.condition };
+    const rule = rules.find((entry) => foldText(entry.condition).includes(value));
+    return { score: SEARCH_WEIGHTS.official, match: "official", evidence: rule?.condition };
   }
-  if (index.specialtyLabels.includes(term)) return { score: 320, reason: "specialty" };
-  if (fuzzyToken(index.tokens, term)) return { score: 200, reason: "diagnosis" };
+  if (fuzzyToken(index.tokens, value)) return { score: SEARCH_WEIGHTS.fuzzy, match: "fuzzy" };
 
   return null;
+}
+
+/** Сумарна релевантність статті за всіма термінами запиту. */
+export function scoreSearchResult(
+  article: VlkArticle,
+  terms: readonly QueryTerm[],
+  directory: DoctorDirectory = {},
+): SearchHit | null {
+  if (!terms.length) return null;
+  const index = buildIndex(article);
+
+  let score = 0;
+  const matches = new Set<MatchType>();
+  let evidence: SearchHit["evidence"];
+  let evidenceScore = -1;
+
+  for (const term of terms) {
+    const result = getSearchMatchType(index, term, directory);
+    if (!result) return null;
+    score += result.score;
+    matches.add(result.match);
+    if (result.evidence && result.score > evidenceScore) {
+      evidence = { match: result.match, text: result.evidence };
+      evidenceScore = result.score;
+    }
+  }
+
+  return {
+    article,
+    score,
+    matches: MATCH_ORDER.filter((match) => matches.has(match)),
+    evidence,
+  };
 }
 
 export function searchArticles(
@@ -260,52 +462,13 @@ export function searchArticles(
   directory: DoctorDirectory = {},
   articles: readonly VlkArticle[] = ARTICLES,
 ): SearchHit[] {
-  const folded = foldText(query);
-  if (!folded) return [];
-
-  const rawTerms = folded.split(" ").filter(Boolean);
-  const terms: string[] = [];
-  let pointTerm = false;
-  for (const term of rawTerms) {
-    if (DIRECTIVE_ARTICLE.test(term)) continue;
-    if (DIRECTIVE_POINT.test(term)) {
-      pointTerm = true;
-      continue;
-    }
-    terms.push(term);
-  }
+  const terms = parseSearchQuery(query);
   if (!terms.length) return [];
 
   const hits: SearchHit[] = [];
   for (const article of articles) {
-    const index = buildIndex(article);
-    let score = 0;
-    const reasons = new Set<MatchReason>();
-    let matchedAll = true;
-    let evidence: SearchHit["evidence"];
-    let evidenceScore = -1;
-
-    for (const term of terms) {
-      const result = scoreTerm(index, term, directory, pointTerm);
-      if (!result) {
-        matchedAll = false;
-        break;
-      }
-      score += result.score;
-      reasons.add(result.reason);
-      if (result.evidence && result.score > evidenceScore) {
-        evidence = { reason: result.reason, text: result.evidence };
-        evidenceScore = result.score;
-      }
-    }
-
-    if (!matchedAll) continue;
-    hits.push({
-      article,
-      score,
-      reasons: REASON_ORDER.filter((reason) => reasons.has(reason)),
-      evidence,
-    });
+    const hit = scoreSearchResult(article, terms, directory);
+    if (hit) hits.push(hit);
   }
 
   return hits.sort(
@@ -347,17 +510,18 @@ export function highlightParts(text: string, query: string): HighlightPart[] {
   const stems = terms.map((term) => ({
     term,
     stem: highlightStem(term),
-    code: parseQueryCode(term) ? latinizeCode(term) : "",
+    code: normalizeIcdCode(term) ?? "",
   }));
 
   const matchesTerm = (word: string) => {
     const folded = foldWord(word);
     if (!folded) return false;
     const latin = latinizeCode(folded);
+    const canonical = normalizeIcdCode(folded) ?? "";
     return stems.some(({ term, stem, code }) => {
       if (folded === term) return true;
       if (term.length >= 4 && folded.startsWith(stem)) return true;
-      if (code && latin.startsWith(code)) return true;
+      if (code && (latin.startsWith(code) || canonical.startsWith(code))) return true;
       return false;
     });
   };
