@@ -50,9 +50,35 @@ function PawGlyph({ className = "" }: { className?: string }) {
   );
 }
 
+/** Faint street grid + dashed route behind the phone — a map feel, not a map. */
+function MapBackdrop() {
+  return (
+    <span className="cockpit__map">
+      <svg viewBox="0 0 320 400" preserveAspectRatio="none" aria-hidden>
+        <g stroke="#0E7C66" strokeOpacity="0.09" strokeWidth="1.4">
+          <path d="M-10 92h340M-10 214h340M-10 320h340" />
+          <path d="M74 -10v420M196 -10v420M268 -10v420" />
+        </g>
+        <path
+          d="M52 336C96 320 108 268 150 250s86-10 108-52"
+          fill="none"
+          stroke="#0E7C66"
+          strokeOpacity="0.3"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeDasharray="7 9"
+        />
+        <circle cx="52" cy="336" r="5" fill="#E8825F" fillOpacity="0.5" />
+        <circle cx="258" cy="198" r="6" fill="#0E7C66" fillOpacity="0.35" />
+      </svg>
+    </span>
+  );
+}
+
 export function PetCareCockpit() {
   return (
     <div aria-hidden className="cockpit pointer-events-none mx-auto w-[290px] select-none sm:w-[312px]">
+      <MapBackdrop />
       <span className="cockpit__aura" />
       <span className="cockpit__ring" />
 
@@ -65,7 +91,7 @@ export function PetCareCockpit() {
           </span>
           <div className="min-w-0 flex-1">
             <p className="font-display text-base font-bold leading-tight text-ink">Мія · кіт</p>
-            <p className="text-[11px] text-ink/50">активний профіль улюбленця</p>
+            <p className="truncate text-[11px] text-ink/50">активний профіль</p>
           </div>
           <HeartIcon className="cockpit__heart h-5 w-5 shrink-0 text-peach" />
         </div>
@@ -85,7 +111,11 @@ export function PetCareCockpit() {
               <ServiceIcon category="veterinary_clinic" className="h-7 w-7" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="font-display text-sm font-bold text-ink">Найближча ветклініка</p>
+              {/* Kept on one line so the floating chips, which are anchored to
+                  fixed offsets, always land in the gaps between rows. */}
+              <p className="whitespace-nowrap font-display text-[13px] font-bold text-ink">
+                Найближча ветклініка
+              </p>
               <div className="mt-1 flex flex-wrap gap-1">
                 <span className="rounded-full bg-brand px-1.5 py-0.5 text-[10px] font-semibold text-white">
                   1.2 км
@@ -99,9 +129,12 @@ export function PetCareCockpit() {
               </div>
             </div>
           </div>
+          {/* Tight type so both labels fit the narrow mock card at 375px. */}
           <div className="mt-2.5 grid grid-cols-2 gap-2">
-            <span className="btn btn-brand rounded-xl px-2 py-2 text-xs">Зателефонувати</span>
-            <span className="btn btn-ghost rounded-xl px-2 py-2 text-xs">Маршрут</span>
+            <span className="btn btn-brand rounded-xl px-1.5 py-2 text-[11px]">
+              Зателефонувати
+            </span>
+            <span className="btn btn-ghost rounded-xl px-1.5 py-2 text-[11px]">Маршрут</span>
           </div>
         </div>
 

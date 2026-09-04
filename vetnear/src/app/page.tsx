@@ -1,13 +1,14 @@
 import Link from "next/link";
+import { CarePaths } from "@/components/CarePaths";
 import { HomeHero } from "@/components/HomeHero";
 import { SocialImpact } from "@/components/SocialImpact";
 
 // The home page is statically rendered. WebSite JSON-LD is emitted once in the
-// root layout. Structure (top → bottom): pet-first hero (headline, CTAs, trust
-// microcopy, pet-care cockpit mockup, pet selector, care-path cards — all in
-// HomeHero), warm trust cards + compact safety line, small "Популярні розділи"
-// pills, a collapsed "Докладніше про VetNear" block (full SEO/safety prose
-// stays in the DOM) and the compact social-impact card.
+// root layout. The page alternates three full-bleed bands so the sections read
+// as deliberate layers: warm hero (headline, CTAs, trust microcopy, pet-care
+// cockpit mockup, pet selector) → white care-paths band → soft mint trust band
+// → cream tail (popular links, collapsed "Докладніше про VetNear" with the full
+// SEO/safety prose, social-impact card).
 
 const SEO_LINKS: { href: string; label: string }[] = [
   { href: "/pet-services-near-me", label: "Послуги для тварин поруч" },
@@ -60,11 +61,31 @@ function PawIconMini() {
   );
 }
 
-const TRUST_CARDS: { icon: React.ReactNode; text: string; tone: string }[] = [
-  { icon: <BoltIcon />, text: "Без реєстрації", tone: "bg-brand-50 text-brand-700" },
-  { icon: <PhoneIcon />, text: "Дзвінок і маршрут одразу", tone: "bg-brand-50 text-brand-700" },
-  { icon: <ShieldCheckIcon />, text: "Дані позначені за рівнем перевірки", tone: "bg-peach-50 text-peach-700" },
-  { icon: <PawIconMini />, text: "У фокусі потреба улюбленця, не реклама закладів", tone: "bg-peach-50 text-peach-700" },
+const TRUST_CARDS: { icon: React.ReactNode; title: string; body: string; tone: string }[] = [
+  {
+    icon: <BoltIcon />,
+    title: "Без реєстрації",
+    body: "Відкрили — і одразу шукаєте. Жодних акаунтів і паролів.",
+    tone: "bg-brand-50 text-brand-700",
+  },
+  {
+    icon: <PhoneIcon />,
+    title: "Дзвінок і маршрут одразу",
+    body: "Телефон, маршрут і сайт закладу — в один дотик із картки.",
+    tone: "bg-brand-50 text-brand-700",
+  },
+  {
+    icon: <ShieldCheckIcon />,
+    title: "Дані позначені за рівнем перевірки",
+    body: "Видно, що перевірено за публічними джерелами, а що — ще на перевірці.",
+    tone: "bg-peach-50 text-peach-700",
+  },
+  {
+    icon: <PawIconMini />,
+    title: "У фокусі потреба улюбленця",
+    body: "Підбір іде від тварини та ситуації, а не від реклами закладів.",
+    tone: "bg-peach-50 text-peach-700",
+  },
 ];
 
 export default function HomePage() {
@@ -72,27 +93,40 @@ export default function HomePage() {
     <>
       <HomeHero />
 
+      <CarePaths className="band-white py-14 sm:py-16" />
+
       {/* Warm trust cards + one calm safety line. */}
-      <section className="container-px mx-auto max-w-3xl pt-10">
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-          {TRUST_CARDS.map((c) => (
-            <div
-              key={c.text}
-              className="flex flex-col items-start gap-2.5 rounded-2xl border border-brand-100 bg-surface p-3.5 shadow-card"
-            >
-              <span className={`grid h-9 w-9 place-items-center rounded-xl ${c.tone}`}>
-                {c.icon}
-              </span>
-              <p className="text-xs font-semibold leading-snug text-ink/80">{c.text}</p>
-            </div>
-          ))}
+      <section className="band-care py-14 sm:py-16">
+        <div className="mx-auto w-full max-w-5xl px-4">
+          <p className="eyebrow">Чому це можна показувати друзям</p>
+          <h2 className="mt-1.5 font-display text-2xl font-extrabold text-ink sm:text-3xl">
+            Швидко, прозоро й без зайвого
+          </h2>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            {TRUST_CARDS.map((c) => (
+              <div
+                key={c.title}
+                className="flex items-start gap-3.5 rounded-3xl border border-brand-100 bg-surface p-4 shadow-card"
+              >
+                <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${c.tone}`}>
+                  {c.icon}
+                </span>
+                <div className="min-w-0">
+                  <p className="font-display text-sm font-bold text-ink">{c.title}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-ink/60">{c.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-5 text-center text-xs text-ink/50">
+            VetNear не ставить діагноз і не замінює ветеринара.
+          </p>
         </div>
-        <p className="mt-3 text-center text-xs text-ink/45">
-          VetNear не ставить діагноз і не замінює ветеринара.
-        </p>
       </section>
 
-      <section className="container-px mx-auto max-w-3xl pt-10">
+      <section className="mx-auto w-full max-w-5xl px-4 pt-12">
         <h2 className="text-sm font-semibold text-ink/50">Популярні розділи</h2>
         <ul className="mt-2.5 flex flex-wrap gap-1.5">
           {SEO_LINKS.map((l) => (
@@ -111,7 +145,7 @@ export default function HomePage() {
 
       {/* Longer explanatory / SEO prose, collapsed into one calm disclosure.
           The full text stays in the DOM for readers and search engines. */}
-      <section className="container-px mx-auto max-w-3xl pt-10">
+      <section className="mx-auto w-full max-w-5xl px-4 pt-8">
         <details className="group rounded-2xl border border-brand-100 bg-surface shadow-card">
           <summary className="flex cursor-pointer select-none items-center justify-between gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold text-brand-700 transition hover:bg-brand-50 [&::-webkit-details-marker]:hidden">
             Докладніше про VetNear
@@ -145,7 +179,7 @@ export default function HomePage() {
         </details>
       </section>
 
-      <SocialImpact compact className="pb-2 pt-10" />
+      <SocialImpact compact className="!max-w-5xl pb-2 pt-8" />
     </>
   );
 }

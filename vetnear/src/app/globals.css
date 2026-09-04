@@ -1075,3 +1075,81 @@ body {
     animation: none !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Page bands. The homepage alternates three full-bleed surfaces so sections
+   read as deliberate layers instead of one flat stack: a warm hero band that
+   fades into white, a plain white band for the care paths, and a soft mint
+   band for the trust row. Backgrounds only — no layout impact.
+--------------------------------------------------------------------------- */
+.band-hero {
+  background:
+    radial-gradient(1100px 480px at 50% -12%, rgb(255 255 255 / 0.85), transparent 68%),
+    linear-gradient(180deg, #faf6ef 0%, #fdfbf7 62%, #ffffff 100%);
+}
+.band-white {
+  background: #ffffff;
+}
+.band-care {
+  background: linear-gradient(180deg, #ffffff 0%, #f1f8f4 30%, #f1f8f4 68%, #faf6ef 100%);
+}
+
+/* Section eyebrow: a small uppercase label above the heading. */
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(14 124 102 / 0.7);
+}
+
+/* --- Cockpit map backdrop --------------------------------------------------
+   A faint street grid + dashed route behind the phone card, framed by the
+   dashed care ring. Sells the geo/pet-care purpose without any real map. */
+.cockpit__map {
+  position: absolute;
+  inset: -26px -20px;
+  border-radius: 44px;
+  overflow: hidden;
+  background: linear-gradient(160deg, #f6fbf8 0%, #fdf7f2 100%);
+  opacity: 0.85;
+}
+.cockpit__map svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* --- Care-path cards -------------------------------------------------------
+   Row layout: icon tile, title + one explanatory line, trailing arrow. The
+   featured card (health) gets a larger icon and heading. */
+.care-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  text-align: left;
+}
+.care-card__arrow {
+  flex-shrink: 0;
+  color: rgb(14 124 102 / 0.55);
+  transition: transform 0.2s ease-out, color 0.2s ease-out;
+}
+@media (hover: hover) and (pointer: fine) {
+  .care-card:hover .care-card__arrow {
+    transform: translateX(3px);
+    color: rgb(14 124 102 / 0.95);
+  }
+}
+.care-card--featured {
+  padding: 20px;
+}
+.care-card--featured .service-card__icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 22px;
+}
+.care-card--featured .service-card__icon svg {
+  width: 40px;
+  height: 40px;
+}

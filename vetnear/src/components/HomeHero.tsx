@@ -6,31 +6,14 @@ import { AnimatedCTAButton } from "@/components/AnimatedCTAButton";
 import { EmergencyCtaIcon } from "@/components/icons/ServiceIcons";
 import { PetCareCockpit } from "@/components/PetCareCockpit";
 import { PetFirstSelector } from "@/components/PetFirstSelector";
-import { ServiceCategoryCard } from "@/components/ServiceCategoryCard";
 import { PLACES } from "@/lib/data/places";
 import { isSearchablePublicPlace } from "@/lib/data/provenance";
 import { hasPhoneConfirmedEmergency, SAFE_EMERGENCY_CTA_HREF } from "@/lib/data/verification";
-import type { PlaceCategory } from "@/lib/types";
 
-/** Care-path cards: the pet's need first, the category second. */
-const CARE_PATHS: { category: PlaceCategory; title: string; desc: string }[] = [
-  { category: "veterinary_clinic", title: "Здоров’я", desc: "Ветклініки поруч" },
-  { category: "vet_pharmacy", title: "Ліки", desc: "Ветаптеки поруч" },
-  { category: "pet_store", title: "Їжа й товари", desc: "Зоомагазини поруч" },
-  { category: "grooming", title: "Догляд", desc: "Грумінг і стрижка" },
-  { category: "pet_boarding", title: "Перетримка", desc: "Коли треба залишити улюбленця" },
-];
-
-// Never advertise an empty category (e.g. shelters currently have 0 public
-// places), and keep the honest pilot-base numbers for the hero trust line.
+// Honest pilot-base numbers for the hero trust line.
 const PUBLIC = PLACES.filter(isSearchablePublicPlace);
 const TOTAL = PUBLIC.length;
 const VERIFIED = PUBLIC.filter((p) => p.verificationStatus === "verified").length;
-const PUBLIC_COUNT = PUBLIC.reduce<Partial<Record<PlaceCategory, number>>>((m, p) => {
-  m[p.category] = (m[p.category] ?? 0) + 1;
-  return m;
-}, {});
-const CARE_VISIBLE = CARE_PATHS.filter((c) => (PUBLIC_COUNT[c.category] ?? 0) > 0);
 
 /** Ukrainian plural form for "місце" (1 місце / 2 місця / 5 місць). */
 function placesWord(n: number): string {
@@ -95,23 +78,25 @@ export function HomeHero() {
   };
 
   return (
-    <section className="relative overflow-hidden">
+    <section className="band-hero relative overflow-hidden">
       <HeroAura />
 
-      <div className="mx-auto w-full max-w-5xl px-4 pb-12 pt-10 sm:pt-14">
+      <div className="mx-auto w-full max-w-5xl px-4 pb-14 pt-10 sm:pt-14">
         {/* Above the fold: message left, pet-care cockpit right (stacked on mobile). */}
-        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_400px]">
+        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-8">
           <div className="text-center lg:text-left">
-            <p className="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-surface/70 px-3 py-1 text-xs font-semibold text-brand-700 backdrop-blur">
+            <p className="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-surface/80 px-3.5 py-1.5 text-xs font-semibold text-brand-700 shadow-card backdrop-blur">
               <LocationPin className="h-3.5 w-3.5" /> Київ · pet-сервіси поруч
             </p>
 
-            <h1 className="mx-auto mt-5 max-w-xl text-4xl font-extrabold leading-[1.08] sm:text-5xl lg:mx-0">
+            {/* Second sentence always starts its own line and never breaks
+                mid-phrase, so the headline reads as two clean statements. */}
+            <h1 className="mx-auto mt-6 max-w-xl text-[1.95rem] font-extrabold leading-[1.08] sm:text-5xl lg:mx-0 lg:text-[3.5rem]">
               Улюбленець у пріоритеті.{" "}
-              <span className="text-brand">Допомога — поруч.</span>
+              <span className="block text-brand sm:whitespace-nowrap">Допомога — поруч.</span>
             </h1>
 
-            <p className="mx-auto mt-4 max-w-md text-base text-ink/65 lg:mx-0">
+            <p className="mx-auto mt-5 max-w-lg text-lg leading-relaxed text-ink/65 lg:mx-0">
               VetNear знаходить найближчі ветклініки, ветаптеки, зоомагазини, грумінг
               і pet-сервіси в Києві — без зайвої реєстрації та хаосу в пошуку.
             </p>
@@ -137,52 +122,36 @@ export function HomeHero() {
               </Link>
 
               {/* Honest trust microcopy, stated once. */}
-              <p className="mt-4 text-xs text-ink/45">
+              <p className="mt-5 text-xs leading-relaxed text-ink/45">
                 Без реєстрації · Пілотна база Києва: {TOTAL} {placesWord(TOTAL)},{" "}
                 {VERIFIED} перевірено · Не замінює ветеринара
               </p>
-
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
-                <Link
-                  href="/add-place"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-surface/70 px-3 py-1.5 text-xs font-medium text-ink/55 transition hover:border-brand-300 hover:text-brand-700"
-                >
-                  Я представляю зообізнес — додати безкоштовно
-                </Link>
-                <Link
-                  href="/demo"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-surface/70 px-3 py-1.5 text-xs font-medium text-ink/55 transition hover:border-brand-300 hover:text-brand-700"
-                >
-                  Демо для журі
-                </Link>
-              </div>
             </div>
           </div>
 
-          <div className="mx-auto w-full max-w-[360px] py-6 lg:py-4">
-            <PetCareCockpit />
+          <div className="mx-auto w-full max-w-[360px] py-8 lg:py-10">
+            <div className="origin-center lg:scale-[1.1]">
+              <PetCareCockpit />
+            </div>
           </div>
         </div>
 
         {/* The product starts from the pet, not from the directory. */}
-        <PetFirstSelector emergencyHref={EMERGENCY_HREF} className="mt-14" />
+        <PetFirstSelector emergencyHref={EMERGENCY_HREF} className="mt-10 shadow-pop" />
 
-        {/* Care paths — needs first, categories second. */}
-        <div className="mt-14">
-          <h2 className="text-center font-display text-xl font-bold text-ink">
-            Що потрібно вашому улюбленцю?
-          </h2>
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {CARE_VISIBLE.map((c) => (
-              <ServiceCategoryCard
-                key={c.category}
-                category={c.category}
-                label={c.title}
-                description={c.desc}
-                href={`/nearby?category=${c.category}`}
-              />
-            ))}
-          </div>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+          <Link
+            href="/add-place"
+            className="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-surface/70 px-3 py-1.5 text-xs font-medium text-ink/55 transition hover:border-brand-300 hover:text-brand-700"
+          >
+            Я представляю зообізнес — додати безкоштовно
+          </Link>
+          <Link
+            href="/demo"
+            className="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-surface/70 px-3 py-1.5 text-xs font-medium text-ink/55 transition hover:border-brand-300 hover:text-brand-700"
+          >
+            Демо для журі
+          </Link>
         </div>
       </div>
     </section>
