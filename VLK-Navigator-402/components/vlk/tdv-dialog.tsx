@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -116,8 +117,9 @@ export function TdvDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="flex h-[94vh] w-[96vw] max-w-[96vw] flex-col gap-0 overflow-hidden p-0 sm:max-w-[96vw]">
-        <DialogHeader className="shrink-0 border-b border-[#17211f]/10 p-4 pr-12 text-left">
+      <DialogContent className="table-fullscreen flex flex-col gap-0 overflow-hidden p-0" showCloseButton={false}>
+        <DialogHeader className="relative shrink-0 border-b border-[#17211f]/10 p-3 pr-32 text-left">
+          <DialogClose asChild><Button variant="outline" className="absolute right-3 top-3 min-h-11"><X />Закрити</Button></DialogClose>
           <DialogTitle className="text-base">
             Таблиця додаткових вимог · Додаток 3 до Наказу №402
           </DialogTitle>
@@ -143,8 +145,8 @@ export function TdvDialog({
           </div>
         </DialogHeader>
 
-        <div className="min-h-0 flex-1 overflow-auto p-5 scrollbar-thin">
-          <table className="w-full min-w-[760px] border-separate border-spacing-0 border-l border-t border-black text-left">
+        <div className="min-h-0 flex-1 overflow-auto p-2 sm:p-4 scrollbar-thin" role="region" aria-label="Повна таблиця ТДВ" tabIndex={0}>
+          <table className="tdv-table w-full min-w-[760px] table-fixed border-separate border-spacing-0 border-l border-t border-black text-left">
             <caption className="sr-only">
               Позначки «НП» за 12 графами Додатка 3 для кожної статті та пункту
             </caption>

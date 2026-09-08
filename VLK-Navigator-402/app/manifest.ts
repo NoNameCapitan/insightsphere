@@ -7,14 +7,14 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Професійний навігатор по наказу МОУ №402 для лікарів-членів ВЛК.",
     start_url: "/",
     display: "standalone",
-    background_color: "#f4f1e9",
-    theme_color: "#123f40",
+    background_color: "#f5f2ec",
+    theme_color: "#082f2b",
     lang: "uk",
     icons: [
       {
-        src: "/favicon.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/vlk-command-emblem.png",
+        sizes: "1254x1254",
+        type: "image/png",
       },
     ],
   };

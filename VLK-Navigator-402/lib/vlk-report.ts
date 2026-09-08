@@ -59,3 +59,26 @@ export function buildDraftText(basket: readonly BasketItem[], examineeType: stri
     SOURCE_URL,
   ].join("\n");
 }
+
+export function buildCitizenSummaryText(
+  basket: readonly BasketItem[],
+  examineeType: string,
+  preparationChecks: readonly string[],
+) {
+  return [
+    "ОСОБИСТИЙ СПИСОК НОРМ І ПІДГОТОВКИ ДО ВЛК",
+    `Категорія оглядуваного: ${examineeType}`,
+    `Наказ МОУ №402, редакція від ${EDITION}`,
+    "",
+    ...basket.map((item, index) => buildBasketEntry(item, index)),
+    ...(basket.length ? [] : ["Збережених норм немає."]),
+    "",
+    "ВІДМІЧЕНО У ЧЕКЛІСТІ:",
+    ...(preparationChecks.length
+      ? preparationChecks.map((item) => `✓ ${item}`)
+      : ["Жодного пункту ще не відмічено."]),
+    "",
+    "Цей список не встановлює діагноз і не визначає придатність. Остаточне рішення ухвалює ВЛК після огляду та перевірки документів.",
+    SOURCE_URL,
+  ].join("\n");
+}

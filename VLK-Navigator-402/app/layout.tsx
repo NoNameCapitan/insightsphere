@@ -15,8 +15,9 @@ export const metadata: Metadata = {
     "Професійний навігатор по наказу МОУ №402 для лікарів-членів ВЛК.",
   applicationName: "VLK Навігатор 402 Assist",
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: "/vlk-command-emblem.png",
+    shortcut: "/vlk-command-emblem.png",
+    apple: "/vlk-command-emblem.png",
   },
 };
 

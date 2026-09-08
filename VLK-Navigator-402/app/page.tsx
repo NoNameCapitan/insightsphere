@@ -62,7 +62,15 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { SwRegister } from "@/components/sw-register";
+import { CommandBrand } from "@/components/vlk/command-brand";
+import {
+  CitizenPreparation,
+  CITIZEN_PREPARATION_CHECKS,
+} from "@/components/vlk/citizen-preparation";
+import { NormativePassportDialog } from "@/components/vlk/normative-passport-dialog";
 import { TdvDialog } from "@/components/vlk/tdv-dialog";
+import { ExplanationDocument } from "@/components/vlk/explanation-document";
+import { Highlighted } from "@/components/vlk/highlighted";
 import { ARTICLE_RULES, type ArticleRule } from "@/lib/vlk-rules";
 import {
   ARTICLES,
@@ -80,7 +88,6 @@ import {
   type OutcomeFilterId,
 } from "@/lib/vlk-outcomes";
 import {
-  highlightParts,
   MATCH_TYPE_LABELS,
   MATCH_TYPE_SHORT,
   POPULAR_QUERIES,
@@ -125,7 +132,7 @@ import {
   type ArticleExplanation,
 } from "@/lib/vlk-explanations";
 import { pointExplanation } from "@/lib/vlk-explanation-view";
-import { buildDraftText, buildReferenceText } from "@/lib/vlk-report";
+import { buildCitizenSummaryText, buildDraftText, buildReferenceText } from "@/lib/vlk-report";
 import {
   explanationUrl as buildExplanationUrl,
   officialRuleUrl,
@@ -140,6 +147,18 @@ const ANALYSIS_CHECKS = [
   "Офіційні пояснення до статті звірено",
   "Графу обліку та ТДВ звірено",
 ];
+
+const DOCTOR_WORKFLOW_STEPS = [
+  ["1", "Знайдіть", "діагноз або статтю"],
+  ["2", "Оберіть", "точний пункт стану"],
+  ["3", "Звірте", "орієнтир, ТДВ і джерело"],
+] as const;
+
+const CITIZEN_WORKFLOW_STEPS = [
+  ["1", "Знайдіть", "норму за діагнозом або МКХ"],
+  ["2", "Звірте", "дослівний пункт із документами"],
+  ["3", "Підготуйте", "виписки, обстеження та копії"],
+] as const;
 
 const FOCUS_RING =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2c6b63] focus-visible:ring-offset-1 focus-visible:ring-offset-white";
@@ -198,25 +217,8 @@ function pointLabelGenitive(point: string) {
   return point === "—" ? "статті без поділу на пункти" : `пункту «${point}»`;
 }
 
-function Highlighted({ text, query }: { text: string; query: string }) {
-  if (!query.trim()) return <>{text}</>;
-  return (
-    <>
-      {highlightParts(text, query).map((part, index) =>
-        part.match ? (
-          <mark key={index} className="rounded-[3px] bg-[#f7e7b4] px-0.5 text-inherit">
-            {part.text}
-          </mark>
-        ) : (
-          <span key={index}>{part.text}</span>
-        ),
-      )}
-    </>
-  );
-}
-
 export default function Home() {
-  const [mode, setMode] = useState<Mode>("express");
+  const [mode, setMode] = useState<Mode>("doctor");
   // Порожнє значення означає, що лікар ще не обрав спеціальність:
   // до цього моменту перший екран лишається чистим.
   const [specialty, setSpecialty] = useState<SpecialtyId | "">("");
@@ -225,6 +227,7 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState("");
   const [selectedRuleIndex, setSelectedRuleIndex] = useState("");
   const [checked, setChecked] = useState<string[]>([]);
+  const [citizenChecked, setCitizenChecked] = useState<string[]>([]);
   const [basket, setBasket] = useState<BasketItem[]>([]);
   const [directory, setDirectory] = useState<DoctorDirectory>(EMPTY_DIRECTORY);
   const [draftOpen, setDraftOpen] = useState(false);
@@ -267,12 +270,13 @@ export default function Home() {
       }
       const restored = restoreSession(stored);
       setBasket(restored.basket);
+      setCitizenChecked(restored.citizenChecked);
       setExamineeType(restored.examineeType);
       setMode(restored.mode);
       setDirectory(restored.directory);
       if (restored.dropped) {
         setRestoreNotice(
-          `${restored.dropped} збережених пунктів не знайдено в чинній редакції — їх прибрано зі зведення.`,
+          `${restored.dropped} збережених пунктів не знайдено в корпусі редакції від ${EDITION} — їх прибрано зі зведення.`,
         );
       }
       setHistory(readSearchHistory(localStorage.getItem(SEARCH_HISTORY_KEY)));
@@ -291,8 +295,11 @@ export default function Home() {
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(SESSION_KEY, serializeSession({ basket, examineeType, mode, directory }));
-  }, [basket, directory, examineeType, hydrated, mode]);
+    localStorage.setItem(
+      SESSION_KEY,
+      serializeSession({ basket, citizenChecked, examineeType, mode, directory }),
+    );
+  }, [basket, citizenChecked, directory, examineeType, hydrated, mode]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -395,6 +402,7 @@ export default function Home() {
   // запиту фільтрує список, але не перемикає відкриту статтю.
   const selected =
     ARTICLES.find((article) => article.id === selectedId) ?? specialtyArticles[0];
+  const selectedEvidence = selected ? hitsById.get(selected.id)?.evidence : undefined;
   const selectedSpecialty = SPECIALTIES.find((item) => item.id === specialty);
   /** Робочий екран відкривається лише після вибору спеціальності або пошуку. */
   const showDashboard = Boolean(specialty) || Boolean(query.trim());
@@ -509,7 +517,13 @@ export default function Home() {
   const summaryItem = strictestOutcome(basket);
   const summaryStyle = summaryItem ? outcomeStyles(summaryItem.outcome) : undefined;
 
-  const draftText = useMemo(() => buildDraftText(basket, examineeType), [basket, examineeType]);
+  const draftText = useMemo(
+    () =>
+      mode === "doctor"
+        ? buildDraftText(basket, examineeType)
+        : buildCitizenSummaryText(basket, examineeType, citizenChecked),
+    [basket, citizenChecked, examineeType, mode],
+  );
 
   const referenceText =
     selected && selectedRule ? buildReferenceText(selected, selectedRule) : "";
@@ -523,6 +537,17 @@ export default function Home() {
     setChecked([]);
     setSelectedRuleIndex("");
     setCopied("");
+  }
+
+  function changeMode(nextMode: Mode) {
+    setMode(nextMode);
+    setOutcomeFilter("all");
+  }
+
+  function toggleCitizenCheck(item: string, value: boolean) {
+    setCitizenChecked((current) =>
+      value ? [...new Set([...current, item])] : current.filter((entry) => entry !== item),
+    );
   }
 
   /**
@@ -643,7 +668,7 @@ export default function Home() {
     const item = createBasketItem(article, rule);
     setBasket((current) => [...current.filter((entry) => entry.id !== item.id), item]);
     toast.success(
-      `Стаття ${item.article}${item.point === "—" ? "" : `, пункт «${item.point}»`} — у зведенні`,
+      `Стаття ${item.article}${item.point === "—" ? "" : `, пункт «${item.point}»`} — ${mode === "doctor" ? "у зведенні" : "збережена"}`,
     );
   }
 
@@ -726,12 +751,12 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#f5f2ec] text-[#17211f] xl:h-screen xl:overflow-hidden">
+    <main className="app-shell min-h-screen bg-[var(--background)] text-[var(--foreground)] xl:h-screen xl:overflow-hidden">
       <SwRegister />
       <Toaster position="bottom-center" />
 
-      <header className="sticky top-0 z-30 border-b border-[var(--hairline)] bg-white xl:relative">
-        <div className="mx-auto flex max-w-[1720px] flex-wrap items-center gap-2 px-3 py-2 lg:flex-nowrap lg:px-5">
+      <header className="command-header sticky top-0 z-30 border-b border-[#b58b35]/60 bg-[#082f2b] shadow-[0_8px_24px_-18px_rgba(4,28,25,0.9)] xl:relative">
+        <div className="relative z-10 mx-auto flex max-w-[1720px] flex-wrap items-center gap-2 px-3 py-2 lg:flex-nowrap lg:px-5">
           <div className="flex shrink-0 items-center gap-1.5">
             {showDashboard ? (
               <button
@@ -751,25 +776,25 @@ export default function Home() {
                 onClick={goHome}
                 aria-label="На головну — вибір спеціальності"
                 title="На головну — вибір спеціальності"
-                className={`grid size-9 shrink-0 place-items-center rounded-lg bg-[#0f3733] text-xs font-black text-white transition hover:bg-[#16514b] ${FOCUS_RING}`}
+                className={`brand-command-button grid size-12 shrink-0 place-items-center rounded-lg ${FOCUS_RING}`}
               >
-                402
+                <CommandBrand size={44} priority />
               </button>
             ) : (
-              <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#0f3733] text-xs font-black text-white">
-                402
+              <div className="brand-command-button grid size-12 shrink-0 place-items-center rounded-lg">
+                <CommandBrand size={44} priority />
               </div>
             )}
 
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-bold leading-none">
+                <h1 className="font-bold leading-none text-[#fffdf7]">
                   {showDashboard ? (
                     <button
                       type="button"
                       onClick={goHome}
                       title="На головну — вибір спеціальності"
-                      className={`rounded font-bold transition hover:text-[#2c6b63] ${FOCUS_RING}`}
+                      className={`rounded font-bold transition hover:text-[#e6c46d] ${FOCUS_RING}`}
                     >
                       VLK Навігатор
                     </button>
@@ -777,12 +802,12 @@ export default function Home() {
                     "VLK Навігатор"
                   )}
                 </h1>
-                <span className="rounded-full bg-[#e8ede8] px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#1f564f]">
-                  MVP
+                <span className="rounded-full border border-[#b58b35]/55 bg-[#b58b35]/15 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#f1d98f]">
+                  402
                 </span>
               </div>
-              <p className="mt-1 text-[11px] text-[#68766f]">
-                {showDashboard ? "Натисніть, щоб повернутися на головну" : "Навігація по Наказу МОУ №402"}
+              <p className="mt-1 text-[11px] text-[#b8cbc5]">
+                {showDashboard ? "Статті, пункти та ТДВ" : `Наказ МОУ №402 · редакція ${EDITION}`}
               </p>
             </div>
           </div>
@@ -810,7 +835,7 @@ export default function Home() {
                 aria-controls="vlk-search-results"
                 aria-autocomplete="list"
                 aria-activedescendant={activeHit >= 0 ? `vlk-hit-${activeHit}` : undefined}
-                className="h-11 w-full border-[#2c6b63]/35 bg-white pl-9 pr-10 text-sm shadow-sm"
+                className="h-11 w-full border-[#b58b35]/45 bg-[#fffdf8] pl-9 pr-10 text-sm shadow-[0_1px_2px_rgba(4,28,25,0.2)] transition-shadow focus-visible:shadow-[0_0_0_3px_rgba(181,139,53,0.22)]"
               />
               {query ? (
                 <button
@@ -979,13 +1004,13 @@ export default function Home() {
               href={SOURCE_URL}
               target="_blank"
               rel="noreferrer"
-              className={`hidden items-center gap-1.5 rounded-full border border-[var(--hairline)] bg-white/70 px-3 py-1.5 text-[11px] font-medium text-[#55635f] transition hover:border-[#2c6b63]/25 hover:text-[#1f564f] sm:flex ${FOCUS_RING}`}
-              title={`База статей, пунктів, пояснень і ТДВ звірена за редакцією Наказу №402 від ${EDITION}. Автоматичної перевірки нових редакцій немає.`}
+              className={`hidden items-center gap-1.5 rounded-full border border-[#b58b35]/35 bg-[#fffdf8]/95 px-3 py-1.5 text-[11px] font-medium text-[#315b55] transition hover:border-[#d1aa53] hover:text-[#0b3b35] sm:flex ${FOCUS_RING}`}
+              title={`База статей, пунктів, пояснень і ТДВ звірена за редакцією Наказу №402 від ${EDITION}. Моніторинг нової редакції виконується окремою щоденною перевіркою.`}
             >
-              <ShieldCheck className="size-3.5" /> Оновлено: {EDITION}
+              <ShieldCheck className="size-3.5" /> Корпус: {EDITION}
             </a>
             <span
-              className={`hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-medium md:flex ${online ? "text-[#68766f]" : "bg-[#faf3e4] text-[#6b5423]"}`}
+              className={`hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-medium md:flex ${online ? "text-[#d6e3df]" : "bg-[#faf3e4] text-[#6b5423]"}`}
             >
               {online ? <Wifi className="size-3.5" /> : <WifiOff className="size-3.5" />}
               {online ? "Онлайн" : "Офлайн"}
@@ -1029,7 +1054,7 @@ export default function Home() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-10 text-[#55635f] hover:bg-[#f0ece4] hover:text-[#17211f]"
+                  className="h-10 text-[#d6e3df] hover:bg-white/10 hover:text-white"
                   title="Відкрити повну таблицю додаткових вимог (Додаток 3)"
                 >
                   <Table2 />
@@ -1043,7 +1068,7 @@ export default function Home() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-10 text-[#55635f] hover:bg-[#f0ece4] hover:text-[#17211f]"
+                  className="h-10 text-[#d6e3df] hover:bg-white/10 hover:text-white"
                   aria-label="Ще дії"
                 >
                   <MoreHorizontal />
@@ -1053,10 +1078,12 @@ export default function Home() {
               <DropdownMenuContent align="end" className="w-64">
                 <DropdownMenuLabel>Додаткові дії</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => setDirectoryOpen(true)}>
-                  <UsersRound />
-                  Довідник лікарів ВЛК
-                </DropdownMenuItem>
+                {mode === "doctor" ? (
+                  <DropdownMenuItem onSelect={() => setDirectoryOpen(true)}>
+                    <UsersRound />
+                    Довідник лікарів ВЛК
+                  </DropdownMenuItem>
+                ) : null}
                 <DropdownMenuItem asChild>
                   <a href={SOURCE_URL} target="_blank" rel="noreferrer">
                     <History />
@@ -1065,7 +1092,7 @@ export default function Home() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel className="text-[10px] font-normal text-[#68766f]">
-                  Оновлено: редакція від {EDITION}
+                  Корпус: редакція від {EDITION}
                 </DropdownMenuLabel>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -1075,24 +1102,29 @@ export default function Home() {
 
       {showDashboard ? (
         <>
-      <div className="border-b border-[var(--hairline)] bg-white">
+      <div className="command-mode-bar border-b border-[#b58b35]/25 bg-[#fffdf8]">
         <div className="mx-auto flex max-w-[1720px] flex-wrap items-center justify-between gap-2 px-3 py-1.5 lg:px-5">
-          <div className="flex items-center gap-0.5 rounded-full border border-[var(--hairline)] bg-white p-1" aria-label="Режим роботи">
-            {(["express", "detailed"] as const).map((value) => (
+          <div
+            className="flex items-center gap-0.5 rounded-full border border-[var(--hairline)] bg-white p-1"
+            aria-label="Режим роботи"
+          >
+            {(["doctor", "citizen"] as const).map((value) => (
               <button
                 key={value}
                 type="button"
-                onClick={() => setMode(value)}
+                onClick={() => changeMode(value)}
                 aria-pressed={mode === value}
-                className={`min-h-9 rounded-full px-3.5 py-1.5 text-xs font-medium transition ${FOCUS_RING} ${mode === value ? "bg-[#0f3733] text-white shadow-[var(--shadow-soft)]" : "text-[#55635f] hover:text-[#17211f]"}`}
+                className={`min-h-9 rounded-full px-3.5 py-1.5 text-xs font-medium transition ${FOCUS_RING} ${mode === value ? "bg-[#b58b35] text-[#082f2b] shadow-[var(--shadow-soft)]" : "text-[#55635f] hover:text-[#17211f]"}`}
               >
-                {value === "express" ? "Експрес" : "Детальний"}
+                {value === "doctor" ? "Лікар" : "Громадянин"}
               </button>
             ))}
           </div>
           <p className="hidden items-center gap-1.5 text-xs text-[#68766f] md:flex">
             <ShieldCheck className="size-3.5 text-[#2c6b63]" />
-            Довідкова навігація, не рішення ВЛК
+            {mode === "doctor"
+              ? "Швидка нормативна звірка для роботи ВЛК"
+              : "Підготовка документів, не визначення придатності"}
           </p>
           <button
             type="button"
@@ -1100,17 +1132,17 @@ export default function Home() {
             className={`flex min-h-9 items-center gap-2 rounded-full border border-[#a8792f]/20 bg-[#faf3e4] px-3.5 py-1.5 text-xs font-medium text-[#6b5423] transition hover:border-[#a8792f]/35 ${FOCUS_RING}`}
           >
             <ListPlus className="size-4" />
-            Кошик діагнозів · {basket.length}
+            {mode === "doctor" ? "Кошик діагнозів" : "Збережені норми"} · {basket.length}
           </button>
         </div>
       </div>
 
       <div className="mx-auto grid max-w-[1720px] gap-2 p-2 lg:p-3 xl:h-[calc(100vh-105px)] xl:grid-cols-[330px_minmax(430px,1fr)_320px] xl:overflow-hidden">
-        <aside className="flex min-h-[520px] flex-col overflow-hidden rounded-2xl border border-[var(--hairline)] bg-white shadow-[var(--shadow-soft)] xl:min-h-0">
+        <aside className="command-sidebar flex min-h-[440px] flex-col overflow-hidden rounded-2xl border border-[#b58b35]/35 bg-[#082f2b] text-[#eff6f3] shadow-[var(--shadow-soft)] xl:min-h-0">
           <div className="border-b border-[var(--hairline)] p-2.5">
             <div className="flex items-center justify-between">
               <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c6b63]">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#d7b85f]">
                   Навігація
                 </p>
                 <h2 className="mt-0.5 truncate text-sm font-bold">
@@ -1139,7 +1171,7 @@ export default function Home() {
                 Категорія оглядуваного
               </label>
               <Select value={examineeType} onValueChange={setExamineeType}>
-                <SelectTrigger id="examinee-type" className="h-10 w-full bg-[#faf8f4] text-xs">
+                <SelectTrigger id="examinee-type" className="h-10 w-full border-white/15 bg-white/8 text-xs text-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1164,44 +1196,52 @@ export default function Home() {
                     type="button"
                     onClick={() => changeSpecialty(item.id)}
                     aria-pressed={active}
-                    className={`min-h-[52px] shrink-0 rounded-xl border px-3 py-2 text-left text-[11px] transition sm:shrink ${FOCUS_RING} ${active ? "border-[#0f3733] bg-[#0f3733] text-white shadow-[var(--shadow-soft)]" : "border-[var(--hairline)] bg-white hover:border-[#2c6b63]/25 hover:bg-[#faf8f4]"}`}
+                    className={`min-h-[52px] shrink-0 rounded-xl border px-3 py-2 text-left text-[11px] transition sm:shrink ${FOCUS_RING} ${active ? "border-[#d1aa53] bg-[#b58b35]/18 text-white shadow-[var(--shadow-soft)]" : "border-white/10 bg-white/5 text-[#d6e3df] hover:border-[#b58b35]/35 hover:bg-white/10"}`}
                   >
                     <span className="block break-words font-semibold leading-[1.3]">
                       {compactSpecialtyName(item)}
                     </span>
-                    <span className={`text-[10px] ${active ? "text-[#b9cbc4]" : "text-[#8d9994]"}`}>
+                    <span className={`text-[10px] ${active ? "text-[#f1d98f]" : "text-[#9cb2ac]"}`}>
                       {articleCountLabel(count)}
                     </span>
                   </button>
                 );
               })}
             </div>
-            <div className="mt-2">
-              <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#55635f]" htmlFor="outcome-filter">
-                Фільтр за результатом
-              </label>
-              <Select
-                value={outcomeFilter}
-                onValueChange={(value) => setOutcomeFilter(value as OutcomeFilterId)}
-              >
-                <SelectTrigger id="outcome-filter" className="mt-1 h-10 w-full bg-[#faf8f4] text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {OUTCOME_FILTERS.map((item) => (
-                    <SelectItem key={item.id} value={item.id}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {outcomeFilter === "all" ? null : (
-                <p className="mt-1 text-[10px] leading-4 text-[#68766f]">
-                  Угорі — {articleCountLabel(filteredCount)} із таким дослівним результатом. Решта
-                  лишається в списку приглушеною.
-                </p>
-              )}
-            </div>
+            {mode === "doctor" ? (
+              <div className="mt-2">
+                <label
+                  className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#b8cbc5]"
+                  htmlFor="outcome-filter"
+                >
+                  Фільтр за результатом
+                </label>
+                <Select
+                  value={outcomeFilter}
+                  onValueChange={(value) => setOutcomeFilter(value as OutcomeFilterId)}
+                >
+                  <SelectTrigger
+                    id="outcome-filter"
+                    className="mt-1 h-10 w-full border-white/15 bg-white/8 text-xs text-white"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {OUTCOME_FILTERS.map((item) => (
+                      <SelectItem key={item.id} value={item.id}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {outcomeFilter === "all" ? null : (
+                  <p className="mt-1 text-[10px] leading-4 text-[#b8cbc5]">
+                    Угорі — {articleCountLabel(filteredCount)} із таким дослівним результатом. Решта
+                    лишається в списку приглушеною.
+                  </p>
+                )}
+              </div>
+            ) : null}
           </div>
 
           <div
@@ -1224,10 +1264,10 @@ export default function Home() {
                         data-dimmed={dimmed ? "true" : undefined}
                         aria-current={isSelected ? "true" : undefined}
                         onClick={() => selectFromList(article)}
-                        className={`flex w-full min-h-11 items-start gap-2 rounded-lg border px-2 py-2 text-left transition ${FOCUS_RING} ${isSelected ? "border-[#2c6b63]/45 bg-[#eaefe9]" : "border-[var(--hairline)] bg-white hover:bg-[#f5f2ec]"}`}
+                        className={`flex min-h-11 w-full items-start gap-2 rounded-lg border px-2 py-2 text-left transition ${FOCUS_RING} ${isSelected ? "border-[#d1aa53] bg-[#b58b35]/18 text-white" : "border-white/10 bg-white/5 text-[#e5eeeb] hover:border-[#b58b35]/25 hover:bg-white/10"}`}
                       >
                         <span
-                          className={`grid size-8 shrink-0 place-items-center rounded-md text-xs font-black ${isSelected ? "bg-[#0f3733] text-white" : "bg-[#e8ede8] text-[#1f564f]"}`}
+                          className={`grid size-8 shrink-0 place-items-center rounded-md text-xs font-black ${isSelected ? "bg-[#b58b35] text-[#082f2b]" : "bg-white/10 text-[#d6e3df]"}`}
                         >
                           {article.article}
                         </span>
@@ -1235,7 +1275,7 @@ export default function Home() {
                           <span className="block text-xs font-semibold leading-4">
                             <Highlighted text={article.title} query={query} />
                           </span>
-                          <span className="mt-0.5 block break-words text-[10px] leading-4 text-[#68766f]">
+                          <span className="mt-0.5 block break-words text-[10px] leading-4 text-[#a9bdb7]">
                             <Highlighted text={article.icd} query={query} />
                           </span>
                           {matches.length ? (
@@ -1252,7 +1292,7 @@ export default function Home() {
                             </span>
                           ) : null}
                           {hit?.evidence ? (
-                            <span className="mt-1 block text-[9px] leading-3.5 text-[#68766f]">
+                            <span className="mt-1 block text-[9px] leading-3.5 text-[#b8cbc5]">
                               <Highlighted
                                 text={snippetAround(hit.evidence.text, query)}
                                 query={query}
@@ -1267,7 +1307,7 @@ export default function Home() {
                 })}
               </ul>
             ) : (
-              <div className="px-5 py-10 text-center text-xs leading-6 text-[#68766f]">
+              <div className="px-5 py-10 text-center text-xs leading-6 text-[#b8cbc5]">
                 Нічого не знайдено.
                 <br />
                 Спробуйте коротшу назву, номер статті або код МКХ-10.
@@ -1275,20 +1315,20 @@ export default function Home() {
             )}
           </div>
 
-          <div className="shrink-0 border-t border-[var(--hairline)] px-2.5 py-2 text-[10px] leading-4 text-[#68766f]">
-            <span className="block font-bold text-[#2c6b63]">
+          <div className="shrink-0 border-t border-white/10 px-2.5 py-2 text-[10px] leading-4 text-[#a9bdb7]">
+            <span className="block font-bold text-[#f1d98f]">
               База перевірена за редакцією Наказу №402 від {EDITION}
             </span>
             У списку: {articleCountLabel(listArticles.length)}. Стрілки ↑↓ переміщують фокус списком.
           </div>
         </aside>
 
-        <section className="flex min-h-[620px] flex-col overflow-hidden rounded-2xl border border-[var(--hairline)] bg-white shadow-[var(--shadow-soft)] xl:min-h-0">
+        <section aria-label="Вибрана стаття" className="normative-surface relative flex min-h-[560px] flex-col overflow-hidden rounded-2xl border border-[#b58b35]/25 bg-[#fffdf8] shadow-[var(--shadow-soft)] xl:min-h-0">
           {selected ? (
             <>
               <div className="shrink-0 border-b border-[var(--hairline)] px-3 py-2.5">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="flex min-w-0 items-start gap-2.5">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="flex min-w-[min(100%,280px)] flex-1 items-start gap-2.5">
                     <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-[#0f3733] text-sm font-black text-white">
                       {selected.article}
                     </span>
@@ -1305,7 +1345,7 @@ export default function Home() {
                           {query.trim() ? "Пошук" : (selectedSpecialty?.label ?? "Спеціальність")}
                         </button>
                         <span aria-hidden>/</span>
-                        <span className="text-[#17211f]">Стаття {selected.article}</span>
+                        <span className="text-[#17211f]"><Highlighted text={`Стаття ${selected.article}`} query={query} /></span>
                         {selectedRule ? (
                           <>
                             <span aria-hidden>/</span>
@@ -1324,7 +1364,12 @@ export default function Home() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex shrink-0 gap-1.5">
+                  <div className="flex shrink-0 flex-wrap gap-1.5">
+                    <NormativePassportDialog
+                      article={selected.article}
+                      point={selectedRule?.point}
+                      sourceUrl={sourceUrl}
+                    />
                     <Button
                       type="button"
                       size="sm"
@@ -1347,10 +1392,21 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="min-h-0 flex-1 overflow-y-auto p-4 scrollbar-thin">
+              <div className="relative min-h-0 flex-1 overflow-y-auto p-4 scrollbar-thin">
+                {query.trim() && selectedEvidence ? (
+                  <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-950" aria-label="Збіг у вибраній статті">
+                    <span className="font-semibold">{MATCH_TYPE_LABELS[selectedEvidence.match]}: </span>
+                    <Highlighted text={snippetAround(selectedEvidence.text, query)} query={query} />
+                  </div>
+                ) : null}
+                <CommandBrand
+                  decorative
+                  size={260}
+                  className="pointer-events-none absolute bottom-0 right-0 max-w-[40%] opacity-[0.025]"
+                />
                 <div className="grid items-start gap-3 sm:grid-cols-[minmax(0,1fr)_230px]">
                   <div className="min-w-0 overflow-hidden rounded-lg border border-[var(--hairline)] bg-[#faf8f4]">
-                    <Accordion type="single" collapsible>
+                    <Accordion type="single" collapsible defaultValue="included">
                       <AccordionItem value="included" className="border-none px-3">
                         <AccordionTrigger className="py-2.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#55635f] hover:no-underline">
                           Дослівно з Наказу №402 · «Включено»
@@ -1438,7 +1494,7 @@ export default function Home() {
                     return (
                       <li key={`${rule.point}-${index}`} className={dimmed ? "opacity-45" : ""}>
                         <div
-                          className={`overflow-hidden rounded-xl border transition ${active ? "border-[#a8792f]/35 bg-[#fbf5e8] shadow-[var(--shadow-soft)]" : "border-[var(--hairline)] bg-white shadow-[var(--shadow-soft)] hover:border-[#2c6b63]/20"}`}
+                          className={`overflow-hidden rounded-xl border transition ${active ? "command-selected-rule border-[#a8792f]/45 bg-[#fbf5e8] shadow-[var(--shadow-soft)]" : "border-[var(--hairline)] bg-white hover:border-[#2c6b63]/25 hover:bg-[#fdfcf9]"}`}
                         >
                           <button
                             type="button"
@@ -1476,7 +1532,9 @@ export default function Home() {
 
                               <div className={`mt-2 rounded-md border p-2.5 ${style.box}`}>
                                 <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#55635f]">
-                                  Попередній нормативний орієнтир · не рішення ВЛК
+                                  {mode === "doctor"
+                                    ? "Попередній нормативний орієнтир · не рішення ВЛК"
+                                    : "Дослівне формулювання Наказу №402 · не персональний висновок"}
                                 </p>
                                 <p className="mt-1 text-sm font-bold leading-5">«{rule.outcome}»</p>
                                 {style.requiresLiteralReading ? (
@@ -1523,15 +1581,8 @@ export default function Home() {
                                       {pointText.length}
                                     </AccordionTrigger>
                                     <AccordionContent>
-                                      <div className="max-h-52 space-y-1.5 overflow-y-auto border-t border-[#a8792f]/20 py-2 pr-1 scrollbar-thin">
-                                        {pointText.map((paragraph, position) => (
-                                          <p
-                                            key={`${selected.article}-${rule.point}-${position}`}
-                                            className="text-[11px] leading-[1.2rem] text-[#4a4638]"
-                                          >
-                                            <Highlighted text={paragraph} query={query} />
-                                          </p>
-                                        ))}
+                                      <div className="max-h-[65vh] space-y-1.5 overflow-y-auto border-t border-[#a8792f]/20 py-2 pr-1 scrollbar-thin">
+                                        <ExplanationDocument article={selected.article} paragraphs={explanation?.paragraphs ?? []} excerpt={pointText} query={query} />
                                       </div>
                                     </AccordionContent>
                                   </AccordionItem>
@@ -1548,12 +1599,13 @@ export default function Home() {
                                 >
                                   {inBasket ? (
                                     <>
-                                      <Check />У зведенні
+                                      <Check />
+                                      {mode === "doctor" ? "У зведенні" : "Збережено"}
                                     </>
                                   ) : (
                                     <>
                                       <Plus />
-                                      Додати до зведення
+                                      {mode === "doctor" ? "Додати до зведення" : "Зберегти норму"}
                                     </>
                                   )}
                                 </Button>
@@ -1619,15 +1671,8 @@ export default function Home() {
                         </p>
                       ) : (
                         <div className="pb-3">
-                          <div className="max-h-72 space-y-2 overflow-y-auto border-y border-[var(--hairline)] py-2 pr-1 scrollbar-gutter-stable scrollbar-thin">
-                            {explanation?.paragraphs.map((paragraph, index) => (
-                              <p
-                                key={`${selected.article}-explanation-${index}`}
-                                className="text-[11px] leading-5 text-[#3c4a46]"
-                              >
-                                <Highlighted text={paragraph} query={query} />
-                              </p>
-                            ))}
+                          <div className="max-h-[70vh] space-y-2 overflow-y-auto border-y border-[var(--hairline)] py-2 pr-1 scrollbar-gutter-stable scrollbar-thin">
+                            <ExplanationDocument article={selected.article} paragraphs={explanation?.paragraphs ?? []} query={query} />
                           </div>
                           <div className="mt-2 flex flex-wrap items-center gap-2">
                             <Button asChild variant="outline" size="sm" className="h-8 bg-white text-[10px]">
@@ -1650,16 +1695,24 @@ export default function Home() {
           ) : (
             <div className="grid flex-1 place-items-center p-10 text-center">
               <div>
-                <h2 className="text-base font-semibold tracking-tight">Нічого не знайдено</h2>
+                <h2 className="text-base font-semibold tracking-tight">{listArticles.length ? "Оберіть статтю" : "Нічого не знайдено"}</h2>
                 <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-[#68766f]">
-                  Скоротіть запит або введіть код МКХ-10.
+                  {listArticles.length ? "Відкрийте результат пошуку або статтю зі списку." : "Скоротіть запит або введіть код МКХ-10."}
                 </p>
               </div>
             </div>
           )}
         </section>
 
-        <aside className="flex min-h-[520px] flex-col overflow-hidden rounded-2xl border border-[var(--hairline)] bg-[#faf8f4] shadow-[var(--shadow-soft)] xl:min-h-0">
+        {mode === "citizen" ? (
+          <CitizenPreparation
+            checked={citizenChecked}
+            selected={selected}
+            selectedRule={selectedRule}
+            onToggle={toggleCitizenCheck}
+          />
+        ) : (
+        <aside className="verification-rail flex min-h-[440px] flex-col overflow-hidden rounded-2xl border border-[#b58b35]/25 bg-[#faf8f4] shadow-[var(--shadow-soft)] xl:min-h-0">
           <div className="flex items-center justify-between border-b border-[var(--hairline)] bg-white px-3 py-2.5">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c6b63]">
@@ -1784,6 +1837,7 @@ export default function Home() {
             </div>
           </div>
         </aside>
+        )}
       </div>
         </>
       ) : (
@@ -1800,7 +1854,24 @@ export default function Home() {
             </a>
           ) : null}
 
-          {lastSpecialty ? (
+          <div
+            className="mb-6 flex items-center gap-1 rounded-full border border-[var(--hairline)] bg-white p-1 shadow-[var(--shadow-soft)]"
+            aria-label="Оберіть режим навігатора"
+          >
+            {(["doctor", "citizen"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => changeMode(value)}
+                aria-pressed={mode === value}
+                className={`min-h-10 rounded-full px-5 py-2 text-sm font-semibold transition ${FOCUS_RING} ${mode === value ? "bg-[#0f3733] text-white" : "text-[#55635f] hover:bg-[#f5f2ec]"}`}
+              >
+                {value === "doctor" ? "Я лікар" : "Я проходжу ВЛК"}
+              </button>
+            ))}
+          </div>
+
+          {mode === "doctor" && lastSpecialty ? (
             <Button
               type="button"
               onClick={() => changeSpecialty(lastSpecialty)}
@@ -1815,17 +1886,42 @@ export default function Home() {
           <p
             className={`text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c6b63] ${lastSpecialty ? "mt-6" : ""}`}
           >
-            {lastSpecialty ? "Або почніть спочатку" : "Крок 1"}
+            {mode === "doctor" && lastSpecialty ? "Або почніть спочатку" : "Крок 1"}
           </p>
           <h2 className="mt-3 max-w-2xl text-[28px] font-semibold leading-[1.15] tracking-[-0.02em] sm:text-[34px]">
-            Знайдіть статтю або оберіть спеціальність
+            {mode === "doctor"
+              ? "Знайдіть статтю, пункт і нормативний орієнтир"
+              : "Підготуйтеся до ВЛК без здогадок і самодіагностики"}
           </h2>
           <p className="mt-4 max-w-xl text-[15px] leading-7 text-[#55635f]">
-            Пошук працює за діагнозом, кодом МКХ-10 і номером статті — вибирати спеціальність
-            не обов’язково.
+            {mode === "doctor"
+              ? "Введіть діагноз, код МКХ-10 або номер статті. Спеціальність допоможе звузити список, але для пошуку вона не обов’язкова."
+              : "Знайдіть норму за діагнозом або кодом МКХ-10, звірте дослівний пункт і зберіть документи, які підтверджують порушення функцій."}
           </p>
 
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-2">
+          <ol
+            className="mt-6 grid w-full max-w-2xl gap-2 text-left sm:grid-cols-3"
+            aria-label="Як працює навігатор"
+          >
+            {(mode === "doctor" ? DOCTOR_WORKFLOW_STEPS : CITIZEN_WORKFLOW_STEPS).map(
+              ([step, title, description]) => (
+              <li
+                key={step}
+                className="flex items-center gap-3 rounded-xl border border-[var(--hairline)] bg-white px-3 py-2.5 shadow-[var(--shadow-soft)]"
+              >
+                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#e8ede8] text-xs font-black text-[#1f564f]">
+                  {step}
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-xs font-bold text-[#17211f]">{title}</span>
+                  <span className="block text-[11px] leading-4 text-[#68766f]">{description}</span>
+                </span>
+              </li>
+              ),
+            )}
+          </ol>
+
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             <span className="text-[11px] font-bold text-[#55635f]">Спробуйте:</span>
             {POPULAR_QUERIES.slice(0, 4).map((example) => (
               <button
@@ -1874,28 +1970,56 @@ export default function Home() {
             </div>
           ) : null}
 
-          <div className="mt-10 grid w-full grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
-            {welcomeSpecialties.map((item) => {
-              const count = ARTICLES.filter((article) => article.specialties.includes(item.id)).length;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => changeSpecialty(item.id)}
-                  className={`lift min-h-[86px] rounded-2xl border border-[var(--hairline)] bg-white px-4 py-4 text-left shadow-[var(--shadow-soft)] hover:border-[#2c6b63]/25 ${FOCUS_RING}`}
-                >
-                  <span className="block hyphens-auto break-words text-[15px] font-semibold leading-snug tracking-tight">
-                    {specialtyName(item)}
-                  </span>
-                  <span className="mt-1.5 block text-[11px] text-[#8d9994]">
-                    {articleCountLabel(count)}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-
+          {mode === "doctor" ? (
+            <div className="mt-10 grid w-full grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
+              {welcomeSpecialties.map((item) => {
+                const count = ARTICLES.filter((article) =>
+                  article.specialties.includes(item.id),
+                ).length;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => changeSpecialty(item.id)}
+                    className={`lift min-h-[86px] rounded-2xl border border-[var(--hairline)] bg-white px-4 py-4 text-left shadow-[var(--shadow-soft)] hover:border-[#2c6b63]/25 ${FOCUS_RING}`}
+                  >
+                    <span className="block hyphens-auto break-words text-[15px] font-semibold leading-snug tracking-tight">
+                      {specialtyName(item)}
+                    </span>
+                    <span className="mt-1.5 block text-[11px] text-[#8d9994]">
+                      {articleCountLabel(count)}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="mt-9 w-full max-w-2xl rounded-2xl border border-[var(--hairline)] bg-white p-4 text-left shadow-[var(--shadow-soft)]">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c6b63]">
+                    Що підготувати
+                  </p>
+                  <h3 className="mt-1 text-base font-bold">Базовий чекліст перед ВЛК</h3>
+                </div>
+                <span className="rounded-full bg-[#e8ede8] px-2 py-1 text-[10px] font-bold text-[#1f564f]">
+                  без передачі даних
+                </span>
+              </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {CITIZEN_PREPARATION_CHECKS.map((item) => (
+                  <div key={item} className="flex items-start gap-2 rounded-lg bg-[#faf8f4] p-2.5">
+                    <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[#2c6b63]" />
+                    <span className="text-xs leading-5 text-[#3c4a46]">{item}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-3 text-xs leading-5 text-[#68766f]">
+                Почніть із пошуку у верхньому полі. Після вибору статті чекліст залишатиметься
+                праворуч на робочому екрані.
+              </p>
+            </div>
+          )}
 
           <TdvDialog
             trigger={
@@ -1920,7 +2044,7 @@ export default function Home() {
 
           <p className="mt-12 flex items-center gap-1.5 text-[11px] text-[#8d9994]">
             <ShieldCheck className="size-3.5" />
-            Довідкова навігація, не рішення ВЛК · оновлено: редакція від {EDITION}
+            Довідкова навігація, не рішення ВЛК · корпус: редакція від {EDITION}
           </p>
         </div>
       )}
@@ -1928,30 +2052,46 @@ export default function Home() {
       <Dialog open={draftOpen} onOpenChange={setDraftOpen}>
         <DialogContent className="max-h-[90vh] overflow-hidden p-0 sm:max-w-3xl">
           <DialogHeader className="border-b border-[var(--hairline)] p-4 pr-12">
-            <DialogTitle>Зведення для перевірки лікарем</DialogTitle>
+            <DialogTitle>
+              {mode === "doctor" ? "Зведення для перевірки лікарем" : "Мій список підготовки до ВЛК"}
+            </DialogTitle>
             <DialogDescription>
-              Статті, пункти, ТДВ, чекліст і джерела. Довідкова навігація, не рішення ВЛК.
+              {mode === "doctor"
+                ? "Статті, пункти, ТДВ, чекліст і джерела. Довідкова навігація, не рішення ВЛК."
+                : "Збережені норми, відмічені документи та офіційне джерело. Не визначає придатність."}
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-[58vh] overflow-y-auto scrollbar-thin">
             <div className="border-b border-[var(--hairline)] bg-white px-4 py-3">
               <div className="flex items-center justify-between">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#55635f]">
-                  Що ще треба перевірити перед постановою
+                  {mode === "doctor"
+                    ? "Що ще треба перевірити перед постановою"
+                    : "Що вже підготовлено до проходження ВЛК"}
                 </p>
                 <span className="text-[10px] font-bold text-[#68766f]">
-                  {checked.length}/{ANALYSIS_CHECKS.length}
+                  {mode === "doctor"
+                    ? `${checked.length}/${ANALYSIS_CHECKS.length}`
+                    : `${citizenChecked.length}/${CITIZEN_PREPARATION_CHECKS.length}`}
                 </span>
               </div>
               <div className="mt-1.5 grid gap-1.5 sm:grid-cols-2">
-                {ANALYSIS_CHECKS.map((step) => (
+                {(mode === "doctor" ? ANALYSIS_CHECKS : CITIZEN_PREPARATION_CHECKS).map((step) => (
                   <label
                     key={step}
                     className="flex min-h-10 cursor-pointer items-start gap-2 rounded-lg border border-[var(--hairline)] bg-white p-2"
                   >
                     <Checkbox
-                      checked={checked.includes(step)}
-                      onCheckedChange={(value) => toggleCheck(step, value === true)}
+                      checked={
+                        mode === "doctor"
+                          ? checked.includes(step)
+                          : citizenChecked.includes(step)
+                      }
+                      onCheckedChange={(value) =>
+                        mode === "doctor"
+                          ? toggleCheck(step, value === true)
+                          : toggleCitizenCheck(step, value === true)
+                      }
                       className="mt-0.5"
                     />
                     <span className="text-xs leading-4">{step}</span>

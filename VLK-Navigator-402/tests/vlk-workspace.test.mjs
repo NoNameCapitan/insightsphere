@@ -74,7 +74,7 @@ test("a damaged or foreign stored value never breaks the start screen", () => {
 
 test("the edition indicator is fixed and leaves room for a future notice", () => {
   assert.equal(CHECKED_EDITION, EDITION);
-  assert.equal(editionLabel(), `Оновлено: ${EDITION}`);
+  assert.equal(editionLabel(), `Корпус: ${EDITION}`);
   // Поки автоматичної перевірки нової редакції немає, сповіщення порожнє.
   assert.equal(EDITION_NOTICE, null);
 });

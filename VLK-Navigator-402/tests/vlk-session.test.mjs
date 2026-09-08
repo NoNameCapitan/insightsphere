@@ -17,8 +17,9 @@ test("a saved session round-trips", () => {
   const item = createBasketItem(article39, rule39);
   const raw = serializeSession({
     basket: [item],
+    citizenChecked: ["Маю направлення"],
     examineeType: "Військовослужбовець",
-    mode: "detailed",
+    mode: "citizen",
     directory: { ...EMPTY_DIRECTORY, therapist: "Іваненко" },
   });
 
@@ -26,7 +27,8 @@ test("a saved session round-trips", () => {
   assert.equal(restored.basket.length, 1);
   assert.deepEqual(restored.basket[0], item);
   assert.equal(restored.examineeType, "Військовослужбовець");
-  assert.equal(restored.mode, "detailed");
+  assert.equal(restored.mode, "citizen");
+  assert.deepEqual(restored.citizenChecked, ["Маю направлення"]);
   assert.equal(restored.directory.therapist, "Іваненко");
   assert.equal(restored.dropped, 0);
 });
@@ -64,6 +66,7 @@ test("records from the previous structure are still readable", () => {
   assert.equal(item.officialIncluded, article39.officialIncluded);
   assert.equal(restored.examineeType, "Кандидат на контракт");
   assert.equal(restored.directory.therapist, "Петренко");
+  assert.equal(restored.mode, "doctor");
 });
 
 test("damaged or unknown records never break the application", () => {
@@ -82,7 +85,7 @@ test("damaged or unknown records never break the application", () => {
   );
   assert.equal(withGarbage.basket.length, 0);
   assert.equal(withGarbage.dropped, 4);
-  assert.equal(withGarbage.mode, "express");
+  assert.equal(withGarbage.mode, "doctor");
   assert.equal(withGarbage.examineeType, "Військовозобов’язаний");
   assert.deepEqual(withGarbage.directory, EMPTY_DIRECTORY);
 });

@@ -1,5 +1,5 @@
 /**
- * Локальний стан робочої сесії лікаря.
+ * Локальний стан робочої сесії лікаря або громадянина.
  *
  * Усе зберігається лише в браузері користувача. Під час читання запис із
  * попередніх версій структури не ламає застосунок: збережений пункт
@@ -10,9 +10,9 @@
 import { ARTICLE_RULES, type ArticleRule } from "./vlk-rules.ts";
 import { ARTICLES, SPECIALTIES, type SpecialtyId, type VlkArticle } from "./vlk-sample-data.ts";
 
-export const SESSION_KEY = "vlk-402-session-v2";
+export const SESSION_KEY = "vlk-402-session-v3";
 /** Ключі попередніх версій, які ще потрібно прочитати один раз. */
-export const LEGACY_SESSION_KEYS = ["vlk-402-preview-session-v1"];
+export const LEGACY_SESSION_KEYS = ["vlk-402-session-v2", "vlk-402-preview-session-v1"];
 
 export const EXAMINEE_TYPES = [
   "Військовозобов’язаний",
@@ -21,7 +21,7 @@ export const EXAMINEE_TYPES = [
   "Кандидат до ВВНЗ",
 ] as const;
 
-export type Mode = "express" | "detailed";
+export type Mode = "doctor" | "citizen";
 export type DoctorDirectory = Record<SpecialtyId, string>;
 
 export type BasketItem = {
@@ -39,6 +39,7 @@ export type BasketItem = {
 
 export type SessionState = {
   basket: BasketItem[];
+  citizenChecked: string[];
   examineeType: string;
   mode: Mode;
   directory: DoctorDirectory;
@@ -55,8 +56,9 @@ export const EMPTY_DIRECTORY = Object.fromEntries(
 
 export const EMPTY_SESSION: SessionState = {
   basket: [],
+  citizenChecked: [],
   examineeType: EXAMINEE_TYPES[0],
-  mode: "express",
+  mode: "doctor",
   directory: EMPTY_DIRECTORY,
 };
 
@@ -161,23 +163,36 @@ export function restoreSession(raw: unknown): RestoredSession {
   }
 
   const examineeType = readString(record, "examineeType");
-  const mode = readString(record, "mode");
+  const citizenChecked = Array.isArray(record.citizenChecked)
+    ? [...new Set(record.citizenChecked.filter((item): item is string => typeof item === "string"))]
+    : [];
+  const storedMode = readString(record, "mode");
+  const mode: Mode =
+    storedMode === "doctor" || storedMode === "citizen"
+      ? storedMode
+      : storedMode === "detailed"
+        ? "citizen"
+        : storedMode === "express"
+          ? "doctor"
+          : EMPTY_SESSION.mode;
 
   return {
     basket,
+    citizenChecked,
     dropped,
     examineeType: (EXAMINEE_TYPES as readonly string[]).includes(examineeType)
       ? examineeType
       : EMPTY_SESSION.examineeType,
-    mode: mode === "detailed" || mode === "express" ? mode : EMPTY_SESSION.mode,
+    mode,
     directory: restoreDirectory(record.directory),
   };
 }
 
 export function serializeSession(state: SessionState) {
   return JSON.stringify({
-    version: 2,
+    version: 3,
     basket: state.basket.map((item) => ({ article: item.article, point: item.point })),
+    citizenChecked: state.citizenChecked,
     examineeType: state.examineeType,
     mode: state.mode,
     directory: state.directory,

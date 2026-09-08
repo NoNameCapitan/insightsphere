@@ -1,5 +1,10 @@
-const CACHE_NAME = "vlk-402-shell-v3";
-const SHELL = ["/", "/manifest.webmanifest", "/favicon.svg"];
+const CACHE_NAME = "vlk-402-shell-v4";
+const SHELL = [
+  "/",
+  "/manifest.webmanifest",
+  "/vlk-command-emblem.png",
+  "/vlk-command-header.png",
+];
 
 // Ресурси зі стабільним хешем в імені: їх достатньо взяти з кешу один раз.
 // Перший шаблон — збірка Cloudflare (vinext), другий — збірка Next.js (Vercel).

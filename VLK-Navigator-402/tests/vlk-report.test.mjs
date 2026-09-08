@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { ARTICLE_ANCHORS } from "../lib/vlk-anchors.ts";
-import { buildDraftText, buildReferenceText } from "../lib/vlk-report.ts";
+import {
+  buildCitizenSummaryText,
+  buildDraftText,
+  buildReferenceText,
+} from "../lib/vlk-report.ts";
 import { ARTICLE_RULES } from "../lib/vlk-rules.ts";
 import { ARTICLES, EDITION } from "../lib/vlk-sample-data.ts";
 import { createBasketItem } from "../lib/vlk-session.ts";
@@ -52,4 +56,12 @@ test("an empty draft says so instead of inventing a conclusion", () => {
   const draft = buildDraftText([], "Військовозобов’язаний");
   assert.match(draft, /Пункти до зведення не додані/);
   assert.doesNotMatch(draft, /найсуворіший орієнтир/);
+});
+
+test("the citizen summary contains preparation checks without a fitness conclusion", () => {
+  const text = buildCitizenSummaryText([], "Військовозобов’язаний", ["Маю направлення"]);
+  assert.match(text, /ОСОБИСТИЙ СПИСОК НОРМ І ПІДГОТОВКИ ДО ВЛК/);
+  assert.match(text, /✓ Маю направлення/);
+  assert.match(text, /не визначає придатність/);
+  assert.doesNotMatch(text, /Попередній найсуворіший орієнтир/);
 });
