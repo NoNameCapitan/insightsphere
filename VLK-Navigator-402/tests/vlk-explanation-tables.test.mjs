@@ -81,7 +81,10 @@ test("height and weight table keeps all 25 rows, age boundary and source values"
 
 test("navigation contains only article selection; details and marks live in the centre", () => {
   const page = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
-  const sidebar = page.slice(page.indexOf('<aside className="command-sidebar'), page.indexOf("</aside>"));
+  // Ліва панель тепер відкривається атрибутом панелі, а не класом оболонки.
+  const sidebarStart = page.indexOf('data-panel="list"');
+  assert.ok(sidebarStart > 0);
+  const sidebar = page.slice(sidebarStart, page.indexOf("</aside>", sidebarStart));
   assert.ok(sidebar.includes("data-article-row"));
   assert.doesNotMatch(sidebar, /pointLabel|ARTICLE_RULES|articleRules\.map|outcomeStyles/);
   assert.match(page, /aria-label="Збіг у вибраній статті"/);

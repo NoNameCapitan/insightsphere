@@ -2,7 +2,10 @@
 @import "tw-animate-css";
 @import "../vendor/shadcn-tailwind-4.13.0.css";
 
-/* Shared by search results, central text and literal table cells. */
+/*
+ * Підсвічування збігів свідомо однакове у світлій і темній темі:
+ * темний текст на жовтому — перевірений контраст, який не залежить від оболонки.
+ */
 .search-highlight {
   border-radius: 2px;
   background: #ffe484;
@@ -77,23 +80,36 @@
   }
 }
 
+/*
+ * Світла тема — «тихий довідник»: тепле паперове тло, білий документ у центрі,
+ * золото лишається тільки в командній шапці як ідентичність.
+ */
 :root {
-  /* Тепла нейтральна основа: відчуття дорогого паперу, а не сірого екрана. */
-  --background: #f5f2ec;
+  --background: #f4f1ea;
   --surface: #ffffff;
   --surface-muted: #faf8f4;
   --surface-sunken: #f0ece4;
+  --surface-accent: #e8ede8;
+
+  /* Панелі робочого екрана. */
+  --panel: #ffffff;
+  --panel-head: #fdfcf9;
+  --rail: #fbfaf6;
+  --row: #ffffff;
+  --row-hover: #f7f5ef;
+  --row-active: #eaf0ea;
 
   --foreground: #17211f;
-  --ink-soft: #55635f;
-  --ink-muted: #68766f;
+  --ink-body: #2a3835;
+  --ink-soft: #4d5b57;
+  --ink-muted: #5a6863;
+  --ink-faint: #5f6e68;
 
   --card: #ffffff;
   --card-foreground: #17211f;
   --popover: #ffffff;
   --popover-foreground: #17211f;
 
-  /* Глибокий стриманий акцент замість яскравого бірюзового. */
   --primary: #0f3733;
   --primary-hover: #16514b;
   --primary-foreground: #ffffff;
@@ -103,33 +119,160 @@
   --secondary: #e8ede8;
   --secondary-foreground: #1f2e2b;
   --muted: #f0ede7;
-  --muted-foreground: #6f7d78;
+  --muted-foreground: #5a6863;
   --accent: #e8ede8;
   --accent-foreground: #1f2e2b;
   --destructive: #8c3a35;
 
-  /* Волосяні лінії замість різких контрастних бордерів. */
-  --hairline: rgba(23, 33, 31, 0.07);
-  --hairline-strong: rgba(23, 33, 31, 0.12);
-  --border: rgba(23, 33, 31, 0.09);
-  --input: rgba(23, 33, 31, 0.14);
+  /* Командна шапка: єдине місце, де живе темна оболонка і золото. */
+  --brand-ink: #082f2b;
+  --brand-line: rgba(181, 139, 53, 0.6);
+  --on-brand: #fffdf7;
+  --on-brand-soft: #c3d5cf;
+  --gold: #b58b35;
+  --gold-soft: #d7b85f;
+  --gold-text: #f1d98f;
+
+  /* Семантика застережень і норм. */
+  --warn-surface: #fbf5e8;
+  --warn-line: rgba(168, 121, 47, 0.25);
+  --warn-ink: #6b5423;
+  --danger-surface: #fbf1ed;
+  --danger-line: rgba(140, 58, 53, 0.2);
+  --danger-ink: #7e3630;
+
+  --accent-line: rgba(44, 107, 99, 0.22);
+  --gold-wash: rgba(181, 139, 53, 0.14);
+  --hairline: rgba(23, 33, 31, 0.08);
+  --hairline-strong: rgba(23, 33, 31, 0.14);
+  --border: rgba(23, 33, 31, 0.1);
+  --input: rgba(23, 33, 31, 0.16);
   --ring: #2c6b63;
 
   --radius: 1rem;
 
-  --sidebar: #faf8f4;
+  --sidebar: #fbfaf6;
   --sidebar-foreground: #1f2e2b;
   --sidebar-primary: #0f3733;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #e8ede8;
   --sidebar-accent-foreground: #1f2e2b;
-  --sidebar-border: rgba(23, 33, 31, 0.09);
+  --sidebar-border: rgba(23, 33, 31, 0.1);
   --sidebar-ring: #2c6b63;
 
-  /* Дві м'які тіні: контактна і розсіяна. Ніякої «пластмаси». */
   --shadow-soft: 0 1px 2px rgba(23, 33, 31, 0.04), 0 12px 28px -20px rgba(23, 33, 31, 0.28);
   --shadow-raised: 0 1px 2px rgba(23, 33, 31, 0.05), 0 18px 40px -24px rgba(23, 33, 31, 0.34);
   --focus-halo: 0 0 0 3px rgba(44, 107, 99, 0.18);
+
+  /* Бейджі результату: пастель у світлій темі, глухі тони — у темній. */
+  --badge-critical-bg: #f0dcd6;
+  --badge-critical-ink: #6f2f2a;
+  --badge-warning-bg: #eedebd;
+  --badge-warning-ink: #6b5423;
+  --badge-positive-bg: #d8e6d9;
+  --badge-positive-ink: #255c49;
+  --badge-neutral-bg: #e6e2da;
+  --badge-neutral-ink: #3c4a46;
+
+  --box-critical-bg: #fdf4f1;
+  --box-warning-bg: #fdf8ee;
+  --box-positive-bg: #f3f8f3;
+  --box-neutral-bg: #f8f7f3;
+}
+
+/*
+ * Нічна тема для роботи в чергуванні: тихий графіт із зеленим акцентом.
+ * Атрибут data-theme виставляє скрипт у <head> до першого малювання,
+ * тому системне налаштування не потребує окремого media-блоку.
+ */
+:root[data-theme="dark"] {
+  --background: #0c1211;
+  --surface: #151d1b;
+  --surface-muted: #1a2321;
+  --surface-sunken: #202a27;
+  --surface-accent: #1f302c;
+
+  --panel: #151d1b;
+  --panel-head: #18211f;
+  --rail: #131b19;
+  --row: #1a2321;
+  --row-hover: #202b28;
+  --row-active: #24352f;
+
+  --foreground: #e9f0ed;
+  --ink-body: #d3ded9;
+  --ink-soft: #b3c2bd;
+  --ink-muted: #a2b1ac;
+  --ink-faint: #93a29d;
+
+  --card: #151d1b;
+  --card-foreground: #e9f0ed;
+  --popover: #18211f;
+  --popover-foreground: #e9f0ed;
+
+  --primary: #5fbfa9;
+  --primary-hover: #74cdb9;
+  --primary-foreground: #06110f;
+  --accent-ink: #7fd0bb;
+  --accent-ink-strong: #9adcca;
+
+  --secondary: #22302c;
+  --secondary-foreground: #dfeae6;
+  --muted: #1e2825;
+  --muted-foreground: #9db0aa;
+  --accent: #22302c;
+  --accent-foreground: #dfeae6;
+  --destructive: #e08b83;
+
+  --brand-ink: #061a18;
+  --brand-line: rgba(181, 139, 53, 0.45);
+  --on-brand: #f4f8f6;
+  --on-brand-soft: #a9beb8;
+  --gold: #c8a04a;
+  --gold-soft: #d9bd74;
+  --gold-text: #efd794;
+
+  --warn-surface: #2a2415;
+  --warn-line: rgba(214, 173, 92, 0.28);
+  --warn-ink: #e6cd94;
+  --danger-surface: #2c1c1a;
+  --danger-line: rgba(224, 139, 131, 0.26);
+  --danger-ink: #f0b3ac;
+
+  --accent-line: rgba(127, 208, 187, 0.28);
+  --gold-wash: rgba(200, 160, 74, 0.18);
+  --hairline: rgba(255, 255, 255, 0.09);
+  --hairline-strong: rgba(255, 255, 255, 0.16);
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.18);
+  --ring: #7fd0bb;
+
+  --sidebar: #131b19;
+  --sidebar-foreground: #dfeae6;
+  --sidebar-primary: #5fbfa9;
+  --sidebar-primary-foreground: #06110f;
+  --sidebar-accent: #22302c;
+  --sidebar-accent-foreground: #dfeae6;
+  --sidebar-border: rgba(255, 255, 255, 0.12);
+  --sidebar-ring: #7fd0bb;
+
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 30px -22px rgba(0, 0, 0, 0.75);
+  --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.45), 0 20px 44px -24px rgba(0, 0, 0, 0.85);
+  --focus-halo: 0 0 0 3px rgba(127, 208, 187, 0.24);
+
+  --badge-critical-bg: #4a2320;
+  --badge-critical-ink: #f5c2bb;
+  --badge-warning-bg: #46381c;
+  --badge-warning-ink: #f2d69b;
+  --badge-positive-bg: #1e3f33;
+  --badge-positive-ink: #a8dcc4;
+  --badge-neutral-bg: #2a3431;
+  --badge-neutral-ink: #cdd8d4;
+
+  --box-critical-bg: #2a1c1a;
+  --box-warning-bg: #262014;
+  --box-positive-bg: #16241f;
+  --box-neutral-bg: #1c2422;
 }
 
 @theme inline {
@@ -173,8 +316,13 @@
 
 html {
   background: var(--background);
+  color-scheme: light;
   -webkit-text-size-adjust: 100%;
   overflow-x: clip;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 body {
@@ -195,6 +343,36 @@ body {
   isolation: isolate;
 }
 
+/*
+ * Щільний режим стискає лише простір, а не кегль: медичний текст лишається
+ * того самого розміру, на екран влізає більше рядків.
+ */
+[data-density="compact"] [data-panel-head] {
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+}
+
+[data-density="compact"] [data-panel-body] {
+  padding: 0.375rem;
+}
+
+[data-density="compact"] [data-article-row] {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+[data-density="compact"] [data-point-row] {
+  padding: 0.4375rem 0.625rem;
+}
+
+[data-density="compact"] [data-rule-list] > li + li {
+  margin-top: 0.25rem;
+}
+
+[data-density="compact"] [data-article-list] > li + li {
+  margin-top: 0.125rem;
+}
+
 /* Командна оболонка: військова дисципліна без зниження медичної читабельності. */
 .command-header {
   isolation: isolate;
@@ -209,13 +387,12 @@ body {
   background-repeat: no-repeat;
   background-size: cover;
   content: "";
-  opacity: 0.5;
+  opacity: 0.42;
   pointer-events: none;
-  animation: command-atmosphere 9s ease-in-out infinite alternate;
 }
 
 .brand-command-button {
-  border: 1px solid rgba(181, 139, 53, 0.55);
+  border: 1px solid var(--brand-line);
   background: rgba(255, 253, 248, 0.08);
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.06),
@@ -226,50 +403,9 @@ body {
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.25));
 }
 
-.command-mode-bar {
-  box-shadow: inset 0 -1px 0 rgba(181, 139, 53, 0.1);
-}
-
-.command-sidebar {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    0 18px 38px -28px rgba(4, 28, 25, 0.9);
-}
-
-.command-sidebar .scrollbar-thin {
-  scrollbar-color: rgba(241, 217, 143, 0.28) transparent;
-}
-
-.normative-surface,
-.verification-rail {
-  box-shadow:
-    inset 0 3px 0 rgba(181, 139, 53, 0.14),
-    var(--shadow-soft);
-}
-
+/* Вибраний пункт позначається спокійною смугою, а не пульсацією. */
 .command-selected-rule {
-  animation: selected-rule-scan 4.8s ease-in-out infinite;
-}
-
-@keyframes command-atmosphere {
-  from {
-    opacity: 0.38;
-    transform: translateX(0);
-  }
-  to {
-    opacity: 0.58;
-    transform: translateX(-4px);
-  }
-}
-
-@keyframes selected-rule-scan {
-  0%,
-  100% {
-    box-shadow: inset 3px 0 0 rgba(181, 139, 53, 0.45);
-  }
-  50% {
-    box-shadow: inset 3px 0 0 rgba(42, 166, 122, 0.78);
-  }
+  box-shadow: inset 3px 0 0 var(--accent-ink);
 }
 
 .app-shell :where(.text-\[9px\]) {
@@ -307,7 +443,7 @@ h3 {
 
 /* Тонкі скроллбари в тон інтерфейсу. */
 .scrollbar-thin {
-  scrollbar-color: rgba(23, 33, 31, 0.18) transparent;
+  scrollbar-color: var(--hairline-strong) transparent;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -316,14 +452,14 @@ h3 {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(23, 33, 31, 0.16);
+  background: var(--hairline-strong);
   border: 2px solid transparent;
   border-radius: 999px;
   background-clip: padding-box;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(23, 33, 31, 0.26);
+  background: var(--ink-faint);
   border: 2px solid transparent;
   background-clip: padding-box;
 }
@@ -341,6 +477,103 @@ input {
   background: rgba(44, 107, 99, 0.18);
 }
 
+/*
+ * Друк зведення: на папір іде документ, а не інтерфейс.
+ * Аркуш готується в DOM (.print-sheet) і показується лише під час друку,
+ * тому не потрібне окреме вікно, яке блокують браузери.
+ */
+.print-sheet {
+  display: none;
+}
+
+@media print {
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  body > *:not(.print-root) {
+    display: none !important;
+  }
+
+  .print-root {
+    display: block !important;
+  }
+
+  .print-sheet {
+    display: block;
+    max-width: none;
+    padding: 0;
+    color: #000000;
+    font-size: 11pt;
+    line-height: 1.45;
+  }
+
+  .print-sheet h1 {
+    margin: 0 0 2mm;
+    font-size: 16pt;
+    letter-spacing: 0;
+  }
+
+  .print-sheet .print-meta {
+    margin: 0 0 6mm;
+    padding-bottom: 3mm;
+    border-bottom: 1pt solid #000000;
+    font-size: 9.5pt;
+  }
+
+  .print-sheet h2 {
+    margin: 6mm 0 2mm;
+    font-size: 12pt;
+    letter-spacing: 0;
+  }
+
+  .print-sheet .print-item {
+    margin: 0 0 4mm;
+    padding: 0 0 3mm;
+    border-bottom: 0.5pt solid #999999;
+    break-inside: avoid;
+  }
+
+  .print-sheet .print-item h3 {
+    margin: 0 0 1mm;
+    font-size: 11pt;
+    letter-spacing: 0;
+  }
+
+  .print-sheet .print-label {
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .print-sheet .print-outcome {
+    font-weight: 700;
+  }
+
+  .print-sheet ul {
+    margin: 0;
+    padding-left: 5mm;
+  }
+
+  .print-sheet .print-note {
+    margin-top: 6mm;
+    padding-top: 3mm;
+    border-top: 1pt solid #000000;
+    font-size: 9pt;
+  }
+
+  .print-sheet a {
+    color: #000000;
+    text-decoration: none;
+  }
+
+  @page {
+    margin: 18mm 16mm;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -349,10 +582,5 @@ input {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-
-  .command-header::before,
-  .command-selected-rule {
-    animation: none !important;
   }
 }

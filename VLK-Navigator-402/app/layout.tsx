@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { APPEARANCE_BOOT_SCRIPT } from "@/lib/vlk-appearance";
 import "./globals.css";
 
 // Одна якісна гарнітура на весь інтерфейс: спокійна, з високою читабельністю.
@@ -27,7 +28,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="uk" className={inter.variable}>
+    <html lang="uk" className={inter.variable} suppressHydrationWarning>
+      <head>
+        {/* Тема і щільність застосовуються до першого малювання, без блимання. */}
+        <script dangerouslySetInnerHTML={{ __html: APPEARANCE_BOOT_SCRIPT }} />
+      </head>
       <body className="antialiased">{children}</body>
     </html>
   );

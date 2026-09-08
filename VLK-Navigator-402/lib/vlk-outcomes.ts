@@ -31,26 +31,37 @@ export type OutcomeClass = {
   requiresLiteralReading: boolean;
 };
 
-const TONE_STYLES: Record<OutcomeTone, { box: string; badge: string; dot: string }> = {
+/**
+ * Тони результату описані токенами, тому світла і нічна теми беруть свої
+ * перевірені пари «фон / текст» без дублювання класів у розмітці.
+ */
+const TONE_STYLES: Record<
+  OutcomeTone,
+  { box: string; badge: string; dot: string; bar: string }
+> = {
   critical: {
-    box: "border-[#8c3a35]/22 bg-[#fbf1ed]",
-    badge: "bg-[#f0dcd6] text-[#6f2f2a]",
-    dot: "bg-[#8c3a35]",
+    box: "border-[var(--danger-line)] bg-[var(--box-critical-bg)]",
+    badge: "bg-[var(--badge-critical-bg)] text-[var(--badge-critical-ink)]",
+    dot: "bg-[var(--danger-ink)]",
+    bar: "border-[var(--danger-ink)]",
   },
   warning: {
-    box: "border-[#a8792f]/25 bg-[#fbf5e8]",
-    badge: "bg-[#eedebd] text-[#6b5423]",
-    dot: "bg-[#a8792f]",
+    box: "border-[var(--warn-line)] bg-[var(--box-warning-bg)]",
+    badge: "bg-[var(--badge-warning-bg)] text-[var(--badge-warning-ink)]",
+    dot: "bg-[var(--gold)]",
+    bar: "border-[var(--gold)]",
   },
   positive: {
-    box: "border-[#2e6b57]/20 bg-[#eaf1ea]",
-    badge: "bg-[#d8e6d9] text-[#255c49]",
-    dot: "bg-[#2e6b57]",
+    box: "border-[var(--accent-line)] bg-[var(--box-positive-bg)]",
+    badge: "bg-[var(--badge-positive-bg)] text-[var(--badge-positive-ink)]",
+    dot: "bg-[var(--accent-ink)]",
+    bar: "border-[var(--accent-ink)]",
   },
   neutral: {
-    box: "border-[#17211f]/15 bg-[#f2efe9]",
-    badge: "bg-[#e6e2da] text-[#3c4a46]",
-    dot: "bg-[#7d8a85]",
+    box: "border-[var(--hairline-strong)] bg-[var(--box-neutral-bg)]",
+    badge: "bg-[var(--badge-neutral-bg)] text-[var(--badge-neutral-ink)]",
+    dot: "bg-[var(--ink-muted)]",
+    bar: "border-[var(--ink-muted)]",
   },
 };
 

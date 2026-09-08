@@ -23,9 +23,19 @@ test("the command header leaves responsive sticky positioning to layout utilitie
   assert.match(source("app/page.tsx"), /command-header sticky top-0[^"\n]*xl:relative/);
 });
 
-test("both decorative animations have an explicit reduced-motion opt-out", () => {
+test("no decorative animation loops behind the normative text", () => {
   const css = source("app/globals.css");
-  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*\.command-header::before,\s*\.command-selected-rule\s*\{\s*animation:\s*none\s*!important;/);
+  // Замість опції відмови від пульсації тло і вибраний пункт статичні:
+  // жодної нескінченної анімації в оболонці не лишилося.
+  assert.doesNotMatch(css, /animation:[^;]*infinite/);
+  assert.doesNotMatch(css, /@keyframes/);
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
+});
+
+test("the emblem is not painted under the normative text", () => {
+  for (const path of ["app/page.tsx", "components/vlk/citizen-preparation.tsx"]) {
+    assert.doesNotMatch(source(path), /CommandBrand[\s\S]{0,120}decorative/);
+  }
 });
 
 test("the emblem has text alternatives and decorative instances are hidden", () => {

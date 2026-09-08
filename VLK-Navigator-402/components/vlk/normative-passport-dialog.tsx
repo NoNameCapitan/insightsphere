@@ -41,13 +41,13 @@ export function NormativePassportDialog({
           type="button"
           variant="outline"
           size="sm"
-          className="h-9 bg-white text-xs"
+          className="h-9 bg-[var(--surface)] text-xs"
         >
           <FileCheck2 /> Паспорт норми
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-2xl">
-        <div className="flex items-start gap-3 border-b border-[#b58b35]/20 pb-3">
+        <div className="flex items-start gap-3 border-b border-[var(--brand-line)] pb-3">
           <CommandBrand size={52} />
           <DialogHeader>
             <DialogTitle>Паспорт нормативної норми</DialogTitle>
@@ -58,24 +58,24 @@ export function NormativePassportDialog({
         </div>
 
         <div className="space-y-3 text-sm">
-          <div className="rounded-xl border border-[#2c6b63]/20 bg-[#edf3f0] p-3">
+          <div className="rounded-xl border border-[var(--accent-line)] bg-[var(--surface-accent)] p-3">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2c6b63]">
+                <p className="text-[11px] font-semibold text-[var(--accent-ink)]">
                   Джерело норми
                 </p>
                 <p className="mt-1 font-bold">{NORMATIVE_PASSPORT.order}</p>
               </div>
-              <span className="rounded-full bg-white px-2 py-1 text-[10px] font-bold text-[#1f564f]">
+              <span className="rounded-full bg-[var(--surface)] px-2 py-1 text-[10px] font-bold text-[var(--accent-ink-strong)]">
                 редакція {NORMATIVE_PASSPORT.edition}
               </span>
             </div>
             {article ? (
-              <p className="mt-2 break-all font-mono text-[10px] text-[#55635f]">
+              <p className="mt-2 break-all font-mono text-[10px] text-[var(--ink-soft)]">
                 {normReferenceId(article, point)}
               </p>
             ) : null}
-            <Button asChild variant="outline" size="sm" className="mt-3 h-8 bg-white text-xs">
+            <Button asChild variant="outline" size="sm" className="mt-3 h-8 bg-[var(--surface)] text-xs">
               <a href={sourceUrl} target="_blank" rel="noreferrer">
                 Відкрити першоджерело <ExternalLink />
               </a>
@@ -85,21 +85,21 @@ export function NormativePassportDialog({
           <div className="grid gap-2 sm:grid-cols-2">
             <div className="rounded-xl border border-[var(--hairline)] p-3">
               <p className="flex items-center gap-2 font-bold">
-                <ShieldCheck className="size-4 text-[#2c6b63]" /> Автоматичні перевірки
+                <ShieldCheck className="size-4 text-[var(--accent-ink)]" /> Автоматичні перевірки
               </p>
-              <p className="mt-1.5 text-xs leading-5 text-[#55635f]">
+              <p className="mt-1.5 text-xs leading-5 text-[var(--ink-soft)]">
                 87 статей · 87 дослівних рядків · 29 точних наборів МКХ · 86 наборів пояснень · ТДВ.
               </p>
-              <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-[#e1eee7] px-2 py-1 text-[10px] font-bold text-[#255c49]">
+              <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-[var(--surface-accent)] px-2 py-1 text-[10px] font-bold text-[var(--badge-positive-ink)]">
                 <Check className="size-3" /> технічні інваріанти перевірено
               </span>
             </div>
             <div className="rounded-xl border border-[var(--hairline)] p-3">
               <p className="flex items-center gap-2 font-bold">
-                <History className="size-4 text-[#2c6b63]" /> Моніторинг редакції
+                <History className="size-4 text-[var(--accent-ink)]" /> Моніторинг редакції
               </p>
-              <p className="mt-1.5 text-xs leading-5 text-[#55635f]">{EDITION_MONITOR.behavior}</p>
-              <span className="mt-2 inline-flex rounded-full bg-[#faf3e4] px-2 py-1 text-[10px] font-bold text-[#6b5423]">
+              <p className="mt-1.5 text-xs leading-5 text-[var(--ink-soft)]">{EDITION_MONITOR.behavior}</p>
+              <span className="mt-2 inline-flex rounded-full bg-[var(--warn-surface)] px-2 py-1 text-[10px] font-bold text-[var(--warn-ink)]">
                 налаштовано · {EDITION_MONITOR.schedule}
               </span>
             </div>
@@ -108,15 +108,15 @@ export function NormativePassportDialog({
           <div className="rounded-xl border border-[var(--hairline)] p-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="font-bold">Подвійна експертна перевірка</p>
-              <span className={`rounded-full px-2 py-1 text-[10px] font-bold ${doubleVerified ? "bg-[#e1eee7] text-[#255c49]" : "bg-[#faf3e4] text-[#6b5423]"}`}>
+              <span className={`rounded-full px-2 py-1 text-[10px] font-bold ${doubleVerified ? "bg-[var(--surface-accent)] text-[var(--badge-positive-ink)]" : "bg-[var(--warn-surface)] text-[var(--warn-ink)]"}`}>
                 {doubleVerified ? "завершена" : "очікує підтвердження"}
               </span>
             </div>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
               {EXPERT_REVIEWS.map((review) => (
-                <div key={review.role} className="rounded-lg bg-[#faf8f4] p-2.5">
+                <div key={review.role} className="rounded-lg bg-[var(--surface-muted)] p-2.5">
                   <p className="text-xs font-bold">{review.role}</p>
-                  <p className="mt-1 text-[11px] text-[#68766f]">
+                  <p className="mt-1 text-[11px] text-[var(--ink-muted)]">
                     {review.status === "verified"
                       ? `${review.reviewer} · ${review.reviewedAt}`
                       : "Іменного висновку ще немає"}
@@ -129,14 +129,14 @@ export function NormativePassportDialog({
           <div className="rounded-xl border border-[var(--hairline)] p-3">
             <p className="font-bold">Журнал редакцій</p>
             {REVISION_LOG.map((entry) => (
-              <div key={entry.edition} className="mt-2 border-l-2 border-[#2c6b63]/30 pl-3">
+              <div key={entry.edition} className="mt-2 border-l-2 border-[var(--accent-line)] pl-3">
                 <p className="text-xs font-bold">Редакція від {entry.edition}</p>
-                <p className="mt-1 text-xs leading-5 text-[#55635f]">{entry.summary}</p>
+                <p className="mt-1 text-xs leading-5 text-[var(--ink-soft)]">{entry.summary}</p>
               </div>
             ))}
           </div>
 
-          <p className="text-xs leading-5 text-[#68766f]">
+          <p className="text-xs leading-5 text-[var(--ink-muted)]">
             Автоматичний монітор лише виявляє розбіжність. Нова редакція не потрапляє до
             застосунку без ручного звірення тексту, тестів і експертного підтвердження.
           </p>
