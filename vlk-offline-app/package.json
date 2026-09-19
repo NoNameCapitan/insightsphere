@@ -1,0 +1,66 @@
+{
+  "name": "vlk-offline-standby",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Локальна реєстратура й кабінети ВЛК з ручним перенесенням у МІС",
+  "engines": {
+    "node": ">=22.12.0 <25"
+  },
+  "scripts": {
+    "dev": "node scripts/next.mjs dev --hostname 127.0.0.1",
+    "build": "prisma generate && node scripts/next.mjs build && node scripts/finalize-build.mjs",
+    "start": "node scripts/serve.mjs",
+    "start:lan": "node scripts/serve.mjs --lan",
+    "setup": "node --import tsx scripts/setup.ts",
+    "backup": "node --import tsx scripts/backup.ts",
+    "restore": "node --import tsx scripts/restore.ts",
+    "import:icd": "node --import tsx scripts/import-icd.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --conditions=react-server --import tsx --test tests/*.test.ts",
+    "db:validate": "prisma validate",
+    "db:generate": "prisma generate",
+    "db:migrate": "node scripts/migrate-offline.mjs",
+    "db:status": "prisma migrate status",
+    "format": "prettier --write src scripts tests docs *.ts *.mjs *.json *.md *.yaml",
+    "prepare:offline": "node scripts/prepare.mjs",
+    "offline:check": "node scripts/offline-check.mjs",
+    "pack:offline": "node scripts/pack-offline.mjs",
+    "db:migrate:cli": "prisma migrate deploy",
+    "icons": "node scripts/make-icons.mjs"
+  },
+  "dependencies": {
+    "@prisma/adapter-better-sqlite3": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "better-sqlite3": "13.0.3",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "dotenv": "16.6.1",
+    "exceljs": "4.4.0",
+    "lucide-react": "1.47.0",
+    "next": "16.3.5",
+    "radix-ui": "1.6.7",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "0.0.1",
+    "tailwind-merge": "3.7.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/better-sqlite3": "9.6.0",
+    "@types/node": "24.13.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "prettier": "3.9.8",
+    "prisma": "7.10.0",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.23.13",
+    "typescript": "5.9.3"
+  },
+  "overrides": {
+    "deepmerge-ts": "8.0.2",
+    "mysql2": "3.24.4",
+    "uuid": "11.1.1"
+  }
+}

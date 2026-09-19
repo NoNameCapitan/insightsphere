@@ -1,0 +1,11 @@
+node_modules
+.next
+src/generated
+qa
+reference-data
+package-lock.json
+*.sqlite*
+*.vlkbak
+dist-offline
+BUNDLE.md
+public/sw.js

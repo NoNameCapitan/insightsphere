@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+data
+backups
+qa
+tests
+*.zip
+*.tsbuildinfo
+dist-offline
+.offline-ready.json
+BUNDLE.md
+offline-bundle.json

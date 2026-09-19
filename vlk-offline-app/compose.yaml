@@ -1,0 +1,38 @@
+services:
+  app:
+    build: .
+    image: vlk-offline-standby:1.0
+    restart: unless-stopped
+    init: true
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:3000:3000"
+    environment:
+      DATABASE_URL: file:/app/data/vlk.sqlite
+      NEXT_TELEMETRY_DISABLED: "1"
+      APP_ORIGIN: "${APP_ORIGIN:-http://localhost:3000}"
+      ALLOWED_ORIGINS: "${ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}"
+      COMMISSION_NAME: "${COMMISSION_NAME:-ВЛК установи}"
+      ORDER_402_REVISION: "${ORDER_402_REVISION:-За редакцією, чинною на дату огляду}"
+    volumes:
+      - vlk_data:/app/data
+      - vlk_backups:/app/backups
+    networks:
+      - local_only
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+volumes:
+  vlk_data:
+  vlk_backups:
+networks:
+  local_only:
+    internal: true

@@ -1,0 +1,412 @@
+// ВЛК Offline / Standby — схема даних для Prisma ORM 7.10.0.
+// Дати без часу: String у форматі YYYY-MM-DD; часові мітки: DateTime UTC.
+// SQLite не має власного типу ENUM: сервер перевіряє значення та переходи.
+// Права доступу, незмінність підтверджених записів і клінічні правила
+// реалізуються сервісами/SQL-тригерами; сама схема їх не забезпечує.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  ADMIN
+  REGISTRAR
+  DOCTOR
+  SECRETARY
+  CHAIRPERSON
+  DEPUTY_CHAIRPERSON
+}
+
+enum Specialty {
+  THERAPIST
+  SURGEON
+  NEUROLOGIST
+  OPHTHALMOLOGIST
+  OTORHINOLARYNGOLOGIST
+  PSYCHIATRIST
+  DERMATOLOGIST
+  DENTIST
+}
+
+enum SessionStatus {
+  REGISTERED
+  IN_PROGRESS
+  READY_FOR_REVIEW
+  FINALIZED
+  CANCELLED
+}
+
+enum ExaminationStatus {
+  DRAFT
+  COMPLETED
+  VOIDED
+}
+
+// Внутрішні категорії для фільтрів, а не готові нормативні формулювання.
+// Повний текст висновку/постанови зберігається окремо.
+enum FitnessCategory {
+  FIT
+  FIT_FOR_SPECIFIED_SERVICE
+  TEMPORARILY_UNFIT
+  UNFIT
+  OTHER
+}
+
+enum ScheduleColumn {
+  I
+  II
+  III
+}
+
+enum AdditionalDiagnosisKind {
+  COMORBIDITY
+  COMPLICATION
+}
+
+// Статус ручного перенесення конкретної версії документа.
+// CONFIRMED — свідчення оператора, не відповідь API ЕСОЗ/Helsi.
+enum SyncStatus {
+  IN_PROGRESS
+  PARTIAL
+  CONFIRMED
+  FAILED
+}
+
+enum DocumentKind {
+  VLK_CERTIFICATE
+  ILLNESS_CERTIFICATE
+}
+
+enum AuditAction {
+  LOGIN
+  LOGOUT
+  ACCESS_DENIED
+  READ_RECORD
+  CREATE_RECORD
+  UPDATE_DRAFT
+  COMPLETE_EXAMINATION
+  CREATE_REVISION
+  FINALIZE_SESSION
+  CANCEL_SESSION
+  CREATE_DOCUMENT
+  PRINT_DOCUMENT
+  EXPORT_DATA
+  RECORD_TRANSFER
+  MANAGE_USER
+}
+
+model User {
+  id            String     @id @default(cuid())
+  username      String     @unique
+  full_name     String
+  password_hash String
+  role          Role
+  specialty     Specialty?
+  is_active     Boolean    @default(true)
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+
+  // Основна роль + явно призначені додаткові ролі.
+  // Наприклад: заступник голови та лікар-стоматолог.
+  extra_roles        UserRoleGrant[]
+  auth_sessions      AuthSession[]
+  created_sessions   VlkSession[]         @relation("SessionCreator")
+  finalized_sessions VlkSession[]         @relation("SessionFinalizer")
+  examinations       MedicalExamination[]
+  documents          VlkDocument[]
+  sync_logs          SyncLog[]
+  audit_logs         AuditLog[]
+
+  @@index([role, is_active])
+}
+
+// SQLite не підтримує масиви Role[]; додаткові ролі нормалізовані.
+model UserRoleGrant {
+  user_id    String
+  role       Role
+  created_at DateTime @default(now())
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, role])
+}
+
+model AuthSession {
+  id           String    @id @default(cuid())
+  user_id      String
+  // У БД — SHA-256 випадкового токена; сам токен лише в HttpOnly cookie.
+  token_hash   String    @unique
+  created_at   DateTime  @default(now())
+  expires_at   DateTime
+  last_seen_at DateTime  @default(now())
+  revoked_at   DateTime?
+  user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, expires_at])
+  @@index([expires_at])
+}
+
+model Patient {
+  search_text String @default("")
+  id                    String  @id @default(cuid())
+  // String зберігає початкові нулі. null дозволений лише з поясненням.
+  rnokpp                String? @unique
+  rnokpp_absence_reason String?
+  last_name             String
+  first_name            String
+  middle_name           String?
+  birth_date            String
+  rank                  String?
+  military_unit_or_tck  String
+
+  // Останні відомі реквізити для зручності реєстратора.
+  // Історично достовірне направлення конкретного огляду — у VlkSession.
+  referral_number String?
+  referral_date   String?
+  referral_issuer String?
+
+  version    Int          @default(1)
+  created_at DateTime     @default(now())
+  updated_at DateTime     @updatedAt
+  sessions   VlkSession[]
+
+  @@index([last_name, first_name, birth_date])
+}
+
+model VlkSession {
+  search_text String @default("")
+  creation_hash String @default("")
+  id              String        @id @default(cuid())
+  patient_id      String
+  // Глобально унікальний внутрішній номер талона; не РНОКПП.
+  ticket_number   String        @unique
+  // Ключ повторного запиту створення, генерується до надсилання форми.
+  creation_key    String        @unique
+  session_date    String
+  status          SessionStatus @default(REGISTERED)
+  commission_name String
+
+  // Незмінний знімок особи на момент реєстрації цієї сесії.
+  // Типізована JSON-структура з schemaVersion перевіряється на сервері.
+  patient_snapshot     Json
+  rank                 String?
+  military_unit_or_tck String
+  referral_number      String
+  referral_date        String
+  referral_issuer      String
+
+  // Редакція нормативної бази обирається явно з локального довідника.
+  // Значення за замовчуванням відсутнє, щоб не підставити застарілу редакцію.
+  order_402_revision String
+  order_402_column   ScheduleColumn?
+  order_402_article  String?
+  fitness_category   FitnessCategory?
+  final_diagnosis    String?
+  final_decision     String?
+  decision_date      String?
+  protocol_number    String?
+  reassessment_date  String?
+
+  // Нова сесія може виправляти завершену; старі дані не перезаписуються.
+  replaces_session_id String?     @unique
+  correction_reason   String?
+  replaces_session    VlkSession? @relation("SessionCorrection", fields: [replaces_session_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  replaced_by         VlkSession? @relation("SessionCorrection")
+
+  created_by_id       String
+  finalized_by_id     String?
+  finalized_at        DateTime?
+  cancelled_at        DateTime?
+  cancellation_reason String?
+  // Захист від втрати змін: UPDATE WHERE id = ... AND version = очікувана.
+  version             Int       @default(1)
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+
+  patient      Patient              @relation(fields: [patient_id], references: [id], onDelete: Restrict)
+  created_by   User                 @relation("SessionCreator", fields: [created_by_id], references: [id], onDelete: Restrict)
+  finalized_by User?                @relation("SessionFinalizer", fields: [finalized_by_id], references: [id], onDelete: Restrict)
+  requirements SessionRequirement[]
+  examinations MedicalExamination[]
+  documents    VlkDocument[]
+  sync_logs    SyncLog[]
+  audit_logs   AuditLog[]
+
+  @@index([session_date, status])
+  @@index([patient_id, session_date])
+  @@index([created_by_id])
+  @@index([finalized_by_id])
+}
+
+// Перелік потрібних спеціалістів задається для кожного огляду.
+// Наявність восьми Specialty у коді не означає автоматично завершений огляд.
+model SessionRequirement {
+  session_id  String
+  specialty   Specialty
+  is_required Boolean    @default(true)
+  session     VlkSession @relation(fields: [session_id], references: [id], onDelete: Restrict)
+
+  @@id([session_id, specialty])
+}
+
+model MedicalExamination {
+  id         String            @id @default(cuid())
+  session_id String
+  doctor_id  String
+  specialty  Specialty
+  revision   Int               @default(1)
+  status     ExaminationStatus @default(DRAFT)
+
+  complaints     String @default("")
+  anamnesis      String @default("")
+  objective_data String @default("")
+
+  // Основний діагноз; супутні та ускладнення — в AdditionalDiagnosis.
+  // Код + версія класифікатора задаються або разом, або обидва null.
+  icd10_code        String?
+  icd10_version     String?
+  diagnosis_text    String           @default("")
+  no_icd_reason     String?
+  order_402_article String?
+  fitness_category  FitnessCategory?
+  doctor_conclusion String           @default("")
+  recommendations   String           @default("")
+
+  // Знімок ПІБ виконавця потрібен для історичного друку після перейменування.
+  doctor_name_snapshot String
+  examined_at          DateTime?
+  // Локальне підтвердження авторства НЕ є КЕП.
+  completed_at         DateTime?
+  void_reason          String?
+  amendment_reason     String?
+  version              Int       @default(1)
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
+
+  session              VlkSession            @relation(fields: [session_id], references: [id], onDelete: Restrict)
+  doctor               User                  @relation(fields: [doctor_id], references: [id], onDelete: Restrict)
+  icd10                Icd10Entry?           @relation("PrimaryIcd10", fields: [icd10_code, icd10_version], references: [code, catalog_version], onDelete: Restrict)
+  additional_diagnoses AdditionalDiagnosis[]
+
+  // В однієї спеціальності може бути кілька версій висновку.
+  // Агрегатор бере максимальну revision; нова DRAFT блокує завершення.
+  @@unique([session_id, specialty, revision])
+  @@index([doctor_id, status])
+  @@index([icd10_code, icd10_version])
+}
+
+model AdditionalDiagnosis {
+  id                String                  @id @default(cuid())
+  examination_id    String
+  position          Int
+  kind              AdditionalDiagnosisKind @default(COMORBIDITY)
+  icd10_code        String
+  icd10_version     String
+  diagnosis_text    String
+  order_402_article String?
+  examination       MedicalExamination      @relation(fields: [examination_id], references: [id], onDelete: Restrict)
+  icd10             Icd10Entry              @relation("AdditionalIcd10", fields: [icd10_code, icd10_version], references: [code, catalog_version], onDelete: Restrict)
+
+  @@unique([examination_id, position])
+  @@index([icd10_code, icd10_version])
+}
+
+// Локальний, версійований довідник. Дані імпортуються з перевіреного джерела.
+// Оновлення додає нову catalog_version, а не змінює минулі найменування.
+model Icd10Entry {
+  code            String
+  catalog_version String
+  title_uk        String
+  search_text     String
+  source_uri      String
+  source_sha256   String
+  is_selectable   Boolean @default(true)
+
+  primary_examinations MedicalExamination[]  @relation("PrimaryIcd10")
+  additional_diagnoses AdditionalDiagnosis[] @relation("AdditionalIcd10")
+
+  @@id([code, catalog_version])
+  @@index([catalog_version, is_selectable])
+}
+
+// Зафіксовані дані друкованого документа, включно з ПІБ, діагнозами,
+// реквізитами комісії, переліком членів та версіями використаних оглядів.
+// Друк і Smart Copy читають цей знімок, а не змінювану Patient.
+model VlkDocument {
+  id                     String       @id @default(cuid())
+  session_id             String
+  kind                   DocumentKind
+  revision               Int          @default(1)
+  document_number        String
+  template_version       String
+  template_source        String
+  payload_schema_version Int          @default(1)
+  payload                Json
+  // SHA-256 канонічного JSON; це контроль цілісності, не електронний підпис.
+  payload_sha256         String
+  created_by_id          String
+  created_at             DateTime     @default(now())
+  session                VlkSession   @relation(fields: [session_id], references: [id], onDelete: Restrict)
+  created_by             User         @relation(fields: [created_by_id], references: [id], onDelete: Restrict)
+  sync_logs              SyncLog[]
+
+  @@unique([session_id, kind, revision])
+  // Композитний ключ дозволяє SyncLog посилатися на документ саме цієї сесії.
+  @@unique([id, session_id])
+  @@index([created_by_id])
+}
+
+model SyncLog {
+  id                 String     @id @default(cuid())
+  session_id         String
+  document_id        String
+  operator_id        String
+  // Повторне надсилання підтвердження не створює дубль журналу.
+  request_key        String     @unique
+  status             SyncStatus
+  synced_at          DateTime?
+  external_record_id String?
+  // Список ключів полів, а не копії медичних текстів або РНОКПП.
+  transferred_fields Json
+  notes              String?
+  created_at         DateTime   @default(now())
+
+  session  VlkSession  @relation(fields: [session_id], references: [id], onDelete: Restrict)
+  document VlkDocument @relation(fields: [document_id, session_id], references: [id, session_id], onDelete: Restrict, onUpdate: NoAction)
+  operator User        @relation(fields: [operator_id], references: [id], onDelete: Restrict)
+
+  @@index([session_id, created_at])
+  @@index([document_id, created_at])
+  @@index([operator_id, created_at])
+}
+
+// Журнал дій доповнюється новими подіями. У metadata заборонені
+// паролі, токени, повні ПІБ/РНОКПП та тексти медичних висновків.
+model AuditLog {
+  id          String      @id @default(cuid())
+  actor_id    String?
+  session_id  String?
+  action      AuditAction
+  entity_type String
+  entity_id   String
+  metadata    Json?
+  created_at  DateTime    @default(now())
+  actor       User?       @relation(fields: [actor_id], references: [id], onDelete: Restrict)
+  session     VlkSession? @relation(fields: [session_id], references: [id], onDelete: Restrict)
+
+  @@index([session_id, created_at])
+  @@index([actor_id, created_at])
+  @@index([entity_type, entity_id, created_at])
+}
+
+// Обмеження невдалих входів зберігається й після перезапуску сервера.
+model LoginThrottle {
+  key          String   @id
+  failures     Int      @default(0)
+  window_start DateTime @default(now())
+  blocked_until DateTime?
+}
