@@ -42,7 +42,7 @@ export function Standby({ state }: { state: DatabaseState }) {
   if (!screen) return null;
   const Icon = screen.icon;
   return (
-    <main className="standby">
+    <main className="standby" data-vlk-standby>
       <div className="brand">
         <span className="brand-icon">
           <Cross size={22} />
