@@ -1,8 +1,11 @@
 import { redirect } from "next/navigation";
 import { Cross, ShieldCheck, WifiOff } from "lucide-react";
 import { currentActor } from "@/server/auth";
+import { standbyScreen } from "@/components/standby";
 import { Login } from "@/components/login";
 export default async function LoginPage() {
+  const standby = await standbyScreen();
+  if (standby) return standby;
   if (await currentActor()) redirect("/");
   return (
     <main className="login-page">

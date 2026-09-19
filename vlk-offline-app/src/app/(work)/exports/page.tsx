@@ -1,7 +1,10 @@
 import { pageActor } from "@/server/auth";
+import { standbyScreen } from "@/components/standby";
 import { coordinatorRoles } from "@/lib/domain";
 import { Export } from "@/components/export";
 export default async function Exports() {
+  const standby = await standbyScreen();
+  if (standby) return standby;
   await pageActor(coordinatorRoles);
   return (
     <>

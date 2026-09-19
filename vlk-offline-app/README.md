@@ -320,4 +320,38 @@ npm run offline:check -- --serve
 установу; резервне копіювання (`npm run backup`), `offline:check` і
 `pack:offline` стосуються лише локального режиму. Рішення про обробку
 персональних медичних даних у зовнішній хмарі приймає установа.
-Покрокова інструкція, змінні оточення та межі перевірки — `docs/VERCEL.md`.
+
+```sh
+turso db create vlk-standby
+turso db show vlk-standby --url
+turso db tokens create vlk-standby
+
+export DATABASE_URL="libsql://vlk-standby-<org>.turso.io"
+export DATABASE_AUTH_TOKEN="<токен>"
+npm run db:migrate:remote
+npm run setup
+
+vercel env add DATABASE_URL production
+vercel env add DATABASE_AUTH_TOKEN production
+vercel --prod
+```
+
+Vercel не підхоплює змінні оточення на льоту: після кожної зміни потрібне
+повторне розгортання. Покрокова інструкція та межі перевірки — `docs/VERCEL.md`.
+
+## Коли база недоступна
+
+Застосунок ніколи не віддає порожню сторінку з помилкою. Якщо бази немає або
+вона не відповідає, замість кабінету показується екран очікування з причиною
+та кроками для виправлення, а `/api/health` повертає її машинно:
+
+| Стан                 | HTTP | Коли                                              |
+| -------------------- | ---- | ------------------------------------------------- |
+| `ok`                 | 200  | база відповідає, схема на місці                   |
+| `misconfigured`      | 503  | не задано `DATABASE_URL`                          |
+| `unreachable`        | 503  | налаштування є, з'єднання немає                   |
+| `migrations-pending` | 503  | з'єднання є, таблиць немає — `npm run db:migrate` |
+
+У `DATABASE_URL` вказуйте **абсолютний** шлях до файлу: `npm run setup`
+записує саме такий. Відносний шлях штатний запуск доводить до абсолютного
+самостійно, бо production-сервер працює з власного каталогу.

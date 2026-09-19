@@ -1,7 +1,10 @@
 import { pageActor } from "@/server/auth";
+import { standbyScreen } from "@/components/standby";
 import { db } from "@/db";
 import { Users } from "@/components/users";
 export default async function Admin() {
+  const standby = await standbyScreen();
+  if (standby) return standby;
   await pageActor(["ADMIN"]);
   const users = await db.user.findMany({
     select: {

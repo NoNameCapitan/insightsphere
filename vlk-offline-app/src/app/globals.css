@@ -1238,3 +1238,47 @@ details[open] > summary {
   color: var(--primary);
   text-decoration: underline;
 }
+
+/* Екран очікування: база ще не налаштована або недоступна. */
+.standby {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 48px 16px;
+}
+.standby .brand {
+  margin-bottom: 20px;
+}
+.standby h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  margin: 6px 0 12px;
+}
+.standby ol {
+  padding-left: 20px;
+}
+.standby li {
+  margin-bottom: 8px;
+}
+.standby details {
+  margin-top: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  padding: 12px 14px;
+}
+.standby summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.standby-detail {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.standby-meta {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 0;
+}

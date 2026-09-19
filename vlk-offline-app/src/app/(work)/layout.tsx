@@ -9,6 +9,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { pageActor } from "@/server/auth";
+import { standbyScreen } from "@/components/standby";
 import {
   hasRole,
   registryRoles,
@@ -21,6 +22,10 @@ export default async function WorkLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Стан бази перевіряється до автентифікації: без неї кабінет усе одно
+  // не відкрити, а екран очікування пояснює причину замість помилки 500.
+  const standby = await standbyScreen();
+  if (standby) return standby;
   const a = await pageActor();
   return (
     <div className="app-shell">

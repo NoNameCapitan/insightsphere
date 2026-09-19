@@ -1,7 +1,10 @@
 import { pageActor } from "@/server/auth";
+import { standbyScreen } from "@/components/standby";
 import { registryRoles } from "@/lib/domain";
 import { Registration } from "@/components/registration";
 export default async function NewPage() {
+  const standby = await standbyScreen();
+  if (standby) return standby;
   await pageActor(registryRoles);
   return (
     <>

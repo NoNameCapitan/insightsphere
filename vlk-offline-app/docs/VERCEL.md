@@ -33,24 +33,41 @@ turso db show vlk-standby --url          # libsql://vlk-standby-<org>.turso.io
 turso db tokens create vlk-standby       # токен доступу
 ```
 
+Токен нікуди не вписуйте у код — лише у змінні оточення.
+
 ## Крок 2. Застосуйте міграції та створіть адміністратора
 
 З комп'ютера, де є цей проєкт (не з Vercel — там немає інтерактивного вводу):
 
 ```sh
+npm ci
 export DATABASE_URL="libsql://vlk-standby-<org>.turso.io"
 export DATABASE_AUTH_TOKEN="<токен>"
 
-npm ci
 npm run db:generate
-npm run db:migrate            # сам обере віддалений рушій за DATABASE_URL
-npm run setup                 # створить першого адміністратора та довідник
+npm run db:migrate:remote   # міграції у віддалену базу libSQL
+npm run setup               # перший адміністратор і довідник МКХ
 ```
+
+`npm run db:migrate` робить те саме, самостійно обираючи рушій за
+`DATABASE_URL`; `db:migrate:remote` викликає віддалений рушій напряму.
+Формат таблиці `_prisma_migrations` і контрольні суми sha256 однакові для
+обох рушіїв, тому `prisma migrate status` бачить однаковий стан схеми.
 
 `setup` не створює `.env` у віддаленому режимі — налаштування задаються
 змінними оточення Vercel.
 
 ## Крок 3. Змінні оточення проєкту Vercel
+
+```sh
+vercel env add DATABASE_URL production        # libsql://vlk-standby-<org>.turso.io
+vercel env add DATABASE_AUTH_TOKEN production # токен Turso
+vercel env add APP_ORIGIN production          # https://<проєкт>.vercel.app
+vercel env add ALLOWED_ORIGINS production     # https://<проєкт>.vercel.app
+vercel env add COOKIE_SECURE production       # true
+```
+
+Те саме можна зробити у вебінтерфейсі: **Settings → Environment Variables**.
 
 | Змінна                    | Значення                              |
 | ------------------------- | ------------------------------------- |
@@ -70,31 +87,51 @@ npm run setup                 # створить першого адмініст
 Кожне попереднє розгортання (preview) має власний домен — додайте його в
 `ALLOWED_ORIGINS` або користуйтеся лише production-адресою.
 
+> **Vercel не підхоплює змінні оточення на льоту.** Після додавання або зміни
+> будь-якої з них потрібне повторне розгортання: `vercel --prod` або кнопка
+> **Redeploy** у вебінтерфейсі. Доти працюватиме попередня конфігурація.
+
 ## Якщо змінних ще немає
 
-Збірка на Vercel **не падає** без бази: модуль доступу до даних нічого не
-відкриває під час імпорту, тому `next build` проходить і без `DATABASE_URL`.
-Хибну конфігурацію показує сам застосунок:
+Збірка на Vercel **не падає** без бази: клієнт бази не створюється під час
+імпорту модуля, тому `next build` проходить і без `DATABASE_URL`.
+Застосунок при цьому не віддає 500 — усі сторінки показують екран очікування
+з причиною, а `/api/health` називає її машинно:
 
 ```sh
 curl https://<проєкт>.vercel.app/api/health
-{"status":"misconfigured","detail":"На Vercel немає постійного диска, …"}
+{"status":"misconfigured","driver":null,"detail":"Не задано DATABASE_URL…"}
 ```
 
 Отже, порядок вільний: можна спершу розгорнути, потім додати змінні
-оточення й натиснути **Redeploy**. Сторінка `/offline` доступна завжди,
+оточення й повторити розгортання. Сторінка `/offline` доступна завжди,
 бо не звертається до бази.
 
 ## Крок 4. Розгортання
 
 ```sh
-npx vercel            # попереднє розгортання
-npx vercel --prod     # робоче
+vercel --prod
 ```
 
 Або підключіть репозиторій у вебінтерфейсі Vercel. `vercel.json` уже задає
 фреймворк, команди встановлення та збірки. Під час збірки на Vercel
 `output: "standalone"` вимикається автоматично — пакує платформа.
+
+Після розгортання перевірте стан:
+
+```sh
+curl https://<проєкт>.vercel.app/api/health
+```
+
+| Відповідь                                 | Що означає                                           |
+| ----------------------------------------- | ---------------------------------------------------- |
+| `200 {"status":"ok","driver":"remote",…}` | усе працює                                           |
+| `503 {"status":"misconfigured",…}`        | немає `DATABASE_URL` / `DATABASE_AUTH_TOKEN`         |
+| `503 {"status":"unreachable",…}`          | змінні є, але база не відповідає або токен недійсний |
+| `503 {"status":"migrations-pending",…}`   | з'єднання є, але таблиць немає — виконайте крок 2    |
+
+Сторінки при цьому **не падають у 500**: замість кабінету показується екран
+очікування з тією самою причиною і кроками для виправлення.
 
 ## Що працює і що не працює в хмарному режимі
 

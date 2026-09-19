@@ -20,42 +20,47 @@ npm ci
 export DATABASE_URL="libsql://vlk-standby-<org>.turso.io"
 export DATABASE_AUTH_TOKEN="<токен>"
 npm run db:generate
-npm run db:migrate
-npm run setup          # запитає логін, ПІБ і пароль адміністратора
+npm run db:migrate:remote   # міграції у віддалену базу
+npm run setup               # запитає логін, ПІБ і пароль адміністратора
 ```
 
 ## 3. Змінні оточення проєкту Vercel
 
-```
-DATABASE_URL=libsql://vlk-standby-<org>.turso.io
-DATABASE_AUTH_TOKEN=<токен>
-APP_ORIGIN=https://<проєкт>.vercel.app
-ALLOWED_ORIGINS=https://<проєкт>.vercel.app
-COOKIE_SECURE=true
-COMMISSION_NAME=ВЛК установи
-ORDER_402_REVISION=За редакцією, чинною на дату огляду
-NEXT_TELEMETRY_DISABLED=1
+```sh
+vercel env add DATABASE_URL production
+vercel env add DATABASE_AUTH_TOKEN production
+vercel env add APP_ORIGIN production          # https://<проєкт>.vercel.app
+vercel env add ALLOWED_ORIGINS production     # https://<проєкт>.vercel.app
+vercel env add COOKIE_SECURE production       # true
 ```
 
 `APP_ORIGIN` і `ALLOWED_ORIGINS` мають точно збігатися з адресою в браузері,
 без завершального `/`.
 
+**Vercel не підхоплює змінні на льоту** — після кожної зміни потрібне
+повторне розгортання.
+
 ## 4. Розгортання
 
 ```sh
-npx vercel --prod
+vercel --prod
 ```
 
 ## Якщо після деплою сторінки не відкриваються
+
+Застосунок не віддає 500: замість кабінету показується екран очікування
+з причиною. Машинно її називає health-ендпойнт:
 
 ```sh
 curl https://<проєкт>.vercel.app/api/health
 ```
 
-`{"status":"misconfigured","detail":"…"}` — не задані `DATABASE_URL`
-і `DATABASE_AUTH_TOKEN`; додайте їх і натисніть **Redeploy**.
-`{"status":"ok"}` — база доступна. Збірка без змінних оточення проходить
-успішно, тому порядок кроків вільний.
+| Відповідь            | Що робити                                                            |
+| -------------------- | -------------------------------------------------------------------- |
+| `ok`                 | усе працює                                                           |
+| `misconfigured`      | додати `DATABASE_URL` і `DATABASE_AUTH_TOKEN`, повторити розгортання |
+| `unreachable`        | перевірити адресу бази й чинність токена                             |
+| `migrations-pending` | виконати `npm run db:migrate:remote`                                 |
 
 Помилка «Адреса доступу не дозволена» під час збереження форми означає,
 що `APP_ORIGIN` / `ALLOWED_ORIGINS` не збігаються з адресою в браузері.

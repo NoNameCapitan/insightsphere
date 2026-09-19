@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { db } from "@/db";
 import { pageActor, AppError } from "@/server/auth";
+import { standbyScreen } from "@/components/standby";
 import {
   readSession,
   latestExams,
@@ -34,6 +35,8 @@ export default async function SessionPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const standby = await standbyScreen();
+  if (standby) return standby;
   const a = await pageActor(),
     { id } = await params;
   let s;

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { pageActor } from "@/server/auth";
+import { standbyScreen } from "@/components/standby";
 import {
   coordinatorRoles,
   personName,
@@ -9,6 +10,8 @@ import {
 } from "@/lib/domain";
 import { db } from "@/db";
 export default async function Transfers() {
+  const standby = await standbyScreen();
+  if (standby) return standby;
   await pageActor(coordinatorRoles);
   const docs = await db.vlkDocument.findMany({
     where: { session: { replaced_by: null } },

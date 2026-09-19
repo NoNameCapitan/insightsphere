@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { pageActor } from "@/server/auth";
+import { standbyScreen } from "@/components/standby";
 import { db } from "@/db";
 import {
   coordinatorRoles,
@@ -16,6 +17,8 @@ export default async function TransferPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const standby = await standbyScreen();
+  if (standby) return standby;
   const a = await pageActor(coordinatorRoles),
     { id } = await params;
   const doc = await db.vlkDocument.findFirst({

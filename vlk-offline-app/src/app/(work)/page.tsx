@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Plus, ArrowRight } from "lucide-react";
 import { pageActor } from "@/server/auth";
+import { standbyScreen } from "@/components/standby";
 import { queue } from "@/server/records";
 import { today, displayDate, hasRole, registryRoles } from "@/lib/domain";
 import { Queue } from "@/components/queue";
@@ -10,6 +11,8 @@ export default async function Home({
 }: {
   searchParams: Promise<{ denied?: string }>;
 }) {
+  const standby = await standbyScreen();
+  if (standby) return standby;
   const a = await pageActor(),
     date = today(),
     rows = await queue(a, date),

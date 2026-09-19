@@ -1,21 +1,17 @@
-import { db, ready, configurationProblem } from "@/db";
+import { databaseState } from "@/db";
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export async function GET() {
-  try {
-    await ready();
-    await db.user.count();
+  const state = await databaseState();
+  const headers = { "Cache-Control": "no-store" };
+  if (state.status === "ok")
     return Response.json(
-      { status: "ok" },
-      { headers: { "Cache-Control": "no-store" } },
+      { status: "ok", driver: state.driver, migrations: "applied" },
+      { headers },
     );
-  } catch {
-    // Помилку конфігурації показуємо явно: вона не містить даних установи,
-    // зате одразу пояснює адміністратору, чого бракує після розгортання.
-    return Response.json(
-      configurationProblem
-        ? { status: "misconfigured", detail: configurationProblem }
-        : { status: "unavailable" },
-      { status: 503, headers: { "Cache-Control": "no-store" } },
-    );
-  }
+  // Текст не містить даних установи й токенів, зате одразу називає причину.
+  return Response.json(
+    { status: state.status, driver: state.driver, detail: state.detail },
+    { status: 503, headers },
+  );
 }

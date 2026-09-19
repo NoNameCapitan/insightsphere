@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { pageActor } from "@/server/auth";
 import { db } from "@/db";
+import { standbyScreen } from "@/components/standby";
 import { sessionInclude, payloadFor } from "@/server/records";
 import {
   registryRoles,
@@ -20,6 +21,8 @@ export default async function Print({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ kind?: string }>;
 }) {
+  const standby = await standbyScreen();
+  if (standby) return standby;
   const { id } = await params,
     { kind } = await searchParams,
     ticket = kind === "ticket",
