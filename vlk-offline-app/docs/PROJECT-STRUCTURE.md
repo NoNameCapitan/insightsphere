@@ -20,7 +20,8 @@ vlk-offline-app/
       layout.tsx
       globals.css
     actions.ts                       — Server Actions, origin та автентифікація
-    db.ts                            — Prisma + SQLite, WAL, foreign keys
+    db.ts                            — Prisma + SQLite (WAL, foreign keys)
+                                       або libSQL для хмарного режиму
     server/
       auth.ts                        — серверні сесії, права, ліміт входів
       records.ts                     — транзакції клінічного процесу
@@ -53,7 +54,9 @@ vlk-offline-app/
     backup.ts, restore.ts, import-icd.ts, prompt.ts
     offline.mjs                       — стан автономної готовності й відбитки
     prepare.mjs                       — єдиний крок, якому потрібен інтернет
+    migrate.mjs                       — вибір рушія міграцій за DATABASE_URL
     migrate-offline.mjs               — міграції без Prisma CLI та мережі
+    migrate-remote.mjs                — міграції для libSQL / Turso (хмара)
     offline-check.mjs                 — діагностика автономності
     pack-offline.mjs                  — портативний пакет для машини без мережі
     make-icons.mjs                    — локальна генерація значків PWA
@@ -69,6 +72,7 @@ vlk-offline-app/
   START-WINDOWS.cmd, start-local.sh
   Dockerfile, compose.yaml
   .env.example, prisma.config.ts, next.config.ts
+  vercel.json, .vercelignore          — необов'язкове хмарне розгортання
   package.json, package-lock.json, tsconfig.json, components.json
 ```
 

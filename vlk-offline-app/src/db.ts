@@ -1,14 +1,31 @@
 // Серверний модуль також використовується локальними CLI-утилітами.
+//
+// Два режими зберігання:
+//   file:   — локальний SQLite на диску установи (основний, офлайн);
+//   libsql: — віддалена база libSQL / Turso для хмарного розгортання,
+//             наприклад на Vercel, де постійного диска немає.
+// Режим визначає лише DATABASE_URL. Схема, міграції та тригери спільні.
 import "dotenv/config";
 import { resolve } from "node:path";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { PrismaClient } from "./generated/prisma/client";
 if (typeof window !== "undefined")
   throw new Error("База доступна тільки на сервері");
 export const databaseUrl =
   process.env.DATABASE_URL || "file:" + resolve("data/vlk.sqlite");
-if (!databaseUrl.startsWith("file:"))
-  throw new Error("Потрібна локальна SQLite (file:)");
+export const isRemoteDatabase = /^(libsql|wss?|https?):/.test(databaseUrl);
+if (!databaseUrl.startsWith("file:") && !isRemoteDatabase)
+  throw new Error(
+    "DATABASE_URL має бути локальним файлом (file:) або базою libSQL (libsql:)",
+  );
+// На платформі без постійного диска локальний файл втрачається разом з
+// екземпляром: краще зупинитися зараз, ніж втратити медичні записи.
+if (process.env.VERCEL && !isRemoteDatabase)
+  throw new Error(
+    "На Vercel немає постійного диска. Задайте DATABASE_URL=libsql://… і DATABASE_AUTH_TOKEN, " +
+      "або розгортайте застосунок локально. Докладно — docs/VERCEL.md.",
+  );
 const globalDb = globalThis as unknown as {
   vlkDb?: PrismaClient;
   vlkReady?: Promise<void>;
@@ -16,20 +33,28 @@ const globalDb = globalThis as unknown as {
 export const db =
   globalDb.vlkDb ??
   new PrismaClient({
-    adapter: new PrismaBetterSqlite3({ url: databaseUrl, timeout: 5000 }),
+    adapter: isRemoteDatabase
+      ? new PrismaLibSql({
+          url: databaseUrl,
+          authToken: process.env.DATABASE_AUTH_TOKEN,
+        })
+      : new PrismaBetterSqlite3({ url: databaseUrl, timeout: 5000 }),
   });
 globalDb.vlkDb = db;
 export async function ready() {
-  if (process.env.VERCEL)
-    throw new Error(
-      "Цей застосунок запускається локально з постійним диском SQLite.",
-    );
   if (!globalDb.vlkReady)
     globalDb.vlkReady = (async () => {
-      await db.$queryRawUnsafe("PRAGMA foreign_keys = ON");
-      await db.$queryRawUnsafe("PRAGMA journal_mode = WAL");
-      await db.$queryRawUnsafe("PRAGMA synchronous = FULL");
-      await db.$queryRawUnsafe("PRAGMA busy_timeout = 5000");
+      // Налаштування локального файлу; у віддаленій базі режим журналу
+      // та синхронізацію визначає сервер libSQL, а не клієнт.
+      const pragmas = isRemoteDatabase
+        ? ["PRAGMA foreign_keys = ON"]
+        : [
+            "PRAGMA foreign_keys = ON",
+            "PRAGMA journal_mode = WAL",
+            "PRAGMA synchronous = FULL",
+            "PRAGMA busy_timeout = 5000",
+          ];
+      for (const pragma of pragmas) await db.$queryRawUnsafe(pragma);
     })().catch((e) => {
       globalDb.vlkReady = undefined;
       throw e;

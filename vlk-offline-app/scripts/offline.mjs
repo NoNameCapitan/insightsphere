@@ -92,17 +92,28 @@ export function buildId() {
   return existsSync(path) ? readFileSync(path, "utf8").trim() : "";
 }
 
-export function databaseFile() {
+// Віддалена база libSQL / Turso використовується лише для хмарного
+// розгортання; основний режим — локальний файл на диску установи.
+export const isRemoteUrl = (url) => /^(libsql|wss?|https?):/.test(url);
+
+export function databaseUrl() {
   const fromEnv = process.env.DATABASE_URL;
-  if (fromEnv?.startsWith("file:")) return fromEnv.slice(5);
+  if (fromEnv) return fromEnv;
   const envFile = join(root, ".env");
   if (existsSync(envFile)) {
     const match = readFileSync(envFile, "utf8").match(
-      /^\s*DATABASE_URL\s*=\s*"?(file:[^"\r\n]+)"?/m,
+      /^\s*DATABASE_URL\s*=\s*"?([^"\r\n]+)"?/m,
     );
-    if (match) return match[1].slice(5);
+    if (match) return match[1];
   }
-  return join(root, "data/vlk.sqlite");
+  return "file:" + join(root, "data/vlk.sqlite");
+}
+
+export function databaseFile() {
+  const url = databaseUrl();
+  if (isRemoteUrl(url))
+    throw new Error("DATABASE_URL вказує на віддалену базу, а не на файл");
+  return url.startsWith("file:") ? url.slice(5) : url;
 }
 
 export function readMarker() {
@@ -251,15 +262,26 @@ export function readinessChecks() {
     "npm run setup",
   );
 
-  const dbFile = databaseFile();
-  const database = existsSync(dbFile);
-  add(
-    "database",
-    "Локальна база SQLite існує",
-    database,
-    database ? dbFile : "немає " + dbFile,
-    "npm run setup",
-  );
+  const url = databaseUrl();
+  if (isRemoteUrl(url))
+    add(
+      "database",
+      "База даних",
+      true,
+      "віддалена база libSQL (хмарний режим, не офлайн)",
+      "Для роботи без мережі задайте DATABASE_URL=file:…",
+    );
+  else {
+    const dbFile = databaseFile();
+    const database = existsSync(dbFile);
+    add(
+      "database",
+      "Локальна база SQLite існує",
+      database,
+      database ? dbFile : "немає " + dbFile,
+      "npm run setup",
+    );
+  }
 
   const platformOk =
     !marker ||

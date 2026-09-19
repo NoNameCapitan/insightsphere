@@ -10,6 +10,8 @@ import {
   applyOfflineEnv,
   readinessChecks,
   databaseFile,
+  databaseUrl,
+  isRemoteUrl,
   hasNetwork,
   tick,
 } from "./offline.mjs";
@@ -25,42 +27,50 @@ const rows = [...items];
 // Справжнє відкриття бази й читання таблиць, а не лише перевірка файлу.
 let dbDetail = "не перевірено";
 let dbOk = false;
-try {
-  const driverPath = [
-    join(root, "node_modules/better-sqlite3"),
-    join(
-      root,
-      ".next/standalone/node_modules/@prisma/adapter-better-sqlite3/node_modules/better-sqlite3",
-    ),
-  ].find((path) => existsSync(join(path, "package.json")));
-  const file = databaseFile();
-  if (driverPath && existsSync(file)) {
-    const Database = require(driverPath);
-    const database = new Database(file, { readonly: true });
-    const users = database.prepare('SELECT COUNT(*) AS c FROM "User"').get().c;
-    const codes = database
-      .prepare('SELECT COUNT(*) AS c FROM "Icd10Entry"')
-      .get().c;
-    const migrations = database
-      .prepare('SELECT COUNT(*) AS c FROM "_prisma_migrations"')
-      .get().c;
-    database.close();
-    dbOk = users > 0 && migrations > 0;
-    dbDetail =
-      "облікових записів: " +
-      users +
-      ", кодів довідника: " +
-      codes +
-      ", міграцій: " +
-      migrations;
-    if (users === 0) dbDetail += " (немає жодного працівника)";
-  } else dbDetail = "база або двійковий модуль недоступні";
-} catch (error) {
-  dbDetail = error.message;
-}
+const remote = isRemoteUrl(databaseUrl());
+if (remote) {
+  // Хмарний режим не є автономним: файлову базу перевіряти нічого.
+  dbOk = true;
+  dbDetail = "віддалена база libSQL — перевірка автономності незастосовна";
+} else
+  try {
+    const driverPath = [
+      join(root, "node_modules/better-sqlite3"),
+      join(
+        root,
+        ".next/standalone/node_modules/@prisma/adapter-better-sqlite3/node_modules/better-sqlite3",
+      ),
+    ].find((path) => existsSync(join(path, "package.json")));
+    const file = databaseFile();
+    if (driverPath && existsSync(file)) {
+      const Database = require(driverPath);
+      const database = new Database(file, { readonly: true });
+      const users = database
+        .prepare('SELECT COUNT(*) AS c FROM "User"')
+        .get().c;
+      const codes = database
+        .prepare('SELECT COUNT(*) AS c FROM "Icd10Entry"')
+        .get().c;
+      const migrations = database
+        .prepare('SELECT COUNT(*) AS c FROM "_prisma_migrations"')
+        .get().c;
+      database.close();
+      dbOk = users > 0 && migrations > 0;
+      dbDetail =
+        "облікових записів: " +
+        users +
+        ", кодів довідника: " +
+        codes +
+        ", міграцій: " +
+        migrations;
+      if (users === 0) dbDetail += " (немає жодного працівника)";
+    } else dbDetail = "база або двійковий модуль недоступні";
+  } catch (error) {
+    dbDetail = error.message;
+  }
 rows.push({
   id: "db-read",
-  label: "Читання бази без мережі",
+  label: remote ? "База даних" : "Читання бази без мережі",
   ok: dbOk,
   detail: dbDetail,
   fix: "npm run setup",

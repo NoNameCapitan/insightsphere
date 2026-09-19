@@ -30,7 +30,7 @@ export function OfflineGuard() {
   useEffect(() => {
     if ("serviceWorker" in navigator && window.isSecureContext)
       navigator.serviceWorker
-        .register("/sw.js")
+        .register("/sw.js?v=" + (process.env.VLK_BUILD_STAMP || "dev"))
         .catch(() => undefined /* кеш оболонки не критичний для роботи */);
   }, []);
 

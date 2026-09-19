@@ -29,6 +29,7 @@ const excluded = [
   "./data",
   "./backups",
   "./dist-offline",
+  "./.vercel",
   "./qa",
   "./.env",
   "./.env.local",

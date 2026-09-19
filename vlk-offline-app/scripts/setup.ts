@@ -6,10 +6,12 @@ import { ask } from "./prompt";
 import { hashPassword } from "../src/lib/passwords";
 process.umask(0o077);
 const url = process.env.DATABASE_URL || "file:" + resolve("data/vlk.sqlite");
-if (!url.startsWith("file:")) throw new Error("Потрібна локальна SQLite");
+const remote = /^(libsql|wss?|https?):/.test(url);
+if (!remote && !url.startsWith("file:"))
+  throw new Error("Потрібна локальна SQLite (file:) або база libSQL");
 process.env.DATABASE_URL = url;
-mkdirSync(dirname(url.slice(5)), { recursive: true });
-if (!existsSync(".env"))
+if (!remote) mkdirSync(dirname(url.slice(5)), { recursive: true });
+if (!remote && !existsSync(".env"))
   writeFileSync(
     ".env",
     'DATABASE_URL="' +
@@ -32,7 +34,7 @@ if (existsSync(resolve("node_modules/prisma/build/index.js")))
     [resolve("node_modules/prisma/build/index.js"), "generate"],
     { stdio: "inherit", env: process.env },
   );
-execFileSync(process.execPath, [resolve("scripts/migrate-offline.mjs")], {
+execFileSync(process.execPath, [resolve("scripts/migrate.mjs")], {
   stdio: "inherit",
   env: process.env,
 });

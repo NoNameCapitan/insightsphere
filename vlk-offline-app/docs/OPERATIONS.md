@@ -11,6 +11,8 @@ BOOTSTRAP_ADMIN_NAME, BOOTSTRAP_ADMIN_PASSWORD. Передавайте паро�
 ## Конфігурація
 
 - DATABASE_URL: `file:` та абсолютний локальний шлях до SQLite.
+  Значення `libsql://…` вмикає хмарний режим (див. `docs/VERCEL.md`);
+  у ньому потрібен також DATABASE_AUTH_TOKEN, а автономність не діє.
 - APP_ORIGIN: адреса, яку вводять у браузері.
 - ALLOWED_ORIGINS: дозволені точні адреси через кому, без завершального `/`.
 - COMMISSION_NAME: назва комісії за замовчуванням у новому прийомі.

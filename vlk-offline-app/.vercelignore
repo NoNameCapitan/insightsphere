@@ -1,0 +1,11 @@
+data
+backups
+dist-offline
+qa
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.vlkbak
+.offline-ready.json
+offline-bundle.json
+BUNDLE.md

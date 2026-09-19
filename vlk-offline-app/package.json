@@ -20,17 +20,20 @@
     "test": "node --conditions=react-server --import tsx --test tests/*.test.ts",
     "db:validate": "prisma validate",
     "db:generate": "prisma generate",
-    "db:migrate": "node scripts/migrate-offline.mjs",
+    "db:migrate": "node scripts/migrate.mjs",
     "db:status": "prisma migrate status",
     "format": "prettier --write src scripts tests docs *.ts *.mjs *.json *.md *.yaml",
     "prepare:offline": "node scripts/prepare.mjs",
     "offline:check": "node scripts/offline-check.mjs",
     "pack:offline": "node scripts/pack-offline.mjs",
     "db:migrate:cli": "prisma migrate deploy",
-    "icons": "node scripts/make-icons.mjs"
+    "icons": "node scripts/make-icons.mjs",
+    "db:migrate:remote": "node scripts/migrate-remote.mjs"
   },
   "dependencies": {
+    "@libsql/client": "^0.18.0",
     "@prisma/adapter-better-sqlite3": "7.10.0",
+    "@prisma/adapter-libsql": "^7.10.0",
     "@prisma/client": "7.10.0",
     "better-sqlite3": "13.0.3",
     "class-variance-authority": "0.7.1",

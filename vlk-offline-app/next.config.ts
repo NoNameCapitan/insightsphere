@@ -2,9 +2,14 @@ import type { NextConfig } from "next";
 
 // Жодних remotePatterns, зовнішніх шрифтів або аналітики.
 const config: NextConfig = {
-  output: "standalone",
+  // Локально збирається самодостатній standalone-сервер.
+  // На Vercel збірку пакує сама платформа, тому режим вимикається.
+  output: process.env.VERCEL ? undefined : "standalone",
   poweredByHeader: false,
-  serverExternalPackages: ["better-sqlite3"],
+  // Стамп збірки для версії кешу оболонки в браузері.
+  // Не містить жодних даних установи.
+  env: { VLK_BUILD_STAMP: process.env.VLK_BUILD_STAMP || String(Date.now()) },
+  serverExternalPackages: ["better-sqlite3", "@libsql/client"],
   experimental: { serverActions: { bodySizeLimit: "2mb" } },
   async headers() {
     return [

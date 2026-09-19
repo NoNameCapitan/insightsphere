@@ -15,4 +15,4 @@ EXPOSE 3000
 # Prisma CLI марно чекає на перевірку версій.
 ENV CHECKPOINT_DISABLE=1
 ENV DO_NOT_TRACK=1
-CMD ["sh", "-c", "node scripts/migrate-offline.mjs && node .next/standalone/server.js"]
+CMD ["sh", "-c", "node scripts/migrate.mjs && node .next/standalone/server.js"]
