@@ -1,4 +1,4 @@
-import { db, ready } from "@/db";
+import { db, ready, configurationProblem } from "@/db";
 export const dynamic = "force-dynamic";
 export async function GET() {
   try {
@@ -9,6 +9,13 @@ export async function GET() {
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch {
-    return Response.json({ status: "unavailable" }, { status: 503 });
+    // Помилку конфігурації показуємо явно: вона не містить даних установи,
+    // зате одразу пояснює адміністратору, чого бракує після розгортання.
+    return Response.json(
+      configurationProblem
+        ? { status: "misconfigured", detail: configurationProblem }
+        : { status: "unavailable" },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
+    );
   }
 }
