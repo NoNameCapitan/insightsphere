@@ -1,16 +1,28 @@
 # VLK Навігатор — 402 Assist
 
+## v32.1 — фінальне полірування, 20.09.2026
+
+Один режим — робоче місце лікаря ВЛК. Двоколонкова сітка «реєстр + аркуш»,
+дослівний нормативний текст у мірі читання 82 ch, узгоджений текст завершення
+сесії, коректна поведінка планшетних ширин 1024–1279 px.
+
+Запуск: Node.js >=22.13.0, `npm ci`, `npm run dev`.
+Production для Next/Vercel: `npm run build:next`, `npm run start:next`
+(Root Directory для Vercel — `VLK-Navigator-402`).
+Production для vinext/Cloudflare: `npm run build`, `npm start`.
+Перевірки: `npm run lint`, `npx tsc --noEmit`, `npm test` (147/147).
+
+Актуальний звіт: [QA-V32.1-FINAL-POLISH.md](QA-V32.1-FINAL-POLISH.md).
+Проміжні випуски v30–v32 (місце для тексту, іконки, прибрані режим громадянина
+та зведення): [QA-V30-READING-SPACE.md](QA-V30-READING-SPACE.md).
+Нижче — історія попередніх випусків.
+
 ## v29 — Робоча панель та векторна емблема
 
 На основі актуального коду v28. Закріплена дія вибраного пункту, компактніша
 шапка, контекстні пояснення граф ТДВ та одноразова SVG-анімація змії (3,2 с).
 Нормативні дані, дати, локальні ключі й алгоритми збережено.
-
-Запуск: Node.js >=22.13.0, `npm ci`, `npm run dev`.
-Production для Next/Vercel: `npm run build:next`, `npm run start:next`.
-Production для vinext/Cloudflare: `npm run build`, `npm start`.
-Перевірки: `npm run lint`, `npx tsc --noEmit`, `npm test`.
-Актуальний звіт: [QA-V29-UA.md](QA-V29-UA.md). Нижче — історія попередніх випусків.
+Звіт випуску: [QA-V29-UA.md](QA-V29-UA.md).
 
 ## v27.1 — Clinical Polish, 16.09.2026
 

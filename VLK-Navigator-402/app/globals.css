@@ -1308,7 +1308,9 @@ input {
   /* Щільні мобільні правила нижче за файлом не мають зменшувати ціль дотику. */
   .app-shell .header-actions > button,
   .app-shell .header-actions > [data-slot="button"] { min-width: 44px; width: 44px; min-height: 44px; }
-  .app-shell .article-toolbar > [data-slot="button"] { min-height: 44px; }
+  .app-shell .article-toolbar > [data-slot="button"] { min-height: 44px; min-width: 44px; }
+  /* Іконкові кнопки мали 44px лише по висоті: ширину теж доводимо до цілі дотику. */
+  .app-shell [aria-label^="Відкрити таблицю додаткових вимог"] { min-width: 44px; min-height: 44px; }
 }
 
 ::selection {
@@ -1490,15 +1492,15 @@ input {
 .edition-ticker-viewport { padding-block: 5px; }
 @media (min-width: 1280px) {
   .vlk-workspace { grid-template-columns: clamp(232px,19vw,270px) minmax(0,1fr); }
-  .vlk-workspace[data-summary-empty="true"] { grid-template-columns: clamp(232px,19vw,270px) minmax(0,1fr); }
 }
 @media (min-width: 1024px) and (max-width: 1279px) {
   .app-shell[data-workspace="true"] .header-inner { display: flex; flex-wrap: nowrap; }
   .app-shell[data-workspace="true"] .header-search { order: 0; flex: 1; }
+  /* Планшет: реєстр і аркуш стоять поруч, тому перемикач панелей ховається. */
+  .workspace-tabs { display: none; }
   .vlk-workspace { display: grid; grid-template-columns: 238px minmax(0,1fr); gap: 10px; align-items: stretch; }
   .vlk-workspace > #vlk-panel-list { display: flex; flex-direction: column; min-height: 0; max-height: none; position: static; }
   .vlk-workspace > #vlk-panel-article { display: flex; min-height: 0; }
-  .vlk-workspace:has(#vlk-panel-summary[data-active="true"]) > #vlk-panel-article { display: none; }
   .article-header { max-height: 40%; }
 }
 @media (max-width: 639px) {
@@ -1542,6 +1544,7 @@ input {
    повній ширині центральної панелі. */
 .article-content .point-preview,
 .article-content .clinical-context + div p,
+.article-content .normative-measure,
 .explanation-reader p {
   max-width: 82ch;
 }

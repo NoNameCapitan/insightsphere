@@ -1201,7 +1201,7 @@ export default function Home() {
           </div>
 
           <div className="shrink-0 border-t border-[var(--hairline)] px-2.5 py-1.5 text-xs text-[var(--ink-soft)]" title={`Корпус: редакція ${EDITION}. Стрілки ↑↓ — навігація статтями.`}>
-            {articleCountLabel(listArticles.length)} · редакція {EDITION}
+            {articleCountLabel(listArticles.length)}
           </div>
         </aside>
 
@@ -1234,10 +1234,12 @@ export default function Home() {
                             <span className="text-[var(--foreground)]">{pointLabel(selectedRule.point)}</span>
                           </>
                         ) : null}
-                        <span className="specialty-caption font-medium text-[var(--ink-soft)]">
-                          <span aria-hidden className="mr-1 text-[var(--hairline-strong)]">·</span>
-                          {specialtyLabels(selected)}
-                        </span>
+                        {specialtyLabels(selected) === (selectedSpecialty?.label ?? "") ? null : (
+                          <span className="specialty-caption font-medium text-[var(--ink-soft)]">
+                            <span aria-hidden className="mr-1 text-[var(--hairline-strong)]">·</span>
+                            {specialtyLabels(selected)}
+                          </span>
+                        )}
                       </nav>
                       <h2 id="vlk-article-heading" tabIndex={-1} className="mt-1 text-xl font-semibold leading-tight tracking-[-0.02em] outline-none sm:text-[22px]">
                         <Highlighted text={selected.title} query={query} />
@@ -1476,7 +1478,7 @@ export default function Home() {
                           Дослівно з Наказу №402 · «Включено»
                         </AccordionTrigger>
                         <AccordionContent>
-                          <p className="break-words pb-3 text-sm leading-6 text-[var(--foreground)]">
+                          <p className="normative-measure break-words pb-3 text-sm leading-6 text-[var(--foreground)]">
                             <Highlighted text={selected.officialIncluded} query={query} />
                           </p>
                         </AccordionContent>

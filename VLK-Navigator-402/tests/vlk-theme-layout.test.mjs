@@ -34,7 +34,16 @@ test("compact navigation reserves remaining space for articles and no longer ass
   assert.match(page, /id="specialty-picker"/);
   assert.match(page, /className="article-list min-h-0 flex-1 overflow-y-auto/);
   assert.doesNotMatch(page, /330px_minmax|100vh-105px|sm:grid sm:grid-cols-2 sm:overflow-visible/);
-  assert.match(css, /270px minmax\(0, 1fr\) 228px/);
+  // Двоколонкове робоче місце: реєстр статей і аркуш читання.
+  // Третя колонка не резервується — її ширина належить нормативному тексту.
+  assert.match(css, /\.vlk-workspace \{[^}]*grid-template-columns: 270px minmax\(0, 1fr\);/);
+  assert.doesNotMatch(css, /minmax\(0,\s*1fr\)\s*228px/);
+  assert.doesNotMatch(css, /#vlk-panel-summary|vlk-tab-summary/);
+  // Обидві панелі лишаються перемиканими на вузьких екранах.
+  for (const panel of ["list", "article"]) {
+    assert.ok(page.includes(`data-mobile-panel="${panel}"`), panel);
+  }
+  assert.match(css, /\.vlk-workspace > \[data-mobile-panel\]\[data-active="true"\]/);
   assert.doesNotMatch(css, /font:\s*inherit/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
 });
