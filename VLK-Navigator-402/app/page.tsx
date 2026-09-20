@@ -1252,7 +1252,10 @@ export default function Home() {
 
       {showDashboard ? (<>
       <WorkspaceTabs active={mobilePanel} onChange={setMobilePanel} articleCount={listArticles.length} basketCount={basket.length} />
-      <div className="vlk-workspace mx-auto grid w-full max-w-[1920px] gap-3 p-2 lg:p-3">
+      <div
+        className="vlk-workspace mx-auto grid w-full max-w-[1920px] gap-3 p-2 lg:p-3"
+        data-summary-empty={mode === "doctor" && !basket.length ? "true" : undefined}
+      >
         <aside className="command-sidebar flex min-h-[440px] flex-col overflow-hidden rounded-2xl border border-[var(--hairline-strong)] bg-card text-foreground shadow-[var(--shadow-soft)] xl:min-h-0"
           id="vlk-panel-list" role="tabpanel" aria-labelledby="vlk-tab-list" data-mobile-panel="list" data-active={mobilePanel === "list"}>
           <div className="sidebar-controls shrink-0 border-b border-[var(--hairline)] p-3">
@@ -1380,8 +1383,8 @@ export default function Home() {
         <section id="vlk-panel-article" role="tabpanel" aria-label="Вибрана стаття" aria-labelledby="vlk-tab-article" data-mobile-panel="article" data-active={mobilePanel === "article"} className="normative-surface relative flex min-h-[560px] flex-col overflow-hidden rounded-2xl border border-[var(--brand-rule)]/25 bg-[var(--surface-muted)] shadow-[var(--shadow-soft)] xl:min-h-0">
           {selected ? (
             <>
-              <div className="article-header shrink-0 border-b border-[var(--hairline)] px-4 py-3">
-                <div className="flex flex-col gap-3">
+              <div className="article-header shrink-0 border-b border-[var(--hairline)] px-4 py-2.5">
+                <div className="flex flex-col gap-2">
                   <div className="flex min-w-[min(100%,280px)] flex-1 items-start gap-2.5">
                     <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-[var(--primary)] text-sm font-black text-white">
                       {selected.article}
@@ -1406,10 +1409,11 @@ export default function Home() {
                             <span className="text-[var(--foreground)]">{pointLabel(selectedRule.point)}</span>
                           </>
                         ) : null}
+                        <span className="specialty-caption font-medium text-[var(--ink-soft)]">
+                          <span aria-hidden className="mr-1 text-[var(--hairline-strong)]">·</span>
+                          {specialtyLabels(selected)}
+                        </span>
                       </nav>
-                      <p className="specialty-caption mt-1 text-xs text-[var(--ink-soft)]">
-                        {specialtyLabels(selected)}
-                      </p>
                       <h2 id="vlk-article-heading" tabIndex={-1} className="mt-1 text-xl font-semibold leading-tight tracking-[-0.02em] outline-none sm:text-[22px]">
                         <Highlighted text={selected.title} query={query} />
                       </h2>
@@ -1513,8 +1517,15 @@ export default function Home() {
                             >
                               {rule.point === "—" ? "•" : rule.point}
                             </span>
-                            <span className="point-preview min-w-0 flex-1 text-sm leading-5 text-[var(--foreground)]">
-                              <Highlighted text={rule.condition} query={query} />
+                            <span className="min-w-0 flex-1">
+                              {active ? (
+                                <span className="mb-1 block text-[11px] font-semibold text-[var(--ink-soft)]">
+                                  Стан за пунктом · дослівно
+                                </span>
+                              ) : null}
+                              <span className="point-preview block text-sm leading-5 text-[var(--foreground)]">
+                                <Highlighted text={rule.condition} query={query} />
+                              </span>
                             </span>
                             <span
                               className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-black ${style.badge}`}
@@ -1535,21 +1546,14 @@ export default function Home() {
                           </button>
 
                           {active ? (
-                            <div className="border-t border-[var(--hairline)] bg-white/70 px-2.5 pb-2.5 pt-2">
-                              <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
-                                Стан за пунктом · дослівно
-                              </p>
-                              <p className="mt-1 text-xs leading-5 text-[var(--foreground)]">
-                                <Highlighted text={rule.condition} query={query} />
-                              </p>
-
+                            <div className="border-t border-[var(--hairline)] bg-white/70 px-3 pb-3 pt-2.5">
                               <ol className="clinical-context" aria-label="Контекст вибраного пункту">
                                 <li><span>Стаття</span><b>{selected.article}</b></li>
                                 <li><span>Пункт</span><b>{rule.point === "—" ? "без поділу" : rule.point}</b></li>
                                 <li><span>Графа</span><b>{scheduleGraph === "all" ? "не обрана" : scheduleGraph}</b></li>
                               </ol>
-                              <div className={`mt-2 rounded-md border p-2.5 ${style.box}`}>
-                                <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
+                              <div className={`mt-3 border-l-2 pl-3 ${style.bar}`}>
+                                <p className="text-[11px] font-semibold text-[var(--ink-soft)]">
                                   {mode === "doctor"
                                     ? "Попередній нормативний орієнтир · не рішення ВЛК"
                                     : "Дослівне формулювання Наказу №402 · не персональний висновок"}
@@ -1569,8 +1573,8 @@ export default function Home() {
                                 ) : null}
                               </div>
 
-                              <div className="mt-2 rounded-md border border-[var(--hairline)] bg-card p-2.5">
-                                <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
+                              <div className="mt-3 border-t border-[var(--hairline)] pt-2.5">
+                                <p className="text-[11px] font-semibold text-[var(--ink-soft)]">
                                   ТДВ для {pointLabelGenitive(rule.point)}
                                 </p>
                                 <TdvDialog article={selected} selectedPoint={rule.point} trigger={<Button variant="outline" size="sm" className="mt-2 min-h-11">Звірити ТДВ <Maximize2 /></Button>} />
@@ -1583,7 +1587,7 @@ export default function Home() {
                                     ))}
                                   </div>
                                 ) : (
-                                  <p className="mt-1 text-[10px] leading-4 text-[var(--ink-muted)]">
+                                  <p className="mt-1 text-[10px] leading-4 text-[var(--ink-soft)]">
                                     Окремих позначок немає. Це не є автоматичним підтвердженням
                                     придатності.
                                   </p>
@@ -1591,17 +1595,17 @@ export default function Home() {
                               </div>
 
                               {explanationMeta?.status === "absent" ? null : pointText.length ? (
-                                <Accordion type="single" collapsible className="mt-2">
+                                <Accordion type="single" collapsible className="mt-1">
                                   <AccordionItem
                                     value="point-explanation"
-                                    className="overflow-hidden rounded-md border border-[var(--warning-border)]/25 bg-[var(--warning-bg)] px-2.5"
+                                    className="border-t border-[var(--hairline)]"
                                   >
-                                    <AccordionTrigger className="py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--warning-ink)] hover:no-underline">
+                                    <AccordionTrigger className="py-2 text-[11px] font-semibold text-[var(--accent-ink-strong)] hover:no-underline">
                                       Повне пояснення до {pointLabelGenitive(rule.point)} ·{" "}
                                       {fragmentCountLabel(pointText.length)}
                                     </AccordionTrigger>
                                     <AccordionContent>
-                                      <div className="max-h-[65vh] space-y-1.5 overflow-y-auto border-t border-[var(--warning-border)]/20 py-2 pr-1 scrollbar-thin">
+                                      <div className="max-h-[65vh] space-y-1.5 overflow-y-auto border-t border-[var(--hairline)] py-2 pr-1 scrollbar-thin">
                                         <ExplanationDocument article={selected.article} paragraphs={explanation?.paragraphs ?? []} excerpt={pointText} query={query} />
                                       </div>
                                     </AccordionContent>
@@ -1614,8 +1618,7 @@ export default function Home() {
                                 </div>
                               ) : null}
 
-                              <div className="mt-2 flex flex-wrap gap-1.5">
-
+                              <div className="mt-3 flex flex-wrap gap-1.5 border-t border-[var(--hairline)] pt-2.5">
                                 <Button
                                   type="button"
                                   size="sm"

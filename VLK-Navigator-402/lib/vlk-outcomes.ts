@@ -31,26 +31,33 @@ export type OutcomeClass = {
   requiresLiteralReading: boolean;
 };
 
-const TONE_STYLES: Record<OutcomeTone, { box: string; badge: string; dot: string }> = {
+const TONE_STYLES: Record<
+  OutcomeTone,
+  { box: string; badge: string; dot: string; bar: string }
+> = {
   critical: {
     box: "border-[var(--critical-ink)]/22 bg-[var(--critical-bg)]",
     badge: "bg-[var(--critical-badge)] text-[var(--critical-ink)]",
     dot: "bg-[var(--critical-ink)]",
+    bar: "border-[var(--critical-ink)]",
   },
   warning: {
     box: "border-[var(--warning-border)]/25 bg-[var(--warning-bg)]",
     badge: "bg-[var(--warning-badge)] text-[var(--warning-ink)]",
     dot: "bg-[var(--warning-border)]",
+    bar: "border-[var(--warning-border)]",
   },
   positive: {
     box: "border-[var(--positive-ink)]/20 bg-[var(--positive-bg)]",
     badge: "bg-[var(--positive-badge)] text-[var(--positive-ink)]",
     dot: "bg-[var(--positive-ink)]",
+    bar: "border-[var(--positive-ink)]",
   },
   neutral: {
     box: "border-[var(--foreground)]/15 bg-[var(--surface-sunken)]",
     badge: "bg-[var(--surface-sunken)] text-[var(--foreground)]",
     dot: "bg-[#7d8a85]",
+    bar: "border-[var(--ink-muted)]",
   },
 };
 

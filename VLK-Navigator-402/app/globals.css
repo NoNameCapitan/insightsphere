@@ -227,6 +227,8 @@
   .app-shell:not(:has(.vlk-workspace)) { height: auto; min-height: 100dvh; overflow: visible; }
   .command-header, .command-mode-bar { flex-shrink: 0; }
   .vlk-workspace { flex: 1; min-height: 0; overflow: hidden; grid-template-columns: 270px minmax(0, 1fr) 228px; }
+  .vlk-workspace[data-summary-empty="true"] { grid-template-columns: 270px minmax(0, 1fr); }
+  .vlk-workspace[data-summary-empty="true"] > #vlk-panel-summary { display: none; }
   .verification-rail { min-height: 0; }
   .verification-rail[data-empty="true"] { align-self: start; }
 }
@@ -1522,6 +1524,7 @@ input {
 .app-shell[data-workspace="true"] .header-brand > button[aria-label="Назад до вибору спеціальності"] { display: none; }
 .point-section-heading { padding-block: 2px 6px; }
 .point-preview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+[data-point-row][aria-expanded="true"] .point-preview { display: block; -webkit-line-clamp: unset; overflow: visible; }
 .article-content [data-point-row] { align-items: start; }
 .article-content [data-point-row] > .rounded-full { white-space: normal; max-width: 135px; }
 .diagnosis-entry { overflow-wrap: anywhere; }
@@ -1532,6 +1535,7 @@ input {
 .edition-ticker-viewport { padding-block: 5px; }
 @media (min-width: 1280px) {
   .vlk-workspace { grid-template-columns: clamp(232px,19vw,270px) minmax(0,1fr) 228px; }
+  .vlk-workspace[data-summary-empty="true"] { grid-template-columns: clamp(232px,19vw,270px) minmax(0,1fr); }
 }
 @media (min-width: 1024px) and (max-width: 1279px) {
   .app-shell[data-workspace="true"] .header-inner { display: flex; flex-wrap: nowrap; }
@@ -1594,3 +1598,11 @@ input {
 .tdv-context-trigger { display: inline-flex; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; padding: 4px; border-radius: var(--radius); text-decoration: underline dotted; text-underline-offset: 4px; color: inherit; font-family: inherit; font-size: inherit; line-height: inherit; cursor: pointer; }
 .tdv-context-trigger:hover { background: var(--secondary); }
 .tdv-context-popover { z-index: 80; width: min(340px,calc(100vw - 24px)); max-height: min(400px,70dvh); overflow-y: auto; }
+
+/* Міра читання: рядок нормативного тексту лишається комфортним навіть тоді,
+   коли центральна панель забрала ширину порожнього зведення. */
+.article-content .point-preview,
+.article-content .clinical-context + div p,
+.explanation-reader p {
+  max-width: 82ch;
+}
