@@ -43,3 +43,13 @@ test("the edition monitor selects the newest official edition marker", () => {
   assert.equal(detectOfficialEdition(html), "22.08.2025");
   assert.equal(detectOfficialEdition("немає дати"), undefined);
 });
+
+test('anonymous approvals and duplicate reviewer roles do not constitute double verification', () => {
+  const doctor = { role: 'Лікар ВЛК', status: 'verified', reviewer: 'Лікар', reviewedAt: '2026-09-09' };
+  assert.equal(hasDoubleExpertVerification([doctor, doctor]), false);
+  assert.equal(hasDoubleExpertVerification([doctor, { role: 'Військовий медичний юрист', status: 'verified', reviewer: '', reviewedAt: null }]), false);
+});
+test('edition detection reads tagged current labels, not a future history link', () => {
+  assert.equal(detectOfficialEdition('<b>Редакція</b> від <span><b>22.08.2025</b></span><a href="/ed20270901">майбутня</a>'), '22.08.2025');
+  assert.equal(detectOfficialEdition('Редакція від 22.08.2025 Редакція від 01.09.2026'), undefined);
+});

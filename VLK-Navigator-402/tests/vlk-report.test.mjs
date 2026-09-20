@@ -5,6 +5,7 @@ import { ARTICLE_ANCHORS } from "../lib/vlk-anchors.ts";
 import {
   buildCitizenSummaryText,
   buildDraftText,
+  buildPointWordingText,
   buildReferenceText,
 } from "../lib/vlk-report.ts";
 import { ARTICLE_RULES } from "../lib/vlk-rules.ts";
@@ -25,6 +26,24 @@ test("copied wording carries the article, ICD, literal row, point, condition, ou
   assert.ok(text.includes(EDITION), "немає редакції");
   assert.ok(text.includes(`#${ARTICLE_ANCHORS["39"]}`), "немає посилання на статтю");
   assert.match(text, /Не є постановою ВЛК/);
+});
+
+test("point wording is concise, literal and carries the selected graph", () => {
+  const text = buildPointWordingText(article, rule, "II");
+
+  assert.match(text, /Стаття 39, пункт «б»/);
+  assert.ok(text.includes(rule.condition));
+  assert.ok(text.includes(rule.outcome));
+  assert.match(text, /Контекст графи: Графа II/);
+  assert.ok(text.includes(`#${ARTICLE_ANCHORS["39"]}`));
+  assert.doesNotMatch(text, new RegExp(article.officialIncluded.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+});
+
+test("reference copy includes only supplied literal graph notes", () => {
+  const note = "За графою II застосовуються додаткові вимоги.";
+  const text = buildReferenceText(article, rule, "II", [note]);
+  assert.match(text, /Дослівні згадки для графи II/);
+  assert.ok(text.includes(note));
 });
 
 test("the draft repeats the same verified data for every point", () => {
@@ -64,4 +83,14 @@ test("the citizen summary contains preparation checks without a fitness conclusi
   assert.match(text, /✓ Маю направлення/);
   assert.match(text, /не визначає придатність/);
   assert.doesNotMatch(text, /Попередній найсуворіший орієнтир/);
+});
+
+test('copied and draft ICD labels retain the explicit exceptions', () => {
+  const a = ARTICLES.find((entry) => entry.article === '10');
+  const rule = ARTICLE_RULES['10'][0];
+  for (const text of [buildReferenceText(a, rule), buildDraftText([createBasketItem(a, rule)], 'Військовозобов’язаний')]) {
+    assert.match(text, /МКХ-10 за Розкладом хвороб: D10-D49 · виключено: D45; D46; D47/);
+    assert.ok(text.includes(a.officialIncluded));
+    assert.ok(text.includes(rule.outcome));
+  }
 });

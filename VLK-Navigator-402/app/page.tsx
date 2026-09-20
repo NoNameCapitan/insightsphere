@@ -1,13 +1,19 @@
 "use client";
 
+import { VlkDialogContent } from "@/components/vlk/dialog-content";
+import { ClinicalMotion } from "@/components/vlk/clinical-motion";
+import { PrintReport } from "@/components/vlk/print-report";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   ArrowLeft,
+  ArrowRight,
+  ChevronLeft,
+  SlidersHorizontal,
   BookOpen,
   Check,
   ChevronDown,
-  ClipboardCheck,
   Copy,
   ExternalLink,
   FileText,
@@ -37,7 +43,6 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
@@ -56,8 +61,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -65,15 +68,28 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { SwRegister } from "@/components/sw-register";
 import { CommandBrand } from "@/components/vlk/command-brand";
+import { SpecialtyIcon } from "@/components/vlk/specialty-icon";
+import { TdvContext } from "@/components/vlk/tdv-context";
+import { EditionTicker } from "@/components/vlk/edition-ticker";
+import { ThemeToggle } from "@/components/vlk/theme-controls";
+import { WorkspaceTabs, type WorkspacePanel } from "@/components/vlk/workspace-tabs";
+import { requestedPointIndex } from "@/lib/vlk-selection";
+import { copyPlainText } from "@/lib/vlk-clipboard";
+import { SessionResetDialog } from "@/components/vlk/session-reset-dialog";
+import { clearStoredSession, readStored, writeStored, SESSION_RESET_KEY } from "@/lib/vlk-local-storage";
 import {
   CitizenPreparation,
   CITIZEN_PREPARATION_CHECKS,
 } from "@/components/vlk/citizen-preparation";
 import { NormativePassportDialog } from "@/components/vlk/normative-passport-dialog";
 import { TdvDialog } from "@/components/vlk/tdv-dialog";
-import { ExplanationDocument } from "@/components/vlk/explanation-document";
+import {
+  ExplanationDocument,
+  FullExplanationDialog,
+} from "@/components/vlk/explanation-document";
 import { Highlighted } from "@/components/vlk/highlighted";
 import { ARTICLE_RULES, type ArticleRule } from "@/lib/vlk-rules";
+import { graphGuidance, SCHEDULE_GRAPHS, type ScheduleGraph } from "@/lib/vlk-graphs";
 import {
   ARTICLES,
   EDITION,
@@ -95,6 +111,8 @@ import {
   POPULAR_QUERIES,
   searchArticles,
   snippetAround,
+  articleIcdLabel,
+  parseSearchQuery,
   type SearchHit,
 } from "@/lib/vlk-search";
 import {
@@ -110,16 +128,6 @@ import {
   type RecentEntry,
 } from "@/lib/vlk-workspace";
 import { EDITION_NOTICE } from "@/lib/vlk-edition";
-import {
-  APPEARANCE_KEY,
-  DEFAULT_APPEARANCE,
-  DENSITY_OPTIONS,
-  readAppearance,
-  resolveTheme,
-  serializeAppearance,
-  THEME_OPTIONS,
-  type Appearance,
-} from "@/lib/vlk-appearance";
 import {
   createBasketItem,
   EMPTY_DIRECTORY,
@@ -138,13 +146,15 @@ import {
   EXPLANATION_ARTICLES,
   EXPLANATION_META,
   EXPLANATION_SOURCE_URL,
-  getLoadedExplanation,
   loadArticleExplanation,
   warmExplanations,
   type ArticleExplanation,
 } from "@/lib/vlk-explanations";
-import { pointExplanation } from "@/lib/vlk-explanation-view";
-import { buildCitizenSummaryText, buildDraftText, buildReferenceText } from "@/lib/vlk-report";
+import {
+  articleExplanationParagraphs,
+  pointExplanation,
+} from "@/lib/vlk-explanation-view";
+import { buildCitizenSummaryText, buildDraftText, buildPointWordingText, buildReferenceText } from "@/lib/vlk-report";
 import {
   explanationUrl as buildExplanationUrl,
   officialRuleUrl,
@@ -160,36 +170,10 @@ const ANALYSIS_CHECKS = [
   "Графу обліку та ТДВ звірено",
 ];
 
-const DOCTOR_WORKFLOW_STEPS = [
-  ["1", "Знайдіть", "діагноз або статтю"],
-  ["2", "Оберіть", "точний пункт стану"],
-  ["3", "Звірте", "орієнтир, ТДВ і джерело"],
-] as const;
 
-const CITIZEN_WORKFLOW_STEPS = [
-  ["1", "Знайдіть", "норму за діагнозом або МКХ"],
-  ["2", "Звірте", "дослівний пункт із документами"],
-  ["3", "Підготуйте", "виписки, обстеження та копії"],
-] as const;
-
-type MobilePanel = "list" | "article" | "summary";
-
-const MOBILE_PANELS: readonly { id: MobilePanel; label: string; citizenLabel: string }[] = [
-  { id: "list", label: "Список", citizenLabel: "Список" },
-  { id: "article", label: "Стаття", citizenLabel: "Стаття" },
-  { id: "summary", label: "Зведення", citizenLabel: "Підготовка" },
-];
 
 const FOCUS_RING =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ink)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface)]";
-
-/** Склад корпусу статичний, тому кількості рахуються один раз при завантаженні. */
-const SPECIALTY_ARTICLE_COUNTS: Record<string, number> = Object.fromEntries(
-  SPECIALTIES.map((item) => [
-    item.id,
-    ARTICLES.filter((article) => article.specialties.includes(item.id)).length,
-  ]),
-);
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ink)] focus-visible:ring-offset-1 focus-visible:ring-offset-background";
 
 function articleCountLabel(count: number) {
   const lastTwo = count % 100;
@@ -214,6 +198,15 @@ function pointCountLabel(count: number) {
   return `${count} пунктів`;
 }
 
+function fragmentCountLabel(count: number) {
+  const lastTwo = count % 100;
+  const last = count % 10;
+  if (lastTwo >= 11 && lastTwo <= 14) return `${count} фрагментів`;
+  if (last === 1) return `${count} фрагмент`;
+  if (last >= 2 && last <= 4) return `${count} фрагменти`;
+  return `${count} фрагментів`;
+}
+
 /**
  * Єдиний стиль назви спеціальності: повна назва, а справжня абревіатура
  * (ЛОР) — у дужках. Скорочена назва-синонім у дужки не виноситься.
@@ -222,29 +215,6 @@ function specialtyName(item: (typeof SPECIALTIES)[number]) {
   const isAbbreviation =
     item.short !== item.label && item.short === item.short.toLocaleUpperCase("uk");
   return isAbbreviation ? `${item.label} (${item.short})` : item.label;
-}
-
-/**
- * М'який перенос для найдовшої назви спеціальності, щоб у вузькій колонці
- * слово розривалося по складу («Дермато-венеролог»), а не будь-де.
- */
-const SOFT_HYPHENS: Partial<Record<SpecialtyId, string>> = {
-  dermatologist: "Дермато\u00ADвенеролог",
-};
-
-function compactSpecialtyName(item: (typeof SPECIALTIES)[number]) {
-  return SOFT_HYPHENS[item.id] ?? specialtyName(item);
-}
-
-/**
- * Розбиває дослівний перелік кодів МКХ на окремі чипи для показу.
- * Самі коди не змінюються: розділювач «;» — це лише подання.
- */
-function icdTokens(icd: string) {
-  return icd
-    .split(";")
-    .map((token) => token.trim())
-    .filter(Boolean);
 }
 
 function pointLabel(point: string) {
@@ -262,6 +232,7 @@ export default function Home() {
   // до цього моменту перший екран лишається чистим.
   const [specialty, setSpecialty] = useState<SpecialtyId | "">("");
   const [examineeType, setExamineeType] = useState<string>(EXAMINEE_TYPES[0]);
+  const [scheduleGraph, setScheduleGraph] = useState<ScheduleGraph>("all");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState("");
   const [selectedRuleIndex, setSelectedRuleIndex] = useState("");
@@ -270,28 +241,31 @@ export default function Home() {
   const [basket, setBasket] = useState<BasketItem[]>([]);
   const [directory, setDirectory] = useState<DoctorDirectory>(EMPTY_DIRECTORY);
   const [draftOpen, setDraftOpen] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
   const [outcomeFilter, setOutcomeFilter] = useState<OutcomeFilterId>("all");
-  const [copied, setCopied] = useState<"reference" | "draft" | "">("");
+  const [copied, setCopied] = useState<"reference" | "point" | "draft" | "">("");
   const [online, setOnline] = useState(true);
   const [hydrated, setHydrated] = useState(false);
   const [restoreNotice, setRestoreNotice] = useState("");
-  const [explanation, setExplanation] = useState<ArticleExplanation | undefined>();
-  const [explanationState, setExplanationState] = useState<"loading" | "ready" | "error">("ready");
+  const [explanationResult, setExplanationResult] = useState<{
+    article: string; value?: ArticleExplanation; state: "ready" | "error";
+  }>();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [mobilePanel, setMobilePanel] = useState<WorkspacePanel>("list");
+  const [manualCopy, setManualCopy] = useState<string | null>(null);
+  const copyTriggerRef = useRef<HTMLElement | null>(null);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [directoryOpen, setDirectoryOpen] = useState(false);
   const [activeHit, setActiveHit] = useState(-1);
   const [history, setHistory] = useState<string[]>([]);
   const [lastSpecialty, setLastSpecialty] = useState<SpecialtyId | "">("");
   const [recent, setRecent] = useState<RecentEntry[]>([]);
-  // До ширини xl видно одну панель за раз: список, стаття або зведення.
-  const [mobilePanel, setMobilePanel] = useState<MobilePanel>("list");
-  const [appearance, setAppearance] = useState<Appearance>(DEFAULT_APPEARANCE);
-  const [systemDark, setSystemDark] = useState(false);
-  const [printRequest, setPrintRequest] = useState(0);
-  const [printedAt, setPrintedAt] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
+  const articleContentRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const searchBoxRef = useRef<HTMLDivElement>(null);
+  const draftTriggerRef = useRef<HTMLButtonElement>(null);
+  const moreTriggerRef = useRef<HTMLButtonElement>(null);
   /** Чи додано запис в історію браузера при переході на робочий екран. */
   const historyPushedRef = useRef(false);
 
@@ -301,19 +275,15 @@ export default function Home() {
     window.addEventListener("online", setConnected);
     window.addEventListener("offline", setDisconnected);
 
-    const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const trackSystemTheme = (event: MediaQueryListEvent) => setSystemDark(event.matches);
-    darkQuery.addEventListener("change", trackSystemTheme);
-
     // Локальний стан читається після гідратації, щоб серверна та клієнтська
     // розмітка збігалися.
     const hydrationTimer = window.setTimeout(() => {
       setOnline(navigator.onLine);
 
-      let stored = localStorage.getItem(SESSION_KEY);
+      let stored = readStored(SESSION_KEY);
       if (!stored) {
         for (const key of LEGACY_SESSION_KEYS) {
-          stored = localStorage.getItem(key);
+          stored = readStored(key);
           if (stored) break;
         }
       }
@@ -321,6 +291,7 @@ export default function Home() {
       setBasket(restored.basket);
       setCitizenChecked(restored.citizenChecked);
       setExamineeType(restored.examineeType);
+      setScheduleGraph(restored.scheduleGraph);
       setMode(restored.mode);
       setDirectory(restored.directory);
       if (restored.dropped) {
@@ -328,12 +299,10 @@ export default function Home() {
           `${restored.dropped} збережених пунктів не знайдено в корпусі редакції від ${EDITION} — їх прибрано зі зведення.`,
         );
       }
-      setHistory(readSearchHistory(localStorage.getItem(SEARCH_HISTORY_KEY)));
-      const workspace = readWorkspace(localStorage.getItem(WORKSPACE_KEY));
+      setHistory(readSearchHistory(readStored(SEARCH_HISTORY_KEY)));
+      const workspace = readWorkspace(readStored(WORKSPACE_KEY));
       setLastSpecialty(workspace.specialty);
       setRecent(workspace.recent);
-      setAppearance(readAppearance(localStorage.getItem(APPEARANCE_KEY)));
-      setSystemDark(darkQuery.matches);
       setHydrated(true);
     }, 0);
 
@@ -341,44 +310,25 @@ export default function Home() {
       window.clearTimeout(hydrationTimer);
       window.removeEventListener("online", setConnected);
       window.removeEventListener("offline", setDisconnected);
-      darkQuery.removeEventListener("change", trackSystemTheme);
     };
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(APPEARANCE_KEY, serializeAppearance(appearance));
-  }, [appearance, hydrated]);
-
-  // Друк запускається після коміту, коли аркуш уже має актуальні дані.
-  useEffect(() => {
-    if (!printRequest) return;
-    window.print();
-  }, [printRequest]);
-
-  // Тема і щільність живуть на <html>, тому діалоги та портали теж їх бачать.
-  useEffect(() => {
-    const root = document.documentElement;
-    root.setAttribute("data-theme", resolveTheme(appearance.theme, systemDark));
-    root.setAttribute("data-density", appearance.density);
-  }, [appearance, systemDark]);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    localStorage.setItem(
+    writeStored(
       SESSION_KEY,
-      serializeSession({ basket, citizenChecked, examineeType, mode, directory }),
+      serializeSession({ basket, citizenChecked, examineeType, scheduleGraph, mode, directory }),
     );
-  }, [basket, citizenChecked, directory, examineeType, hydrated, mode]);
+  }, [basket, citizenChecked, directory, examineeType, hydrated, mode, scheduleGraph]);
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
+    writeStored(SEARCH_HISTORY_KEY, JSON.stringify(history));
   }, [history, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(
+    writeStored(
       WORKSPACE_KEY,
       serializeWorkspace({ specialty: lastSpecialty, recent }),
     );
@@ -394,16 +344,41 @@ export default function Home() {
     return () => document.removeEventListener("mousedown", handlePointerDown);
   }, [searchOpen]);
 
+  // The shortcut works from any workspace panel, without replacing browser Find.
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.code === "KeyK") {
+        event.preventDefault();
+        searchRef.current?.focus();
+        searchRef.current?.select();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleShortcut);
+    return () => {
+      window.removeEventListener("keydown", handleShortcut);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (searchOpen && activeHit >= 0) {
+      document.getElementById(`vlk-hit-${activeHit}`)?.scrollIntoView({ block: "nearest" });
+    }
+  }, [activeHit, searchOpen]);
+
   /** Повертає застосунок на головний екран вибору спеціальності. */
   const resetToHome = useCallback(() => {
-    setMobilePanel("list");
     setSpecialty("");
+    setMobilePanel("list");
     setQuery("");
     setSelectedId("");
     setSelectedRuleIndex("");
     setOutcomeFilter("all");
     setChecked([]);
     setCopied("");
+    setSearchOpen(false);
+    setActiveHit(-1);
   }, []);
 
   // Апаратна або браузерна кнопка «назад» повертає на головний екран,
@@ -419,11 +394,45 @@ export default function Home() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, [resetToHome]);
 
+  const resetSessionView = useCallback(() => {
+    resetToHome();
+    setBasket([]);
+    setCitizenChecked([]);
+    setDirectory({ ...EMPTY_DIRECTORY });
+    setExamineeType(EXAMINEE_TYPES[0]);
+    setScheduleGraph("all");
+    setMode("doctor");
+    setHistory([]);
+    setRecent([]);
+    setLastSpecialty("");
+    setRestoreNotice("");
+    setDraftOpen(false);
+    setDirectoryOpen(false);
+    setResetOpen(false);
+    setManualCopy(null);
+  }, [resetToHome]);
+
+  useEffect(() => {
+    const reset = (event: StorageEvent) => {
+      if (event.key === SESSION_RESET_KEY && event.newValue) resetSessionView();
+    };
+    window.addEventListener("storage", reset);
+    return () => window.removeEventListener("storage", reset);
+  }, [resetSessionView]);
+
+  function finishSession() {
+    const cleared = clearStoredSession();
+    resetSessionView();
+    if (cleared) toast.success("Сесію завершено. Локальні дані очищено.");
+    else toast.error("Екран очищено, але браузер не дозволив видалити збережені дані. Перевірте налаштування сховища сайту.");
+  }
+
   const searchHits = useMemo(
     () => (query.trim() ? searchArticles(query, directory) : []),
     [directory, query],
   );
   const searchResults = useMemo(() => searchHits.map((hit) => hit.article), [searchHits]);
+  const requestedSearchPoint = useMemo(() => parseSearchQuery(query).find((term) => term.kind === "point")?.value, [query]);
   const hitsById = useMemo(() => {
     const map = new Map<string, SearchHit>();
     for (const hit of searchHits) map.set(hit.article.id, hit);
@@ -473,6 +482,7 @@ export default function Home() {
   // запиту фільтрує список, але не перемикає відкриту статтю.
   const selected =
     ARTICLES.find((article) => article.id === selectedId) ?? specialtyArticles[0];
+  const selectedListIndex = listArticles.findIndex((article) => article.id === selected?.id);
   const selectedEvidence = selected ? hitsById.get(selected.id)?.evidence : undefined;
   const selectedSpecialty = SPECIALTIES.find((item) => item.id === specialty);
   /** Робочий екран відкривається лише після вибору спеціальності або пошуку. */
@@ -496,23 +506,32 @@ export default function Home() {
   const articleRules = selected ? (ARTICLE_RULES[selected.article] ?? []) : [];
   const selectedRule = selectedRuleIndex === "" ? undefined : articleRules[Number(selectedRuleIndex)];
   const articleNumber = selected?.article;
+  useEffect(() => {
+    if (selectedRuleIndex === "") return;
+    const frame = requestAnimationFrame(() => {
+      const container = articleContentRef.current;
+      const point = container?.querySelector<HTMLElement>(`#vlk-point-${selectedRuleIndex}`);
+      if (!container || !point || container.clientHeight === 0) return;
+      const pointRect = point.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      if (pointRect.top < containerRect.top || pointRect.bottom > containerRect.bottom) {
+        container.scrollTop += pointRect.top - containerRect.top - 12;
+      }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [articleNumber, selectedRuleIndex, mobilePanel]);
   const explanationMeta = articleNumber ? EXPLANATION_META[articleNumber] : undefined;
+  // Never label the previous article's text as the newly selected article.
+  const explanation = explanationResult?.article === articleNumber ? explanationResult?.value : undefined;
+  const explanationState = explanationResult?.article === articleNumber
+    ? explanationResult?.state : explanationMeta?.status === "absent" ? "ready" : "loading";
 
   // Дослівне пояснення підвантажується лише для відкритої статті.
   useEffect(() => {
     if (!articleNumber) return;
     const meta = EXPLANATION_META[articleNumber];
     const absent = !meta || meta.status === "absent";
-    const immediate = absent || getLoadedExplanation(articleNumber) !== undefined;
-
     let active = true;
-    // Стан «завантаження» показується лише тоді, коли модуль справді треба
-    // забрати з мережі або кешу service worker.
-    const pendingTimer = immediate
-      ? 0
-      : window.setTimeout(() => {
-          if (active) setExplanationState("loading");
-        }, 120);
 
     const request = absent
       ? Promise.resolve<ArticleExplanation | undefined>(undefined)
@@ -521,19 +540,15 @@ export default function Home() {
     request
       .then((value) => {
         if (!active) return;
-        window.clearTimeout(pendingTimer);
-        setExplanation(value);
-        setExplanationState("ready");
+        setExplanationResult({ article: articleNumber, value, state: "ready" });
       })
       .catch(() => {
         if (!active) return;
-        window.clearTimeout(pendingTimer);
-        setExplanationState("error");
+        setExplanationResult({ article: articleNumber, state: "error" });
       });
 
     return () => {
       active = false;
-      window.clearTimeout(pendingTimer);
     };
   }, [articleNumber]);
 
@@ -570,6 +585,11 @@ export default function Home() {
     (point: string) => pointExplanation(explanation, point),
     [explanation],
   );
+  const fullExplanation = articleExplanationParagraphs(explanation);
+  const selectedGraphGuidance = useMemo(
+    () => graphGuidance(fullExplanation, scheduleGraph),
+    [fullExplanation, scheduleGraph],
+  );
   const explanationUrl = buildExplanationUrl(explanationMeta?.anchor, EXPLANATION_SOURCE_URL);
 
   const sourceUrl = selected ? officialRuleUrl(selected.article, selectedRule) : SOURCE_URL;
@@ -591,13 +611,15 @@ export default function Home() {
   const draftText = useMemo(
     () =>
       mode === "doctor"
-        ? buildDraftText(basket, examineeType)
-        : buildCitizenSummaryText(basket, examineeType, citizenChecked),
-    [basket, citizenChecked, examineeType, mode],
+        ? buildDraftText(basket, examineeType, scheduleGraph)
+        : buildCitizenSummaryText(basket, examineeType, citizenChecked, scheduleGraph),
+    [basket, citizenChecked, examineeType, mode, scheduleGraph],
   );
 
   const referenceText =
-    selected && selectedRule ? buildReferenceText(selected, selectedRule) : "";
+    selected && selectedRule
+      ? buildReferenceText(selected, selectedRule, scheduleGraph, selectedGraphGuidance)
+      : "";
 
   /** Записує відкриту статтю або пункт в останні перегляди. */
   function rememberView(article: string, point = "") {
@@ -627,6 +649,7 @@ export default function Home() {
    */
   function changeQuery(value: string) {
     setQuery(value);
+    if (!selectedId && !specialty) setMobilePanel("list");
     setSearchOpen(true);
     setActiveHit(-1);
   }
@@ -642,7 +665,9 @@ export default function Home() {
   /** Вибір результату пошуку: відкриває статтю, за потреби — конкретний пункт. */
   function chooseHit(hit: SearchHit, pointIndex?: number) {
     const article = hit.article;
-    setMobilePanel("article");
+    const rules = ARTICLE_RULES[article.article] ?? [];
+    const resolvedIndex = pointIndex ?? requestedPointIndex(article.article, query);
+    showArticlePanel();
     setSelectedId(article.id);
     setSpecialty(article.specialties[0]);
     setLastSpecialty(article.specialties[0]);
@@ -651,9 +676,8 @@ export default function Home() {
     setActiveHit(-1);
     setChecked([]);
     setCopied("");
-    setSelectedRuleIndex(pointIndex === undefined ? "" : String(pointIndex));
-    const rules = ARTICLE_RULES[article.article] ?? [];
-    rememberView(article.article, pointIndex === undefined ? "" : (rules[pointIndex]?.point ?? ""));
+    setSelectedRuleIndex(resolvedIndex === undefined ? "" : String(resolvedIndex));
+    rememberView(article.article, resolvedIndex === undefined ? "" : (rules[resolvedIndex]?.point ?? ""));
   }
 
   function runQuery(value: string) {
@@ -694,9 +718,16 @@ export default function Home() {
     }
   }
 
+  function showArticlePanel() {
+    setMobilePanel("article");
+    if (window.matchMedia("(max-width: 1279px)").matches) {
+      requestAnimationFrame(() => document.getElementById("vlk-article-heading")?.focus({ preventScroll: true }));
+    }
+  }
+
   function changeSpecialty(next: SpecialtyId) {
+    showArticlePanel();
     const first = ARTICLES.find((article) => article.specialties.includes(next));
-    setMobilePanel("list");
     setSpecialty(next);
     setLastSpecialty(next);
     setQuery("");
@@ -705,7 +736,12 @@ export default function Home() {
   }
 
   function selectFromList(article: VlkArticle) {
-    setMobilePanel("article");
+    const hit = hitsById.get(article.id);
+    if (query.trim() && hit) {
+      chooseHit(hit);
+      return;
+    }
+    showArticlePanel();
     if (article.id === selectedId) return;
     rememberView(article.article);
     setSelectedId(article.id);
@@ -728,6 +764,8 @@ export default function Home() {
   }
 
   function addArticleRuleToBasket(article: VlkArticle, rule: ArticleRule) {
+    showArticlePanel();
+    setSearchOpen(false);
     const articleChanged = selected?.id !== article.id;
     rememberView(article.article, rule.point);
     setLastSpecialty(article.specialties[0]);
@@ -751,7 +789,7 @@ export default function Home() {
   function openRecent(entry: RecentEntry) {
     const article = ARTICLES.find((item) => item.article === entry.article);
     if (!article) return;
-    setMobilePanel("article");
+    showArticlePanel();
     setQuery("");
     setSearchOpen(false);
     setSpecialty(article.specialties[0]);
@@ -769,10 +807,13 @@ export default function Home() {
   function openBasketItem(item: BasketItem) {
     const article = ARTICLES.find((entry) => entry.id === item.articleId);
     if (!article) return;
-    setMobilePanel("article");
+    showArticlePanel();
     rememberView(article.article, item.point);
+    if (selected?.id !== article.id) resetArticleReview();
     setQuery("");
+    setSearchOpen(false);
     setSpecialty(article.specialties[0]);
+    setLastSpecialty(article.specialties[0]);
     setSelectedId(article.id);
     const index = (ARTICLE_RULES[article.article] ?? []).findIndex(
       (rule) => rule.point === item.point,
@@ -780,49 +821,27 @@ export default function Home() {
     setSelectedRuleIndex(index >= 0 ? String(index) : "");
   }
 
-  async function copyText(text: string, type: "reference" | "draft") {
-    try {
-      await navigator.clipboard.writeText(text);
+  async function copyText(text: string, type: "reference" | "point" | "draft") {
+    copyTriggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    if (await copyPlainText(text)) {
       setCopied(type);
-      toast.success(type === "draft" ? "Зведення скопійовано" : "Формулювання скопійовано");
-      window.setTimeout(() => setCopied(""), 1600);
-    } catch {
+      toast.success(type === "draft" ? "Зведення скопійовано" : "Формулювання пункту скопійовано");
+      copyTimerRef.current = setTimeout(() => setCopied(""), 1600);
+    } else {
       setCopied("");
-      toast.error("Не вдалося скопіювати. Скопіюйте текст вручну.");
+      setManualCopy(text);
     }
   }
 
-  /**
-   * Друк іде через аркуш у DOM, а не через нове вікно: popup блокують
-   * браузери, а таблиця стилів @media print дає структурований документ.
-   */
-  function printDraft() {
-    setPrintedAt(
-      new Date().toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" }),
-    );
-    setPrintRequest((current) => current + 1);
+  function openDraft(event: React.MouseEvent<HTMLButtonElement>) {
+    draftTriggerRef.current = event.currentTarget;
+    setDraftOpen(true);
   }
 
-  /** Стрілки переміщують фокус між вкладками панелей, як того очікує tablist. */
-  const handleTabKeys = useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      const keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
-      if (!keys.includes(event.key)) return;
-      event.preventDefault();
-      const current = MOBILE_PANELS.findIndex((panel) => panel.id === mobilePanel);
-      const last = MOBILE_PANELS.length - 1;
-      let next = current;
-      if (event.key === "ArrowRight") next = current >= last ? 0 : current + 1;
-      if (event.key === "ArrowLeft") next = current <= 0 ? last : current - 1;
-      if (event.key === "Home") next = 0;
-      if (event.key === "End") next = last;
-      const target = MOBILE_PANELS[next];
-      setMobilePanel(target.id);
-      const tabs = event.currentTarget.querySelectorAll<HTMLButtonElement>("[data-panel-tab]");
-      tabs[next]?.focus();
-    },
-    [mobilePanel],
-  );
+  function printDraft() {
+    window.print();
+  }
 
   /** Стрілки переміщують фокус компактним списком статей. */
   const handleListKeys = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -844,21 +863,21 @@ export default function Home() {
   }, []);
 
   return (
-    <>
-    <main className="app-shell min-h-screen bg-[var(--background)] text-[var(--foreground)] xl:h-screen xl:overflow-hidden">
+    <main data-workspace={showDashboard} className="app-shell min-h-screen bg-[var(--background)] text-[var(--foreground)] xl:h-screen xl:overflow-hidden">
       <SwRegister />
+      <ClinicalMotion />
       <Toaster position="bottom-center" />
 
-      <header className="command-header sticky top-0 z-30 border-b border-[var(--brand-line)] bg-[var(--brand-ink)] shadow-[0_8px_24px_-18px_rgba(4,28,25,0.9)] xl:relative">
-        <div className="relative z-10 mx-auto flex max-w-[1720px] flex-wrap items-center gap-2 px-3 py-2 lg:flex-nowrap lg:px-5">
-          <div className="flex shrink-0 items-center gap-1.5">
+      <header className="command-header sticky top-0 z-30 border-b border-[var(--brand-rule)]/60 bg-[var(--brand-bar)] shadow-none xl:relative">
+        <div className="header-inner relative z-10 mx-auto flex max-w-[1720px] flex-wrap items-center gap-2 px-3 py-2 lg:flex-nowrap lg:px-5">
+          <div className="header-brand flex shrink-0 items-center gap-1.5">
             {showDashboard ? (
               <button
                 type="button"
                 onClick={goHome}
                 aria-label="Назад до вибору спеціальності"
                 title="Назад до вибору спеціальності"
-                className={`grid size-10 shrink-0 place-items-center rounded-lg border border-[var(--hairline)] bg-[var(--surface)] text-[var(--accent-ink)] transition hover:bg-[var(--surface-sunken)] ${FOCUS_RING}`}
+                className={`grid size-10 shrink-0 place-items-center rounded-lg border border-[var(--hairline)] bg-card text-[var(--accent-ink)] transition hover:bg-[var(--surface-sunken)] ${FOCUS_RING}`}
               >
                 <ArrowLeft className="size-4" />
               </button>
@@ -870,25 +889,25 @@ export default function Home() {
                 onClick={goHome}
                 aria-label="На головну — вибір спеціальності"
                 title="На головну — вибір спеціальності"
-                className={`brand-command-button grid size-12 shrink-0 place-items-center rounded-lg ${FOCUS_RING}`}
+                className={`brand-command-button grid shrink-0 place-items-center rounded-lg ${FOCUS_RING}`}
               >
-                <CommandBrand size={44} priority />
+                <CommandBrand size={96} priority />
               </button>
             ) : (
-              <div className="brand-command-button grid size-12 shrink-0 place-items-center rounded-lg">
-                <CommandBrand size={44} priority />
-              </div>
+              <button type="button" aria-label="Анімувати емблему VLK" className="brand-command-button grid shrink-0 place-items-center rounded-lg">
+                <CommandBrand size={96} priority />
+              </button>
             )}
 
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-bold leading-none text-[var(--on-brand)]">
+                <h1 className="font-bold leading-none text-[var(--brand-bar-ink)]">
                   {showDashboard ? (
                     <button
                       type="button"
                       onClick={goHome}
                       title="На головну — вибір спеціальності"
-                      className={`rounded font-bold transition hover:text-[var(--gold-soft)] ${FOCUS_RING}`}
+                      className={`rounded font-bold transition hover:text-[var(--brand-hover)] ${FOCUS_RING}`}
                     >
                       VLK Навігатор
                     </button>
@@ -896,11 +915,11 @@ export default function Home() {
                     "VLK Навігатор"
                   )}
                 </h1>
-                <span className="rounded-full border border-[var(--brand-line)] bg-[var(--gold-wash)] px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-[var(--gold-text)]">
+                <span className="rounded-full border border-[var(--brand-rule)]/55 bg-[var(--brand-rule)]/15 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-[var(--brand-tint)]">
                   402
                 </span>
               </div>
-              <p className="mt-1 text-[11px] text-[var(--on-brand-soft)]">
+              <p className="mt-1 text-[11px] text-[var(--brand-bar-soft)]">
                 {showDashboard ? "Статті, пункти та ТДВ" : `Наказ МОУ №402 · редакція ${EDITION}`}
               </p>
             </div>
@@ -908,7 +927,7 @@ export default function Home() {
 
           <div
             ref={searchBoxRef}
-            className="relative order-3 w-full lg:order-none lg:mx-auto lg:max-w-2xl"
+            className="header-search relative order-3 w-full lg:order-none lg:mx-auto lg:max-w-2xl"
           >
             <label className="sr-only" htmlFor="vlk-search">
               Пошук статті за діагнозом, кодом МКХ-10 або номером статті
@@ -922,15 +941,18 @@ export default function Home() {
                 onChange={(event) => changeQuery(event.target.value)}
                 onFocus={() => setSearchOpen(true)}
                 onKeyDown={handleSearchKeys}
-                placeholder="Діагноз, код МКХ-10, номер статті або прізвище лікаря…"
+                placeholder="Діагноз, МКХ-10, стаття або лікар…"
+                enterKeyHint="search"
+                aria-keyshortcuts="Control+k Meta+k"
                 autoComplete="off"
                 role="combobox"
                 aria-expanded={searchOpen}
                 aria-controls="vlk-search-results"
                 aria-autocomplete="list"
-                aria-activedescendant={activeHit >= 0 ? `vlk-hit-${activeHit}` : undefined}
-                className="h-11 w-full border-[var(--brand-line)] bg-[var(--panel)] pl-9 pr-10 text-sm shadow-[0_1px_2px_rgba(4,28,25,0.2)] transition-shadow focus-visible:shadow-[0_0_0_3px_rgba(181,139,53,0.22)]"
+                aria-activedescendant={searchOpen && activeHit >= 0 ? `vlk-hit-${activeHit}` : undefined}
+                className="h-11 w-full border-[var(--input)] bg-[var(--surface-muted)] pl-9 pr-10 text-sm shadow-none transition-shadow"
               />
+              {!query ? <kbd className="search-shortcut" aria-hidden="true">Ctrl / ⌘ K</kbd> : null}
               {query ? (
                 <button
                   type="button"
@@ -948,7 +970,7 @@ export default function Home() {
                 id="vlk-search-results"
                 role="listbox"
                 aria-label="Результати пошуку"
-                className="absolute left-0 right-0 top-12 z-50 overflow-hidden rounded-xl border border-[var(--hairline)] bg-[var(--surface)] shadow-lg"
+                className="absolute left-0 right-0 top-12 z-50 overflow-hidden rounded-xl border border-[var(--hairline)] bg-card shadow-lg"
               >
                 {query.trim() ? (
                   searchHits.length ? (
@@ -973,22 +995,23 @@ export default function Home() {
                                 onClick={() => chooseHit(hit)}
                                 className={`flex w-full items-start gap-2 px-3 pt-2 text-left ${FOCUS_RING}`}
                               >
-                                <span className="grid size-7 shrink-0 place-items-center rounded-md bg-[var(--surface-accent)] text-[11px] font-black text-[var(--accent-ink-strong)]">
+                                <span className="grid size-7 shrink-0 place-items-center rounded-md bg-[var(--secondary)] text-[11px] font-black text-[var(--accent-ink-strong)]">
                                   {hit.article.article}
                                 </span>
                                 <span className="min-w-0 flex-1">
-                                  <span className="block truncate text-xs font-semibold">
+                                  <span className="block text-sm font-semibold leading-5">
                                     <Highlighted text={hit.article.title} query={query} />
                                   </span>
-                                  <span className="mt-0.5 block truncate text-[10px] text-[var(--ink-muted)]">
-                                    <Highlighted text={hit.article.icd} query={query} /> ·{" "}
-                                    {MATCH_TYPE_LABELS[hit.matches[0]]}
+                                  <span className="mt-0.5 block text-xs leading-5 text-[var(--ink-muted)]">
+                                    МКХ: <Highlighted text={articleIcdLabel(hit.article)} query={query} />
+                                    <span className="block text-[var(--accent-ink)]">{MATCH_TYPE_LABELS[hit.matches[0]]}</span>
                                   </span>
                                 </span>
                               </button>
 
                               <div className="flex flex-wrap gap-1 px-3 pb-2 pl-12 pt-1.5">
                                 {hitRules.map((rule, pointIndex) => {
+                                  if (requestedSearchPoint && rule.point !== requestedSearchPoint) return null;
                                   const style = outcomeStyles(rule.outcome);
                                   const inBasket = basket.some(
                                     (item) => item.id === `${hit.article.article}-${rule.point}`,
@@ -996,13 +1019,13 @@ export default function Home() {
                                   return (
                                     <span
                                       key={`${hit.article.id}-${rule.point}-${pointIndex}`}
-                                      className="flex items-stretch overflow-hidden rounded-md border border-[var(--hairline)] bg-[var(--surface)]"
+                                      className="flex items-stretch overflow-hidden rounded-md border border-[var(--hairline)] bg-card"
                                     >
                                       <button
                                         type="button"
                                         onClick={() => chooseHit(hit, pointIndex)}
                                         title={rule.condition}
-                                        className={`flex items-center gap-1.5 px-1.5 py-1 text-[10px] font-bold hover:bg-[var(--surface-sunken)] ${FOCUS_RING}`}
+                                        className={`flex items-center gap-1.5 px-1.5 py-1 text-[10px] font-bold hover:bg-[var(--background)] ${FOCUS_RING}`}
                                       >
                                         <span className={`size-2 shrink-0 rounded-full ${style.dot}`} aria-hidden />
                                         {rule.point === "—" ? "без поділу" : rule.point.toUpperCase()}
@@ -1015,7 +1038,7 @@ export default function Home() {
                                         aria-label={`Додати статтю ${hit.article.article}, ${pointLabel(rule.point)} до зведення`}
                                         title={inBasket ? "Уже у зведенні" : "Додати до зведення"}
                                         onClick={() => addArticleRuleToBasket(hit.article, rule)}
-                                        className={`grid w-6 place-items-center border-l border-[var(--hairline)] ${inBasket ? "bg-[var(--surface-accent)] text-[var(--badge-positive-ink)]" : "text-[var(--accent-ink)] hover:bg-[var(--surface-sunken)]"} ${FOCUS_RING}`}
+                                        className={`grid w-6 place-items-center border-l border-[var(--hairline)] ${inBasket ? "bg-[var(--positive-bg)] text-[var(--positive-ink)]" : "text-[var(--accent-ink)] hover:bg-[var(--surface-sunken)]"} ${FOCUS_RING}`}
                                       >
                                         {inBasket ? <Check className="size-3" /> : <Plus className="size-3" />}
                                       </button>
@@ -1027,7 +1050,7 @@ export default function Home() {
                           );
                         })}
                       </ul>
-                      <p className="border-t border-[var(--hairline)] px-3 py-1.5 text-[10px] text-[var(--ink-faint)]">
+                      <p className="border-t border-[var(--hairline)] px-3 py-1.5 text-[10px] text-[var(--ink-muted)]">
                         ↑↓ — вибір, Enter — відкрити, Esc — закрити
                       </p>
                     </>
@@ -1055,7 +1078,7 @@ export default function Home() {
                   <div className="p-3">
                     {history.length ? (
                       <>
-                        <p className="text-[11px] font-semibold text-[var(--ink-soft)]">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
                           Останні запити
                         </p>
                         <div className="mt-1.5 flex flex-wrap gap-1">
@@ -1064,7 +1087,7 @@ export default function Home() {
                               key={item}
                               type="button"
                               onClick={() => runQuery(item)}
-                              className={`rounded-full border border-[var(--hairline)] bg-[var(--surface)] px-2 py-1 text-[10px] font-semibold text-[var(--accent-ink)] hover:bg-[var(--surface-sunken)] ${FOCUS_RING}`}
+                              className={`rounded-full border border-[var(--hairline)] bg-card px-2 py-1 text-[10px] font-semibold text-[var(--accent-ink)] hover:bg-[var(--background)] ${FOCUS_RING}`}
                             >
                               {item}
                             </button>
@@ -1072,7 +1095,7 @@ export default function Home() {
                         </div>
                       </>
                     ) : null}
-                    <p className="mt-2 text-[11px] font-semibold text-[var(--ink-soft)]">
+                    <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
                       Популярні запити
                     </p>
                     <div className="mt-1.5 flex flex-wrap gap-1">
@@ -1093,24 +1116,17 @@ export default function Home() {
             ) : null}
           </div>
 
-          <div className="ml-auto flex shrink-0 items-center gap-1.5">
-            <a
-              href={SOURCE_URL}
-              target="_blank"
-              rel="noreferrer"
-              className={`hidden items-center gap-1.5 rounded-full border border-[var(--brand-line)] bg-[var(--panel)] px-3 py-1.5 text-[11px] font-medium text-[var(--accent-ink-strong)] transition hover:border-[var(--gold-soft)] hover:text-[var(--primary)] sm:flex ${FOCUS_RING}`}
-              title={`База статей, пунктів, пояснень і ТДВ звірена за редакцією Наказу №402 від ${EDITION}. Моніторинг нової редакції виконується окремою щоденною перевіркою.`}
-            >
-              <ShieldCheck className="size-3.5" /> Корпус: {EDITION}
-            </a>
+          <div className="header-actions ml-auto flex shrink-0 items-center gap-1.5">
+            <ThemeToggle />
+
             <span
-              className={`hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-medium md:flex ${online ? "text-[var(--on-brand-soft)]" : "bg-[var(--warn-surface)] text-[var(--warn-ink)]"}`}
+              className={`hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-medium md:flex ${online ? "text-[var(--brand-bar-soft)]" : "bg-[var(--warning-bg)] text-[var(--warning-ink)]"}`}
             >
               {online ? <Wifi className="size-3.5" /> : <WifiOff className="size-3.5" />}
               {online ? "Онлайн" : "Офлайн"}
             </span>
             <Dialog open={directoryOpen} onOpenChange={setDirectoryOpen}>
-              <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-xl">
+              <VlkDialogContent returnFocusRef={moreTriggerRef} className="max-h-[85vh] overflow-y-auto sm:max-w-xl">
                 <DialogHeader>
                   <DialogTitle>Локальний довідник лікарів</DialogTitle>
                   <DialogDescription>
@@ -1138,7 +1154,7 @@ export default function Home() {
                     Очистити довідник
                   </Button>
                 </DialogFooter>
-              </DialogContent>
+              </VlkDialogContent>
             </Dialog>
             <TdvDialog
               article={selected}
@@ -1148,7 +1164,7 @@ export default function Home() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-10 text-[var(--on-brand-soft)] hover:bg-white/10 hover:text-white"
+                  className="h-10 text-[var(--brand-bar-soft)] hover:bg-white/10 hover:text-white"
                   title="Відкрити повну таблицю додаткових вимог (Додаток 3)"
                 >
                   <Table2 />
@@ -1162,8 +1178,9 @@ export default function Home() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-10 text-[var(--on-brand-soft)] hover:bg-white/10 hover:text-white"
+                  className="h-10 text-[var(--brand-bar-soft)] hover:bg-white/10 hover:text-white"
                   aria-label="Ще дії"
+                  ref={moreTriggerRef}
                 >
                   <MoreHorizontal />
                   <span className="hidden sm:inline">Ще</span>
@@ -1181,45 +1198,13 @@ export default function Home() {
                 <DropdownMenuItem asChild>
                   <a href={SOURCE_URL} target="_blank" rel="noreferrer">
                     <History />
-                    Останні зміни в Наказі №402
+                    Наказ №402 · редакція корпусу
                   </a>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuLabel className="text-[11px] font-semibold">Тема</DropdownMenuLabel>
-                <DropdownMenuRadioGroup
-                  value={appearance.theme}
-                  onValueChange={(value) =>
-                    setAppearance((current) => ({
-                      ...current,
-                      theme: value as Appearance["theme"],
-                    }))
-                  }
-                >
-                  {THEME_OPTIONS.map((option) => (
-                    <DropdownMenuRadioItem key={option.id} value={option.id}>
-                      {option.label}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel className="text-[11px] font-semibold">
-                  Щільність списків
-                </DropdownMenuLabel>
-                <DropdownMenuRadioGroup
-                  value={appearance.density}
-                  onValueChange={(value) =>
-                    setAppearance((current) => ({
-                      ...current,
-                      density: value as Appearance["density"],
-                    }))
-                  }
-                >
-                  {DENSITY_OPTIONS.map((option) => (
-                    <DropdownMenuRadioItem key={option.id} value={option.id}>
-                      {option.label}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
+                <DropdownMenuItem disabled={!hydrated} onSelect={() => setResetOpen(true)}>
+                  <RotateCcw /> Завершити сесію
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel className="text-[10px] font-normal text-[var(--ink-muted)]">
                   Корпус: редакція від {EDITION}
@@ -1230,19 +1215,13 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Результат пошуку озвучується, а не тільки показується. */}
-      <p className="sr-only" role="status" aria-live="polite">
-        {query.trim()
-          ? `Знайдено ${articleCountLabel(searchResults.length)} за запитом ${query.trim()}`
-          : ""}
-      </p>
-
+      <div className="workspace-meta">
+      <EditionTicker />
       {showDashboard ? (
-        <>
-      <div className="command-mode-bar border-b border-[var(--hairline)] bg-[var(--panel-head)]">
+      <div className="command-mode-bar border-b border-[var(--brand-rule)]/25 bg-[var(--surface-muted)]">
         <div className="mx-auto flex max-w-[1720px] flex-wrap items-center justify-between gap-2 px-3 py-1.5 lg:px-5">
           <div
-            className="flex items-center gap-0.5 rounded-full border border-[var(--hairline)] bg-[var(--surface)] p-1"
+            className="flex items-center gap-0.5 rounded-full border border-[var(--hairline)] bg-card p-1"
             aria-label="Режим роботи"
           >
             {(["doctor", "citizen"] as const).map((value) => (
@@ -1251,225 +1230,110 @@ export default function Home() {
                 type="button"
                 onClick={() => changeMode(value)}
                 aria-pressed={mode === value}
-                className={`min-h-9 rounded-full px-3.5 py-1.5 text-xs font-medium transition ${FOCUS_RING} ${mode === value ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-[var(--shadow-soft)]" : "text-[var(--ink-soft)] hover:text-[var(--foreground)]"}`}
+                className={`min-h-9 rounded-full px-3.5 py-1.5 text-xs font-medium transition ${FOCUS_RING} ${mode === value ? "bg-[var(--brand-rule)] text-[var(--brand-bar)] shadow-[var(--shadow-soft)]" : "text-[var(--ink-soft)] hover:text-[var(--foreground)]"}`}
               >
                 {value === "doctor" ? "Лікар" : "Громадянин"}
               </button>
             ))}
           </div>
-          <p className="hidden items-center gap-1.5 text-xs text-[var(--ink-muted)] md:flex">
-            <ShieldCheck className="size-3.5 text-[var(--accent-ink)]" />
-            {mode === "doctor"
-              ? "Швидка нормативна звірка для роботи ВЛК"
-              : "Підготовка документів, не визначення придатності"}
-          </p>
+
           <button
             type="button"
-            onClick={() => setDraftOpen(true)}
-            className={`hidden min-h-9 items-center gap-2 rounded-full border border-[var(--warn-line)] bg-[var(--warn-surface)] px-3.5 py-1.5 text-xs font-medium text-[var(--warn-ink)] transition hover:border-[var(--warn-line)] xl:flex ${FOCUS_RING}`}
+            onClick={openDraft}
+            className={`flex min-h-9 items-center gap-2 rounded-full border border-[var(--warning-border)]/20 bg-[var(--warning-bg)] px-3.5 py-1.5 text-xs font-medium text-[var(--warning-ink)] transition hover:border-[var(--warning-border)]/35 ${FOCUS_RING}`}
           >
             <ListPlus className="size-4" />
-            {mode === "doctor" ? "Кошик діагнозів" : "Збережені норми"} · {basket.length}
+            {mode === "doctor" ? "Зведення" : "Збережені норми"} · {basket.length}
           </button>
         </div>
       </div>
-
-      {/*
-        До ширини xl три панелі не вміщуються поруч, тому показується одна:
-        лікар не прокручує 39 статей, щоб дістатися до тексту вибраної.
-      */}
-      <div
-        role="tablist"
-        aria-label="Панель робочого екрана"
-        onKeyDown={handleTabKeys}
-        className="mx-auto flex max-w-[1720px] gap-1 px-2 pt-2 xl:hidden"
-      >
-        {MOBILE_PANELS.map((panel) => {
-          const active = mobilePanel === panel.id;
-          const count =
-            panel.id === "list"
-              ? listArticles.length
-              : panel.id === "summary"
-                ? basket.length
-                : 0;
-          return (
-            <button
-              key={panel.id}
-              type="button"
-              role="tab"
-              data-panel-tab
-              aria-selected={active}
-              aria-controls={`vlk-panel-${panel.id}`}
-              tabIndex={active ? 0 : -1}
-              onClick={() => setMobilePanel(panel.id)}
-              className={`flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-xl border px-2 text-xs font-semibold transition ${FOCUS_RING} ${active ? "border-[var(--accent-line)] bg-[var(--surface)] text-[var(--foreground)] shadow-[var(--shadow-soft)]" : "border-transparent bg-[var(--surface-sunken)] text-[var(--ink-soft)]"}`}
-            >
-              {mode === "doctor" ? panel.label : panel.citizenLabel}
-              {count ? (
-                <span
-                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${active ? "bg-[var(--surface-accent)] text-[var(--accent-ink-strong)]" : "bg-[var(--surface)] text-[var(--ink-muted)]"}`}
-                >
-                  {count}
-                </span>
-              ) : null}
-            </button>
-          );
-        })}
+      ) : null}
       </div>
 
-      <div className="mx-auto grid max-w-[1720px] gap-2 p-2 lg:p-3 xl:h-[calc(100vh-105px)] xl:grid-cols-[330px_minmax(430px,1fr)_320px] xl:overflow-hidden">
-        <aside
-          id="vlk-panel-list"
-          data-panel="list"
-          className={`command-sidebar flex min-h-[440px] flex-col overflow-hidden rounded-2xl border border-[var(--hairline)] bg-[var(--rail)] text-[var(--foreground)] shadow-[var(--shadow-soft)] xl:min-h-0 ${mobilePanel === "list" ? "" : "hidden xl:flex"}`}
-        >
-          <div data-panel-head className="border-b border-[var(--hairline)] bg-[var(--panel-head)] px-2.5 py-2">
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="min-w-0 truncate text-sm font-semibold">
-                {query.trim()
-                  ? `Знайдено ${articleCountLabel(searchResults.length)}`
-                  : (selectedSpecialty?.label ?? "Усі статті")}
-              </h2>
-              {query.trim() ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => clearQuery({ notify: true })}
-                  className="h-8 shrink-0 text-xs text-[var(--ink-soft)]"
-                  title="Повернутися до списку статей вибраної спеціальності"
-                >
-                  <RotateCcw />
-                  Скинути
-                </Button>
-              ) : null}
+      {showDashboard ? (<>
+      <WorkspaceTabs active={mobilePanel} onChange={setMobilePanel} articleCount={listArticles.length} basketCount={basket.length} />
+      <div className="vlk-workspace mx-auto grid w-full max-w-[1920px] gap-3 p-2 lg:p-3">
+        <aside className="command-sidebar flex min-h-[440px] flex-col overflow-hidden rounded-2xl border border-[var(--hairline-strong)] bg-card text-foreground shadow-[var(--shadow-soft)] xl:min-h-0"
+          id="vlk-panel-list" role="tabpanel" aria-labelledby="vlk-tab-list" data-mobile-panel="list" data-active={mobilePanel === "list"}>
+          <div className="sidebar-controls shrink-0 border-b border-[var(--hairline)] p-3">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold">{query.trim() ? "Результати пошуку" : "Статті за спеціальністю"}</h2>
+              <span className="sidebar-count" role="status" aria-live="polite">{articleCountLabel(listArticles.length)}</span>
             </div>
-
-            {/*
-              Спеціальність, категорія і фільтр — три компактні поля замість
-              сітки з восьми карток: список статей отримує висоту панелі.
-            */}
-            <div className="mt-2 grid gap-1.5">
-              <div>
-                <label className="sr-only" htmlFor="specialty-select">
-                  Спеціальність
-                </label>
-                <Select
-                  value={specialty || "all"}
-                  onValueChange={(value) =>
-                    value === "all" ? resetToHome() : changeSpecialty(value as SpecialtyId)
-                  }
-                >
-                  <SelectTrigger
-                    id="specialty-select"
-                    className="h-9 w-full border-[var(--input)] bg-[var(--surface)] text-xs"
-                  >
-                    <SelectValue placeholder="Спеціальність" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Усі спеціальності</SelectItem>
-                    {SPECIALTIES.map((item) => (
-                      <SelectItem key={item.id} value={item.id}>
-                        {specialtyName(item)} · {SPECIALTY_ARTICLE_COUNTS[item.id]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="sr-only" htmlFor="examinee-type">
-                  Категорія оглядуваного
-                </label>
+            <label htmlFor="specialty-picker" className="sr-only">Спеціальність лікаря</label>
+            <Select value={specialty} onValueChange={(value) => changeSpecialty(value as SpecialtyId)}>
+              <SelectTrigger id="specialty-picker" className="min-h-11 w-full bg-card text-sm"><SelectValue placeholder="Спеціальність лікаря" /></SelectTrigger>
+              <SelectContent>
+                {SPECIALTIES.map((item) => <SelectItem key={item.id} value={item.id} className="min-h-11">
+                  {specialtyName(item)} · {articleCountLabel(ARTICLES.filter((article) => article.specialties.includes(item.id)).length)}
+                </SelectItem>)}
+              </SelectContent>
+            </Select>
+            <div className="mt-2 flex items-center gap-2">
+              <label htmlFor="schedule-graph" className="text-xs font-medium text-muted-foreground">Графа</label>
+              <Select value={scheduleGraph} onValueChange={(value) => setScheduleGraph(value as ScheduleGraph)}>
+                <SelectTrigger id="schedule-graph" className="h-10 min-w-0 flex-1 bg-card text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>{SCHEDULE_GRAPHS.map((item) => <SelectItem key={item.id} value={item.id}>{item.label}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <details className="review-settings mt-2">
+              <summary className="flex min-h-10 cursor-pointer items-center gap-2 rounded-lg px-2 text-xs font-medium text-muted-foreground">
+                <SlidersHorizontal className="size-3.5" />Параметри огляду
+                {outcomeFilter !== "all" ? <span className="ml-auto text-[var(--accent-ink)]">Фільтр увімкнено</span> : <ChevronDown className="ml-auto size-3.5" />}
+              </summary>
+              <div className="space-y-2 pb-1 pt-2">
+                <label htmlFor="examinee-type" className="block text-xs text-muted-foreground">Категорія оглядуваного</label>
                 <Select value={examineeType} onValueChange={setExamineeType}>
-                  <SelectTrigger
-                    id="examinee-type"
-                    className="h-9 w-full border-[var(--input)] bg-[var(--surface)] text-xs"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {EXAMINEE_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
+                  <SelectTrigger id="examinee-type" className="h-10 w-full bg-card text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>{EXAMINEE_TYPES.map((type) => <SelectItem key={type} value={type}>{type}</SelectItem>)}</SelectContent>
                 </Select>
-              </div>
-
-              {mode === "doctor" ? (
-                <div>
-                  <label className="sr-only" htmlFor="outcome-filter">
-                    Фільтр за результатом
-                  </label>
-                  <Select
-                    value={outcomeFilter}
-                    onValueChange={(value) => setOutcomeFilter(value as OutcomeFilterId)}
-                  >
-                    <SelectTrigger
-                      id="outcome-filter"
-                      className="h-9 w-full border-[var(--input)] bg-[var(--surface)] text-xs"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {OUTCOME_FILTERS.map((item) => (
-                        <SelectItem key={item.id} value={item.id}>
-                          {item.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
+                {mode === "doctor" ? <>
+                  <label htmlFor="outcome-filter" className="block text-xs text-muted-foreground">Фільтр за результатом</label>
+                  <Select value={outcomeFilter} onValueChange={(value) => setOutcomeFilter(value as OutcomeFilterId)}>
+                    <SelectTrigger id="outcome-filter" className="h-10 w-full bg-card text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>{OUTCOME_FILTERS.map((item) => <SelectItem key={item.id} value={item.id}>{item.label}</SelectItem>)}</SelectContent>
                   </Select>
-                  {outcomeFilter === "all" ? null : (
-                    <p className="mt-1 text-[10px] leading-4 text-[var(--ink-muted)]">
-                      Угорі — {articleCountLabel(filteredCount)} із таким дослівним результатом.
-                      Решта лишається приглушеною.
-                    </p>
-                  )}
-                </div>
-              ) : null}
-            </div>
+                  {outcomeFilter !== "all" ? <p className="text-xs text-muted-foreground">Угорі — {articleCountLabel(filteredCount)} з обраним результатом. Інші статті залишаються доступними.</p> : null}
+                </> : null}
+                <p className="text-xs leading-5 text-muted-foreground">Графа — контекст перегляду. Дослівний результат пункту не переобчислюється.</p>
+              </div>
+            </details>
+            {query.trim() ? <button type="button" onClick={() => clearQuery({ notify: true })} className="mt-1 flex min-h-10 items-center gap-2 text-xs text-[var(--accent-ink)]"><RotateCcw className="size-3.5" />Скинути пошук</button> : null}
           </div>
 
           <div
             ref={listRef}
             onKeyDown={handleListKeys}
-            data-panel-body
-            className="min-h-0 flex-1 overflow-y-auto p-2 scrollbar-thin"
+            className="article-list min-h-0 flex-1 overflow-y-auto p-2 scrollbar-thin"
           >
             {listArticles.length ? (
-              <ul
-                data-article-list
-                className="space-y-1"
-                aria-label={query.trim() ? "Знайдені статті" : `Статті · ${selectedSpecialty?.label ?? "усі"}`}
-              >
+              <ul className="space-y-1" aria-label={query.trim() ? "Знайдені статті" : `Статті · ${selectedSpecialty?.label ?? "усі"}`}>
                 {listArticles.map((article) => {
                   const isSelected = selected?.id === article.id;
                   const hit = hitsById.get(article.id);
                   const matches = hit?.matches ?? [];
                   const dimmed = !articleMatchesFilter(article);
                   return (
-                    <li key={article.id} className={dimmed ? "opacity-45" : ""}>
+                    <li key={article.id} className={dimmed ? "article-unmatched" : ""}>
                       <button
                         type="button"
                         data-article-row
                         data-dimmed={dimmed ? "true" : undefined}
                         aria-current={isSelected ? "true" : undefined}
                         onClick={() => selectFromList(article)}
-                        className={`flex min-h-11 w-full items-start gap-2 rounded-lg border px-2 py-2 text-left transition ${FOCUS_RING} ${isSelected ? "border-[var(--accent-line)] bg-[var(--row-active)] shadow-[inset_3px_0_0_var(--accent-ink)]" : "border-transparent bg-[var(--row)] hover:border-[var(--hairline)] hover:bg-[var(--row-hover)]"}`}
+                        className={`flex min-h-11 w-full items-start gap-2 rounded-lg border px-2 py-2 text-left transition ${FOCUS_RING} ${isSelected ? "border-[var(--accent-ink)]/30 bg-[var(--secondary)] text-foreground" : "border-transparent bg-transparent text-foreground hover:border-[var(--hairline)] hover:bg-[var(--surface-muted)]"}`}
                       >
                         <span
-                          className={`grid size-7 shrink-0 place-items-center rounded-md text-xs font-bold ${isSelected ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "bg-[var(--surface-accent)] text-[var(--accent-ink-strong)]"}`}
+                          className={`grid size-8 shrink-0 place-items-center rounded-md text-xs font-black ${isSelected ? "bg-[var(--primary)] text-white" : "bg-[var(--surface-sunken)] text-[var(--ink-soft)]"}`}
                         >
                           {article.article}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block text-xs font-semibold leading-4">
+                          <span className="line-clamp-2 text-sm font-semibold leading-5" title={article.title}>
                             <Highlighted text={article.title} query={query} />
                           </span>
-                          <span className="mt-0.5 block break-words text-[10px] leading-4 text-[var(--ink-muted)]">
-                            <Highlighted text={article.icd} query={query} />
+                          <span className="mt-0.5 block truncate text-xs leading-4 text-[var(--ink-soft)]" title={articleIcdLabel(article)}>
+                            <Highlighted text={articleIcdLabel(article)} query={query} />
                           </span>
                           {matches.length ? (
                             <span className="mt-1 flex flex-wrap gap-1">
@@ -1477,7 +1341,7 @@ export default function Home() {
                                 <span
                                   key={match}
                                   title={MATCH_TYPE_LABELS[match]}
-                                  className="rounded-full bg-[var(--surface-accent)] px-1.5 py-0.5 text-[9px] font-semibold text-[var(--accent-ink-strong)]"
+                                  className="rounded-full bg-[var(--surface-sunken)] px-1.5 py-0.5 text-[9px] font-bold text-[var(--accent-ink)]"
                                 >
                                   збіг: {MATCH_TYPE_SHORT[match]}
                                 </span>
@@ -1485,7 +1349,7 @@ export default function Home() {
                             </span>
                           ) : null}
                           {hit?.evidence ? (
-                            <span className="mt-1 block text-[9px] leading-3.5 text-[var(--ink-muted)]">
+                            <span className="mt-1 block text-[9px] leading-3.5 text-[var(--ink-soft)]">
                               <Highlighted
                                 text={snippetAround(hit.evidence.text, query)}
                                 query={query}
@@ -1500,7 +1364,7 @@ export default function Home() {
                 })}
               </ul>
             ) : (
-              <div className="px-5 py-10 text-center text-xs leading-6 text-[var(--ink-muted)]">
+              <div className="px-5 py-10 text-center text-xs leading-6 text-[var(--ink-soft)]">
                 Нічого не знайдено.
                 <br />
                 Спробуйте коротшу назву, номер статті або код МКХ-10.
@@ -1508,27 +1372,18 @@ export default function Home() {
             )}
           </div>
 
-          <div
-            className="shrink-0 truncate border-t border-[var(--hairline)] px-2.5 py-1.5 text-[10px] leading-4 text-[var(--ink-faint)]"
-            title="Стрілки ↑↓ переміщують фокус списком"
-          >
+          <div className="shrink-0 border-t border-[var(--hairline)] px-2.5 py-1.5 text-xs text-[var(--ink-soft)]" title={`Корпус: редакція ${EDITION}. Стрілки ↑↓ — навігація статтями.`}>
             {articleCountLabel(listArticles.length)} · редакція {EDITION}
-            <span className="sr-only">. Стрілки вгору і вниз переміщують фокус списком.</span>
           </div>
         </aside>
 
-        <section
-          id="vlk-panel-article"
-          aria-label="Вибрана стаття"
-          data-panel="article"
-          className={`normative-surface relative flex min-h-[560px] flex-col overflow-hidden rounded-2xl border border-[var(--hairline)] bg-[var(--panel)] shadow-[var(--shadow-soft)] xl:min-h-0 ${mobilePanel === "article" ? "" : "hidden xl:flex"}`}
-        >
+        <section id="vlk-panel-article" role="tabpanel" aria-label="Вибрана стаття" aria-labelledby="vlk-tab-article" data-mobile-panel="article" data-active={mobilePanel === "article"} className="normative-surface relative flex min-h-[560px] flex-col overflow-hidden rounded-2xl border border-[var(--brand-rule)]/25 bg-[var(--surface-muted)] shadow-[var(--shadow-soft)] xl:min-h-0">
           {selected ? (
             <>
-              <div data-panel-head className="shrink-0 border-b border-[var(--hairline)] bg-[var(--panel-head)] px-3 py-2.5">
-                <div className="flex flex-wrap items-start justify-between gap-2">
+              <div className="article-header shrink-0 border-b border-[var(--hairline)] px-4 py-3">
+                <div className="flex flex-col gap-3">
                   <div className="flex min-w-[min(100%,280px)] flex-1 items-start gap-2.5">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-[var(--primary)] text-sm font-black text-[var(--primary-foreground)]">
+                    <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-[var(--primary)] text-sm font-black text-white">
                       {selected.article}
                     </span>
                     <div className="min-w-0">
@@ -1552,28 +1407,25 @@ export default function Home() {
                           </>
                         ) : null}
                       </nav>
-                      <p className="mt-1 text-[11px] font-medium text-[var(--ink-muted)]">
+                      <p className="specialty-caption mt-1 text-xs text-[var(--ink-soft)]">
                         {specialtyLabels(selected)}
                       </p>
-                      <h2 className="mt-1.5 text-xl font-semibold leading-tight tracking-[-0.02em] sm:text-[22px]">
+                      <h2 id="vlk-article-heading" tabIndex={-1} className="mt-1 text-xl font-semibold leading-tight tracking-[-0.02em] outline-none sm:text-[22px]">
                         <Highlighted text={selected.title} query={query} />
                       </h2>
-                      <div className="mt-1.5 flex flex-wrap items-center gap-1" title={`МКХ-10: ${selected.icd}`}>
-                        <span className="text-[11px] font-semibold text-[var(--ink-muted)]">
-                          МКХ-10
-                        </span>
-                        {icdTokens(selected.icd).map((token, index) => (
-                          <span
-                            key={`${token}-${index}`}
-                            className="rounded-md bg-[var(--surface-accent)] px-1.5 py-0.5 text-[11px] font-semibold text-[var(--accent-ink-strong)]"
-                          >
-                            <Highlighted text={token} query={query} />
-                          </span>
-                        ))}
-                      </div>
+                      <p className="mt-1 break-words text-xs font-black text-[var(--accent-ink-strong)]">
+                        МКХ-10: <Highlighted text={articleIcdLabel(selected)} query={query} />
+                      </p>
                     </div>
                   </div>
-                  <div className="flex w-full shrink-0 flex-wrap gap-1.5 sm:w-auto">
+                  <div className="article-toolbar flex flex-wrap items-center gap-1.5">
+                    <div className="article-pagination mr-auto flex items-center gap-1">
+                      <Button type="button" variant="ghost" size="icon" aria-label="Попередня стаття" title="Попередня стаття"
+                        disabled={selectedListIndex <= 0} onClick={() => selectFromList(listArticles[selectedListIndex - 1])}><ChevronLeft /></Button>
+                      <span className="text-xs tabular-nums text-muted-foreground">{selectedListIndex < 0 ? "Поза списком" : `${selectedListIndex + 1} / ${listArticles.length}`}</span>
+                      <Button type="button" variant="ghost" size="icon" aria-label="Наступна стаття" title="Наступна стаття"
+                        disabled={selectedListIndex < 0 || selectedListIndex >= listArticles.length - 1} onClick={() => selectFromList(listArticles[selectedListIndex + 1])}><ChevronDown className="-rotate-90" /></Button>
+                    </div>
                     <NormativePassportDialog
                       article={selected.article}
                       point={selectedRule?.point}
@@ -1584,93 +1436,39 @@ export default function Home() {
                       size="sm"
                       variant="outline"
                       disabled={!selectedRule}
+                      aria-label="Копіювати пункт із поясненнями"
+                      title="Копіювати пункт із поясненнями"
                       onClick={() => copyText(referenceText, "reference")}
-                      className="h-9 bg-[var(--surface)]"
+                      className="h-9 bg-card"
                     >
                       {copied === "reference" ? <Check /> : <Copy />}
                       <span className="hidden sm:inline">
                         {copied === "reference" ? "Скопійовано" : "Копіювати"}
                       </span>
                     </Button>
-                    <Button asChild size="sm" className="h-9 bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)]">
+                    <Button asChild size="sm" className="h-9 bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)]">
                       <a href={sourceUrl} target="_blank" rel="noreferrer">
-                        <span className="hidden sm:inline">Відкрити у&nbsp;</span>№402
-                        <ExternalLink />
+                        Відкрити у №402 <ExternalLink />
                       </a>
                     </Button>
                   </div>
                 </div>
               </div>
 
-              <div data-panel-body className="relative min-h-0 flex-1 overflow-y-auto p-4 scrollbar-thin">
+              <div key={selected.id} ref={articleContentRef} className="article-content relative min-h-0 flex-1 overflow-y-auto p-4 scrollbar-thin">
                 {query.trim() && selectedEvidence ? (
-                  <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-950" aria-label="Збіг у вибраній статті">
+                  <div className="search-context mb-3 rounded-lg border px-3 py-2 text-xs" aria-label="Збіг у вибраній статті">
                     <span className="font-semibold">{MATCH_TYPE_LABELS[selectedEvidence.match]}: </span>
                     <Highlighted text={snippetAround(selectedEvidence.text, query)} query={query} />
                   </div>
                 ) : null}
-                <div className="grid items-start gap-3 sm:grid-cols-[minmax(0,1fr)_230px]">
-                  <div className="min-w-0 overflow-hidden rounded-lg border border-[var(--hairline)] bg-[var(--surface-muted)]">
-                    <Accordion type="single" collapsible defaultValue="included">
-                      <AccordionItem value="included" className="border-none px-3">
-                        <AccordionTrigger className="py-2.5 text-[11px] font-semibold text-[var(--ink-soft)] hover:no-underline">
-                          Дослівно з Наказу №402 · «Включено»
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <p className="break-words pb-3 text-[11px] leading-[1.15rem] text-[var(--ink-body)]">
-                            <Highlighted text={selected.officialIncluded} query={query} />
-                          </p>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                  </div>
-
-                  <div
-                    className={`min-w-0 rounded-lg border p-3 ${selectedRule && tdvRule ? "border-[var(--danger-line)] bg-[var(--danger-surface)]" : "border-[var(--hairline)] bg-[var(--surface)]"}`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-[11px] font-semibold text-[var(--ink-soft)]">
-                        ТДВ · Додаток 3
-                      </p>
-                      <TdvDialog
-                        article={selected}
-                        selectedPoint={selectedRule?.point}
-                        trigger={
-                          <button
-                            type="button"
-                            aria-label="Відкрити таблицю додаткових вимог на весь екран"
-                            title="Відкрити таблицю на весь екран"
-                            className={`grid size-7 shrink-0 place-items-center rounded-md border border-[var(--hairline)] bg-[var(--surface)] text-[var(--accent-ink)] hover:bg-[var(--surface-sunken)] ${FOCUS_RING}`}
-                          >
-                            <Maximize2 className="size-3.5" />
-                          </button>
-                        }
-                      />
-                    </div>
-                    <p className="mt-1 text-xs font-bold">
-                      {!selectedRule
-                        ? "Оберіть пункт"
-                        : tdvRule
-                          ? `${tdvMarks.length} спец. позначок`
-                          : "Окремих позначок немає"}
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-1 border-t border-[var(--hairline)] pt-2">
-                      <Button asChild variant="outline" size="sm" className="h-8 bg-[var(--surface)] text-[10px]">
-                        <a href={TDV_URL} target="_blank" rel="noreferrer">
-                          ТДВ у №402 <ExternalLink />
-                        </a>
-                      </Button>
-                      <Button asChild variant="ghost" size="sm" className="h-8 text-[10px]">
-                        <a href={TDV_DOCX_URL} target="_blank" rel="noreferrer">
-                          DOCX <BookOpen />
-                        </a>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-5 flex items-center justify-between">
-                  <p className="text-[11px] font-semibold text-[var(--ink-soft)]">
+                <CommandBrand
+                  decorative
+                  size={260}
+                  className="pointer-events-none absolute bottom-0 right-0 max-w-[40%] opacity-[0.025]"
+                />
+                <div className="point-section-heading flex items-center justify-between">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
                     Пункти статті
                   </p>
                   <span className="text-[10px] text-[var(--ink-muted)]">
@@ -1678,7 +1476,7 @@ export default function Home() {
                   </span>
                 </div>
 
-                <ul data-rule-list className="mt-2 space-y-2">
+                <ul className="mt-2 space-y-2">
                   {articleRules.map((rule, index) => {
                     const active = selectedRuleIndex === String(index);
                     const style = outcomeStyles(rule.outcome);
@@ -1699,52 +1497,69 @@ export default function Home() {
                     return (
                       <li key={`${rule.point}-${index}`} className={dimmed ? "opacity-45" : ""}>
                         <div
-                          className={`overflow-hidden rounded-xl border transition ${active ? "command-selected-rule border-[var(--accent-line)] bg-[var(--surface)] shadow-[var(--shadow-soft)]" : "border-[var(--hairline)] bg-[var(--surface)] hover:border-[var(--accent-line)] hover:bg-[var(--panel-head)]"}`}
+                          className={`overflow-hidden rounded-xl border transition ${active ? "command-selected-rule border-[var(--warning-border)]/45 bg-[var(--warning-bg)] shadow-[var(--shadow-soft)]" : "border-[var(--hairline)] bg-card hover:border-[var(--accent-ink)]/25 hover:bg-[var(--surface-muted)]"}`}
                         >
                           <button
                             type="button"
                             data-point-row
+                            data-in-basket={inBasket || undefined}
+                            id={`vlk-point-${index}`}
                             onClick={() => selectRule(active ? "" : String(index))}
                             aria-expanded={active}
-                            className={`flex w-full items-start gap-3 p-3 text-left ${FOCUS_RING}`}
+                            className={`flex w-full items-center gap-3 p-3 text-left ${FOCUS_RING}`}
                           >
                             <span
-                              className={`grid size-8 shrink-0 place-items-center rounded-md text-xs font-bold uppercase ${active ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "bg-[var(--surface-accent)] text-[var(--accent-ink-strong)]"}`}
+                              className={`grid size-8 shrink-0 place-items-center rounded-md text-xs font-black uppercase ${active ? "bg-[var(--primary)] text-white" : "bg-[var(--secondary)] text-[var(--accent-ink-strong)]"}`}
                             >
                               {rule.point === "—" ? "•" : rule.point}
                             </span>
-                            <span className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
-                              <span className="line-clamp-2 min-w-0 flex-1 text-xs leading-5 text-[var(--ink-body)] sm:text-sm">
-                                <Highlighted text={rule.condition} query={query} />
-                              </span>
-                              <span
-                                className={`shrink-0 self-start rounded-full px-2 py-1 text-[10px] font-semibold sm:self-auto ${style.badge}`}
-                              >
-                                {style.label}
-                              </span>
+                            <span className="point-preview min-w-0 flex-1 text-sm leading-5 text-[var(--foreground)]">
+                              <Highlighted text={rule.condition} query={query} />
                             </span>
+                            <span
+                              className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-black ${style.badge}`}
+                            >
+                              {style.label}
+                            </span>
+                            {scheduleGraph === "all" ? null : (
+                              <span
+                                className="hidden shrink-0 rounded-full border border-[var(--hairline)] bg-card px-2 py-1 text-[10px] font-bold text-[var(--ink-soft)] sm:inline"
+                                title="Обрана графа — контекст перегляду, не автоматичний висновок"
+                              >
+                                гр. {scheduleGraph}
+                              </span>
+                            )}
                             <ChevronDown
-                              className={`mt-1.5 size-4 shrink-0 text-[var(--ink-soft)] transition ${active ? "rotate-180" : ""}`}
+                              className={`size-4 shrink-0 text-[var(--ink-soft)] transition ${active ? "rotate-180" : ""}`}
                             />
                           </button>
 
                           {active ? (
-                            <div className="border-t border-[var(--hairline)] bg-[var(--panel-head)] px-3 pb-3 pt-2.5">
-                              <p className="text-[11px] font-semibold text-[var(--ink-soft)]">
+                            <div className="border-t border-[var(--hairline)] bg-white/70 px-2.5 pb-2.5 pt-2">
+                              <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
                                 Стан за пунктом · дослівно
                               </p>
-                              <p className="mt-1 text-xs leading-5 text-[var(--ink-body)]">
+                              <p className="mt-1 text-xs leading-5 text-[var(--foreground)]">
                                 <Highlighted text={rule.condition} query={query} />
                               </p>
 
-                              {/* Орієнтир позначається смугою тону, а не ще однією коробкою. */}
-                              <div className={`mt-3 border-l-2 pl-3 ${style.bar}`}>
-                                <p className="text-[11px] font-semibold text-[var(--ink-soft)]">
+                              <ol className="clinical-context" aria-label="Контекст вибраного пункту">
+                                <li><span>Стаття</span><b>{selected.article}</b></li>
+                                <li><span>Пункт</span><b>{rule.point === "—" ? "без поділу" : rule.point}</b></li>
+                                <li><span>Графа</span><b>{scheduleGraph === "all" ? "не обрана" : scheduleGraph}</b></li>
+                              </ol>
+                              <div className={`mt-2 rounded-md border p-2.5 ${style.box}`}>
+                                <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
                                   {mode === "doctor"
                                     ? "Попередній нормативний орієнтир · не рішення ВЛК"
                                     : "Дослівне формулювання Наказу №402 · не персональний висновок"}
                                 </p>
-                                <p className="mt-1 text-sm font-semibold leading-5">«{rule.outcome}»</p>
+                                <p className="mt-1 text-sm font-bold leading-5">«{rule.outcome}»</p>
+                                <p className="mt-1 text-[10px] leading-4 text-[var(--ink-soft)]">
+                                  {scheduleGraph === "all"
+                                    ? "Графу не вибрано — звірте її за направленням або обліковою категорією."
+                                    : `Контекст перегляду: графа ${scheduleGraph}. Результат наведено дослівно без автоматичної заміни.`}
+                                </p>
                                 {style.requiresLiteralReading ? (
                                   <p className="mt-1 text-[10px] leading-4 text-[var(--ink-soft)]">
                                     У четвертій графі Розкладу хвороб для цього пункту немає готової
@@ -1754,20 +1569,17 @@ export default function Home() {
                                 ) : null}
                               </div>
 
-                              <div className="mt-3 border-t border-[var(--hairline)] pt-2.5">
-                                <p className="text-[11px] font-semibold text-[var(--ink-soft)]">
+                              <div className="mt-2 rounded-md border border-[var(--hairline)] bg-card p-2.5">
+                                <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
                                   ТДВ для {pointLabelGenitive(rule.point)}
                                 </p>
+                                <TdvDialog article={selected} selectedPoint={rule.point} trigger={<Button variant="outline" size="sm" className="mt-2 min-h-11">Звірити ТДВ <Maximize2 /></Button>} />
                                 {pointMarks.length ? (
                                   <div className="mt-1.5 flex flex-wrap gap-1">
                                     {pointMarks.map((column) => (
-                                      <span
-                                        key={column.id}
-                                        title={column.label}
-                                        className="rounded bg-[var(--surface-sunken)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--ink-body)]"
-                                      >
+                                      <TdvContext key={column.id} columnId={column.id} mark={pointTdv?.[column.id]}>
                                         {column.id}: {pointTdv?.[column.id]}
-                                      </span>
+                                      </TdvContext>
                                     ))}
                                   </div>
                                 ) : (
@@ -1779,55 +1591,49 @@ export default function Home() {
                               </div>
 
                               {explanationMeta?.status === "absent" ? null : pointText.length ? (
-                                <Accordion type="single" collapsible className="mt-1">
+                                <Accordion type="single" collapsible className="mt-2">
                                   <AccordionItem
                                     value="point-explanation"
-                                    className="border-t border-[var(--hairline)]"
+                                    className="overflow-hidden rounded-md border border-[var(--warning-border)]/25 bg-[var(--warning-bg)] px-2.5"
                                   >
-                                    <AccordionTrigger className="py-2 text-[11px] font-semibold text-[var(--accent-ink-strong)] hover:no-underline">
-                                      Офіційне пояснення до {pointLabelGenitive(rule.point)} ·{" "}
-                                      {pointText.length}
+                                    <AccordionTrigger className="py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--warning-ink)] hover:no-underline">
+                                      Повне пояснення до {pointLabelGenitive(rule.point)} ·{" "}
+                                      {fragmentCountLabel(pointText.length)}
                                     </AccordionTrigger>
                                     <AccordionContent>
-                                      <div className="max-h-[65vh] space-y-1.5 overflow-y-auto border-t border-[var(--hairline)] py-2 pr-1 scrollbar-thin">
+                                      <div className="max-h-[65vh] space-y-1.5 overflow-y-auto border-t border-[var(--warning-border)]/20 py-2 pr-1 scrollbar-thin">
                                         <ExplanationDocument article={selected.article} paragraphs={explanation?.paragraphs ?? []} excerpt={pointText} query={query} />
                                       </div>
                                     </AccordionContent>
                                   </AccordionItem>
                                 </Accordion>
+                              ) : explanationState === "ready" && explanation ? (
+                                <div className="mt-2 rounded-md border border-[var(--warning-border)]/25 bg-[var(--warning-bg)] p-2.5 text-xs leading-5 text-[var(--warning-ink)]">
+                                  У Додатку 2 немає окремо виділеного розділу для {pointLabelGenitive(rule.point)}.
+                                  Повне пояснення до статті доступне нижче пунктів.
+                                </div>
                               ) : null}
 
-                              <div className="mt-3 flex flex-wrap gap-1.5 border-t border-[var(--hairline)] pt-2.5">
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  onClick={() => addArticleRuleToBasket(selected, rule)}
-                                  disabled={inBasket}
-                                  className="h-9 bg-[var(--primary)] text-xs text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)]"
-                                >
-                                  {inBasket ? (
-                                    <>
-                                      <Check />
-                                      {mode === "doctor" ? "У зведенні" : "Збережено"}
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Plus />
-                                      {mode === "doctor" ? "Додати до зведення" : "Зберегти норму"}
-                                    </>
-                                  )}
-                                </Button>
+                              <div className="mt-2 flex flex-wrap gap-1.5">
+
                                 <Button
                                   type="button"
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => copyText(buildReferenceText(selected, rule), "reference")}
-                                  className="h-9 bg-[var(--surface)] text-xs"
+                                  onClick={() =>
+                                    copyText(
+                                      buildPointWordingText(selected, rule, scheduleGraph),
+                                      "point",
+                                    )
+                                  }
+                                  className="h-9 bg-card text-xs"
                                 >
-                                  <Copy />
-                                  Копіювати
+                                  {copied === "point" ? <Check /> : <Copy />}
+                                  {copied === "point"
+                                    ? "Формулювання скопійовано"
+                                    : "Скопіювати формулювання пункту"}
                                 </Button>
-                                <Button asChild size="sm" variant="outline" className="h-9 bg-[var(--surface)] text-xs">
+                                <Button asChild size="sm" variant="outline" className="h-9 bg-card text-xs">
                                   <a
                                     href={officialRuleUrl(selected.article, rule)}
                                     target="_blank"
@@ -1845,60 +1651,145 @@ export default function Home() {
                   })}
                 </ul>
 
-                <Accordion type="single" collapsible className="mt-5">
-                  <AccordionItem
-                    value="article-explanation"
-                    className="overflow-hidden rounded-lg border border-[var(--hairline)] bg-[var(--surface-muted)] px-3"
+                <div className="article-reference-grid mt-4 grid items-start gap-3 sm:grid-cols-[minmax(0,1fr)_200px]">
+                  <div className="min-w-0 overflow-hidden rounded-lg border border-[var(--hairline)] bg-[var(--surface-muted)]">
+                    <Accordion type="single" collapsible defaultValue="included">
+                      <AccordionItem value="included" className="border-none px-3">
+                        <AccordionTrigger className="py-2.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)] hover:no-underline">
+                          Дослівно з Наказу №402 · «Включено»
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <p className="break-words pb-3 text-sm leading-6 text-[var(--foreground)]">
+                            <Highlighted text={selected.officialIncluded} query={query} />
+                          </p>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </div>
+
+                  <div
+                    className={`min-w-0 rounded-lg border p-3 ${selectedRule && tdvRule ? "border-[var(--critical-ink)]/18 bg-[var(--critical-bg)]" : "border-[var(--hairline)] bg-card"}`}
                   >
-                    <AccordionTrigger className="py-2.5 text-xs font-bold hover:no-underline">
-                      <span className="flex flex-wrap items-center gap-1.5">
-                        <BookOpen className="size-4 shrink-0 text-[var(--accent-ink)]" />
-                        Офіційні пояснення до статті {selected.article}
-                        <span className="rounded-full bg-[var(--surface)] px-2 py-0.5 text-[9px] font-black text-[var(--accent-ink-strong)]">
-                          {explanationMeta?.status === "absent"
-                            ? "немає в Додатку 2"
-                            : `дослівно · ${explanationMeta?.paragraphs ?? 0} фрагментів`}
-                        </span>
-                      </span>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      {explanationMeta?.status === "absent" ? (
-                        <p className="pb-3 text-xs leading-5 text-[var(--ink-muted)]">
-                          Для статті {selected.article} окремого пояснення в Додатку 2 чинної
-                          редакції немає. Використовуйте дослівний рядок Розкладу хвороб, обраний
-                          пункт і ТДВ.
-                        </p>
-                      ) : explanationState === "loading" ? (
-                        <p className="pb-3 text-xs text-[var(--ink-muted)]" aria-live="polite">
-                          Завантаження дослівного пояснення…
-                        </p>
-                      ) : explanationState === "error" ? (
-                        <p className="pb-3 text-xs text-[var(--danger-ink)]" aria-live="polite">
-                          Пояснення не завантажилося. Перевірте з’єднання або відкрийте офіційне
-                          джерело.
-                        </p>
-                      ) : (
-                        <div className="pb-3">
-                          <div className="max-h-[70vh] space-y-2 overflow-y-auto border-y border-[var(--hairline)] py-2 pr-1 scrollbar-gutter-stable scrollbar-thin">
-                            <ExplanationDocument article={selected.article} paragraphs={explanation?.paragraphs ?? []} query={query} />
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
+                        ТДВ · Додаток 3
+                      </p>
+                      <TdvDialog
+                        article={selected}
+                        selectedPoint={selectedRule?.point}
+                        trigger={
+                          <button
+                            type="button"
+                            aria-label="Відкрити таблицю додаткових вимог на весь екран"
+                            title="Відкрити таблицю на весь екран"
+                            className={`grid size-7 shrink-0 place-items-center rounded-md border border-[var(--hairline)] bg-card text-[var(--accent-ink)] hover:bg-[var(--surface-sunken)] ${FOCUS_RING}`}
+                          >
+                            <Maximize2 className="size-3.5" />
+                          </button>
+                        }
+                      />
+                    </div>
+                    <p className="mt-1 text-xs font-bold">
+                      {!selectedRule
+                        ? "Оберіть пункт"
+                        : tdvRule
+                          ? `${tdvMarks.length} спец. позначок`
+                          : "Окремих позначок немає"}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-1 border-t border-[var(--hairline)] pt-2">
+                      <Button asChild variant="outline" size="sm" className="h-8 bg-card text-[10px]">
+                        <a href={TDV_URL} target="_blank" rel="noreferrer">
+                          ТДВ у №402 <ExternalLink />
+                        </a>
+                      </Button>
+                      <Button asChild variant="ghost" size="sm" className="h-8 text-[10px]">
+                        <a href={TDV_DOCX_URL} target="_blank" rel="noreferrer">
+                          DOCX <BookOpen />
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <section className="mt-3 flex flex-col gap-3 rounded-xl border border-[var(--accent-ink)]/20 bg-[var(--secondary)] p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 items-start gap-2.5">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[var(--secondary)] text-[var(--accent-ink-strong)]">
+                      <BookOpen className="size-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-bold text-[var(--foreground)]">
+                        Повне офіційне пояснення до статті {selected.article}
+                      </h3>
+                      <p className="mt-0.5 text-xs leading-5 text-[var(--ink-soft)]">
+                        {explanationMeta?.status === "absent"
+                          ? "Окремого пояснення в Додатку 2 немає."
+                          : explanationState === "loading"
+                            ? "Завантажуємо повний дослівний текст…"
+                            : explanationState === "error"
+                              ? "Не вдалося завантажити текст. Відкрийте офіційне джерело."
+                            : `${fragmentCountLabel(fullExplanation.length || explanationMeta?.paragraphs || 0)} дослівного тексту${fullExplanation.length ? " — без скорочення" : ""}.`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 flex-wrap gap-2">
+                    {explanationMeta?.status !== "absent" && explanationState === "ready" && fullExplanation.length ? (
+                      <FullExplanationDialog
+                        article={selected.article}
+                        paragraphs={fullExplanation}
+                        query={query}
+                        sourceUrl={explanationUrl}
+                      />
+                    ) : null}
+                    <Button asChild variant="outline" className="min-h-11 bg-card">
+                      <a href={explanationUrl} target="_blank" rel="noreferrer">
+                        Джерело <ExternalLink />
+                      </a>
+                    </Button>
+                  </div>
+                </section>
+
+                {scheduleGraph === "all" ? null : (
+                  <section className="mt-3 overflow-hidden rounded-lg border border-[var(--hairline)] bg-card">
+                    <Accordion type="single" collapsible>
+                      <AccordionItem value="graph-guidance" className="border-none px-3">
+                        <AccordionTrigger className="py-2.5 text-left text-xs font-semibold text-[var(--foreground)] hover:no-underline">
+                          Пояснення з прямою згадкою графи {scheduleGraph}
+                          <span className="ml-auto mr-2 rounded-full bg-[var(--secondary)] px-2 py-0.5 text-[10px] text-[var(--accent-ink-strong)]">
+                            {selectedGraphGuidance.length}
+                          </span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="border-t border-[var(--hairline)] py-2">
+                            {selectedGraphGuidance.length ? (
+                              <ExplanationDocument
+                                article={selected.article}
+                                paragraphs={fullExplanation}
+                                excerpt={selectedGraphGuidance}
+                                query={query}
+                              />
+                            ) : (
+                              <p className="text-xs leading-5 text-[var(--ink-muted)]">
+                                В офіційному поясненні до цієї статті немає окремого абзацу з
+                                прямою згадкою графи {scheduleGraph}. Застосовуйте дослівний текст
+                                пункту та перевіряйте офіційне джерело.
+                              </p>
+                            )}
                           </div>
-                          <div className="mt-2 flex flex-wrap items-center gap-2">
-                            <Button asChild variant="outline" size="sm" className="h-8 bg-[var(--surface)] text-[10px]">
-                              <a href={explanationUrl} target="_blank" rel="noreferrer">
-                                Джерело · Додаток 2 <ExternalLink />
-                              </a>
-                            </Button>
-                            <p className="text-[9px] leading-4 text-[var(--ink-muted)]">
-                              Пояснення допомагає звірити критерії, але не встановлює діагноз і не
-                              замінює постанову ВЛК.
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </section>
+                )}
+
+
+
               </div>
+              {selectedRule ? <div className="article-action-rail" role="region" aria-label="Дії вибраного пункту">
+                <p className="action-context"><strong>Стаття {selected.article} · {pointLabel(selectedRule.point)}</strong><span>{scheduleGraph === "all" ? "Графа не обрана" : `Графа ${scheduleGraph}`}</span></p>
+                <Button type="button" className="primary-point-action" onClick={() => addArticleRuleToBasket(selected, selectedRule)} disabled={basket.some(item => item.id === `${selected.article}-${selectedRule.point}`)}>
+                  {basket.some(item => item.id === `${selected.article}-${selectedRule.point}`) ? <><Check />{mode === "doctor" ? "У зведенні" : "Збережено"}</> : <><Plus />{mode === "doctor" ? "Додати до зведення" : "Зберегти норму"}</>}
+                </Button>
+              </div> : null}
             </>
           ) : (
             <div className="grid flex-1 place-items-center p-10 text-center">
@@ -1912,41 +1803,35 @@ export default function Home() {
           )}
         </section>
 
+        <div id="vlk-panel-summary" role="tabpanel" aria-labelledby="vlk-tab-summary" data-mobile-panel="summary" data-active={mobilePanel === "summary"} className="summary-panel min-h-0 min-w-0">
         {mode === "citizen" ? (
           <CitizenPreparation
             checked={citizenChecked}
             selected={selected}
             selectedRule={selectedRule}
             onToggle={toggleCitizenCheck}
-            className={mobilePanel === "summary" ? "" : "hidden xl:flex"}
           />
         ) : (
-        <aside
-          id="vlk-panel-summary"
-          data-panel="summary"
-          className={`verification-rail flex min-h-[440px] flex-col overflow-hidden rounded-2xl border border-[var(--hairline)] bg-[var(--rail)] shadow-[var(--shadow-soft)] xl:min-h-0 ${mobilePanel === "summary" ? "" : "hidden xl:flex"}`}
-        >
-          <div data-panel-head className="flex items-center justify-between border-b border-[var(--hairline)] bg-[var(--panel-head)] px-3 py-2.5">
+        <aside data-empty={!basket.length} className="verification-rail flex flex-col overflow-hidden rounded-2xl border border-[var(--brand-rule)]/25 bg-[var(--surface-muted)] shadow-[var(--shadow-soft)]">
+          <div className="flex items-center justify-between border-b border-[var(--hairline)] bg-card px-3 py-2.5">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-ink)]">
-                Резюме стану
-              </p>
-              <h2 className="mt-0.5 text-sm font-bold">Попереднє зведення</h2>
+              <h2 className="text-sm font-bold">Зведення · <span key={basket.length} className="basket-count">{basket.length}</span></h2>
             </div>
-            <span className="rounded-full bg-[var(--surface-accent)] px-2 py-1 text-[10px] font-bold text-[var(--accent-ink-strong)]">
+            <span className="rounded-full bg-[var(--secondary)] px-2 py-1 text-[10px] font-bold text-[var(--accent-ink-strong)]">
               локально
             </span>
           </div>
 
-          <div data-panel-body className="min-h-0 flex-1 overflow-y-auto p-2.5 scrollbar-thin">
+          <div className="min-h-0 flex-1 overflow-y-auto p-2.5 scrollbar-thin">
             {restoreNotice ? (
-              <div className="mb-2 rounded-lg border border-[var(--warn-line)] bg-[var(--warn-surface)] p-2 text-[10px] leading-4 text-[var(--warn-ink)]">
+              <div className="mb-2 rounded-lg border border-[var(--warning-border)]/25 bg-[var(--warning-bg)] p-2 text-[10px] leading-4 text-[var(--warning-ink)]">
                 {restoreNotice}
               </div>
             ) : null}
 
             {summaryItem && summaryStyle ? (
-              <div className={`rounded-lg border p-3 ${summaryStyle.box}`} aria-live="polite">
+              <div aria-live="polite" aria-atomic="true">
+              <div key={summaryItem.id} className={`clinical-result rounded-lg border p-3 ${summaryStyle.box}`}>
                 <div className="flex items-center justify-between gap-2">
                   <span className={`rounded-full px-2 py-1 text-[10px] font-black ${summaryStyle.badge}`}>
                     {summaryStyle.label}
@@ -1962,35 +1847,38 @@ export default function Home() {
                   Категорія: {examineeType}. Остаточна звірка — лікарем за графою і ТДВ.
                 </p>
               </div>
+              </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-[var(--accent-line)] bg-[var(--surface)] px-5 py-8 text-center">
-                <ClipboardCheck className="mx-auto size-6 text-[var(--accent-ink)]" />
-                <h3 className="mt-3 text-sm font-semibold tracking-tight">Кошик порожній</h3>
-                <p className="mx-auto mt-1.5 max-w-[220px] text-xs leading-6 text-[var(--ink-muted)]">
-                  Оберіть пункт статті та додайте його до зведення.
+              <div className="py-2 text-sm text-muted-foreground">
+                <h3 className="font-medium">Ще немає пунктів</h3>
+                <p className="mt-1 text-xs leading-5">
+                  Відкрийте пункт і натисніть «Додати до зведення».
                 </p>
+                <Button variant="outline" className="return-to-reading mt-2 min-h-11" onClick={showArticlePanel}>До читання статті</Button>
               </div>
             )}
 
+            {basket.length ? (
             <div className="mt-3 flex items-center justify-between">
-              <p className="text-[11px] font-semibold text-[var(--ink-soft)]">
-                Кошик діагнозів · {basket.length}
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
+                Вибрані пункти
               </p>
               {basket.length ? (
                 <button
                   type="button"
                   onClick={() => setBasket([])}
-                  className={`rounded px-1 py-0.5 text-[10px] font-bold text-[var(--danger-ink)] ${FOCUS_RING}`}
+                  className={`rounded px-1 py-0.5 text-[10px] font-bold text-[var(--critical-ink)] ${FOCUS_RING}`}
                 >
                   Очистити
                 </button>
               ) : null}
             </div>
+            ) : null}
             <div className="mt-1.5 space-y-1.5">
               {basket.map((item) => {
                 const style = outcomeStyles(item.outcome);
                 return (
-                  <div key={item.id} className="rounded-lg border border-[var(--hairline)] bg-[var(--surface)] p-2">
+                  <div key={item.id} className="diagnosis-entry rounded-lg border border-[var(--hairline)] bg-card p-2">
                     <div className="flex items-start justify-between gap-2">
                       <button
                         type="button"
@@ -2002,14 +1890,14 @@ export default function Home() {
                           {item.point === "—" ? "" : `-${item.point}`} · {item.title}
                         </span>
                         <span className="mt-0.5 block break-words text-[10px] text-[var(--ink-muted)]">
-                          {item.icd} · {item.doctors}
+                          {articleIcdLabel(item)} · {item.doctors}
                         </span>
                       </button>
                       <button
                         type="button"
                         aria-label={`Видалити статтю ${item.article} зі зведення`}
                         onClick={() => setBasket((current) => current.filter((entry) => entry.id !== item.id))}
-                        className={`grid size-9 shrink-0 place-items-center rounded-md text-[var(--danger-ink)] hover:bg-[var(--danger-surface)] ${FOCUS_RING}`}
+                        className={`grid size-9 shrink-0 place-items-center rounded-md text-[var(--critical-ink)] hover:bg-[var(--critical-bg)] ${FOCUS_RING}`}
                       >
                         <X className="size-3.5" />
                       </button>
@@ -2022,10 +1910,10 @@ export default function Home() {
               })}
             </div>
 
-            <div className="mt-3 rounded-lg border border-[var(--warn-line)] bg-[var(--warn-surface)] p-2.5">
+            <div className="summary-disclaimer mt-3 rounded-lg border border-[var(--warning-border)]/20 bg-[var(--warning-bg)] p-2.5">
               <div className="flex items-start gap-2">
-                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-[var(--warn-ink)]" />
-                <p className="text-[10px] leading-4 text-[var(--warn-ink)]">
+                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-[var(--warning-ink)]" />
+                <p className="text-[10px] leading-4 text-[var(--warning-ink)]">
                   Алгоритм показує найсуворіший попередній орієнтир, але не враховує медичну
                   взаємодію кількох станів і не замінює постанову ВЛК.
                 </p>
@@ -2033,34 +1921,35 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="shrink-0 space-y-1.5 border-t border-[var(--hairline)] bg-[var(--surface)] p-2.5">
+          <div className="shrink-0 space-y-1.5 border-t border-[var(--hairline)] bg-card p-2.5">
             <Button
               type="button"
               size="sm"
-              onClick={() => setDraftOpen(true)}
+              onClick={openDraft}
               disabled={!basket.length}
-              className="h-10 w-full bg-[var(--primary)] text-xs text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)]"
+              className="h-10 w-full bg-[var(--primary)] text-xs text-white hover:bg-[var(--primary-hover)]"
             >
               <FileText />
-              Створити зведення
+              Переглянути зведення
             </Button>
-            <div className="flex items-center justify-center gap-1.5 pt-1 text-[9px] text-[var(--ink-faint)]">
+            <div className="flex items-center justify-center gap-1.5 pt-1 text-[9px] text-[var(--ink-muted)]">
               <ShieldCheck className="size-3" />
               Дані зберігаються тільки в цьому браузері
             </div>
           </div>
         </aside>
         )}
+        </div>
       </div>
         </>
       ) : (
-        <div className="mx-auto flex max-w-[940px] flex-col items-center px-4 py-14 text-center sm:px-6 lg:py-20">
+        <div className="welcome-screen mx-auto flex max-w-[1040px] flex-col items-center px-4 py-6 text-center sm:px-6 lg:py-8">
           {EDITION_NOTICE ? (
             <a
               href={EDITION_NOTICE.url}
               target="_blank"
               rel="noreferrer"
-              className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--warn-line)] bg-[var(--warn-surface)] px-3 py-2 text-xs font-bold text-[var(--warn-ink)]"
+              className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--warning-border)]/25 bg-[var(--warning-bg)] px-3 py-2 text-xs font-bold text-[var(--warning-ink)]"
             >
               <AlertTriangle className="size-4" />
               {EDITION_NOTICE.message}
@@ -2068,7 +1957,7 @@ export default function Home() {
           ) : null}
 
           <div
-            className="mb-6 flex items-center gap-1 rounded-full border border-[var(--hairline)] bg-[var(--surface)] p-1 shadow-[var(--shadow-soft)]"
+            className="mb-6 flex items-center gap-1 rounded-full border border-[var(--hairline)] bg-card p-1 shadow-[var(--shadow-soft)]"
             aria-label="Оберіть режим навігатора"
           >
             {(["doctor", "citizen"] as const).map((value) => (
@@ -2077,7 +1966,7 @@ export default function Home() {
                 type="button"
                 onClick={() => changeMode(value)}
                 aria-pressed={mode === value}
-                className={`min-h-10 rounded-full px-5 py-2 text-sm font-semibold transition ${FOCUS_RING} ${mode === value ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "text-[var(--ink-soft)] hover:bg-[var(--surface-sunken)]"}`}
+                className={`min-h-10 rounded-full px-5 py-2 text-sm font-semibold transition ${FOCUS_RING} ${mode === value ? "bg-[var(--primary)] text-white" : "text-[var(--ink-soft)] hover:bg-[var(--background)]"}`}
               >
                 {value === "doctor" ? "Я лікар" : "Я проходжу ВЛК"}
               </button>
@@ -2088,7 +1977,7 @@ export default function Home() {
             <Button
               type="button"
               onClick={() => changeSpecialty(lastSpecialty)}
-              className="h-11 bg-[var(--primary)] px-5 text-sm text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)]"
+              className="h-11 bg-[var(--primary)] px-5 text-sm text-white hover:bg-[var(--primary-hover)]"
             >
               Продовжити як{" "}
               {SPECIALTIES.find((item) => item.id === lastSpecialty)?.label ?? "лікар"}
@@ -2096,43 +1985,18 @@ export default function Home() {
             </Button>
           ) : null}
 
-          <p
-            className={`text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-ink)] ${lastSpecialty ? "mt-6" : ""}`}
-          >
-            {mode === "doctor" && lastSpecialty ? "Або почніть спочатку" : "Крок 1"}
-          </p>
-          <h2 className="mt-3 max-w-2xl text-[28px] font-semibold leading-[1.15] tracking-[-0.02em] sm:text-[34px]">
+          <h2 className="mt-4 max-w-2xl text-2xl font-semibold leading-tight sm:text-[28px]">
             {mode === "doctor"
-              ? "Знайдіть статтю, пункт і нормативний орієнтир"
-              : "Підготуйтеся до ВЛК без здогадок і самодіагностики"}
+              ? "Робоче місце лікаря ВЛК"
+              : "Знайдіть норму та підготуйте документи"}
           </h2>
-          <p className="mt-4 max-w-xl text-[15px] leading-7 text-[var(--ink-soft)]">
+          <p className="mt-2 max-w-xl text-base leading-6 text-[var(--ink-soft)]">
             {mode === "doctor"
-              ? "Введіть діагноз, код МКХ-10 або номер статті. Спеціальність допоможе звузити список, але для пошуку вона не обов’язкова."
-              : "Знайдіть норму за діагнозом або кодом МКХ-10, звірте дослівний пункт і зберіть документи, які підтверджують порушення функцій."}
+              ? "Оберіть спеціальність або знайдіть норму за діагнозом, кодом МКХ-10 чи номером статті."
+              : "Почніть із діагнозу або коду МКХ-10 у пошуку вгорі."}
           </p>
 
-          <ol
-            className="mt-6 grid w-full max-w-2xl gap-2 text-left sm:grid-cols-3"
-            aria-label="Як працює навігатор"
-          >
-            {(mode === "doctor" ? DOCTOR_WORKFLOW_STEPS : CITIZEN_WORKFLOW_STEPS).map(
-              ([step, title, description]) => (
-              <li
-                key={step}
-                className="flex items-center gap-3 rounded-xl border border-[var(--hairline)] bg-[var(--surface)] px-3 py-2.5 shadow-[var(--shadow-soft)]"
-              >
-                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[var(--surface-accent)] text-xs font-black text-[var(--accent-ink-strong)]">
-                  {step}
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-xs font-bold text-[var(--foreground)]">{title}</span>
-                  <span className="block text-[11px] leading-4 text-[var(--ink-muted)]">{description}</span>
-                </span>
-              </li>
-              ),
-            )}
-          </ol>
+
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             <span className="text-[11px] font-bold text-[var(--ink-soft)]">Спробуйте:</span>
@@ -2141,7 +2005,7 @@ export default function Home() {
                 key={example}
                 type="button"
                 onClick={() => runQuery(example)}
-                className={`rounded-full border border-[var(--hairline)] bg-[var(--surface)] px-3.5 py-1.5 text-[12px] font-medium text-[var(--accent-ink)] shadow-[var(--shadow-soft)] transition hover:border-[var(--accent-line)] hover:text-[var(--accent-ink-strong)] ${FOCUS_RING}`}
+                className={`rounded-full border border-[var(--hairline)] bg-card px-3.5 py-1.5 text-[12px] font-medium text-[var(--accent-ink)] shadow-[var(--shadow-soft)] transition hover:border-[var(--accent-ink)]/25 hover:text-[var(--accent-ink-strong)] ${FOCUS_RING}`}
               >
                 {example}
               </button>
@@ -2149,8 +2013,8 @@ export default function Home() {
           </div>
 
           {recent.length ? (
-            <div className="mt-9 w-full">
-              <p className="text-[11px] font-semibold text-[var(--ink-soft)]">
+            <div className="mt-4 w-full">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
                 Нещодавно переглянуті
               </p>
               <div className="mt-1.5 flex flex-wrap justify-center gap-1">
@@ -2166,7 +2030,7 @@ export default function Home() {
                       type="button"
                       onClick={() => openRecent(entry)}
                       title={article.title}
-                      className={`flex items-center gap-1.5 rounded-full border border-[var(--hairline)] bg-[var(--surface)] px-2 py-1 text-[11px] font-semibold text-[var(--accent-ink)] hover:bg-[var(--surface-sunken)] ${FOCUS_RING}`}
+                      className={`flex items-center gap-1.5 rounded-full border border-[var(--hairline)] bg-card px-2 py-1 text-[11px] font-semibold text-[var(--accent-ink)] hover:bg-[var(--background)] ${FOCUS_RING}`}
                     >
                       {style ? (
                         <span className={`size-2 rounded-full ${style.dot}`} aria-hidden />
@@ -2184,7 +2048,7 @@ export default function Home() {
           ) : null}
 
           {mode === "doctor" ? (
-            <div className="mt-10 grid w-full grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
+            <div className="specialty-grid mt-6 grid w-full grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
               {welcomeSpecialties.map((item) => {
                 const count = ARTICLES.filter((article) =>
                   article.specialties.includes(item.id),
@@ -2194,12 +2058,14 @@ export default function Home() {
                     key={item.id}
                     type="button"
                     onClick={() => changeSpecialty(item.id)}
-                    className={`lift min-h-[86px] rounded-2xl border border-[var(--hairline)] bg-[var(--surface)] px-4 py-4 text-left shadow-[var(--shadow-soft)] hover:border-[var(--accent-line)] ${FOCUS_RING}`}
+                    data-specialty={item.id}
+                    className={`specialty-card lift min-h-[104px] rounded-2xl border border-[var(--hairline)] bg-card px-4 py-3 text-left shadow-[var(--shadow-soft)] hover:border-[var(--accent-ink)]/25 ${FOCUS_RING}`}
                   >
+                    <span className="specialty-card-heading mb-3 flex items-center justify-between"><span className="specialty-icon"><SpecialtyIcon id={item.id} /><span className="clinical-signature" aria-hidden="true" /></span><ArrowRight className="specialty-arrow size-4" aria-hidden="true" /></span>
                     <span className="block hyphens-auto break-words text-[15px] font-semibold leading-snug tracking-tight">
-                      {compactSpecialtyName(item)}
+                      {specialtyName(item)}
                     </span>
-                    <span className="mt-1.5 block text-[11px] text-[var(--ink-faint)]">
+                    <span className="mt-1.5 block text-[11px] text-[var(--ink-muted)]">
                       {articleCountLabel(count)}
                     </span>
                   </button>
@@ -2207,7 +2073,7 @@ export default function Home() {
               })}
             </div>
           ) : (
-            <div className="mt-9 w-full max-w-2xl rounded-2xl border border-[var(--hairline)] bg-[var(--surface)] p-4 text-left shadow-[var(--shadow-soft)]">
+            <div className="mt-9 w-full max-w-2xl rounded-2xl border border-[var(--hairline)] bg-card p-4 text-left shadow-[var(--shadow-soft)]">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-ink)]">
@@ -2215,7 +2081,7 @@ export default function Home() {
                   </p>
                   <h3 className="mt-1 text-base font-bold">Базовий чекліст перед ВЛК</h3>
                 </div>
-                <span className="rounded-full bg-[var(--surface-accent)] px-2 py-1 text-[10px] font-bold text-[var(--accent-ink-strong)]">
+                <span className="rounded-full bg-[var(--secondary)] px-2 py-1 text-[10px] font-bold text-[var(--accent-ink-strong)]">
                   без передачі даних
                 </span>
               </div>
@@ -2223,7 +2089,7 @@ export default function Home() {
                 {CITIZEN_PREPARATION_CHECKS.map((item) => (
                   <div key={item} className="flex items-start gap-2 rounded-lg bg-[var(--surface-muted)] p-2.5">
                     <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[var(--accent-ink)]" />
-                    <span className="text-xs leading-5 text-[var(--ink-body)]">{item}</span>
+                    <span className="text-xs leading-5 text-[var(--foreground)]">{item}</span>
                   </div>
                 ))}
               </div>
@@ -2236,7 +2102,7 @@ export default function Home() {
 
           <TdvDialog
             trigger={
-              <Button type="button" variant="outline" className="mt-4 h-10 bg-[var(--surface)]">
+              <Button type="button" variant="outline" className="mt-4 h-10 bg-card">
                 <Table2 />
                 Таблиця додаткових вимог (ТДВ)
               </Button>
@@ -2247,26 +2113,35 @@ export default function Home() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => setDraftOpen(true)}
-              className="mt-5 h-10 bg-[var(--surface)]"
+              onClick={openDraft}
+              className="mt-5 h-10 bg-card"
             >
               <ListPlus />
               Відкрити збережене зведення · {basket.length}
             </Button>
           ) : null}
 
-          <p className="mt-12 flex items-center gap-1.5 text-[11px] text-[var(--ink-faint)]">
+          <p className="mt-5 flex items-center gap-1.5 text-[11px] text-[var(--ink-muted)]">
             <ShieldCheck className="size-3.5" />
             Довідкова навігація, не рішення ВЛК · корпус: редакція від {EDITION}
           </p>
         </div>
       )}
 
+      <Dialog open={manualCopy !== null} onOpenChange={(open) => { if (!open) setManualCopy(null); }}>
+        <VlkDialogContent returnFocusRef={copyTriggerRef} className="sm:max-w-2xl">
+          <DialogHeader className="pr-8"><DialogTitle>Скопіюйте текст</DialogTitle><DialogDescription>Браузер не надав доступ до буфера обміну. Виділіть текст і скопіюйте його звичним способом.</DialogDescription></DialogHeader>
+          <textarea aria-label="Текст для ручного копіювання" readOnly value={manualCopy ?? ""} onFocus={(event) => event.currentTarget.select()} className="min-h-64 w-full rounded-lg border border-input bg-muted p-3 text-sm leading-6" />
+        </VlkDialogContent>
+      </Dialog>
+
+      <SessionResetDialog open={resetOpen} onOpenChange={setResetOpen} onConfirm={finishSession} returnFocusRef={moreTriggerRef} />
+
       <Dialog open={draftOpen} onOpenChange={setDraftOpen}>
-        <DialogContent className="max-h-[90vh] overflow-hidden p-0 sm:max-w-3xl">
+        <VlkDialogContent data-clinical-basket returnFocusRef={draftTriggerRef} className="flex flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl">
           <DialogHeader className="border-b border-[var(--hairline)] p-4 pr-12">
             <DialogTitle>
-              {mode === "doctor" ? "Зведення для перевірки лікарем" : "Мій список підготовки до ВЛК"}
+              {mode === "doctor" ? "Зведення" : "Мій список підготовки до ВЛК"}
             </DialogTitle>
             <DialogDescription>
               {mode === "doctor"
@@ -2274,8 +2149,8 @@ export default function Home() {
                 : "Збережені норми, відмічені документи та офіційне джерело. Не визначає придатність."}
             </DialogDescription>
           </DialogHeader>
-          <div className="max-h-[58vh] overflow-y-auto scrollbar-thin">
-            <div className="border-b border-[var(--hairline)] bg-[var(--surface)] px-4 py-3">
+          <div className="min-h-0 max-h-[58dvh] flex-1 overflow-y-auto scrollbar-thin">
+            <div className="border-b border-[var(--hairline)] bg-card px-4 py-3">
               <div className="flex items-center justify-between">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
                   {mode === "doctor"
@@ -2292,7 +2167,7 @@ export default function Home() {
                 {(mode === "doctor" ? ANALYSIS_CHECKS : CITIZEN_PREPARATION_CHECKS).map((step) => (
                   <label
                     key={step}
-                    className="flex min-h-10 cursor-pointer items-start gap-2 rounded-lg border border-[var(--hairline)] bg-[var(--surface)] p-2"
+                    className="flex min-h-10 cursor-pointer items-start gap-2 rounded-lg border border-[var(--hairline)] bg-card p-2"
                   >
                     <Checkbox
                       checked={
@@ -2312,100 +2187,38 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            <pre className="whitespace-pre-wrap break-words bg-[var(--surface-muted)] p-4 font-sans text-xs leading-5 text-[var(--ink-body)]">
-              {draftText}
-            </pre>
+            <ul className="space-y-2 p-4" aria-label="Збережені пункти">
+              {basket.map((item) => <li key={item.id} className="rounded-lg border border-border bg-card p-3">
+                <p className="text-sm font-semibold">Стаття {item.article}{item.point === "—" ? "" : ` · пункт «${item.point}»`}</p>
+                <p className="mt-1 text-sm">{item.condition}</p>
+                <p className="mt-2 text-sm font-medium">{item.outcome}</p>
+              </li>)}
+              {!basket.length ? <li className="text-sm text-muted-foreground">У зведенні ще немає пунктів.</li> : null}
+            </ul>
+            <Accordion type="single" collapsible className="px-4 pb-3">
+              <AccordionItem value="experimental-export">
+                <AccordionTrigger className="text-sm">Додатково · чернетка та експорт</AccordionTrigger>
+                <AccordionContent>
+                  <p className="mb-3 text-sm text-muted-foreground">Експериментальний експорт. Перед використанням перевірте форматування та формулювання.</p>
+                  <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted p-3 font-sans text-xs leading-5">{draftText}</pre>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button variant="outline" onClick={() => copyText(draftText, "draft")}>
+                      <Copy /> {copied === "draft" ? "Скопійовано" : "Копіювати чернетку"}
+                    </Button>
+                    <Button variant="outline" onClick={printDraft}><Printer /> Друк / PDF</Button>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
-          <DialogFooter className="border-t border-[var(--hairline)] p-3">
-            <Button variant="outline" onClick={() => copyText(draftText, "draft")}>
-              {copied === "draft" ? (
-                <>
-                  <Check />
-                  Скопійовано
-                </>
-              ) : (
-                <>
-                  <Copy />
-                  Копіювати
-                </>
-              )}
-            </Button>
-            <Button variant="outline" onClick={printDraft}>
-              <Printer />
-              Друк / зберегти PDF
-            </Button>
-            <Button onClick={() => setDraftOpen(false)} className="bg-[var(--primary)] text-[var(--primary-foreground)]">
+          <DialogFooter className="shrink-0 border-t border-[var(--hairline)] p-3">
+            <Button onClick={() => setDraftOpen(false)} className="bg-[var(--primary)] text-white">
               Готово
             </Button>
           </DialogFooter>
-        </DialogContent>
+        </VlkDialogContent>
       </Dialog>
+      <section className="vlk-print-sheet" aria-hidden="true"><h1>VLK Навігатор · Робоче зведення</h1><PrintReport text={draftText} /></section>
     </main>
-
-    {/*
-      Аркуш для друку та збереження в PDF. У звичайному режимі він
-      прихований, а під час друку інтерфейс ховається і на папір іде
-      документ: редакція, статті з дослівним результатом, чекліст і джерело.
-    */}
-    <div className="print-root print-sheet">
-      <h1>
-        {mode === "doctor"
-          ? "Попереднє навігаційне зведення ВЛК"
-          : "Список підготовки до ВЛК"}
-      </h1>
-      <p className="print-meta">
-        Наказ МОУ №402, редакція від {EDITION}
-        {mode === "doctor" ? ` · категорія оглядуваного: ${examineeType}` : ""}
-        {printedAt ? ` · сформовано ${printedAt}` : ""}
-      </p>
-
-      {basket.length ? (
-        basket.map((item, index) => (
-          <div key={item.id} className="print-item">
-            <h3>
-              {index + 1}. Стаття {item.article}
-              {item.point === "—" ? "" : `, пункт «${item.point}»`} · {item.title}
-            </h3>
-            <p>МКХ-10: {item.icd}</p>
-            <p className="print-label">Стан за пунктом, дослівно</p>
-            <p>{item.condition}</p>
-            <p className="print-label">Результат за четвертою графою, дослівно</p>
-            <p className="print-outcome">«{item.outcome}»</p>
-            <p>Профільні лікарі: {item.doctors}</p>
-          </div>
-        ))
-      ) : (
-        <p>Зведення порожнє: жодного пункту статті не додано.</p>
-      )}
-
-      {basket.length && mode === "doctor" && summaryItem ? (
-        <p>
-          <span className="print-label">Найсуворіший орієнтир: </span>
-          Стаття {summaryItem.article}
-          {summaryItem.point === "—" ? "" : `, пункт «${summaryItem.point}»`} — «
-          {summaryItem.outcome}»
-        </p>
-      ) : null}
-
-      <h2>
-        {mode === "doctor"
-          ? "Що ще треба перевірити перед постановою"
-          : "Що вже підготовлено до проходження ВЛК"}
-      </h2>
-      <ul>
-        {(mode === "doctor" ? ANALYSIS_CHECKS : CITIZEN_PREPARATION_CHECKS).map((step) => (
-          <li key={step}>
-            {(mode === "doctor" ? checked : citizenChecked).includes(step) ? "[x]" : "[ ]"} {step}
-          </li>
-        ))}
-      </ul>
-
-      <p className="print-note">
-        Довідкова навігація за Наказом МОУ №402, а не постанова ВЛК і не медичний висновок.
-        Остаточне рішення приймає лікарсько-військова комісія за дослівним текстом Розкладу
-        хвороб, поясненнями Додатка 2 і таблицею додаткових вимог. Джерело: {SOURCE_URL}
-      </p>
-    </div>
-    </>
   );
 }

@@ -1,5 +1,8 @@
 "use client";
 
+import { TdvContext } from "@/components/vlk/tdv-context";
+import { VlkDialogContent } from "@/components/vlk/dialog-content";
+
 import { useEffect, useRef, useState } from "react";
 import { ExternalLink, X } from "lucide-react";
 
@@ -7,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
-  DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
@@ -97,6 +99,7 @@ export function TdvDialog({
 }) {
   const [open, setOpen] = useState(false);
   const activeRowRef = useRef<HTMLTableRowElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const activeMarks =
     article && selectedPoint ? tdvRowFor(article.article, selectedPoint) : undefined;
   const articleRows = article ? TDV_ROWS.filter((row) => row.article === article.article) : [];
@@ -109,16 +112,21 @@ export function TdvDialog({
   useEffect(() => {
     if (!open) return;
     const frame = window.requestAnimationFrame(() => {
-      activeRowRef.current?.scrollIntoView({ block: "center" });
+      const row = activeRowRef.current;
+      const container = scrollRef.current;
+      if (!row || !container) return;
+      // Scroll only the table, never its ancestors or the underlying page.
+      const offset = row.getBoundingClientRect().top - container.getBoundingClientRect().top;
+      container.scrollTop += offset - (container.clientHeight - row.clientHeight) / 2;
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [open]);
+  }, [open, scrollKey]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="table-fullscreen flex flex-col gap-0 overflow-hidden p-0" showCloseButton={false}>
-        <DialogHeader className="relative shrink-0 border-b border-[var(--hairline-strong)] p-3 pr-32 text-left">
+      <VlkDialogContent variant="fullscreen" className="table-fullscreen flex flex-col gap-0 overflow-hidden p-0" showCloseButton={false}>
+        <DialogHeader className="relative shrink-0 border-b border-[var(--foreground)]/10 p-3 pr-32 text-left">
           <DialogClose asChild><Button variant="outline" className="absolute right-3 top-3 min-h-11"><X />Закрити</Button></DialogClose>
           <DialogTitle className="text-base">
             Таблиця додаткових вимог · Додаток 3 до Наказу №402
@@ -145,7 +153,7 @@ export function TdvDialog({
           </div>
         </DialogHeader>
 
-        <div className="min-h-0 flex-1 overflow-auto p-2 sm:p-4 scrollbar-thin" role="region" aria-label="Повна таблиця ТДВ" tabIndex={0}>
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto p-2 sm:p-4 scrollbar-thin" role="region" aria-label="Повна таблиця ТДВ" tabIndex={0}>
           <table className="tdv-table w-full min-w-[760px] table-fixed border-separate border-spacing-0 border-l border-t border-black text-left">
             <caption className="sr-only">
               Позначки «НП» за 12 графами Додатка 3 для кожної статті та пункту
@@ -165,7 +173,7 @@ export function TdvDialog({
                     title={column.label}
                     className={`bg-[var(--surface-sunken)] px-2 py-2 text-center text-[11px] font-black text-[var(--accent-ink)] ${HEAD_GRID}`}
                   >
-                    {column.id}
+                    <TdvContext columnId={column.id} />
                   </th>
                 ))}
               </tr>
@@ -187,17 +195,17 @@ export function TdvDialog({
                     (row.group ?? row.label);
                 const groupBorder = startsGroup ? GROUP_GRID : "";
                 return (
-                  <tr key={row.id} className="bg-[var(--surface)]">
+                  <tr key={row.id} className="bg-card">
                     <th
                       scope="row"
-                      className={`sticky left-0 z-10 w-[190px] min-w-[190px] bg-[var(--surface)] px-3 py-2 text-left align-top text-[11px] font-bold ${CELL_GRID} ${groupBorder}`}
+                      className={`sticky left-0 z-10 w-[190px] min-w-[190px] bg-card px-3 py-2 text-left align-top text-[11px] font-bold ${CELL_GRID} ${groupBorder}`}
                     >
                       {row.group ? (
                         <span className="block text-[var(--accent-ink)]">{row.group}</span>
                       ) : null}
                       <span className="block font-bold">{row.label}</span>
                       {row.note ? (
-                        <span className="mt-0.5 block text-[10px] font-normal leading-4 text-[var(--warn-ink)]">
+                        <span className="mt-0.5 block text-[10px] font-normal leading-4 text-[var(--warning-ink)]">
                           {row.note}
                         </span>
                       ) : null}
@@ -207,7 +215,7 @@ export function TdvDialog({
                       return (
                         <td
                           key={column.id}
-                          className={`px-2 py-2 text-center align-middle text-[11px] leading-4 ${CELL_GRID} ${groupBorder} ${value ? "font-bold text-[var(--primary)]" : "text-[var(--ink-faint)]"}`}
+                          className={`px-2 py-2 text-center align-middle text-[11px] leading-4 ${CELL_GRID} ${groupBorder} ${value ? "font-bold text-[var(--accent-ink-strong)]" : "text-[var(--ink-muted)]"}`}
                         >
                           {value ?? "—"}
                         </td>
@@ -231,7 +239,7 @@ export function TdvDialog({
                 const startsArticle = index === 0 || TDV_ROWS[index - 1].article !== row.article;
                 const groupBorder = startsArticle ? GROUP_GRID : "";
                 const active = sameArticle && (selectedPoint ?? "") === row.point;
-                const background = active ? "bg-[var(--warn-surface)]" : sameArticle ? "bg-[var(--surface-accent)]" : "bg-[var(--surface)]";
+                const background = active ? "bg-[var(--warning-bg)]" : sameArticle ? "bg-[var(--positive-bg)]" : "bg-card";
                 return (
                   <tr
                     key={row.key}
@@ -245,7 +253,7 @@ export function TdvDialog({
                     >
                       <span className="flex items-center gap-2">
                         <span
-                          className={`grid size-6 shrink-0 place-items-center rounded-md text-[10px] font-black ${sameArticle ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "bg-[var(--surface-accent)] text-[var(--accent-ink-strong)]"}`}
+                          className={`grid size-6 shrink-0 place-items-center rounded-md text-[10px] font-black ${sameArticle ? "bg-[var(--primary)] text-white" : "bg-[var(--secondary)] text-[var(--accent-ink-strong)]"}`}
                         >
                           {row.article}
                         </span>
@@ -257,9 +265,9 @@ export function TdvDialog({
                       return (
                         <td
                           key={column.id}
-                          className={`px-2 py-2 text-center text-[11px] font-black ${CELL_GRID} ${groupBorder} ${mark ? "text-[var(--danger-ink)]" : "text-[var(--ink-faint)]"}`}
+                          className={`px-2 py-2 text-center text-[11px] font-black ${CELL_GRID} ${groupBorder} ${mark ? "text-[var(--critical-ink)]" : "text-[var(--ink-muted)]"}`}
                         >
-                          {mark ?? "—"}
+                          {mark ? <TdvContext columnId={column.id} mark={mark}>{mark}</TdvContext> : "—"}
                         </td>
                       );
                     })}
@@ -269,13 +277,13 @@ export function TdvDialog({
             </tbody>
           </table>
 
-          <p className="mt-3 text-[10px] leading-4 text-[var(--warn-ink)]">
+          <p className="mt-3 text-[10px] leading-4 text-[var(--warning-ink)]">
             Загальні вимоги (зріст, вага, гострота зору, кольоровідчуття, поля зору, рефракція,
             слух) внесені дослівно з наданого фрагмента Додатка 3 редакції від 22.08.2025.
             Перед використанням у постанові звірте їх з офіційною таблицею за посиланням угорі.
           </p>
 
-          <h3 className="mt-5 text-[12px] font-semibold text-[var(--ink-soft)]">
+          <h3 className="mt-5 text-[11px] font-black uppercase tracking-[0.12em] text-[var(--ink-soft)]">
             Повні назви граф{selectedPoint ? ` · позначки для ${pointTitleGenitive(selectedPoint)}` : ""}
           </h3>
           <div className="mt-2.5 grid gap-2 lg:grid-cols-2">
@@ -284,15 +292,15 @@ export function TdvDialog({
               return (
                 <div
                   key={column.id}
-                  className={`flex items-start gap-2 border border-black p-2 ${mark ? "bg-[var(--danger-surface)]" : "bg-[var(--surface)]"}`}
+                  className={`flex items-start gap-2 border border-black p-2 ${mark ? "bg-[var(--critical-bg)]" : "bg-card"}`}
                 >
-                  <span className="grid size-6 shrink-0 place-items-center border border-black bg-[var(--surface-accent)] text-[10px] font-black">
+                  <span className="grid size-6 shrink-0 place-items-center border border-black bg-[var(--secondary)] text-[10px] font-black">
                     {column.id}
                   </span>
                   <div className="min-w-0">
                     <p className="text-[11px] leading-4">{column.label}</p>
                     {selectedPoint ? (
-                      <p className={`mt-1 text-[10px] font-black ${mark ? "text-[var(--danger-ink)]" : "text-[var(--ink-muted)]"}`}>
+                      <p className={`mt-1 text-[10px] font-black ${mark ? "text-[var(--critical-ink)]" : "text-[var(--ink-muted)]"}`}>
                         {mark ?? "Окремої позначки НП немає"}
                       </p>
                     ) : null}
@@ -302,7 +310,7 @@ export function TdvDialog({
             })}
           </div>
         </div>
-      </DialogContent>
+      </VlkDialogContent>
     </Dialog>
   );
 }

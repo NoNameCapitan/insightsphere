@@ -1,11 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "buildCommand": "next build",
+  "buildCommand": "npm run build:next",
   "devCommand": "next dev",
   "headers": [
     {
-      "source": "/sw.js",
+      "source": "/(sw.js|offline-manifest.json)",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
     }
   ]

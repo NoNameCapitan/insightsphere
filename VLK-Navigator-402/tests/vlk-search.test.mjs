@@ -13,12 +13,35 @@ import {
   POPULAR_QUERIES,
   searchArticles,
   SEARCH_WEIGHTS,
+  articleIcdScope,
+  articleIcdLabel,
 } from "../lib/vlk-search.ts";
 import { ARTICLES } from "../lib/vlk-sample-data.ts";
 
 const top = (query, directory) => searchArticles(query, directory)[0]?.article.article;
 const numbers = (query, directory) =>
   searchArticles(query, directory).map((hit) => hit.article.article);
+
+test("clinical query punctuation, service prefixes, compact points and spaced ranges are understood", () => {
+  for (const query of ['стаття №47', '47б', 'ст.47б', 'МКХ-10: J45.0', 'ICD-10 J45.0',
+    'J45 - J46', '"бронхіальна астма"', 'J45,0', 'астма пункт b']) {
+    assert.equal(top(query), '47', query);
+  }
+  assert.deepEqual(parseSearchQuery('47б'), [{kind:'article',value:'47'},{kind:'point',value:'б'}]);
+  assert.deepEqual(numbers('МКХ-10: D45'), ['9']);
+  assert.deepEqual(numbers('МКХ-10: H33.3'), ['26']);
+  assert.deepEqual(numbers('J46 - J45'), []);
+});
+
+test("adjacent typing errors are marked and ranked behind literal matches", () => {
+  assert.equal(top('асмта'), '47');
+  assert.ok(searchArticles('асмта')[0].matches.includes('fuzzy'));
+  for (const query of ['астма', 'гіпертонія', 'меніск']) {
+    const hits = searchArticles(query);
+    const firstFuzzy = hits.findIndex((hit) => hit.matches.includes('fuzzy'));
+    if (firstFuzzy >= 0) assert.ok(hits.slice(firstFuzzy).every((hit) => hit.matches.includes('fuzzy')));
+  }
+});
 
 test("the query cases from the specification resolve to article 47", () => {
   for (const query of [
@@ -58,8 +81,9 @@ test("ICD codes are understood with and without the dot, in both alphabets", () 
   assert.equal(latinizeCode("Н53"), "H53");
 
   assert.equal(top("І10"), "39");
-  assert.ok(numbers("H33.3").includes("27"));
-  assert.ok(numbers("H333").includes("27"));
+  // Article 27 explicitly excludes H33.3; article 26 explicitly includes it.
+  assert.deepEqual(numbers("H33.3"), ["26"]);
+  assert.deepEqual(numbers("H333"), ["26"]);
   assert.ok(numbers("S65").includes("78"), "S65 входить у діапазон S40-S99");
   assert.ok(numbers("U07.1").includes("1"));
 
@@ -170,4 +194,56 @@ test("highlighting follows word forms and Cyrillic ICD codes", () => {
   assert.deepEqual(marked("підвищеним тиском І10-І15", "I10"), ["І10-І15"]);
   assert.deepEqual(marked("менінгіт, ураження меніска коліна", "меніск"), ["меніска"]);
   assert.deepEqual(marked("Хвороби з підвищеним тиском", ""), []);
+});
+
+test('explicit exclusions never count as a positive ICD match', () => {
+  const cases = [
+    ['D45', '10', '9'], ['D46', '10', '9'], ['D47', '10', '9'],
+    ['F32', '16', '17'], ['F33.1', '16', '17'],
+    ['F98.0', '18', '86'], ['F98.5', '18', '85'], ['G45', '22', '41'],
+    ['Н33.3', '27', '26'], ['K05', '49', '50'], ['K06', '49', '50'], ['K07', '49', '51'],
+    ['K25', '52', '53'], ['K26', '52', '53'], ['М72', '61', '62'], ['M45', '64', '60'],
+  ];
+  for (const [query, excluded, included] of cases) {
+    const result = numbers(query);
+    assert.ok(!result.includes(excluded), `${query} must not match excluded article ${excluded}`);
+    assert.ok(result.includes(included), `${query} must retain article ${included}`);
+  }
+  assert.ok(!numbers('поліцитемія').includes('10'), 'an excluded disease mention is not a positive text match');
+});
+
+test('query overlap is calculated after subtracting every exclusion, without dropping allowed neighbours', () => {
+  assert.deepEqual(numbers('D45-D47'), ['9']);
+  assert.ok(numbers('D44-D45').includes('10'));
+  assert.ok(numbers('D48').includes('10'));
+  assert.ok(numbers('H33').includes('27'), 'a parent code still has allowed subcodes');
+  assert.ok(numbers('H33.2').includes('27'));
+  assert.ok(numbers('H33.4').includes('27'));
+  assert.ok(numbers('F98.1').includes('18'));
+  assert.ok(numbers('F98.4').includes('18'));
+  assert.ok(numbers('F98.6').includes('18'));
+});
+
+test('display separates included codes and exceptions while retaining the verbatim source', () => {
+  const article = ARTICLES.find((entry) => entry.article === '10');
+  const original = article.officialIncluded;
+  const scope = articleIcdScope(article);
+  assert.deepEqual(scope.includedCodes, ['D10-D49']);
+  assert.deepEqual(scope.excludedCodes, ['D45','D46','D47']);
+  assert.equal(articleIcdLabel(article), 'D10-D49 · виключено: D45; D46; D47');
+  assert.equal(article.officialIncluded, original);
+  assert.equal(articleIcdLabel(ARTICLES.find((entry) => entry.article === '85')), 'F98.5');
+});
+
+test('invalid ranges, exact decimal boundaries, and alternate corpora cannot reuse a false match', () => {
+  for (const query of ['J46-J45','J45-K46','J45-']) {
+    assert.equal(parseIcdRange(query), null, query);
+    assert.deepEqual(numbers(query), [], query);
+  }
+  const a = { ...ARTICLES[0], id: 'same-id', icd: 'H33.30', officialIncluded: 'Включено: тест H33.30' };
+  const b = { ...a, icd: 'J45', officialIncluded: 'Включено: тест J45' };
+  assert.equal(searchArticles('H33.30', {}, [a]).length, 1);
+  assert.equal(searchArticles('H33.31', {}, [a]).length, 0);
+  assert.equal(searchArticles('H33.30', {}, [b]).length, 0);
+  assert.equal(searchArticles('J45', {}, [b]).length, 1);
 });

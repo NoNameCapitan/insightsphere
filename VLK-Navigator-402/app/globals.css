@@ -1,28 +1,27 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "../vendor/shadcn-tailwind-4.13.0.css";
+@custom-variant dark (&:where(.dark, .dark *));
 
-/*
- * Підсвічування збігів свідомо однакове у світлій і темній темі:
- * темний текст на жовтому — перевірений контраст, який не залежить від оболонки.
- */
+/* ============================================================
+   VLK Навігатор — оформлення «службовий бланк».
+   Основа: аркуш нормативного документа, волосяні лінії-графи,
+   штемпельна синь як єдиний службовий акцент, антиква для
+   дослівного тексту Наказу. Нормативні дані не змінено.
+   ============================================================ */
+
+/* Підсвітка збігу: маркер по паперу, а не неоновий блок. */
 .search-highlight {
-  border-radius: 2px;
-  background: #ffe484;
-  color: #302500;
+  border-radius: 1px;
+  background: #f3e4ad;
+  color: #302807;
+  padding-inline: .08em;
   box-decoration-break: clone;
 }
 
-/* Overrides the base dialog's centered, narrow geometry in every breakpoint. */
-[data-slot="dialog-content"].table-fullscreen {
-  inset: 0;
-  width: 100%;
-  height: 100dvh;
-  max-width: none;
-  transform: none;
-  translate: none;
-  border-radius: 0;
-}
+/* Dialog geometry lives in VlkDialogContent, outside CSS transform optimization. */
+.vlk-dialog { min-width: 0; min-height: 0; }
+.vlk-dialog > [data-slot="dialog-header"] { flex-shrink: 0; }
 
 .table-fullscreen .tdv-table :is(th, td) {
   overflow-wrap: anywhere;
@@ -31,6 +30,15 @@
 .explanation-table tbody tr:hover {
   background: var(--muted);
 }
+
+.explanation-table { font-variant-numeric: tabular-nums; }
+.explanation-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--muted) 45%, var(--card)); }
+.explanation-table tbody th { font-weight: 500; }
+.explanation-table tbody tr:hover { background: var(--muted); }
+.explanation-table-scroll:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.table-fullscreen .explanation-table-scroll { max-height: 100%; overflow: auto; }
+.table-fullscreen .explanation-table thead { position: sticky; top: 0; z-index: 1; }
+.explanation-table :is(th, td) { min-width: 3rem; }
 
 @media (min-width: 1024px) {
   .table-fullscreen .explanation-table {
@@ -54,10 +62,10 @@
   scrollbar-gutter: stable;
 }
 
-/* Якісна поверхня: волосяна межа плюс дві м'які тіні. */
+/* Аркуш: біле поле з волосяною межею, без «пластмасової» тіні. */
 @utility surface {
   background: var(--surface);
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--hairline-strong);
   box-shadow: var(--shadow-soft);
 }
 
@@ -66,214 +74,187 @@
   border: 1px solid var(--hairline);
 }
 
-/* Елегантний hover: легке підняття і глибша тінь. */
+/* Реакція на наведення — зміна лінії, а не підстрибування картки. */
 @utility lift {
   transition:
-    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    box-shadow 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    border-color 220ms ease,
-    background-color 220ms ease;
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-raised);
-  }
+    border-color var(--dur-fast) ease,
+    background-color var(--dur-fast) ease,
+    box-shadow var(--dur-fast) ease;
 }
 
-/*
- * Світла тема — «тихий довідник»: тепле паперове тло, білий документ у центрі,
- * золото лишається тільки в командній шапці як ідентичність.
- */
 :root {
-  --background: #f4f1ea;
+  /* Стіл і аркуш: холодний папір, без кремового відтінку. */
+  --background: #edf1f2;
   --surface: #ffffff;
-  --surface-muted: #faf8f4;
-  --surface-sunken: #f0ece4;
-  --surface-accent: #e8ede8;
+  --surface-muted: #f6f8f9;
+  --surface-sunken: #e6ecef;
 
-  /* Панелі робочого екрана. */
-  --panel: #ffffff;
-  --panel-head: #fdfcf9;
-  --rail: #fbfaf6;
-  --row: #ffffff;
-  --row-hover: #f7f5ef;
-  --row-active: #eaf0ea;
-
-  --foreground: #17211f;
-  --ink-body: #2a3835;
-  --ink-soft: #4d5b57;
-  --ink-muted: #5a6863;
-  --ink-faint: #5f6e68;
+  --foreground: #1b2228;
+  --ink-soft: #4d5862;
+  --ink-muted: #626d76;
 
   --card: #ffffff;
-  --card-foreground: #17211f;
+  --card-foreground: #1b2228;
   --popover: #ffffff;
-  --popover-foreground: #17211f;
+  --popover-foreground: #1b2228;
 
-  --primary: #0f3733;
-  --primary-hover: #16514b;
+  /* Штемпельна синь: службовий акцент, який не конкурує зі статусами. */
+  --primary: #1e3a66;
+  --primary-hover: #2a4e85;
   --primary-foreground: #ffffff;
-  --accent-ink: #2c6b63;
-  --accent-ink-strong: #1f564f;
+  --accent-ink: #2c5288;
+  --accent-ink-strong: #1b3760;
 
-  --secondary: #e8ede8;
-  --secondary-foreground: #1f2e2b;
-  --muted: #f0ede7;
-  --muted-foreground: #5a6863;
-  --accent: #e8ede8;
-  --accent-foreground: #1f2e2b;
-  --destructive: #8c3a35;
+  --secondary: #e3e8ef;
+  --secondary-foreground: #1b3760;
+  --muted: #eceef0;
+  --muted-foreground: #4d5862;
+  --accent: #e3e8ef;
+  --accent-foreground: #1b3760;
+  --destructive: #8a2f27;
 
-  /* Командна шапка: єдине місце, де живе темна оболонка і золото. */
-  --brand-ink: #082f2b;
-  --brand-line: rgba(181, 139, 53, 0.6);
-  --on-brand: #fffdf7;
-  --on-brand-soft: #c3d5cf;
-  --gold: #b58b35;
-  --gold-soft: #d7b85f;
-  --gold-text: #f1d98f;
+  /* Лінії бланка видимі: вони розділяють графи, а не прикрашають. */
+  --hairline: rgba(27, 34, 40, 0.12);
+  --hairline-strong: rgba(27, 34, 40, 0.22);
+  --border: rgba(27, 34, 40, 0.18);
+  --input: rgba(27, 34, 40, 0.50);
+  --ring: #2c5288;
 
-  /* Семантика застережень і норм. */
-  --warn-surface: #fbf5e8;
-  --warn-line: rgba(168, 121, 47, 0.25);
-  --warn-ink: #6b5423;
-  --danger-surface: #fbf1ed;
-  --danger-line: rgba(140, 58, 53, 0.2);
-  --danger-ink: #7e3630;
+  --radius: 0.3125rem;
 
-  --accent-line: rgba(44, 107, 99, 0.22);
-  --gold-wash: rgba(181, 139, 53, 0.14);
-  --hairline: rgba(23, 33, 31, 0.08);
-  --hairline-strong: rgba(23, 33, 31, 0.14);
-  --border: rgba(23, 33, 31, 0.1);
-  --input: rgba(23, 33, 31, 0.16);
-  --ring: #2c6b63;
+  /* Рух: два темпи й одна крива на весь інтерфейс. */
+  --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-draw: cubic-bezier(0.2, 0.75, 0.2, 1);
+  --dur-fast: 180ms;
+  --dur-press: 100ms;
+  --dur-panel: 280ms;
+  --radius-panel: 10px;
+  --radius-control: 7px;
+  --dur-base: 220ms;
+  --dur-draw: 260ms;
 
-  --radius: 1rem;
-
-  --sidebar: #fbfaf6;
-  --sidebar-foreground: #1f2e2b;
-  --sidebar-primary: #0f3733;
+  --sidebar: #f6f8f9;
+  --sidebar-foreground: #1b2228;
+  --sidebar-primary: #1e3a66;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e8ede8;
-  --sidebar-accent-foreground: #1f2e2b;
-  --sidebar-border: rgba(23, 33, 31, 0.1);
-  --sidebar-ring: #2c6b63;
+  --sidebar-accent: #e3e8ef;
+  --sidebar-accent-foreground: #1b3760;
+  --sidebar-border: rgba(27, 34, 40, 0.18);
+  --sidebar-ring: #2c5288;
 
-  --shadow-soft: 0 1px 2px rgba(23, 33, 31, 0.04), 0 12px 28px -20px rgba(23, 33, 31, 0.28);
-  --shadow-raised: 0 1px 2px rgba(23, 33, 31, 0.05), 0 18px 40px -24px rgba(23, 33, 31, 0.34);
-  --focus-halo: 0 0 0 3px rgba(44, 107, 99, 0.18);
+  /* Одна стримана тінь: аркуш лежить на столі, а не висить у повітрі. */
+  --shadow-soft: 0 1px 0 rgba(27, 34, 40, 0.06);
+  --shadow-raised: 0 1px 2px rgba(27, 34, 40, 0.10), 0 10px 24px -18px rgba(27, 34, 40, 0.45);
+  --focus-halo: 0 0 0 3px rgba(44, 82, 136, 0.20);
 
-  /* Бейджі результату: пастель у світлій темі, глухі тони — у темній. */
-  --badge-critical-bg: #f0dcd6;
-  --badge-critical-ink: #6f2f2a;
-  --badge-warning-bg: #eedebd;
-  --badge-warning-ink: #6b5423;
-  --badge-positive-bg: #d8e6d9;
-  --badge-positive-ink: #255c49;
-  --badge-neutral-bg: #e6e2da;
-  --badge-neutral-ink: #3c4a46;
+  /* Службова шапка: темний графіт із латунною лінією від емблеми. */
+  --brand-bar: #16212c;
+  --brand-bar-ink: #eef1f3;
+  --brand-bar-soft: #9dafbc;
+  --brand-rule: #a8894a;
+  --brand-tint: #dcc084;
+  --brand-hover: #efd9a4;
 
-  --box-critical-bg: #fdf4f1;
-  --box-warning-bg: #fdf8ee;
-  --box-positive-bg: #f3f8f3;
-  --box-neutral-bg: #f8f7f3;
+  /* Статуси: чорнило на папері, а не сигнальні кольори. */
+  --warning-ink: #7a5514;
+  --warning-border: #9c7524;
+  --warning-bg: #f7f0e0;
+  --warning-badge: #ead9b6;
+  --critical-ink: #7b2b24;
+  --critical-bg: #f7eae7;
+  --critical-badge: #eed4cd;
+  --positive-ink: #20573c;
+  --positive-bg: #e8efe9;
+  --positive-badge: #d1e0d4;
+  color-scheme: light;
 }
 
-/*
- * Нічна тема для роботи в чергуванні: тихий графіт із зеленим акцентом.
- * Атрибут data-theme виставляє скрипт у <head> до першого малювання,
- * тому системне налаштування не потребує окремого media-блоку.
- */
-:root[data-theme="dark"] {
-  --background: #0c1211;
-  --surface: #151d1b;
-  --surface-muted: #1a2321;
-  --surface-sunken: #202a27;
-  --surface-accent: #1f302c;
-
-  --panel: #151d1b;
-  --panel-head: #18211f;
-  --rail: #131b19;
-  --row: #1a2321;
-  --row-hover: #202b28;
-  --row-active: #24352f;
-
-  --foreground: #e9f0ed;
-  --ink-body: #d3ded9;
-  --ink-soft: #b3c2bd;
-  --ink-muted: #a2b1ac;
-  --ink-faint: #93a29d;
-
-  --card: #151d1b;
-  --card-foreground: #e9f0ed;
-  --popover: #18211f;
-  --popover-foreground: #e9f0ed;
-
-  --primary: #5fbfa9;
-  --primary-hover: #74cdb9;
-  --primary-foreground: #06110f;
-  --accent-ink: #7fd0bb;
-  --accent-ink-strong: #9adcca;
-
-  --secondary: #22302c;
-  --secondary-foreground: #dfeae6;
-  --muted: #1e2825;
-  --muted-foreground: #9db0aa;
-  --accent: #22302c;
-  --accent-foreground: #dfeae6;
-  --destructive: #e08b83;
-
-  --brand-ink: #061a18;
-  --brand-line: rgba(181, 139, 53, 0.45);
-  --on-brand: #f4f8f6;
-  --on-brand-soft: #a9beb8;
-  --gold: #c8a04a;
-  --gold-soft: #d9bd74;
-  --gold-text: #efd794;
-
-  --warn-surface: #2a2415;
-  --warn-line: rgba(214, 173, 92, 0.28);
-  --warn-ink: #e6cd94;
-  --danger-surface: #2c1c1a;
-  --danger-line: rgba(224, 139, 131, 0.26);
-  --danger-ink: #f0b3ac;
-
-  --accent-line: rgba(127, 208, 187, 0.28);
-  --gold-wash: rgba(200, 160, 74, 0.18);
-  --hairline: rgba(255, 255, 255, 0.09);
-  --hairline-strong: rgba(255, 255, 255, 0.16);
-  --border: rgba(255, 255, 255, 0.12);
-  --input: rgba(255, 255, 255, 0.18);
-  --ring: #7fd0bb;
-
-  --sidebar: #131b19;
-  --sidebar-foreground: #dfeae6;
-  --sidebar-primary: #5fbfa9;
-  --sidebar-primary-foreground: #06110f;
-  --sidebar-accent: #22302c;
-  --sidebar-accent-foreground: #dfeae6;
-  --sidebar-border: rgba(255, 255, 255, 0.12);
-  --sidebar-ring: #7fd0bb;
-
-  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 30px -22px rgba(0, 0, 0, 0.75);
-  --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.45), 0 20px 44px -24px rgba(0, 0, 0, 0.85);
-  --focus-halo: 0 0 0 3px rgba(127, 208, 187, 0.24);
-
-  --badge-critical-bg: #4a2320;
-  --badge-critical-ink: #f5c2bb;
-  --badge-warning-bg: #46381c;
-  --badge-warning-ink: #f2d69b;
-  --badge-positive-bg: #1e3f33;
-  --badge-positive-ink: #a8dcc4;
-  --badge-neutral-bg: #2a3431;
-  --badge-neutral-ink: #cdd8d4;
-
-  --box-critical-bg: #2a1c1a;
-  --box-warning-bg: #262014;
-  --box-positive-bg: #16241f;
-  --box-neutral-bg: #1c2422;
+.dark {
+  color-scheme: dark;
+  /* Нічне чергування: глибокий графіт, не чорна плита. */
+  --background: #111922;
+  --surface: #1b2631;
+  --surface-muted: #17212b;
+  --surface-sunken: #223040;
+  --foreground: #e4eaf0;
+  --ink-soft: #b4c2cd;
+  --ink-muted: #9dabb7;
+  --card: #1b2631;
+  --card-foreground: #e4eaf0;
+  --popover: #1d2833;
+  --popover-foreground: #e4eaf0;
+  --primary: #2f4f80;
+  --primary-hover: #3c6099;
+  --primary-foreground: #ffffff;
+  --accent-ink: #9dbde6;
+  --accent-ink-strong: #bcd4f2;
+  --secondary: #24344a;
+  --secondary-foreground: #d5e3f4;
+  --muted: #212d39;
+  --muted-foreground: #aab8c4;
+  --accent: #2a3b4e;
+  --accent-foreground: #e4eaf0;
+  --destructive: #f0a79c;
+  --hairline: rgba(228, 234, 240, 0.14);
+  --hairline-strong: rgba(228, 234, 240, 0.26);
+  --border: rgba(228, 234, 240, 0.22);
+  --input: rgba(228, 234, 240, 0.45);
+  --ring: #9dbde6;
+  --shadow-soft: 0 1px 0 rgba(0, 0, 0, 0.35);
+  --shadow-raised: 0 2px 4px rgba(0, 0, 0, 0.4), 0 14px 30px -20px rgba(0, 0, 0, 0.8);
+  --focus-halo: 0 0 0 3px rgba(157, 189, 230, 0.24);
+  --brand-bar: #0c131a;
+  --brand-bar-ink: #e4eaf0;
+  --brand-bar-soft: #90a2b0;
+  --brand-rule: #8d7340;
+  --brand-tint: #d0b47c;
+  --brand-hover: #e7d1a0;
+  --warning-ink: #e7c684;
+  --warning-border: #b08f4f;
+  --warning-bg: #2c2618;
+  --warning-badge: #463a22;
+  --critical-ink: #f0b0a5;
+  --critical-bg: #2f1f1d;
+  --critical-badge: #4a2b26;
+  --positive-ink: #9fd5b4;
+  --positive-bg: #192c23;
+  --positive-badge: #23402f;
 }
+
+/* Fill the actual remaining viewport, not an assumed header height. */
+@media (min-width: 1280px) {
+  .app-shell { display: flex; flex-direction: column; height: 100dvh; min-height: 0; }
+  .app-shell:not(:has(.vlk-workspace)) { height: auto; min-height: 100dvh; overflow: visible; }
+  .command-header, .command-mode-bar { flex-shrink: 0; }
+  .vlk-workspace { flex: 1; min-height: 0; overflow: hidden; grid-template-columns: 270px minmax(0, 1fr) 228px; }
+  .verification-rail { min-height: 0; }
+  .verification-rail[data-empty="true"] { align-self: start; }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .vlk-workspace { grid-template-columns: 250px minmax(0, 1fr); align-items: start; }
+  .command-sidebar { max-height: calc(100dvh - 160px); min-height: 460px; position: sticky; top: 100px; }
+  .verification-rail { grid-column: 2; }
+}
+@media (max-width: 1023px) {
+  .command-sidebar { min-height: 0; max-height: none; }
+  .article-list { min-height: 120px; max-height: 28dvh; }
+}
+.command-sidebar [data-article-row] { font-size: 14px; }
+.command-sidebar [data-article-row] .font-semibold { font-size: 14px; line-height: 1.35; }
+.command-sidebar [data-article-row] .text-\[10px\] { font-size: 12px; }
+.verification-rail[data-empty="true"] .summary-disclaimer { display: none; }
+.verification-rail[data-empty="true"] > :last-child { display: none; }
+.verification-rail h2 { font-size: 14px; }
+.verification-rail p { letter-spacing: normal; }
+.normative-surface p.text-xs { font-size: 14px; line-height: 1.6; }
+[data-point-row] { min-height: 52px; }
+[data-point-row] > .rounded-full { font-size: 12px; white-space: normal; max-width: 45%; line-height: 1.3; }
+.explanation-reader article { overflow-wrap: anywhere; }
+.table-fullscreen .tdv-table { border-color: var(--border); }
+.dark .tdv-table :is(th, td), .dark .tdv-table { border-color: var(--border); }
+.dark .scrollbar-thin { scrollbar-color: #55697a transparent; }
+.dark .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #55697a; }
+.dark .bg-white\/70 { background-color: #141c25; }
 
 @theme inline {
   --color-background: var(--background);
@@ -302,12 +283,13 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --radius-sm: calc(var(--radius) - 8px);
-  --radius-md: calc(var(--radius) - 4px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --font-sans: var(--font-inter), "SF Pro Text", "Segoe UI", system-ui, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --font-sans: var(--font-ui), "Segoe UI", system-ui, sans-serif;
+  --font-serif: var(--font-normative), Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-code), ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 * {
@@ -316,24 +298,36 @@
 
 html {
   background: var(--background);
-  color-scheme: light;
   -webkit-text-size-adjust: 100%;
   overflow-x: clip;
+  scrollbar-gutter: stable;
 }
 
-html[data-theme="dark"] {
-  color-scheme: dark;
+/* The root already reserves the scrollbar. Radix's additional body margin
+   otherwise compensates it twice and moves every panel when a menu opens.
+   Keep Radix's scroll/focus lock; only remove the duplicate compensation. */
+@supports (scrollbar-gutter: stable) {
+  html body[data-scroll-locked] {
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+    --removed-body-scroll-bar-size: 0px;
+  }
 }
+
+.article-list, .article-content, .vlk-dialog .overflow-y-auto {
+  scrollbar-gutter: stable;
+}
+.article-content { overflow-anchor: none; }
 
 body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-ui), "Segoe UI", system-ui, sans-serif;
   font-size: 14px;
-  line-height: 1.6;
-  letter-spacing: -0.006em;
-  font-variant-ligatures: common-ligatures;
+  line-height: 1.55;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
   overflow-x: clip;
 }
 
@@ -343,41 +337,17 @@ body {
   isolation: isolate;
 }
 
-/*
- * Щільний режим стискає лише простір, а не кегль: медичний текст лишається
- * того самого розміру, на екран влізає більше рядків.
- */
-[data-density="compact"] [data-panel-head] {
-  padding-top: 0.375rem;
-  padding-bottom: 0.375rem;
-}
-
-[data-density="compact"] [data-panel-body] {
-  padding: 0.375rem;
-}
-
-[data-density="compact"] [data-article-row] {
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-}
-
-[data-density="compact"] [data-point-row] {
-  padding: 0.4375rem 0.625rem;
-}
-
-[data-density="compact"] [data-rule-list] > li + li {
-  margin-top: 0.25rem;
-}
-
-[data-density="compact"] [data-article-list] > li + li {
-  margin-top: 0.125rem;
-}
-
-/* Командна оболонка: військова дисципліна без зниження медичної читабельності. */
+/* ---------- Шапка: службовий штамп на темному графіті ---------- */
 .command-header {
   isolation: isolate;
 }
 
+header.command-header {
+  background: var(--brand-bar);
+  border-bottom: 1px solid color-mix(in srgb, var(--brand-rule) 45%, transparent);
+}
+
+/* Фонове зображення лишається як тихий фон, без анімації. */
 .command-header::before {
   position: absolute;
   inset: 0;
@@ -387,58 +357,911 @@ body {
   background-repeat: no-repeat;
   background-size: cover;
   content: "";
-  opacity: 0.42;
+  opacity: 0.025;
+  filter: grayscale(0.55);
   pointer-events: none;
 }
 
 .brand-command-button {
-  border: 1px solid var(--brand-line);
-  background: rgba(255, 253, 248, 0.08);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
-    0 8px 22px -14px rgba(0, 0, 0, 0.9);
+  border: 1px solid color-mix(in srgb, var(--brand-rule) 60%, transparent);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: none;
 }
 
 .brand-command-button img {
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.25));
+  filter: none;
 }
 
-/* Вибраний пункт позначається спокійною смугою, а не пульсацією. */
-.command-selected-rule {
-  box-shadow: inset 3px 0 0 var(--accent-ink);
+.header-brand h1 {
+  font-family: var(--font-ui), system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
-.app-shell :where(.text-\[9px\]) {
+/* Індекс наказу — код, тому моноширинний і без «пігулки». */
+.header-brand h1 + span {
+  border-radius: 3px;
+  border-color: color-mix(in srgb, var(--brand-rule) 70%, transparent);
+  background: transparent;
+  font-family: var(--font-code), monospace;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.command-mode-bar {
+  background: var(--surface-muted);
+  box-shadow: inset 0 -1px 0 var(--hairline);
+}
+
+/* ---------- Реєстр статей: рядки бланка, не картки ---------- */
+.command-sidebar {
+  border-radius: var(--radius-panel);
+  border-color: var(--hairline-strong);
+  box-shadow: var(--shadow-soft);
+}
+
+.command-sidebar .scrollbar-thin {
+  scrollbar-color: var(--hairline-strong) transparent;
+}
+
+.sidebar-count {
+  flex-shrink: 0;
+  font-family: var(--font-code), monospace;
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.sidebar-controls [data-slot="select-trigger"] { box-shadow: none; border-radius: 4px; }
+
+.command-sidebar [data-article-row] {
+  border-radius: 0;
+  border-width: 0 0 1px 0;
+  border-bottom-color: var(--hairline) !important;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.command-sidebar [data-article-row]:hover {
+  background: var(--surface-muted);
+}
+
+.command-sidebar [data-article-row][aria-current="true"] {
+  background: var(--secondary);
+  box-shadow: inset 3px 0 var(--primary);
+}
+
+/* Номер статті — код: моноширинний, без заливки-плашки. */
+.command-sidebar [data-article-row] > span:first-child,
+[data-point-row] > span:first-child {
+  border-radius: 3px;
+  font-family: var(--font-code), monospace;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0;
+}
+
+.command-sidebar [data-article-row] .truncate {
+  font-family: var(--font-code), monospace;
+  font-size: 12px;
+  letter-spacing: -0.01em;
+}
+
+.review-settings summary { list-style: none; transition: background-color 140ms ease; }
+.review-settings summary::-webkit-details-marker { display: none; }
+.review-settings summary:hover, .review-settings[open] summary { background: var(--surface-muted); color: var(--foreground); }
+.review-settings[open] summary > .lucide:last-child { transform: rotate(180deg); }
+.article-unmatched [data-article-row] { border-left: 2px dashed var(--hairline-strong); background: transparent; }
+.article-unmatched [data-article-row] .font-semibold { font-weight: 400; }
+
+/* ---------- Аркуш статті ---------- */
+.normative-surface,
+.verification-rail {
+  border-radius: var(--radius-panel);
+  border-color: var(--hairline-strong);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Латунна лінія вгорі — службова прив'язка панелі до бланка. */
+.normative-surface::after,
+.verification-rail::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: var(--hairline-strong);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.verification-rail { position: relative; }
+
+/* Декоративну «клінічну сітку» прибрано: аркуш має лишатися чистим. */
+.normative-surface::before { display: none; }
+
+.article-header {
+  position: relative;
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--hairline-strong);
+}
+
+/* Номер статті — штемпель, а не кругла плашка. */
+.article-header > div > div > span:first-child {
+  border-radius: 3px;
+  font-family: var(--font-code), monospace;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* Назва статті — антиква: це слова документа, а не підпис інтерфейсу. */
+.article-header h2 {
+  font-family: var(--font-normative), Georgia, serif;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  line-height: 1.25;
+  text-wrap: pretty;
+}
+
+/* Код МКХ-10 читають посимвольно. */
+.article-header h2 + p {
+  font-family: var(--font-code), monospace;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.article-header .specialty-caption { text-transform: none; letter-spacing: normal; }
+.article-header .article-toolbar { border-top: 1px solid var(--hairline); padding-top: 8px; }
+.article-toolbar [data-slot="button"] { border-radius: 4px; box-shadow: none; }
+.article-pagination [data-slot="button"] { width: 32px; height: 32px; }
+.article-pagination span { font-family: var(--font-code), monospace; }
+.article-content { overscroll-behavior: contain; }
+.article-content > .pointer-events-none { display: none; }
+.article-content p { text-wrap: pretty; }
+.article-content [data-point-row] { min-height: 58px; }
+
+/* Мікропідписи: без капслока — кирилиця у верхньому регістрі читається гірше.
+   Без прив'язки до .app-shell, щоб діалоги мали ту саму шкалу. */
+:where(p, span, button, h3, h4, summary, [data-slot="dialog-description"]).uppercase,
+:where([class*="tracking-[0.16em]"], [class*="tracking-[0.12em]"], [class*="tracking-[0.1em]"]) {
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+
+/* ---------- Дослівний текст Наказу: окрема гарнітура ---------- */
+.vlk-normative,
+.explanation-reader article p,
+.explanation-table tbody :is(th, td) {
+  font-family: var(--font-normative), Georgia, "Times New Roman", serif;
+  letter-spacing: 0;
+}
+
+.explanation-reader article {
+  border-radius: 4px;
+  border-color: var(--hairline-strong);
+  box-shadow: none;
+}
+
+.explanation-reader article p {
+  max-width: 68ch;
+  line-height: 1.72;
+}
+
+/* Цитата пункту — з крайовою лінією, як позначка на полях бланка. */
+[data-point-row] + div > p + p {
+  font-family: var(--font-normative), Georgia, serif;
+  font-size: 15px;
+  line-height: 1.7;
+  border-left: 2px solid color-mix(in srgb, var(--primary) 55%, transparent);
+  padding-left: 10px;
+}
+
+/* Дослівне формулювання висновку. */
+[data-point-row] + div p.font-bold {
+  font-family: var(--font-normative), Georgia, serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* ---------- Таблиці пояснень: графи бланка ---------- */
+.explanation-table :is(th, td) {
+  border-color: var(--hairline-strong);
+  padding: 7px 9px;
+}
+
+.explanation-table thead :is(th, td) {
+  background: var(--surface-sunken);
+  font-family: var(--font-ui), system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+}
+
+.explanation-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--muted) 55%, var(--card)); }
+.explanation-table tbody tr:hover { background: var(--secondary); }
+
+.command-selected-rule { box-shadow: inset 3px 0 0 var(--primary); }
+
+.summary-panel { display: flex; flex-direction: column; overflow: hidden; }
+.summary-panel > .verification-rail:not([data-empty="true"]) { flex: 1; min-height: 0; }
+.summary-panel > .verification-rail[data-empty="true"] { width: 100%; }
+
+/* ---------- Пошук ---------- */
+.search-shortcut {
+  position: absolute;
+  top: 13px;
+  right: 13px;
+  padding: 0 5px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 3px;
+  font: 10px/18px var(--font-code), monospace;
+  color: var(--ink-soft);
+  background: var(--surface);
+  pointer-events: none;
+}
+#vlk-search { border-radius: 4px; }
+#vlk-search:not(:placeholder-shown) { padding-right: 42px; }
+#vlk-search:placeholder-shown { padding-right: 94px; }
+
+/* ---------- Перший екран ---------- */
+.welcome-screen { padding-top: clamp(24px, 5vh, 52px); }
+
+.welcome-screen > h2 {
+  font-family: var(--font-ui), system-ui, sans-serif;
+  font-weight: 600;
+  font-size: clamp(26px, 3.2vw, 34px);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.welcome-screen > p.mt-2 { max-width: 58ch; }
+
+/* Наведення на картку спеціальності: одна позначка пером на полях бланка.
+   Лінія прокреслюється згори вниз, плашка набирає чорнило — і все. */
+.specialty-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  border-color: var(--hairline-strong);
+  box-shadow: none;
+  transition:
+    border-color var(--dur-base) var(--ease-standard),
+    background-color var(--dur-base) var(--ease-standard);
+}
+
+/* Полева лінія: 2px чорнила, що стікає донизу. */
+.specialty-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: var(--primary);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform var(--dur-draw) var(--ease-draw);
+  pointer-events: none;
+}
+
+.specialty-card:hover,
+.specialty-card:focus-visible {
+  border-color: color-mix(in srgb, var(--primary) 40%, var(--hairline-strong));
+  background: var(--surface-muted);
+}
+
+.specialty-card:hover::before,
+.specialty-card:focus-visible::before {
+  transform: scaleY(1);
+}
+
+.specialty-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 4px;
+  background: var(--secondary);
+  color: var(--accent-ink-strong);
+  transition:
+    background-color var(--dur-base) var(--ease-standard),
+    color var(--dur-base) var(--ease-standard);
+  transition-delay: 60ms;
+}
+
+.specialty-card:hover .specialty-icon,
+.specialty-card:focus-visible .specialty-icon {
+  background: color-mix(in srgb, var(--primary) 14%, var(--surface));
+  color: var(--primary);
+}
+
+.specialty-arrow {
+  color: var(--ink-soft);
+  opacity: .3;
+  transition:
+    transform var(--dur-base) var(--ease-standard),
+    opacity var(--dur-base) ease,
+    color var(--dur-base) ease;
+}
+
+.specialty-card:hover .specialty-arrow,
+.specialty-card:focus-visible .specialty-arrow {
+  color: var(--ink-soft);
+  opacity: .5;
+  transform: translateX(2px);
+}
+
+
+/* ============================================================
+   Рух. Чотири випадки, і жодного «для атмосфери»:
+   1) один вступ першого екрана, 2) зміна статті,
+   3) розкриття пункту, 4) відгук на натискання.
+   ============================================================ */
+
+@keyframes sheet-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes sheet-turn {
+  from { opacity: .4; transform: translateY(3px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes rule-draw {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes stamp-in {
+  0%   { opacity: 0; transform: scale(0.92); }
+  60%  { opacity: 1; transform: scale(1.015); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Один вступ усієї групи, без каскаду незалежних анімацій. */
+.welcome-screen { animation: sheet-in 320ms var(--ease-standard); }
+
+/* Латунна лінія шапки прокреслюється зліва направо при завантаженні. */
+header.command-header::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  background: color-mix(in srgb, var(--brand-rule) 75%, transparent);
+  transform-origin: left;
+  animation: none;
+  pointer-events: none;
+}
+
+/* 2. Зміна статті: аркуш перегортається. Блок має key={selected.id},
+   тому монтується заново і анімація відтворюється щоразу. */
+.article-content {
+  animation: sheet-turn 260ms var(--ease-standard);
+}
+
+/* 3. Розкриття пункту: деталі виїжджають з-під рядка. */
+[data-point-row] + div {
+  animation: sheet-in 200ms var(--ease-standard);
+}
+
+/* Штамп статусу в розкритому пункті ставиться з невеликою затримкою. */
+[data-point-row] + div > div:first-of-type {
+  animation: none;
+}
+
+/* Випадний список пошуку. */
+#vlk-search-results {
+  animation: sheet-in 160ms var(--ease-standard);
+  transform-origin: top;
+}
+
+/* 4. Відгук на натискання — миттєвий, 60мс, без «желе». */
+.app-shell :where(button, [role="button"], [data-slot="button"]):active {
+  transform: translateY(0.5px) scale(0.994);
+  transition: transform var(--dur-press) ease-out;
+}
+
+/* Рядок реєстру: чорнильна лінія зліва наростає, а не блимає. */
+.command-sidebar [data-article-row] {
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-draw);
+}
+
+/* Кнопки й посилання переходять кольором в один темп. */
+.app-shell :where(button, a, [data-slot="button"]) {
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-screen > *,
+  header.command-header::after,
+  .article-content,
+  [data-point-row] + div,
+  [data-point-row] + div > div:first-of-type,
+  #vlk-search-results {
+    animation: none !important;
+  }
+
+  .app-shell :where(button, [role="button"], [data-slot="button"]):active {
+    transform: none;
+  }
+}
+
+
+/* ============================================================
+   Емблема, стрічка редакції, іконки спеціальностей.
+   ============================================================ */
+
+/* --- Емблема: виразніший розмір, рух лише при наведенні / фокусі --- */
+.brand-command-button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  flex-shrink: 0;
+  width: 104px;
+  height: 104px;
+  padding: 4px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #b0ded019, #bd9d4e0a);
+  box-shadow: inset 0 1px 0 #ffffff12, 0 3px 12px #00000018;
+}
+
+.brand-command-button img {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  transform-origin: center;
+  filter: drop-shadow(0 2px 3px #00000038);
+}
+
+.brand-command-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(110deg, transparent 28%, #fff3c41a 49%, transparent 70%);
+  transform: translateX(-120%);
+}
+
+.brand-command-button:is(:hover, :focus-visible, [data-motion-active]) {
+  border-color: #d2ba7d;
+  box-shadow: inset 0 0 0 1px #e8d39525, 0 1px 5px #00000024;
+}
+
+.header-inner { padding-top: 6px; padding-bottom: 6px; }
+
+/* Робочий екран зберігає компактнішу шапку. */
+.app-shell[data-workspace="true"] .brand-command-button { width: 76px; height: 76px; }
+.app-shell[data-workspace="true"] .brand-command-button img { width: 68px; height: 68px; }
+
+@media (max-width: 1023px) {
+  .brand-command-button { width: 88px; height: 88px; }
+  .brand-command-button img { width: 80px; height: 80px; }
+}
+
+/* --- Стрічка редакції: повний текст, без marquee та live-announcements. --- */
+.edition-ticker {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+  padding: 0 16px;
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--hairline);
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.edition-ticker[data-alert] {
+  background: var(--warning-bg);
+  border-bottom-color: color-mix(in srgb, var(--warning-border) 45%, transparent);
+  color: var(--warning-ink);
+}
+.edition-ticker-icon { display: grid; place-items: center; }
+.edition-ticker b { font-family: var(--font-code), monospace; font-weight: 600; white-space: nowrap; }
+.edition-ticker-viewport { min-width: 0; padding-block: 8px; overflow-wrap: anywhere; }
+.edition-ticker-track { display: block; white-space: normal; }
+.edition-ticker-copy { display: inline; }
+.edition-ticker-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  min-height: 44px;
+  min-width: 44px;
+  width: fit-content;
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.edition-ticker-link:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: 3px; }
+.edition-ticker[data-alert] .edition-ticker-link { color: var(--warning-ink); }
+@media (max-width: 767px) {
+  .edition-ticker { grid-template-columns: 16px minmax(0, 1fr); gap: 0 8px; padding-inline: 12px; }
+  .edition-ticker-icon { align-self: start; margin-top: 11px; }
+  .edition-ticker-viewport { padding-bottom: 0; }
+  .edition-ticker-link { grid-column: 2; }
+}
+
+/* --- Іконки з фото: м’ятні контури й округлені плашки, локальні стилі --- */
+.specialty-icon {
+  --si-ink: #2e695d;
+  --si-bg: #e7f1ec;
+  --si-hover-bg: #d9ebe3;
+  --si-accent: #164f43;
+  --si-ink-strong: #1e5147;
+  --si-signature-accent: #92702b;
+}
+.dark .specialty-icon {
+  --si-ink: #a8d8cc;
+  --si-bg: #263c3c;
+  --si-hover-bg: #304d49;
+  --si-accent: #ddfff3;
+  --si-ink-strong: #d7fff8;
+  --si-signature-accent: #d5b96f;
+}
+.specialty-card .specialty-icon {
+  border-radius: 10px;
+  background: var(--si-bg);
+  color: var(--si-ink);
+}
+.specialty-card:is(:hover, :focus-visible, [data-motion-active]) .specialty-icon {
+  background: var(--si-hover-bg);
+  color: var(--si-ink);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--si-ink) 20%, transparent);
+}
+
+.si .si-accent { transition: stroke 180ms cubic-bezier(.2,.72,.2,1); }
+.specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si .si-accent { stroke: var(--si-accent); }
+
+/* Clinical Motion Atlas v27: motion explains the specialty and never changes layout.
+   The heading keeps its v27 block size. A larger plate extends into existing
+   padding, so titles, counts and card heights do not move. */
+.specialty-card-heading { height: 44px; }
+.specialty-card .specialty-icon {
+  width: 50px;
+  height: 50px;
+  flex: none;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.specialty-icon .si {
+  width: 38px;
+  height: 38px;
+  display: block;
+  color: inherit;
+  overflow: visible;
+  z-index: 1;
+}
+.si :is(
+  .si-stethoscope-tube, .si-chest-piece, .si-scalpel, .si-scalpel-blade,
+  .si-neural-node, .si-psy-brain, .si-dialog-bubble, .si-pupil,
+  .si-ear-inner, .si-tooth, .si-magnifier, .si-skin-sample, .si-skin-detail,
+  .si-sound-wave-one, .si-sound-wave-two
+) {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.si :is(
+  .si-ecg, .si-gleam, .si-incision, .si-neural-signal,
+  .si-dialog-one, .si-dialog-two, .si-eye-glint, .si-enamel-glint
+) {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.si :is(.si-ecg, .si-gleam, .si-incision, .si-eye-glint) { opacity: 0; }
+.si :is(.si-sound-wave-one, .si-sound-wave-two) { opacity: .28; }
+/* Match the terminal keyframe to idle; completing a one-shot never snaps back. */
+.si :is(.si-neural-signal, .si-psy-center, .si-skin-layer-one, .si-skin-layer-two) { opacity: .72; }
+.si .si-enamel-glint { opacity: .5; }
+.si .si-pulp { opacity: .65; }
+
+/* 1. Терапевт — слухає та фіксує один ритм. */
+@keyframes si-therapist-tube {
+  0%,100% { opacity: 1; }
+  16%,34% { opacity: .68; }
+  46%,82% { opacity: 1; }
+}
+@keyframes si-therapist-chest {
+  0%,18%,100% { transform: scale(1); }
+  32% { transform: scale(1.12); }
+  42%,100% { transform: scale(1); }
+}
+@keyframes si-therapist-ecg {
+  0%,36% { stroke-dashoffset: 1; opacity: 0; }
+  44% { opacity: 1; }
+  68% { stroke-dashoffset: 0; opacity: 1; }
+  84%,100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+/* 2. Хірург — малий контрольований рух, відблиск, точний штрих. */
+@keyframes si-surgeon-handle {
+  0%,100% { stroke: currentColor; }
+  14%,24% { stroke: var(--si-ink-strong); }
+  40%,100% { stroke: currentColor; }
+}
+@keyframes si-surgeon-tool {
+  0%,18%,100% { transform: none; }
+  38% { transform: translate(1px,-1px) rotate(-2deg); }
+  52%,100% { transform: none; }
+}
+@keyframes si-surgeon-gleam {
+  0%,42% { stroke-dashoffset: 1; opacity: 0; }
+  52% { opacity: 1; }
+  68% { stroke-dashoffset: 0; opacity: 1; }
+  76%,100% { opacity: 0; }
+}
+@keyframes si-surgeon-line {
+  0%,62% { stroke-dashoffset: 1; opacity: 0; }
+  70% { opacity: .9; }
+  84% { stroke-dashoffset: 0; opacity: .9; }
+  100% { opacity: 0; }
+}
+
+/* 3. Невролог — сигнал від центру до чотирьох периферійних вузлів. */
+@keyframes si-neuro-signal {
+  0%,16% { stroke-dashoffset: 1; opacity: .24; }
+  38%,72% { stroke-dashoffset: 0; opacity: 1; }
+  90%,100% { opacity: .72; }
+}
+@keyframes si-neuro-core {
+  0%,24%,100% { transform: scale(1); }
+  36% { transform: scale(1.22); }
+  48%,100% { transform: scale(1); }
+}
+@keyframes si-neuro-node-a {
+  0%,36%,100% { transform: scale(1); }
+  49% { transform: scale(1.28); }
+  61%,100% { transform: scale(1); }
+}
+@keyframes si-neuro-node-b {
+  0%,45%,100% { transform: scale(1); }
+  58% { transform: scale(1.28); }
+  70%,100% { transform: scale(1); }
+}
+
+/* 4. Психіатр — діалог і стабілізація, без копії neural impulse. */
+@keyframes si-psy-stabilize {
+  0%,100% { stroke: currentColor; }
+  14%,24% { stroke: var(--si-ink-strong); }
+  40%,100% { stroke: currentColor; }
+}
+@keyframes si-dialog-one {
+  0%,18% { stroke-dashoffset: 1; opacity: 0; }
+  39%,76% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+@keyframes si-dialog-two {
+  0%,39% { stroke-dashoffset: 1; opacity: 0; }
+  58%,76% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+@keyframes si-dialog-settle {
+  0%,58%,100% { transform: none; }
+  66% { transform: translateY(-.4px); }
+  76%,100% { transform: none; }
+}
+@keyframes si-psy-center {
+  0%,76%,100% { opacity: .72; }
+  84% { opacity: 1; }
+  90%,100% { opacity: .72; }
+}
+
+/* 5. Офтальмолог — фокус без моторошного моргання. */
+@keyframes si-eye-focus {
+  0%,18%,100% { transform: none; }
+  38% { transform: translateX(2px) scale(.82); }
+  58% { transform: translateX(0) scale(.9); }
+  76%,100% { transform: none; }
+}
+@keyframes si-eye-glint {
+  0%,58% { stroke-dashoffset: 1; opacity: 0; }
+  68% { opacity: 1; }
+  82% { stroke-dashoffset: 0; opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* 6. ЛОР — внутрішня завитка і дві локальні звукові хвилі. */
+@keyframes si-ear-focus {
+  0%,18%,100% { opacity: 1; }
+  34%,58% { opacity: .62; }
+  72%,100% { opacity: 1; }
+}
+@keyframes si-sound-one {
+  0%,20% { opacity: 0; transform: translateX(-.7px) scale(.9); }
+  42%,64% { opacity: 1; transform: translateX(.5px) scale(1.04); }
+  82%,100% { opacity: .28; transform: none; }
+}
+@keyframes si-sound-two {
+  0%,38% { opacity: 0; transform: translateX(-.7px) scale(.9); }
+  58%,74% { opacity: .9; transform: translateX(.5px) scale(1.04); }
+  90%,100% { opacity: .28; transform: none; }
+}
+
+/* 7. Стоматолог — огляд емалі без sparkle/emoji-ефекту. */
+@keyframes si-dentist-angle {
+  0%,18%,100% { transform: none; }
+  38%,56% { transform: rotate(-1deg); }
+  72%,100% { transform: none; }
+}
+@keyframes si-enamel-glint {
+  0%,38% { stroke-dashoffset: 1; opacity: .28; }
+  56%,68% { stroke-dashoffset: 0; opacity: 1; }
+  86%,100% { opacity: .5; }
+}
+@keyframes si-pulp-response {
+  0%,58%,100% { opacity: .65; }
+  72% { opacity: 1; }
+  86%,100% { opacity: .65; }
+}
+
+/* 8. Дерматовенеролог — лупа як основний символ та пошарове дослідження. */
+@keyframes si-derm-magnifier {
+  0%,18%,100% { transform: none; }
+  36%,54% { transform: translate(1.5px,1px); }
+  72%,100% { transform: none; }
+}
+@keyframes si-derm-layer-one {
+  0%,38%,100% { opacity: .72; }
+  54%,66% { opacity: 1; }
+  84%,100% { opacity: .72; }
+}
+@keyframes si-derm-layer-two {
+  0%,52%,100% { opacity: .72; }
+  66%,78% { opacity: 1; }
+  92%,100% { opacity: .72; }
+}
+@keyframes si-derm-detail {
+  0%,62%,100% { transform: scale(1); }
+  76% { transform: scale(1.35); }
+  88%,100% { transform: scale(1); }
+}
+
+/* Спільний Clinical Signature — один короткий клінічний штрих у межах плашки. */
+.clinical-signature {
+  position: absolute;
+  z-index: 2;
+  left: 7px;
+  width: 14px;
+  bottom: 4px;
+  height: 1px;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: left center;
+  background: linear-gradient(90deg, transparent, var(--si-ink), var(--si-signature-accent), transparent);
+}
+@keyframes clinical-signature {
+  0% { opacity: 0; transform: translateX(-3px); }
+  24% { opacity: .7; }
+  68% { opacity: .62; }
+  100% { opacity: 0; transform: translateX(22px); }
+}
+@keyframes clinical-signature-soft {
+  0% { opacity: 0; transform: translateX(-1px); }
+  30%,62% { opacity: .58; }
+  100% { opacity: 0; transform: translateX(20px); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-therapist .si-stethoscope-tube { animation: si-therapist-tube 1900ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-therapist .si-chest-piece { animation: si-therapist-chest 1900ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-therapist .si-ecg { animation: si-therapist-ecg 1900ms cubic-bezier(.2,.72,.2,1) 1 both; }
+
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-surgeon .si-scalpel-handle { animation: si-surgeon-handle 1800ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-surgeon .si-scalpel { animation: si-surgeon-tool 1800ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-surgeon .si-gleam { animation: si-surgeon-gleam 1800ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-surgeon .si-incision { animation: si-surgeon-line 1800ms cubic-bezier(.2,.72,.2,1) 1 both; }
+
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-neurologist .si-neural-signal { animation: si-neuro-signal 2200ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-neurologist .si-neural-node-core { animation: si-neuro-core 2200ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-neurologist :is(.si-neural-node-a,.si-neural-node-c) { animation: si-neuro-node-a 2200ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-neurologist :is(.si-neural-node-b,.si-neural-node-d) { animation: si-neuro-node-b 2200ms cubic-bezier(.2,.72,.2,1) 1 both; }
+
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-psychiatrist .si-psy-center { animation: si-psy-center 1900ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-psychiatrist .si-psy-brain { animation: si-psy-stabilize 1900ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-psychiatrist .si-dialog-bubble { animation: si-dialog-settle 1900ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-psychiatrist .si-dialog-one { animation: si-dialog-one 1900ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-psychiatrist .si-dialog-two { animation: si-dialog-two 1900ms cubic-bezier(.2,.72,.2,1) 1 both; }
+
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-ophthalmologist .si-pupil { animation: si-eye-focus 1800ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-ophthalmologist .si-eye-glint { animation: si-eye-glint 1800ms cubic-bezier(.2,.72,.2,1) 1 both; }
+
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-ent .si-ear-inner { animation: si-ear-focus 1900ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-ent .si-sound-wave-one { animation: si-sound-one 1900ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-ent .si-sound-wave-two { animation: si-sound-two 1900ms cubic-bezier(.2,.72,.2,1) 1 both; }
+
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-dentist .si-tooth { animation: si-dentist-angle 1800ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-dentist .si-enamel-glint { animation: si-enamel-glint 1800ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-dentist .si-pulp { animation: si-pulp-response 1800ms cubic-bezier(.2,.72,.2,1) 1 both; }
+
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-dermatologist .si-magnifier { animation: si-derm-magnifier 2100ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-dermatologist .si-skin-layer-one { animation: si-derm-layer-one 2100ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-dermatologist .si-skin-layer-two { animation: si-derm-layer-two 2100ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-dermatologist .si-skin-detail { animation: si-derm-detail 2100ms cubic-bezier(.2,.72,.2,1) 1 both; }
+
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .clinical-signature { animation: clinical-signature 1100ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card[data-specialty="psychiatrist"]:is(:hover, :focus-visible, [data-motion-active]) .clinical-signature,
+  .specialty-card[data-specialty="dermatologist"]:is(:hover, :focus-visible, [data-motion-active]) .clinical-signature { animation-name: clinical-signature-soft; }
+}
+
+/* Доступність: іконки лишаються повністю зрозумілими без руху. */
+@media (prefers-reduced-motion: reduce) {
+  .si * { animation: none !important; transition: none !important; }
+}
+
+/* Курсор не має «стрибати» по сітці — рух лише в межах картки. */
+@media (hover: none) {
+  .specialty-card::before { transition: none; }
+}
+
+.workspace-tabs, .vlk-print-sheet { display: none; }
+
+:where(.text-\[9px\]) {
   font-size: 0.6875rem;
   line-height: 1rem;
 }
 
-.app-shell :where(.text-\[10px\]) {
+:where(.text-\[10px\]) {
   font-size: 0.75rem;
   line-height: 1rem;
 }
 
-.app-shell :where(button, a, input, [role="button"]):focus-visible {
+:where(.text-\[11px\]) {
+  font-size: 0.75rem;
+  line-height: 1.1rem;
+}
+
+/* Діалог — той самий аркуш, що й панелі робочого місця. */
+[data-slot="dialog-content"] {
+  border-radius: var(--radius-panel);
+  border-color: var(--hairline-strong);
+}
+
+[data-slot="dialog-content"] [data-slot="dialog-title"] {
+  font-family: var(--font-normative), Georgia, serif;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+
+/* Таблиця ТДВ: лінії бланка замість чистого чорного. */
+.tdv-table,
+.tdv-table :is(th, td) { border-color: var(--hairline-strong); }
+.tdv-table :is(th, td) { padding: 7px 9px; }
+.tdv-table thead :is(th, td) { font-weight: 600; }
+
+:where(button, a, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
   box-shadow: var(--focus-halo);
 }
 
-.app-shell :where(button, a, [role="button"]) {
-  -webkit-tap-highlight-color: rgba(44, 107, 99, 0.12);
+/* На темній шапці синє кільце губиться — там фокус позначає латунь. */
+.command-header :where(button, a, input, [role="button"]):focus-visible {
+  outline-color: var(--brand-tint);
+  box-shadow: 0 0 0 3px rgba(220, 192, 132, 0.25);
 }
 
-/* Заголовки: щільніший трекінг і спокійна вага. */
+.app-shell :where(button, a, [role="button"]) {
+  -webkit-tap-highlight-color: rgba(44, 82, 136, 0.12);
+}
+
 h1,
 h2,
 h3 {
-  letter-spacing: -0.02em;
+  letter-spacing: -0.005em;
   text-wrap: balance;
 }
 
 /* Один стиль штриха для всіх іконок. */
 .lucide {
-  stroke-width: 1.5px;
+  stroke-width: 1.6px;
 }
 
 /* Тонкі скроллбари в тон інтерфейсу. */
@@ -452,14 +1275,14 @@ h3 {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: var(--hairline-strong);
+  background: rgba(27, 34, 40, 0.22);
   border: 2px solid transparent;
   border-radius: 999px;
   background-clip: padding-box;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: var(--ink-faint);
+  background: rgba(27, 34, 40, 0.34);
   border: 2px solid transparent;
   background-clip: padding-box;
 }
@@ -470,108 +1293,28 @@ h3 {
 
 button,
 input {
-  font: inherit;
+  font-family: inherit;
+}
+
+/* Пальцем — не менше 44px, мишею — щільність робочого місця зберігається. */
+@media (pointer: coarse) {
+  .app-shell :where(button, a[href], [role="button"], [data-slot="button"], [data-slot="select-trigger"]) {
+    min-height: 44px;
+  }
+
+  .app-shell .article-pagination [data-slot="button"] { width: 44px; height: 44px; }
+  .app-shell [data-article-row] { min-height: 48px; }
+  .app-shell .workspace-tabs button { min-height: 48px; }
+
+  /* Щільні мобільні правила нижче за файлом не мають зменшувати ціль дотику. */
+  .app-shell .header-actions > button,
+  .app-shell .header-actions > [data-slot="button"] { min-width: 44px; width: 44px; min-height: 44px; }
+  .app-shell .article-toolbar > [data-slot="button"] { min-height: 44px; }
+  .app-shell .command-mode-bar button { min-height: 44px; }
 }
 
 ::selection {
-  background: rgba(44, 107, 99, 0.18);
-}
-
-/*
- * Друк зведення: на папір іде документ, а не інтерфейс.
- * Аркуш готується в DOM (.print-sheet) і показується лише під час друку,
- * тому не потрібне окреме вікно, яке блокують браузери.
- */
-.print-sheet {
-  display: none;
-}
-
-@media print {
-  html,
-  body {
-    background: #ffffff !important;
-    color: #000000 !important;
-  }
-
-  body > *:not(.print-root) {
-    display: none !important;
-  }
-
-  .print-root {
-    display: block !important;
-  }
-
-  .print-sheet {
-    display: block;
-    max-width: none;
-    padding: 0;
-    color: #000000;
-    font-size: 11pt;
-    line-height: 1.45;
-  }
-
-  .print-sheet h1 {
-    margin: 0 0 2mm;
-    font-size: 16pt;
-    letter-spacing: 0;
-  }
-
-  .print-sheet .print-meta {
-    margin: 0 0 6mm;
-    padding-bottom: 3mm;
-    border-bottom: 1pt solid #000000;
-    font-size: 9.5pt;
-  }
-
-  .print-sheet h2 {
-    margin: 6mm 0 2mm;
-    font-size: 12pt;
-    letter-spacing: 0;
-  }
-
-  .print-sheet .print-item {
-    margin: 0 0 4mm;
-    padding: 0 0 3mm;
-    border-bottom: 0.5pt solid #999999;
-    break-inside: avoid;
-  }
-
-  .print-sheet .print-item h3 {
-    margin: 0 0 1mm;
-    font-size: 11pt;
-    letter-spacing: 0;
-  }
-
-  .print-sheet .print-label {
-    font-size: 9pt;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-
-  .print-sheet .print-outcome {
-    font-weight: 700;
-  }
-
-  .print-sheet ul {
-    margin: 0;
-    padding-left: 5mm;
-  }
-
-  .print-sheet .print-note {
-    margin-top: 6mm;
-    padding-top: 3mm;
-    border-top: 1pt solid #000000;
-    font-size: 9pt;
-  }
-
-  .print-sheet a {
-    color: #000000;
-    text-decoration: none;
-  }
-
-  @page {
-    margin: 18mm 16mm;
-  }
+  background: rgba(44, 82, 136, 0.18);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -583,4 +1326,271 @@ input {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+
+  .command-header::before,
+  .command-selected-rule {
+    animation: none !important;
+  }
+
+  /* Полева лінія з'являється одразу, без прокреслювання. */
+  .specialty-card::before { transition: none !important; }
 }
+
+@media (max-width: 1279px) {
+  .app-shell[data-workspace="true"] { display: flex; flex-direction: column; height: 100dvh; min-height: 0; overflow: hidden; }
+  .app-shell[data-workspace="true"] .command-header { position: relative; flex-shrink: 0; }
+  .header-inner { display: grid; grid-template-columns: minmax(0,1fr) auto; padding: 8px 12px; }
+  .header-search { grid-column: 1 / -1; order: 3; margin: 0; max-width: none; }
+  .header-actions { grid-column: 2; grid-row: 1; }
+  .header-brand { min-width: 0; }
+  .command-mode-bar { flex-shrink: 0; }
+  .command-mode-bar > div { padding-top: 4px; padding-bottom: 4px; }
+  .command-mode-bar > div > p { display: none; }
+  .workspace-tabs { display: flex; flex-shrink: 0; gap: 0; padding: 0 10px; background: var(--surface-muted); border-bottom: 1px solid var(--hairline-strong); }
+  .workspace-tabs button { display: flex; flex: 1; min-width: 0; min-height: 42px; align-items: center; justify-content: center; gap: 6px; padding: 6px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--ink-soft); font-size: 13px; font-weight: 500; }
+  .workspace-tabs button[aria-selected="true"] { border-bottom-color: var(--primary); color: var(--foreground); background: transparent; box-shadow: none; }
+  .tab-count { padding: 1px 5px; border-radius: 3px; background: var(--surface-sunken); font-family: var(--font-code), monospace; font-size: 10px; }
+  .vlk-workspace { display: flex; flex: 1; min-height: 0; overflow: hidden; gap: 0; padding: 8px; }
+  .vlk-workspace > [data-mobile-panel] { display: none; }
+  .vlk-workspace > [data-mobile-panel][data-active="true"] { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; max-height: none; }
+  .command-sidebar { position: static; }
+  .article-list { max-height: none; }
+  .sidebar-controls { max-height: 55%; overflow-y: auto; }
+  .normative-surface { min-height: 0; }
+  .article-header { padding: 10px 12px; max-height: 45%; overflow-y: auto; }
+  .article-content { padding: 12px; }
+  .summary-panel { overflow-y: auto; }
+  .summary-panel > .verification-rail { max-height: 100%; }
+  .summary-panel > :not(.verification-rail) { flex-shrink: 0; }
+  .search-shortcut { display: none; }
+  #vlk-search:placeholder-shown { padding-right: 42px; }
+}
+@media (max-width: 639px) {
+  .header-inner { gap: 6px; padding: 7px 10px; }
+  .header-brand { gap: 5px; }
+  .app-shell .header-brand .brand-command-button { width: 64px; height: 64px; border-radius: 12px; }
+  .app-shell .header-brand .brand-command-button img { width: 56px; height: 56px; }
+  .header-brand > div:not(.brand-command-button) { min-width: 0; }
+  .header-brand > div:not(.brand-command-button) > div { min-width: 0; }
+  .header-brand > button:first-child { width: 30px; height: 32px; }
+  .header-brand h1 { font-size: 13px; white-space: normal; line-height: 1.2; }
+  .header-brand h1 + span { display: none; }
+  .header-brand p { font-size: 10px; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .header-actions { gap: 0; }
+  .header-actions > button, .header-actions > [data-slot="button"] { min-width: 34px; width: 34px; min-height: 36px; padding: 6px; }
+  #vlk-search { font-size: 16px; height: 42px; }
+  .command-mode-bar button { min-height: 34px; padding: 5px 9px; font-size: 11px; }
+  .article-header h2 { font-size: 20px; }
+  .article-header .specialty-caption { display: none; }
+  .article-header h2 + p { font-size: 11px; font-weight: 500; line-height: 1.5; }
+  .article-toolbar { gap: 4px; }
+  .article-toolbar > [data-slot="button"] { min-height: 36px; padding: 5px 8px; font-size: 11px; }
+  .article-toolbar .article-pagination { margin-right: 4px; }
+  .article-content [data-point-row] { flex-wrap: wrap; gap: 8px; padding: 10px; }
+  .article-content [data-point-row] > .truncate { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; min-width: calc(100% - 64px); }
+  .article-content [data-point-row] > .rounded-full { margin-left: 40px; max-width: calc(100% - 70px); }
+  .article-content [data-point-row] > .lucide { margin-left: auto; }
+  .welcome-screen { padding-top: 20px; }
+  .welcome-screen > h2 { margin-top: 12px; }
+  .welcome-screen > p.mt-2 { font-size: 14px; }
+  .specialty-card { padding: 12px; }
+  .specialty-card > span.mb-3 { margin-bottom: 8px; }
+  .specialty-icon { width: 40px; height: 40px; border-radius: 10px; }
+  .specialty-card > span.text-\[15px\] { font-size: 14px; }
+}
+
+/* Clinical visual + motion pass. No normative data or workflow state here. */
+.dark .search-highlight { background: #52451e; color: #ffefbd; }
+.specialty-grid { align-items: stretch; }
+.specialty-card { min-height: 132px; padding: 16px; }
+.specialty-card > span:last-child { font-size: 12px; }
+.specialty-card:hover { box-shadow: 0 3px 12px -9px #123b4455; }
+.welcome-screen > p.mt-2 { line-height: 1.65; }
+.header-brand h1 { font-size: 17px; }
+.header-brand p { line-height: 1.4; }
+.header-inner { column-gap: 12px; }
+.command-header::before { background-image: none; }
+.command-mode-bar > div { padding-block: 5px; }
+.command-mode-bar [aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); }
+.normative-surface, .verification-rail, .command-sidebar { border-color: var(--hairline); }
+.article-header { background: var(--surface); }
+.article-header h2 { font-size: 22px; }
+.article-header .specialty-caption { font-size: 12px; }
+.article-header h2 + p { font-size: 12px; font-weight: 500; line-height: 1.6; }
+.article-content .vlk-normative { font-size: 15px; line-height: 1.75; }
+.search-context { background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning-ink); }
+.article-content [data-point-row] { display: grid; grid-template-columns: 32px minmax(0,1fr) auto 16px; gap: 10px; }
+.article-content [data-point-row] > .truncate { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-height: 1.5; }
+.article-content [data-point-row] > .rounded-full { max-width: 165px; border-radius: 5px; font-weight: 600; font-size: 11px; }
+.article-content [data-point-row] > .lucide { grid-column: -2; }
+@media (min-width: 640px) {
+  .article-content [data-point-row]:has(> .hidden) { grid-template-columns: 32px minmax(0,1fr) auto auto 16px; }
+}
+.command-selected-rule { border-color: var(--accent-ink) !important; background: var(--secondary) !important; box-shadow: inset 3px 0 var(--accent-ink); }
+.clinical-context { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0; padding: 8px 10px; list-style: none; border: 1px solid var(--hairline); border-radius: var(--radius-control); background: var(--surface-muted); }
+.clinical-context li { display: flex; align-items: baseline; gap: 5px; font-size: 12px; }
+.clinical-context li + li { border-left: 1px solid var(--hairline-strong); padding-left: 12px; }
+.clinical-context span { color: var(--ink-soft); }
+.clinical-context b { font-family: var(--font-code), monospace; font-weight: 500; }
+.diagnosis-entry { position: relative; border-left: 2px solid var(--accent-ink); border-radius: 3px 7px 7px 3px; }
+.diagnosis-entry + .diagnosis-entry::before { content: ""; position: absolute; width: 1px; height: 7px; top: -8px; left: 9px; background: var(--hairline-strong); }
+.clinical-result { border-radius: 7px; }
+.verification-rail p.text-xs { font-size: 13px; line-height: 1.6; }
+.verification-rail .font-black { font-weight: 600; }
+.basket-count { display: inline-block; font-variant-numeric: tabular-nums; min-width: 1ch; }
+.table-fullscreen [data-slot="dialog-header"] { background: var(--surface); }
+.table-fullscreen .tdv-table :is(th,td) { font-size: 13px; line-height: 1.5; padding: 9px 10px; }
+.tdv-table tbody tr:hover > :is(th,td) { background: var(--secondary); }
+.tdv-table tr[aria-current="true"] > th { box-shadow: inset 3px 0 var(--accent-ink); }
+.table-fullscreen .border-black { border-color: var(--hairline-strong); }
+.explanation-table tbody { font-size: 15px; }
+[data-slot="dialog-overlay"] { backdrop-filter: none; background: #0d182c80; }
+[data-slot="accordion-content"] { animation-duration: var(--dur-panel); }
+
+/* One target owns contextual motion, including keyboard and touch activation. */
+.app-shell[data-motion-managed] .specialty-card:not([data-motion-active]) .si *,
+.app-shell[data-motion-managed] .specialty-card:not([data-motion-active]) .clinical-signature { animation: none !important; }
+
+/* Functional state motion remains short; the long 1.8–2.2 s sequences are decorative/contextual only. */
+@keyframes clinical-state { 0% { box-shadow: inset 0 0 0 2px var(--accent-ink); } 100% { box-shadow: inset 0 0 0 2px transparent; } }
+@keyframes clinical-count { 0% { opacity: .3; transform: translateY(3px); } 100% { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  [data-point-row][data-in-basket="true"] { animation: clinical-state 250ms ease-out; }
+  .diagnosis-entry { animation: sheet-in 250ms var(--ease-standard) 120ms backwards; }
+  .clinical-result { animation: clinical-state 280ms ease-out 300ms backwards; }
+  .basket-count { animation: clinical-count 220ms ease-out 150ms backwards; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .primary-point-action { transition: none; }
+  .welcome-screen,
+  .specialty-card .si *,
+  .clinical-signature,
+  .brand-command-button::after,
+  .diagnosis-entry,
+  .clinical-result,
+  .basket-count { animation: none !important; transform: none !important; }
+  .specialty-card .si .si-accent { transition: none !important; }
+  .specialty-card .specialty-arrow { transform: none !important; transition: none !important; }
+  .specialty-card .clinical-signature { display: none; }
+  .specialty-card .si * { stroke-dasharray: none !important; stroke-dashoffset: 0 !important; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .specialty-icon {
+    background: var(--si-hover-bg);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--si-ink) 20%, transparent);
+  }
+}
+@media (max-width: 639px) {
+  .specialty-card { min-height: 124px; padding: 13px; }
+  .specialty-card-heading { height: 40px; }
+  .specialty-card .specialty-icon { width: 46px; height: 46px; }
+  .specialty-icon .si { width: 34px; height: 34px; }
+  .header-brand h1 { font-size: 14px; }
+  .article-content [data-point-row] { grid-template-columns: 30px minmax(0,1fr) 18px; gap: 7px; }
+  .article-content [data-point-row] > .truncate { min-width: 0; grid-column: 2; font-size: 14px; }
+  .article-content [data-point-row] > .rounded-full { grid-column: 2; grid-row: 2; margin-left: 0; max-width: none; width: fit-content; }
+  .article-content [data-point-row] > .lucide { grid-column: 3; grid-row: 1; }
+  .article-header h2 { font-size: 20px; }
+  .clinical-context { gap: 8px; padding: 8px; }
+  .clinical-context li + li { padding-left: 8px; }
+  .table-fullscreen [data-slot="dialog-description"] { font-size: 12px; line-height: 1.5; }
+  .table-fullscreen [data-slot="dialog-header"] { padding-right: 12px; }
+  .table-fullscreen [data-slot="dialog-title"] { padding-right: 110px; min-height: 44px; }
+  .table-fullscreen .tdv-table { min-width: 960px; }
+  .table-fullscreen .tdv-table tr > th:first-child { width: 140px; min-width: 140px; }
+  [data-clinical-basket] { top: auto !important; bottom: 0 !important; width: 100% !important; max-width: none !important; border-radius: 14px 14px 0 0 !important; }
+}
+
+/* ---------- Друк: той самий бланк на папері ---------- */
+@media print {
+  @page { margin: 18mm; }
+  html, body { height: auto !important; overflow: visible !important; background: white !important; color: black !important; }
+  body > :not(.app-shell), .app-shell > :not(.vlk-print-sheet) { display: none !important; }
+  .app-shell, .app-shell[data-workspace="true"] { display: block !important; height: auto !important; min-height: 0 !important; overflow: visible !important; background: white !important; }
+  .vlk-print-sheet { display: block; color: black; }
+  .vlk-print-sheet h1 {
+    margin-bottom: 16px;
+    padding-bottom: 6px;
+    border-bottom: 1.5pt solid black;
+    font: 700 17pt/1.3 var(--font-normative), Georgia, serif;
+  }
+  .vlk-report-text { overflow-wrap: anywhere; font: 11pt/1.65 var(--font-normative), Georgia, serif; }
+  .vlk-report-text p { margin: 0 0 4pt; white-space: pre-wrap; orphans: 3; widows: 3; }
+  .vlk-report-text a { color: black; text-decoration: underline; }
+}
+
+/* v28 — clinical reading hierarchy. No data or motion changes. */
+.app-shell[data-workspace="true"] .header-brand p { display: none; }
+.app-shell[data-workspace="true"] .header-brand > button[aria-label="Назад до вибору спеціальності"] { display: none; }
+.point-section-heading { padding-block: 2px 6px; }
+.point-preview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+.article-content [data-point-row] { align-items: start; }
+.article-content [data-point-row] > .rounded-full { white-space: normal; max-width: 135px; }
+.diagnosis-entry { overflow-wrap: anywhere; }
+.summary-panel .clinical-result > div { flex-wrap: wrap; }
+.edition-ticker-icon { align-self: center; margin-top: 0; }
+.edition-ticker { grid-template-columns: 16px minmax(0,1fr) auto; }
+.edition-ticker-link { grid-column: auto; }
+.edition-ticker-viewport { padding-block: 5px; }
+@media (min-width: 1280px) {
+  .vlk-workspace { grid-template-columns: clamp(232px,19vw,270px) minmax(0,1fr) 228px; }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .app-shell[data-workspace="true"] .header-inner { display: flex; flex-wrap: nowrap; }
+  .app-shell[data-workspace="true"] .header-search { order: 0; flex: 1; }
+  .vlk-workspace { display: grid; grid-template-columns: 238px minmax(0,1fr); gap: 10px; align-items: stretch; }
+  .vlk-workspace > #vlk-panel-list { display: flex; flex-direction: column; min-height: 0; max-height: none; position: static; }
+  .vlk-workspace > #vlk-panel-article { display: flex; min-height: 0; }
+  .vlk-workspace:has(#vlk-panel-summary[data-active="true"]) > #vlk-panel-article { display: none; }
+  #vlk-panel-summary[data-active="true"] { grid-column: 2; grid-row: 1; }
+  .article-header { max-height: 40%; }
+}
+@media (max-width: 1279px) {
+  .command-mode-bar > div > button { display: none; }
+}
+@media (max-width: 639px) {
+  .app-shell[data-workspace="true"] .header-brand .brand-command-button { width: 48px; height: 48px; }
+  .app-shell[data-workspace="true"] .header-brand .brand-command-button img { width: 44px; height: 44px; }
+  .app-shell[data-workspace="true"] .header-inner { padding-block: 5px; }
+  .edition-ticker { gap: 6px; padding-inline: 10px; font-size: 11px; }
+  .edition-ticker-copy b { font-size: 11px; }
+  .edition-ticker-link { justify-content: center; }
+  .edition-source-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .article-content [data-point-row] > .point-preview { min-width: calc(100% - 48px); }
+  .article-content [data-point-row] > .rounded-full { max-width: calc(100% - 70px); }
+  .article-header { padding: 8px 10px; }
+  .article-header h2 { font-size: 18px; line-height: 1.25; }
+  .article-header .article-toolbar { padding-top: 5px; }
+  .article-header > div { gap: 7px; }
+  .article-reference-grid { grid-template-columns: minmax(0,1fr); }
+}
+
+/* v29: fixed-size vector emblem; its controller owns the snake only. */
+.command-brand-vector { display: block; flex-shrink: 0; width: 88px; height: 88px; }
+.brand-command-button::after { display: none; }
+.app-shell[data-workspace="true"] .brand-command-button { width: 68px; height: 68px; }
+.app-shell[data-workspace="true"] .command-brand-vector { width: 64px; height: 64px; }
+.workspace-meta { flex-shrink: 0; }
+.article-action-rail { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; padding-bottom: max(8px,env(safe-area-inset-bottom)); border-top: 1px solid var(--hairline-strong); background: var(--surface); }
+.action-context { min-width: 0; font-size: 12px; line-height: 1.5; }
+.action-context strong, .action-context span { display: block; }
+.action-context span { color: var(--ink-soft); }
+.primary-point-action { min-height: 44px; height: auto; white-space: normal; flex-shrink: 0; max-width: 55%; transition: background-color 200ms var(--ease-standard); }
+.primary-point-action:active { transition-duration: 100ms; }
+.article-content { scroll-padding-block: 12px; }
+@media (min-width: 1024px) {
+  .app-shell[data-workspace="true"] .workspace-meta { display: flex; min-height: 54px; background: var(--surface-muted); border-bottom: 1px solid var(--hairline); }
+  .app-shell[data-workspace="true"] .edition-ticker { flex: 1; border: 0; padding-right: 12px; }
+  .command-mode-bar { border: 0; }
+  .command-mode-bar > div { padding: 4px 12px 4px 0; height: 100%; }
+  .command-mode-bar [aria-label="Режим роботи"] { padding: 0; }
+  .command-mode-bar button { min-height: 44px; }
+}
+@media (min-width: 1280px) { .return-to-reading { display: none; } }
+@media (max-width: 639px) {
+  .command-brand-vector { width: 56px; height: 56px; }
+  .app-shell[data-workspace="true"] .command-brand-vector { width: 44px; height: 44px; }
+  .article-action-rail { gap: 8px; padding-inline: 10px; }
+  .primary-point-action { font-size: 12px; padding-inline: 10px; }
+}
+.tdv-context-trigger { display: inline-flex; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; padding: 4px; border-radius: var(--radius); text-decoration: underline dotted; text-underline-offset: 4px; color: inherit; font-family: inherit; font-size: inherit; line-height: inherit; cursor: pointer; }
+.tdv-context-trigger:hover { background: var(--secondary); }
+.tdv-context-popover { z-index: 80; width: min(340px,calc(100vw - 24px)); max-height: min(400px,70dvh); overflow-y: auto; }

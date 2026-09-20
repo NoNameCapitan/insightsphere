@@ -4,6 +4,11 @@ function editionToNumber(edition: string) {
 }
 
 export function detectOfficialEdition(html: string) {
+  // The current edition label is authoritative; history links can include future editions.
+  const visible = html.replace(/<[^>]*>/g, " ").replace(/&nbsp;|\u00a0/g, " ");
+  const current = [...visible.matchAll(/Редакц(?:ія|iя)\s+від\s+(\d{2}\.\d{2}\.\d{4})/giu)].map((match) => match[1]);
+  if (new Set(current).size === 1) return current[0];
+  if (current.length > 1) return undefined;
   const candidates = [
     ...[...html.matchAll(/Редакц(?:ія|iя)\s+від\s+(\d{2}\.\d{2}\.\d{4})/giu)].map(
       (match) => match[1],

@@ -31,37 +31,26 @@ export type OutcomeClass = {
   requiresLiteralReading: boolean;
 };
 
-/**
- * Тони результату описані токенами, тому світла і нічна теми беруть свої
- * перевірені пари «фон / текст» без дублювання класів у розмітці.
- */
-const TONE_STYLES: Record<
-  OutcomeTone,
-  { box: string; badge: string; dot: string; bar: string }
-> = {
+const TONE_STYLES: Record<OutcomeTone, { box: string; badge: string; dot: string }> = {
   critical: {
-    box: "border-[var(--danger-line)] bg-[var(--box-critical-bg)]",
-    badge: "bg-[var(--badge-critical-bg)] text-[var(--badge-critical-ink)]",
-    dot: "bg-[var(--danger-ink)]",
-    bar: "border-[var(--danger-ink)]",
+    box: "border-[var(--critical-ink)]/22 bg-[var(--critical-bg)]",
+    badge: "bg-[var(--critical-badge)] text-[var(--critical-ink)]",
+    dot: "bg-[var(--critical-ink)]",
   },
   warning: {
-    box: "border-[var(--warn-line)] bg-[var(--box-warning-bg)]",
-    badge: "bg-[var(--badge-warning-bg)] text-[var(--badge-warning-ink)]",
-    dot: "bg-[var(--gold)]",
-    bar: "border-[var(--gold)]",
+    box: "border-[var(--warning-border)]/25 bg-[var(--warning-bg)]",
+    badge: "bg-[var(--warning-badge)] text-[var(--warning-ink)]",
+    dot: "bg-[var(--warning-border)]",
   },
   positive: {
-    box: "border-[var(--accent-line)] bg-[var(--box-positive-bg)]",
-    badge: "bg-[var(--badge-positive-bg)] text-[var(--badge-positive-ink)]",
-    dot: "bg-[var(--accent-ink)]",
-    bar: "border-[var(--accent-ink)]",
+    box: "border-[var(--positive-ink)]/20 bg-[var(--positive-bg)]",
+    badge: "bg-[var(--positive-badge)] text-[var(--positive-ink)]",
+    dot: "bg-[var(--positive-ink)]",
   },
   neutral: {
-    box: "border-[var(--hairline-strong)] bg-[var(--box-neutral-bg)]",
-    badge: "bg-[var(--badge-neutral-bg)] text-[var(--badge-neutral-ink)]",
-    dot: "bg-[var(--ink-muted)]",
-    bar: "border-[var(--ink-muted)]",
+    box: "border-[var(--foreground)]/15 bg-[var(--surface-sunken)]",
+    badge: "bg-[var(--surface-sunken)] text-[var(--foreground)]",
+    dot: "bg-[#7d8a85]",
   },
 };
 

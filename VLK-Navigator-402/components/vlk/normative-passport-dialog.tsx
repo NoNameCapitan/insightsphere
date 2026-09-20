@@ -1,12 +1,14 @@
 "use client";
 
+import { VlkDialogContent } from "@/components/vlk/dialog-content";
+
 import { Check, ExternalLink, FileCheck2, History, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { CommandBrand } from "@/components/vlk/command-brand";
+import { SOURCE_CHECK } from "@/lib/vlk-source-check";
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
@@ -41,13 +43,15 @@ export function NormativePassportDialog({
           type="button"
           variant="outline"
           size="sm"
-          className="h-9 bg-[var(--surface)] text-xs"
+          className="h-9 bg-card text-xs"
+          aria-label="Паспорт норми"
+          title="Паспорт норми"
         >
-          <FileCheck2 /> Паспорт норми
+          <FileCheck2 /> <span className="hidden sm:inline">Паспорт норми</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-2xl">
-        <div className="flex items-start gap-3 border-b border-[var(--brand-line)] pb-3">
+      <VlkDialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-2xl">
+        <div className="flex items-start gap-3 border-b border-[var(--brand-rule)]/20 pb-3">
           <CommandBrand size={52} />
           <DialogHeader>
             <DialogTitle>Паспорт нормативної норми</DialogTitle>
@@ -58,15 +62,15 @@ export function NormativePassportDialog({
         </div>
 
         <div className="space-y-3 text-sm">
-          <div className="rounded-xl border border-[var(--accent-line)] bg-[var(--surface-accent)] p-3">
+          <div className="rounded-xl border border-[var(--accent-ink)]/20 bg-[var(--secondary)] p-3">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
-                <p className="text-[11px] font-semibold text-[var(--accent-ink)]">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-ink)]">
                   Джерело норми
                 </p>
                 <p className="mt-1 font-bold">{NORMATIVE_PASSPORT.order}</p>
               </div>
-              <span className="rounded-full bg-[var(--surface)] px-2 py-1 text-[10px] font-bold text-[var(--accent-ink-strong)]">
+              <span className="rounded-full bg-card px-2 py-1 text-[10px] font-bold text-[var(--accent-ink-strong)]">
                 редакція {NORMATIVE_PASSPORT.edition}
               </span>
             </div>
@@ -75,7 +79,7 @@ export function NormativePassportDialog({
                 {normReferenceId(article, point)}
               </p>
             ) : null}
-            <Button asChild variant="outline" size="sm" className="mt-3 h-8 bg-[var(--surface)] text-xs">
+            <Button asChild variant="outline" size="sm" className="mt-3 h-8 bg-card text-xs">
               <a href={sourceUrl} target="_blank" rel="noreferrer">
                 Відкрити першоджерело <ExternalLink />
               </a>
@@ -90,16 +94,20 @@ export function NormativePassportDialog({
               <p className="mt-1.5 text-xs leading-5 text-[var(--ink-soft)]">
                 87 статей · 87 дослівних рядків · 29 точних наборів МКХ · 86 наборів пояснень · ТДВ.
               </p>
-              <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-[var(--surface-accent)] px-2 py-1 text-[10px] font-bold text-[var(--badge-positive-ink)]">
+              <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-[var(--secondary)] px-2 py-1 text-[10px] font-bold text-[var(--positive-ink)]">
                 <Check className="size-3" /> технічні інваріанти перевірено
               </span>
+              <p className="mt-2 text-xs leading-5 text-[var(--ink-soft)]">
+                Звірка джерела {SOURCE_CHECK.checkedAt}: знайдено {SOURCE_CHECK.matched} із {SOURCE_CHECK.fragments} текстових фрагментів.
+                Це збережений результат перевірки, а не перевірка в реальному часі.
+              </p>
             </div>
             <div className="rounded-xl border border-[var(--hairline)] p-3">
               <p className="flex items-center gap-2 font-bold">
                 <History className="size-4 text-[var(--accent-ink)]" /> Моніторинг редакції
               </p>
               <p className="mt-1.5 text-xs leading-5 text-[var(--ink-soft)]">{EDITION_MONITOR.behavior}</p>
-              <span className="mt-2 inline-flex rounded-full bg-[var(--warn-surface)] px-2 py-1 text-[10px] font-bold text-[var(--warn-ink)]">
+              <span className="mt-2 inline-flex rounded-full bg-[var(--warning-bg)] px-2 py-1 text-[10px] font-bold text-[var(--warning-ink)]">
                 налаштовано · {EDITION_MONITOR.schedule}
               </span>
             </div>
@@ -108,7 +116,7 @@ export function NormativePassportDialog({
           <div className="rounded-xl border border-[var(--hairline)] p-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="font-bold">Подвійна експертна перевірка</p>
-              <span className={`rounded-full px-2 py-1 text-[10px] font-bold ${doubleVerified ? "bg-[var(--surface-accent)] text-[var(--badge-positive-ink)]" : "bg-[var(--warn-surface)] text-[var(--warn-ink)]"}`}>
+              <span className={`rounded-full px-2 py-1 text-[10px] font-bold ${doubleVerified ? "bg-[var(--secondary)] text-[var(--positive-ink)]" : "bg-[var(--warning-bg)] text-[var(--warning-ink)]"}`}>
                 {doubleVerified ? "завершена" : "очікує підтвердження"}
               </span>
             </div>
@@ -129,7 +137,7 @@ export function NormativePassportDialog({
           <div className="rounded-xl border border-[var(--hairline)] p-3">
             <p className="font-bold">Журнал редакцій</p>
             {REVISION_LOG.map((entry) => (
-              <div key={entry.edition} className="mt-2 border-l-2 border-[var(--accent-line)] pl-3">
+              <div key={entry.edition} className="mt-2 border-l-2 border-[var(--accent-ink)]/30 pl-3">
                 <p className="text-xs font-bold">Редакція від {entry.edition}</p>
                 <p className="mt-1 text-xs leading-5 text-[var(--ink-soft)]">{entry.summary}</p>
               </div>
@@ -141,7 +149,7 @@ export function NormativePassportDialog({
             застосунку без ручного звірення тексту, тестів і експертного підтвердження.
           </p>
         </div>
-      </DialogContent>
+      </VlkDialogContent>
     </Dialog>
   );
 }

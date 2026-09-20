@@ -8,6 +8,18 @@ import { explanationBlocks, explanationTables } from "../lib/vlk-explanation-tab
 const expected = { 13: [1, 2], 35: [3], 36: [4], 38: [5, 6, 7, 8, 9, 10],
   39: [11], 40: [12], 46: [13], 61: [14], 62: [15], 64: [16], 66: [17, 18, 19] };
 
+test("changed table fragments never receive stale positional cell metadata", async () => {
+  for (const article of Object.keys(expected)) {
+    const e = await loadArticleExplanation(article);
+    for (const table of explanationTables(article, e.paragraphs)) {
+      const changed = [...e.paragraphs]; changed[table.start + 3] += ' changed';
+      assert.ok(!explanationTables(article, changed).some((t) => t.number === table.number));
+      const blocks = explanationBlocks(article, changed);
+      assert.ok(blocks.some((b) => b.kind === 'paragraph' && b.index === table.start + 3));
+    }
+  }
+});
+
 function checkGrid(rows, columns, label) {
   const occupied = [];
   rows.forEach((row, r) => {
@@ -81,12 +93,11 @@ test("height and weight table keeps all 25 rows, age boundary and source values"
 
 test("navigation contains only article selection; details and marks live in the centre", () => {
   const page = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
-  // Ліва панель тепер відкривається атрибутом панелі, а не класом оболонки.
-  const sidebarStart = page.indexOf('data-panel="list"');
-  assert.ok(sidebarStart > 0);
-  const sidebar = page.slice(sidebarStart, page.indexOf("</aside>", sidebarStart));
+  const sidebar = page.slice(page.indexOf('<aside className="command-sidebar'), page.indexOf("</aside>"));
   assert.ok(sidebar.includes("data-article-row"));
   assert.doesNotMatch(sidebar, /pointLabel|ARTICLE_RULES|articleRules\.map|outcomeStyles/);
   assert.match(page, /aria-label="Збіг у вибраній статті"/);
   assert.match(page, /<ExplanationDocument article=\{selected.article\}/);
+  assert.match(page, /<FullExplanationDialog/);
+  assert.match(page, /Повне офіційне пояснення до статті/);
 });

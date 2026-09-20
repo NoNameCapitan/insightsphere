@@ -1,0 +1,7 @@
+{
+  "method": "Normalized literal substring presence; does not verify placement, table geometry, completeness of live text, or clinical/legal application",
+  "sha256": "93ac4bc5525bb7231db3f1ef11d3f1b509c053c97677a7d370b8e96f5124091d",
+  "fragments": 2570,
+  "matched": 2570,
+  "unmatched": []
+}

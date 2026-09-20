@@ -7,6 +7,23 @@
 
 import type { ArticleExplanation } from "./explanations/types.ts";
 
+const NEXT_CHAPTER_HEADING = /^[IVX]+\.\s/u;
+
+/**
+ * Відтинає службовий заголовок наступного розділу, який у вихідному корпусі
+ * стоїть між останнім абзацом статті та якорем наступної статті.
+ * Масив джерела не змінюється — це лише межа відображення поточної статті.
+ */
+export function articleExplanationParagraphs(
+  explanation: ArticleExplanation | undefined,
+): readonly string[] {
+  if (!explanation?.paragraphs.length) return [];
+  const boundary = explanation.paragraphs.findIndex(
+    (paragraph, index) => index > 0 && NEXT_CHAPTER_HEADING.test(paragraph),
+  );
+  return boundary < 0 ? explanation.paragraphs : explanation.paragraphs.slice(0, boundary);
+}
+
 export const EXPLANATION_SIGNALS = [
   { label: "Порушення функцій", pattern: /порушенн\w* функц/iu },
   { label: "Стаціонарне обстеження", pattern: /стаціонар/iu },
@@ -37,18 +54,23 @@ export function pointMentions(value: string) {
 
 /** Фрагменти пояснення, що стосуються конкретного пункту статті. */
 export function pointExplanation(explanation: ArticleExplanation | undefined, point: string) {
-  if (!explanation?.paragraphs.length) return [];
-  if (point === "—") return explanation.paragraphs.slice(0, 8);
+  const paragraphs = articleExplanationParagraphs(explanation);
+  if (!paragraphs.length) return [];
+  // Стаття без поділу на пункти має одне спільне пояснення — показуємо його
+  // повністю, а не лише перші вісім фрагментів.
+  if (point === "—") return [...paragraphs];
 
   const result: string[] = [];
   let active = false;
-  for (const paragraph of explanation.paragraphs) {
+  for (const paragraph of paragraphs) {
     const mentions = pointMentions(paragraph);
     const startsSection = /^(?:\d+\)\s*)?(?:до|за)\s+пункт|^пункт/iu.test(paragraph);
     if (startsSection && mentions.length) active = mentions.includes(point);
     if (active || mentions.includes(point)) result.push(paragraph);
   }
-  return [...new Set(result)].slice(0, 12);
+  // Не обрізаємо й не дедуплікуємо дослівні фрагменти: повтор може бути
+  // частиною нормативної структури, а лікар повинен бачити весь розділ пункту.
+  return result;
 }
 
 /** Групи даних, які згадані в дослівному тексті пояснення. */

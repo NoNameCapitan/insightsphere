@@ -19,6 +19,7 @@ test("a saved session round-trips", () => {
     basket: [item],
     citizenChecked: ["Маю направлення"],
     examineeType: "Військовослужбовець",
+    scheduleGraph: "II",
     mode: "citizen",
     directory: { ...EMPTY_DIRECTORY, therapist: "Іваненко" },
   });
@@ -27,6 +28,7 @@ test("a saved session round-trips", () => {
   assert.equal(restored.basket.length, 1);
   assert.deepEqual(restored.basket[0], item);
   assert.equal(restored.examineeType, "Військовослужбовець");
+  assert.equal(restored.scheduleGraph, "II");
   assert.equal(restored.mode, "citizen");
   assert.deepEqual(restored.citizenChecked, ["Маю направлення"]);
   assert.equal(restored.directory.therapist, "Іваненко");
@@ -67,6 +69,7 @@ test("records from the previous structure are still readable", () => {
   assert.equal(restored.examineeType, "Кандидат на контракт");
   assert.equal(restored.directory.therapist, "Петренко");
   assert.equal(restored.mode, "doctor");
+  assert.equal(restored.scheduleGraph, "all");
 });
 
 test("damaged or unknown records never break the application", () => {
@@ -87,6 +90,7 @@ test("damaged or unknown records never break the application", () => {
   assert.equal(withGarbage.dropped, 4);
   assert.equal(withGarbage.mode, "doctor");
   assert.equal(withGarbage.examineeType, "Військовозобов’язаний");
+  assert.equal(withGarbage.scheduleGraph, "all");
   assert.deepEqual(withGarbage.directory, EMPTY_DIRECTORY);
 });
 

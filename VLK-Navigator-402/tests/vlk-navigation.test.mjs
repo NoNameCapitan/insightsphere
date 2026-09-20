@@ -3,7 +3,11 @@ import test from "node:test";
 
 import { ARTICLE_ANCHORS } from "../lib/vlk-anchors.ts";
 import { EXPLANATION_META, loadArticleExplanation } from "../lib/vlk-explanations.ts";
-import { explanationSignals, pointExplanation } from "../lib/vlk-explanation-view.ts";
+import {
+  articleExplanationParagraphs,
+  explanationSignals,
+  pointExplanation,
+} from "../lib/vlk-explanation-view.ts";
 import {
   explanationUrl,
   officialArticleUrl,
@@ -71,8 +75,36 @@ test("point explanation keeps only the literal fragments of that point", async (
   assert.deepEqual(explanationSignals(undefined), []);
 });
 
-test("an article without a point division shows the beginning of the explanation", async () => {
+test("an article without a point division shows the full explanation", async () => {
   const explanation = await loadArticleExplanation("2");
   const undivided = pointExplanation(explanation, "—");
-  assert.deepEqual(undivided, explanation.paragraphs.slice(0, 8));
+  assert.deepEqual(undivided, explanation.paragraphs);
+});
+
+test("long point explanations are never capped at twelve fragments", async () => {
+  const explanation = await loadArticleExplanation("38");
+  const forPointA = pointExplanation(explanation, "а");
+
+  assert.ok(forPointA.length > 12);
+  assert.deepEqual(forPointA, forPointA.map((paragraph) => explanation.paragraphs.find((item) => item === paragraph)));
+});
+
+test("display boundary excludes the next chapter heading without changing source data", async () => {
+  const explanation = await loadArticleExplanation("13");
+  const original = [...explanation.paragraphs];
+  const visible = articleExplanationParagraphs(explanation);
+
+  assert.equal(visible.length, 246);
+  assert.equal(visible.at(-1), "ожиріння III ст. - ≥ 40.");
+  assert.match(explanation.paragraphs[246], /^V\. /);
+  assert.deepEqual(explanation.paragraphs, original);
+});
+
+test("literal duplicate fragments are preserved", () => {
+  const explanation = {
+    article: "test",
+    anchor: "test",
+    paragraphs: ["До пункту «а»", "Однаково", "Однаково"],
+  };
+  assert.deepEqual(pointExplanation(explanation, "а"), explanation.paragraphs);
 });

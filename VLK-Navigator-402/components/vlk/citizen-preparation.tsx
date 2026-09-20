@@ -3,6 +3,7 @@
 import { BookOpen, Check, ClipboardCheck, Search, ShieldCheck } from "lucide-react";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import { CommandBrand } from "@/components/vlk/command-brand";
 import type { VlkArticle } from "@/lib/vlk-sample-data";
 import type { ArticleRule } from "@/lib/vlk-rules";
 
@@ -25,8 +26,6 @@ type CitizenPreparationProps = {
   selected?: VlkArticle;
   selectedRule?: ArticleRule;
   onToggle: (item: string, checked: boolean) => void;
-  /** Керування видимістю в мобільному режимі однієї панелі. */
-  className?: string;
 };
 
 export function CitizenPreparation({
@@ -34,36 +33,36 @@ export function CitizenPreparation({
   selected,
   selectedRule,
   onToggle,
-  className = "",
 }: CitizenPreparationProps) {
   return (
-    <aside
-      id="vlk-panel-summary"
-      data-panel="summary"
-      className={`verification-rail relative flex min-h-[440px] flex-col overflow-hidden rounded-2xl border border-[var(--hairline)] bg-[var(--rail)] shadow-[var(--shadow-soft)] xl:min-h-0 ${className}`}
-    >
-      <div data-panel-head className="flex items-center justify-between border-b border-[var(--hairline)] bg-[var(--panel-head)] px-3 py-2.5">
+    <aside className="verification-rail relative flex min-h-[440px] flex-col overflow-hidden rounded-2xl border border-[var(--brand-rule)]/25 bg-[var(--surface-muted)] shadow-[var(--shadow-soft)] xl:min-h-0">
+      <CommandBrand
+        decorative
+        size={180}
+        className="pointer-events-none absolute -bottom-8 -right-8 opacity-[0.035]"
+      />
+      <div className="flex items-center justify-between border-b border-[var(--hairline)] bg-card px-3 py-2.5">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-ink)]">
             Режим громадянина
           </p>
           <h2 className="mt-0.5 text-sm font-bold">Підготовка до ВЛК</h2>
         </div>
-        <span className="rounded-full bg-[var(--surface-accent)] px-2 py-1 text-[10px] font-bold text-[var(--accent-ink-strong)]">
+        <span className="rounded-full bg-[var(--secondary)] px-2 py-1 text-[10px] font-bold text-[var(--accent-ink-strong)]">
           локально
         </span>
       </div>
 
-      <div data-panel-body className="min-h-0 flex-1 overflow-y-auto p-2.5 scrollbar-thin">
-        <div className="rounded-lg border border-[var(--warn-line)] bg-[var(--warn-surface)] p-2.5 text-[11px] leading-4 text-[var(--warn-ink)]">
+      <div className="min-h-0 flex-1 overflow-y-auto p-2.5 scrollbar-thin">
+        <div className="rounded-lg border border-[var(--warning-border)]/20 bg-[var(--warning-bg)] p-2.5 text-[11px] leading-4 text-[var(--warning-ink)]">
           Навігатор не встановлює діагноз і не визначає придатність. Він допомагає знайти норму
           та підготувати документи для рішення ВЛК.
         </div>
 
         <ol className="mt-3 space-y-1.5" aria-label="Етапи підготовки до ВЛК">
           {PREPARATION_STEPS.map((step, index) => (
-            <li key={step.title} className="flex gap-2.5 rounded-lg border border-[var(--hairline)] bg-[var(--surface)] p-2.5">
-              <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[var(--surface-accent)] text-[11px] font-black text-[var(--accent-ink-strong)]">
+            <li key={step.title} className="flex gap-2.5 rounded-lg border border-[var(--hairline)] bg-card p-2.5">
+              <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[var(--secondary)] text-[11px] font-black text-[var(--accent-ink-strong)]">
                 {index + 1}
               </span>
               <span className="min-w-0">
@@ -78,8 +77,8 @@ export function CitizenPreparation({
         </ol>
 
         {selected ? (
-          <div className="mt-3 rounded-lg border border-[var(--accent-line)] bg-[var(--surface-accent)] p-2.5">
-            <p className="text-[11px] font-semibold text-[var(--accent-ink)]">
+          <div className="mt-3 rounded-lg border border-[var(--accent-ink)]/20 bg-[var(--secondary)] p-2.5">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-ink)]">
               Відкрита норма
             </p>
             <p className="mt-1 text-xs font-bold">
@@ -91,7 +90,7 @@ export function CitizenPreparation({
         ) : null}
 
         <div className="mt-3 flex items-center justify-between">
-          <p className="text-[11px] font-semibold text-[var(--ink-soft)]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
             Мій чекліст
           </p>
           <span className="text-[10px] font-bold text-[var(--ink-muted)]">
@@ -104,7 +103,7 @@ export function CitizenPreparation({
             return (
               <label
                 key={item}
-                className={`flex min-h-11 cursor-pointer items-start gap-2.5 rounded-lg border p-2.5 transition ${complete ? "border-[var(--accent-line)] bg-[var(--surface-accent)]" : "border-[var(--hairline)] bg-[var(--surface)]"}`}
+                className={`flex min-h-11 cursor-pointer items-start gap-2.5 rounded-lg border p-2.5 transition ${complete ? "border-[var(--accent-ink)]/25 bg-[var(--secondary)]" : "border-[var(--hairline)] bg-card"}`}
               >
                 <Checkbox
                   checked={complete}
@@ -118,7 +117,7 @@ export function CitizenPreparation({
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-1.5 border-t border-[var(--hairline)] bg-[var(--surface)] p-3 text-[10px] text-[var(--ink-muted)]">
+      <div className="flex items-center justify-center gap-1.5 border-t border-[var(--hairline)] bg-card p-3 text-[10px] text-[var(--ink-muted)]">
         {checked.length === CITIZEN_PREPARATION_CHECKS.length ? (
           <Check className="size-3.5 text-[var(--accent-ink)]" />
         ) : (

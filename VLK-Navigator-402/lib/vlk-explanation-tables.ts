@@ -103,10 +103,28 @@ const GRIDS: Readonly<Record<string, ExplanationGrid[]>> = {
   ],
 };
 
+// Accidental-content-change guard, not a cryptographic authenticity claim.
+// Rebuild metadata and fixtures together after an independently verified edition change.
+const TABLE_SIGNATURES: Readonly<Record<number, string>> = {
+  1: "d3e467ea", 2: "f1dbb8f0", 3: "a5150dc0", 4: "e56f31c3", 5: "712201d4",
+  6: "234b0540", 7: "df14fcc0", 8: "c5219802", 9: "7e6f0470", 10: "b5abf514",
+  11: "8a26a25a", 12: "78a9abfe", 13: "7b8304ef", 14: "73b8ee78", 15: "7cebafe8",
+  16: "9d5f9ab9", 17: "a48bd9e5", 18: "ce6cd36c", 19: "7e7f6124",
+};
+
+function tableSignature(paragraphs: readonly string[]) {
+  let hash = 2166136261;
+  for (const character of JSON.stringify(paragraphs)) {
+    hash = Math.imul(hash ^ character.charCodeAt(0), 16777619) >>> 0;
+  }
+  return hash.toString(16);
+}
+
 export function explanationTables(article: string, paragraphs: readonly string[]) {
   // Never apply positional metadata to a changed or partial document.
   return (GRIDS[article] ?? []).filter((table) =>
-    paragraphs[table.start] === `Таблиця ${table.number}` && paragraphs.length > table.end,
+    paragraphs[table.start] === `Таблиця ${table.number}` && paragraphs.length > table.end &&
+    tableSignature(paragraphs.slice(table.start, table.end + 1)) === TABLE_SIGNATURES[table.number],
   );
 }
 

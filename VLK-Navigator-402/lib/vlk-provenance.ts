@@ -62,7 +62,11 @@ export const EDITION_MONITOR = {
 } as const;
 
 export function hasDoubleExpertVerification(reviews: readonly ExpertReview[] = EXPERT_REVIEWS) {
-  return reviews.length >= 2 && reviews.every((review) => review.status === "verified");
+  const roles: ExpertReview["role"][] = ["Лікар ВЛК", "Військовий медичний юрист"];
+  return roles.every((role) => reviews.some((review) =>
+    review.role === role && review.status === "verified" &&
+    Boolean(review.reviewer?.trim()) && Boolean(review.reviewedAt?.trim()),
+  ));
 }
 
 export function normReferenceId(article: string, point?: string) {

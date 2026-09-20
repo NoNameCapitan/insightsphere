@@ -12,6 +12,7 @@
 
 import { DIAGNOSIS_ALIASES } from "./diagnosis-aliases.ts";
 import { ARTICLE_RULES } from "./vlk-rules.ts";
+import { OFFICIAL_ARTICLE_TEXTS } from "./vlk-official-articles.ts";
 import { ARTICLES, SPECIALTIES, type SpecialtyId, type VlkArticle } from "./vlk-sample-data.ts";
 
 export type MatchType =
@@ -166,13 +167,14 @@ function codeValue(code: string) {
 }
 
 function upperBound(code: string) {
-  return codeValue(code) + (code.includes(".") ? 0.0999 : 0.9999);
+  const precision = code.split(".")[1]?.length ?? 0;
+  return Math.round((codeValue(code) + (precision === 0 ? 0.99 : precision === 1 ? 0.09 : 0)) * 100) / 100;
 }
 
 /** Діапазон кодів: «J45-J46», «J45–J46», «S60-69» або окремий код. */
 export function parseIcdRange(value: string): IcdRange | null {
-  const parts = normalizeSearchQuery(value).split("-").map((part) => part.trim()).filter(Boolean);
-  if (!parts.length || parts.length > 2) return null;
+  const parts = normalizeSearchQuery(value).split("-").map((part) => part.trim());
+  if (parts.some((part) => !part) || parts.length > 2) return null;
 
   const start = normalizeIcdCode(parts[0]);
   if (!start) return null;
@@ -183,9 +185,7 @@ export function parseIcdRange(value: string): IcdRange | null {
 
   const endRaw = /^\d/.test(parts[1]) ? `${letter}${parts[1]}` : parts[1];
   const end = normalizeIcdCode(endRaw);
-  if (!end || end[0] !== letter) {
-    return { letter, from: codeValue(start), to: upperBound(start) };
-  }
+  if (!end || end[0] !== letter || codeValue(end) < codeValue(start)) return null;
   return { letter, from: codeValue(start), to: upperBound(end) };
 }
 
@@ -203,6 +203,50 @@ function overlaps(range: IcdRange, query: IcdRange) {
   return range.letter === query.letter && query.from <= range.to && query.to >= range.from;
 }
 
+function codesInText(text: string): string[] {
+  const normalized = latinizeCode(text).replace(DASHES, "-")
+    .replace(/([A-Z]\d{2})\s*\((\d{1,2})\)/g, "$1.$2");
+  return [...new Set([...normalized.matchAll(/(?<![\p{L}\d])([A-Z]\d{2}(?:\.\d{1,2})?(?:\s*-\s*(?:[A-Z])?\d{2}(?:\.\d{1,2})?)?)(?![\p{L}\d])/gu)]
+    .map((match) => match[1].replace(/\s+/g, "")))];
+}
+
+/** A derived search/display scope; the verbatim source and raw ICD field stay intact. */
+export function articleIcdScope(article: Pick<VlkArticle, "article" | "officialIncluded">) {
+  const split = article.officialIncluded.search(/Виключено\s*:|за винятком/iu);
+  const includedText = split < 0 ? article.officialIncluded : article.officialIncluded.slice(0, split);
+  const excludedText = split < 0 ? "" : article.officialIncluded.slice(split);
+  const includedCodes = codesInText(includedText);
+  const excludedCodes = codesInText(excludedText);
+  // Article 52 names its exception without a code. Article 53 explicitly
+  // identifies that same excluded disease as K25–K26. Do not generalize others.
+  if (article.article === "52" && includedText.includes("(крім виразкової хвороби)")) {
+    excludedCodes.push(...codesInText(OFFICIAL_ARTICLE_TEXTS["53"].included));
+  }
+  return { includedText, excludedText, includedCodes, excludedCodes: [...new Set(excludedCodes)] };
+}
+
+export function articleIcdLabel(article: Pick<VlkArticle, "article" | "officialIncluded">): string {
+  const { includedCodes, excludedCodes } = articleIcdScope(article);
+  const included = includedCodes.join("; ") || "—";
+  return excludedCodes.length ? `${included} · виключено: ${excludedCodes.join("; ")}` : included;
+}
+
+/** Subtract exclusions before intersecting a query. Work in hundredths to avoid gaps from floating-point rounding. */
+function allowedRanges(included: IcdRange[], excluded: IcdRange[]): IcdRange[] {
+  return included.flatMap((range) => {
+    let segments = [[Math.round(range.from * 100), Math.round(range.to * 100)]];
+    for (const exception of excluded) {
+      if (exception.letter !== range.letter) continue;
+      const from = Math.round(exception.from * 100), to = Math.round(exception.to * 100);
+      segments = segments.flatMap(([start, end]) => {
+        if (to < start || from > end) return [[start, end]];
+        return [...(start < from ? [[start, from - 1]] : []), ...(to < end ? [[to + 1, end]] : [])];
+      });
+    }
+    return segments.map(([from, to]) => ({ letter: range.letter, from: from / 100, to: to / 100 }));
+  });
+}
+
 type ArticleIndex = {
   article: VlkArticle;
   ranges: IcdRange[];
@@ -218,17 +262,18 @@ type ArticleIndex = {
   tokens: Set<string>;
 };
 
-const INDEX_CACHE = new Map<string, ArticleIndex>();
+const INDEX_CACHE = new WeakMap<VlkArticle, ArticleIndex>();
 
 function buildIndex(article: VlkArticle): ArticleIndex {
-  const cached = INDEX_CACHE.get(article.id);
+  const cached = INDEX_CACHE.get(article);
   if (cached) return cached;
 
   const rules = ARTICLE_RULES[article.article] ?? [];
   const aliases = (DIAGNOSIS_ALIASES[article.article] ?? []).map(foldText);
   const title = foldText(article.title);
   const summary = foldText(article.summary);
-  const included = foldText(article.officialIncluded);
+  const scope = articleIcdScope(article);
+  const included = foldText(scope.includedText);
   const specialtyLabels = foldText(
     article.specialties.map((id) => SPECIALTIES.find((item) => item.id === id)?.label ?? "").join(" "),
   );
@@ -241,7 +286,7 @@ function buildIndex(article: VlkArticle): ArticleIndex {
 
   const index: ArticleIndex = {
     article,
-    ranges: parseArticleRanges(article.icd),
+    ranges: allowedRanges(parseArticleRanges(scope.includedCodes.join(";")), parseArticleRanges(scope.excludedCodes.join(";"))),
     title,
     titleWords: title.split(" ").filter(Boolean),
     summary,
@@ -253,13 +298,19 @@ function buildIndex(article: VlkArticle): ArticleIndex {
     specialtyLabels,
     tokens,
   };
-  INDEX_CACHE.set(article.id, index);
+  INDEX_CACHE.set(article, index);
   return index;
 }
 
 function withinOneEdit(a: string, b: string) {
   if (a === b) return true;
   if (Math.abs(a.length - b.length) > 1) return false;
+  // A common typing error: two neighbouring letters exchanged (астма → асмта).
+  if (a.length === b.length) {
+    const first = [...a].findIndex((letter, index) => letter !== b[index]);
+    if (first >= 0 && a[first] === b[first + 1] && a[first + 1] === b[first] &&
+      a.slice(first + 2) === b.slice(first + 2)) return true;
+  }
   const [shorter, longer] = a.length <= b.length ? [a, b] : [b, a];
   let i = 0;
   let j = 0;
@@ -301,7 +352,14 @@ export type QueryTerm =
  * номер або літера пункту.
  */
 export function parseSearchQuery(query: string): QueryTerm[] {
-  const normalized = normalizeSearchQuery(query);
+  const normalized = normalizeSearchQuery(query)
+    .replace(/(?:^|\s)(?:мкх\s*-?\s*10|icd\s*-?\s*10)\s*:?\s*/gu, " ")
+    .replace(/№\s*/g, " ")
+    .replace(/([a-zа-яіїєґ]\d{2}),(\d{1,2})/gu, "$1.$2")
+    .replace(/[«»"“”(),;:]/g, " ")
+    .replace(/\s*-\s*/g, "-")
+    .replace(/(^|\s)(?:(?:стаття|ст)\.?\s*)?(\d{1,2})\s*([абвгґдabvgd])(?=\s|$)/gu, "$1стаття $2 пункт $3")
+    .trim();
   if (!normalized) return [];
 
   const raw = normalized.split(" ").filter(Boolean);
@@ -326,8 +384,9 @@ export function parseSearchQuery(query: string): QueryTerm[] {
       expectArticle = false;
       continue;
     }
-    if (expectPoint && /^[а-ґ]$/u.test(bare)) {
-      terms.push({ kind: "point", value: bare });
+    if (expectPoint && /^[абвгґдabvgd]$/u.test(bare)) {
+      const letters: Record<string, string> = { a: "а", b: "б", v: "в", g: "г", d: "д" };
+      terms.push({ kind: "point", value: letters[bare] ?? bare });
       expectPoint = false;
       continue;
     }
@@ -345,6 +404,8 @@ export function parseSearchQuery(query: string): QueryTerm[] {
       terms.push({ kind: "icd", value: token, range });
       continue;
     }
+    // A malformed ICD range must not become a fuzzy text match.
+    if (token.includes("-") && normalizeIcdCode(token.split("-")[0])) return [];
     if (/^\d{1,2}$/.test(bare)) {
       terms.push({ kind: "article", value: String(Number(bare)) });
       continue;
@@ -472,7 +533,8 @@ export function searchArticles(
   }
 
   return hits.sort(
-    (a, b) => b.score - a.score || Number(a.article.article) - Number(b.article.article),
+    (a, b) => Number(a.matches.includes("fuzzy")) - Number(b.matches.includes("fuzzy")) ||
+      b.score - a.score || Number(a.article.article) - Number(b.article.article),
   );
 }
 

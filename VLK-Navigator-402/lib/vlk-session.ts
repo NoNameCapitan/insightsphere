@@ -9,6 +9,7 @@
 
 import { ARTICLE_RULES, type ArticleRule } from "./vlk-rules.ts";
 import { ARTICLES, SPECIALTIES, type SpecialtyId, type VlkArticle } from "./vlk-sample-data.ts";
+import { SCHEDULE_GRAPHS, type ScheduleGraph } from "./vlk-graphs.ts";
 
 export const SESSION_KEY = "vlk-402-session-v3";
 /** Ключі попередніх версій, які ще потрібно прочитати один раз. */
@@ -41,6 +42,7 @@ export type SessionState = {
   basket: BasketItem[];
   citizenChecked: string[];
   examineeType: string;
+  scheduleGraph: ScheduleGraph;
   mode: Mode;
   directory: DoctorDirectory;
 };
@@ -58,6 +60,7 @@ export const EMPTY_SESSION: SessionState = {
   basket: [],
   citizenChecked: [],
   examineeType: EXAMINEE_TYPES[0],
+  scheduleGraph: "all",
   mode: "doctor",
   directory: EMPTY_DIRECTORY,
 };
@@ -163,6 +166,7 @@ export function restoreSession(raw: unknown): RestoredSession {
   }
 
   const examineeType = readString(record, "examineeType");
+  const scheduleGraph = readString(record, "scheduleGraph");
   const citizenChecked = Array.isArray(record.citizenChecked)
     ? [...new Set(record.citizenChecked.filter((item): item is string => typeof item === "string"))]
     : [];
@@ -183,6 +187,9 @@ export function restoreSession(raw: unknown): RestoredSession {
     examineeType: (EXAMINEE_TYPES as readonly string[]).includes(examineeType)
       ? examineeType
       : EMPTY_SESSION.examineeType,
+    scheduleGraph: SCHEDULE_GRAPHS.some((item) => item.id === scheduleGraph)
+      ? scheduleGraph as ScheduleGraph
+      : EMPTY_SESSION.scheduleGraph,
     mode,
     directory: restoreDirectory(record.directory),
   };
@@ -194,6 +201,7 @@ export function serializeSession(state: SessionState) {
     basket: state.basket.map((item) => ({ article: item.article, point: item.point })),
     citizenChecked: state.citizenChecked,
     examineeType: state.examineeType,
+    scheduleGraph: state.scheduleGraph,
     mode: state.mode,
     directory: state.directory,
   });
