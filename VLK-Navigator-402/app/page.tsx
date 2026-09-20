@@ -81,7 +81,6 @@ import {
   CitizenPreparation,
   CITIZEN_PREPARATION_CHECKS,
 } from "@/components/vlk/citizen-preparation";
-import { NormativePassportDialog } from "@/components/vlk/normative-passport-dialog";
 import { TdvDialog } from "@/components/vlk/tdv-dialog";
 import {
   ExplanationDocument,
@@ -1430,11 +1429,6 @@ export default function Home() {
                       <Button type="button" variant="ghost" size="icon" aria-label="Наступна стаття" title="Наступна стаття"
                         disabled={selectedListIndex < 0 || selectedListIndex >= listArticles.length - 1} onClick={() => selectFromList(listArticles[selectedListIndex + 1])}><ChevronDown className="-rotate-90" /></Button>
                     </div>
-                    <NormativePassportDialog
-                      article={selected.article}
-                      point={selectedRule?.point}
-                      sourceUrl={sourceUrl}
-                    />
                     <Button
                       type="button"
                       size="sm"
