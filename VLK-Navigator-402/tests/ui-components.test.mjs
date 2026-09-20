@@ -35,25 +35,6 @@ async function readCssTree(directory) {
   return contents.join("\n");
 }
 
-test("printed report keeps literal wording and the complete official link", async () => {
-  const { PrintReport } = await vite.ssrLoadModule("/components/vlk/print-report.tsx");
-  const url = "https://zakon.rada.gov.ua/laws/show/z1109-08/ed20250822#n6683:~:text=%D0%B1";
-  const wording = "Стан за пунктом: персистуюча бронхіальна астма середньої тяжкості.";
-  const html = renderToStaticMarkup(React.createElement(PrintReport, { text: `${wording}\n\nДжерело: ${url}\nНе є постановою ВЛК.` }));
-  assert.ok(html.includes(wording));
-  assert.ok(html.includes(`href="${url}"`));
-  assert.ok(html.includes("Не є постановою ВЛК."));
-  assert.equal((html.match(/%D0%B1/g) ?? []).length, 1, "URL remains in href only");
-});
-
-test("printed report escapes text and never turns arbitrary URLs into official links", async () => {
-  const { PrintReport } = await vite.ssrLoadModule("/components/vlk/print-report.tsx");
-  const html = renderToStaticMarkup(React.createElement(PrintReport, { text: '<script>alert(1)</script>\nhttps://example.com\nhttps://zakon.rada.gov.ua.evil.test/' }));
-  assert.ok(html.includes("&lt;script&gt;"));
-  assert.doesNotMatch(html, /<script|<a /);
-  assert.ok(html.includes("https://example.com"));
-});
-
 test("emits the catalog's animation and scrolling utilities", async () => {
   const css = await readCssTree(path.join(root, "dist"));
 

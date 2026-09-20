@@ -225,17 +225,12 @@
 @media (min-width: 1280px) {
   .app-shell { display: flex; flex-direction: column; height: 100dvh; min-height: 0; }
   .app-shell:not(:has(.vlk-workspace)) { height: auto; min-height: 100dvh; overflow: visible; }
-  .command-header, .command-mode-bar { flex-shrink: 0; }
-  .vlk-workspace { flex: 1; min-height: 0; overflow: hidden; grid-template-columns: 270px minmax(0, 1fr) 228px; }
-  .vlk-workspace[data-summary-empty="true"] { grid-template-columns: 270px minmax(0, 1fr); }
-  .vlk-workspace[data-summary-empty="true"] > #vlk-panel-summary { display: none; }
-  .verification-rail { min-height: 0; }
-  .verification-rail[data-empty="true"] { align-self: start; }
+  .command-header { flex-shrink: 0; }
+  .vlk-workspace { flex: 1; min-height: 0; overflow: hidden; grid-template-columns: 270px minmax(0, 1fr); }
 }
 @media (min-width: 1024px) and (max-width: 1279px) {
   .vlk-workspace { grid-template-columns: 250px minmax(0, 1fr); align-items: start; }
   .command-sidebar { max-height: calc(100dvh - 160px); min-height: 460px; position: sticky; top: 100px; }
-  .verification-rail { grid-column: 2; }
 }
 @media (max-width: 1023px) {
   .command-sidebar { min-height: 0; max-height: none; }
@@ -244,10 +239,6 @@
 .command-sidebar [data-article-row] { font-size: 14px; }
 .command-sidebar [data-article-row] .font-semibold { font-size: 14px; line-height: 1.35; }
 .command-sidebar [data-article-row] .text-\[10px\] { font-size: 12px; }
-.verification-rail[data-empty="true"] .summary-disclaimer { display: none; }
-.verification-rail[data-empty="true"] > :last-child { display: none; }
-.verification-rail h2 { font-size: 14px; }
-.verification-rail p { letter-spacing: normal; }
 .normative-surface p.text-xs { font-size: 14px; line-height: 1.6; }
 [data-point-row] { min-height: 52px; }
 [data-point-row] > .rounded-full { font-size: 12px; white-space: normal; max-width: 45%; line-height: 1.3; }
@@ -391,11 +382,6 @@ header.command-header {
   letter-spacing: 0.08em;
 }
 
-.command-mode-bar {
-  background: var(--surface-muted);
-  box-shadow: inset 0 -1px 0 var(--hairline);
-}
-
 /* ---------- Реєстр статей: рядки бланка, не картки ---------- */
 .command-sidebar {
   border-radius: var(--radius-panel);
@@ -457,8 +443,7 @@ header.command-header {
 .article-unmatched [data-article-row] .font-semibold { font-weight: 400; }
 
 /* ---------- Аркуш статті ---------- */
-.normative-surface,
-.verification-rail {
+.normative-surface {
   border-radius: var(--radius-panel);
   border-color: var(--hairline-strong);
   background: var(--surface);
@@ -466,8 +451,7 @@ header.command-header {
 }
 
 /* Латунна лінія вгорі — службова прив'язка панелі до бланка. */
-.normative-surface::after,
-.verification-rail::after {
+.normative-surface::after {
   content: "";
   position: absolute;
   inset: 0 0 auto 0;
@@ -477,7 +461,7 @@ header.command-header {
   z-index: 2;
 }
 
-.verification-rail { position: relative; }
+.normative-surface { position: relative; }
 
 /* Декоративну «клінічну сітку» прибрано: аркуш має лишатися чистим. */
 .normative-surface::before { display: none; }
@@ -584,9 +568,6 @@ header.command-header {
 
 .command-selected-rule { box-shadow: inset 3px 0 0 var(--primary); }
 
-.summary-panel { display: flex; flex-direction: column; overflow: hidden; }
-.summary-panel > .verification-rail:not([data-empty="true"]) { flex: 1; min-height: 0; }
-.summary-panel > .verification-rail[data-empty="true"] { width: 100%; }
 
 /* ---------- Пошук ---------- */
 .search-shortcut {
@@ -945,7 +926,7 @@ header.command-header::after {
   .si-stethoscope-tube, .si-chest-piece, .si-scalpel, .si-scalpel-blade,
   .si-neural-node, .si-psy-brain, .si-dialog-bubble, .si-pupil,
   .si-ear-inner, .si-tooth, .si-magnifier, .si-skin-sample, .si-skin-detail,
-  .si-sound-wave-one, .si-sound-wave-two
+  .si-sound-wave-one, .si-sound-wave-two, .si-eyelid, .si-eye-glint
 ) {
   transform-box: fill-box;
   transform-origin: center;
@@ -1056,34 +1037,49 @@ header.command-header::after {
 }
 
 /* 5. Офтальмолог — фокус без моторошного моргання. */
+/* Зіниця відпрацьовує реакцію на світло: різке звуження, коротке утримання,
+   повільніше повернення — і лише потім погляд вертається в центр. */
 @keyframes si-eye-focus {
-  0%,18%,100% { transform: none; }
-  38% { transform: translateX(2px) scale(.82); }
-  58% { transform: translateX(0) scale(.9); }
-  76%,100% { transform: none; }
+  0%,12% { transform: none; }
+  24% { transform: translateX(1.4px) scale(.74); }
+  34% { transform: translateX(1.4px) scale(.78); }
+  56% { transform: translateX(-.6px) scale(.88); }
+  78%,100% { transform: none; }
 }
+/* Коротке кліпання перед оглядом: 8% циклу ≈ 145 мс, як у живого ока. */
+@keyframes si-eye-lid {
+  0%,15% { transform: none; }
+  21% { transform: scaleY(.6); }
+  29%,100% { transform: none; }
+}
+/* Відблиск не просто проявляється, а проходить по зіниці. */
 @keyframes si-eye-glint {
-  0%,58% { stroke-dashoffset: 1; opacity: 0; }
-  68% { opacity: 1; }
-  82% { stroke-dashoffset: 0; opacity: 1; }
-  100% { opacity: 0; }
+  0%,50% { stroke-dashoffset: 1; opacity: 0; transform: translate(-.35px,.25px); }
+  60% { opacity: .95; }
+  78% { stroke-dashoffset: 0; opacity: .95; transform: translate(.4px,-.3px); }
+  100% { opacity: 0; transform: none; }
 }
 
 /* 6. ЛОР — внутрішня завитка і дві локальні звукові хвилі. */
+/* Завитка відгукується після того, як хвиля дійшла, а не раніше за неї. */
 @keyframes si-ear-focus {
-  0%,18%,100% { opacity: 1; }
-  34%,58% { opacity: .62; }
-  72%,100% { opacity: 1; }
+  0%,46% { opacity: 1; transform: none; }
+  58% { opacity: .58; transform: scale(1.07); }
+  70% { opacity: .82; transform: scale(1.03); }
+  84%,100% { opacity: 1; transform: none; }
 }
+/* Хвилі розходяться назовні одна за одною: народження, хід, згасання. */
 @keyframes si-sound-one {
-  0%,20% { opacity: 0; transform: translateX(-.7px) scale(.9); }
-  42%,64% { opacity: 1; transform: translateX(.5px) scale(1.04); }
-  82%,100% { opacity: .28; transform: none; }
+  0%,10% { opacity: 0; transform: translateX(-1.1px) scaleX(.86); }
+  28% { opacity: 1; transform: translateX(0) scaleX(1); }
+  52% { opacity: .5; transform: translateX(1px) scaleX(1.07); }
+  74%,100% { opacity: .28; transform: none; }
 }
 @keyframes si-sound-two {
-  0%,38% { opacity: 0; transform: translateX(-.7px) scale(.9); }
-  58%,74% { opacity: .9; transform: translateX(.5px) scale(1.04); }
-  90%,100% { opacity: .28; transform: none; }
+  0%,26% { opacity: 0; transform: translateX(-1.4px) scaleX(.84); }
+  44% { opacity: .95; transform: translateX(0) scaleX(1); }
+  66% { opacity: .45; transform: translateX(1.35px) scaleX(1.09); }
+  86%,100% { opacity: .28; transform: none; }
 }
 
 /* 7. Стоматолог — огляд емалі без sparkle/emoji-ефекту. */
@@ -1173,6 +1169,7 @@ header.command-header::after {
   .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-psychiatrist .si-dialog-two { animation: si-dialog-two 1900ms cubic-bezier(.2,.72,.2,1) 1 both; }
 
   .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-ophthalmologist .si-pupil { animation: si-eye-focus 1800ms cubic-bezier(.2,.72,.2,1) 1 both; }
+  .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-ophthalmologist .si-eyelid { animation: si-eye-lid 1800ms cubic-bezier(.2,.72,.2,1) 1 both; }
   .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-ophthalmologist .si-eye-glint { animation: si-eye-glint 1800ms cubic-bezier(.2,.72,.2,1) 1 both; }
 
   .specialty-card:is(:hover, :focus-visible, [data-motion-active]) .si-ent .si-ear-inner { animation: si-ear-focus 1900ms cubic-bezier(.2,.72,.2,1) 1 both; }
@@ -1203,7 +1200,7 @@ header.command-header::after {
   .specialty-card::before { transition: none; }
 }
 
-.workspace-tabs, .vlk-print-sheet { display: none; }
+.workspace-tabs { display: none; }
 
 :where(.text-\[9px\]) {
   font-size: 0.6875rem;
@@ -1312,7 +1309,6 @@ input {
   .app-shell .header-actions > button,
   .app-shell .header-actions > [data-slot="button"] { min-width: 44px; width: 44px; min-height: 44px; }
   .app-shell .article-toolbar > [data-slot="button"] { min-height: 44px; }
-  .app-shell .command-mode-bar button { min-height: 44px; }
 }
 
 ::selection {
@@ -1345,9 +1341,6 @@ input {
   .header-search { grid-column: 1 / -1; order: 3; margin: 0; max-width: none; }
   .header-actions { grid-column: 2; grid-row: 1; }
   .header-brand { min-width: 0; }
-  .command-mode-bar { flex-shrink: 0; }
-  .command-mode-bar > div { padding-top: 4px; padding-bottom: 4px; }
-  .command-mode-bar > div > p { display: none; }
   .workspace-tabs { display: flex; flex-shrink: 0; gap: 0; padding: 0 10px; background: var(--surface-muted); border-bottom: 1px solid var(--hairline-strong); }
   .workspace-tabs button { display: flex; flex: 1; min-width: 0; min-height: 42px; align-items: center; justify-content: center; gap: 6px; padding: 6px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--ink-soft); font-size: 13px; font-weight: 500; }
   .workspace-tabs button[aria-selected="true"] { border-bottom-color: var(--primary); color: var(--foreground); background: transparent; box-shadow: none; }
@@ -1361,9 +1354,6 @@ input {
   .normative-surface { min-height: 0; }
   .article-header { padding: 10px 12px; max-height: 45%; overflow-y: auto; }
   .article-content { padding: 12px; }
-  .summary-panel { overflow-y: auto; }
-  .summary-panel > .verification-rail { max-height: 100%; }
-  .summary-panel > :not(.verification-rail) { flex-shrink: 0; }
   .search-shortcut { display: none; }
   #vlk-search:placeholder-shown { padding-right: 42px; }
 }
@@ -1381,7 +1371,6 @@ input {
   .header-actions { gap: 0; }
   .header-actions > button, .header-actions > [data-slot="button"] { min-width: 34px; width: 34px; min-height: 36px; padding: 6px; }
   #vlk-search { font-size: 16px; height: 42px; }
-  .command-mode-bar button { min-height: 34px; padding: 5px 9px; font-size: 11px; }
   .article-header h2 { font-size: 20px; }
   .article-header .specialty-caption { display: none; }
   .article-header h2 + p { font-size: 11px; font-weight: 500; line-height: 1.5; }
@@ -1412,9 +1401,7 @@ input {
 .header-brand p { line-height: 1.4; }
 .header-inner { column-gap: 12px; }
 .command-header::before { background-image: none; }
-.command-mode-bar > div { padding-block: 5px; }
-.command-mode-bar [aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); }
-.normative-surface, .verification-rail, .command-sidebar { border-color: var(--hairline); }
+.normative-surface, .command-sidebar { border-color: var(--hairline); }
 .article-header { background: var(--surface); }
 .article-header h2 { font-size: 22px; }
 .article-header .specialty-caption { font-size: 12px; }
@@ -1436,10 +1423,6 @@ input {
 .clinical-context b { font-family: var(--font-code), monospace; font-weight: 500; }
 .diagnosis-entry { position: relative; border-left: 2px solid var(--accent-ink); border-radius: 3px 7px 7px 3px; }
 .diagnosis-entry + .diagnosis-entry::before { content: ""; position: absolute; width: 1px; height: 7px; top: -8px; left: 9px; background: var(--hairline-strong); }
-.clinical-result { border-radius: 7px; }
-.verification-rail p.text-xs { font-size: 13px; line-height: 1.6; }
-.verification-rail .font-black { font-weight: 600; }
-.basket-count { display: inline-block; font-variant-numeric: tabular-nums; min-width: 1ch; }
 .table-fullscreen [data-slot="dialog-header"] { background: var(--surface); }
 .table-fullscreen .tdv-table :is(th,td) { font-size: 13px; line-height: 1.5; padding: 9px 10px; }
 .tdv-table tbody tr:hover > :is(th,td) { background: var(--secondary); }
@@ -1454,23 +1437,15 @@ input {
 .app-shell[data-motion-managed] .specialty-card:not([data-motion-active]) .clinical-signature { animation: none !important; }
 
 /* Functional state motion remains short; the long 1.8–2.2 s sequences are decorative/contextual only. */
-@keyframes clinical-state { 0% { box-shadow: inset 0 0 0 2px var(--accent-ink); } 100% { box-shadow: inset 0 0 0 2px transparent; } }
-@keyframes clinical-count { 0% { opacity: .3; transform: translateY(3px); } 100% { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: no-preference) {
-  [data-point-row][data-in-basket="true"] { animation: clinical-state 250ms ease-out; }
   .diagnosis-entry { animation: sheet-in 250ms var(--ease-standard) 120ms backwards; }
-  .clinical-result { animation: clinical-state 280ms ease-out 300ms backwards; }
-  .basket-count { animation: clinical-count 220ms ease-out 150ms backwards; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .primary-point-action { transition: none; }
   .welcome-screen,
   .specialty-card .si *,
   .clinical-signature,
   .brand-command-button::after,
   .diagnosis-entry,
-  .clinical-result,
-  .basket-count { animation: none !important; transform: none !important; }
   .specialty-card .si .si-accent { transition: none !important; }
   .specialty-card .specialty-arrow { transform: none !important; transition: none !important; }
   .specialty-card .clinical-signature { display: none; }
@@ -1498,25 +1473,6 @@ input {
   .table-fullscreen [data-slot="dialog-title"] { padding-right: 110px; min-height: 44px; }
   .table-fullscreen .tdv-table { min-width: 960px; }
   .table-fullscreen .tdv-table tr > th:first-child { width: 140px; min-width: 140px; }
-  [data-clinical-basket] { top: auto !important; bottom: 0 !important; width: 100% !important; max-width: none !important; border-radius: 14px 14px 0 0 !important; }
-}
-
-/* ---------- Друк: той самий бланк на папері ---------- */
-@media print {
-  @page { margin: 18mm; }
-  html, body { height: auto !important; overflow: visible !important; background: white !important; color: black !important; }
-  body > :not(.app-shell), .app-shell > :not(.vlk-print-sheet) { display: none !important; }
-  .app-shell, .app-shell[data-workspace="true"] { display: block !important; height: auto !important; min-height: 0 !important; overflow: visible !important; background: white !important; }
-  .vlk-print-sheet { display: block; color: black; }
-  .vlk-print-sheet h1 {
-    margin-bottom: 16px;
-    padding-bottom: 6px;
-    border-bottom: 1.5pt solid black;
-    font: 700 17pt/1.3 var(--font-normative), Georgia, serif;
-  }
-  .vlk-report-text { overflow-wrap: anywhere; font: 11pt/1.65 var(--font-normative), Georgia, serif; }
-  .vlk-report-text p { margin: 0 0 4pt; white-space: pre-wrap; orphans: 3; widows: 3; }
-  .vlk-report-text a { color: black; text-decoration: underline; }
 }
 
 /* v28 — clinical reading hierarchy. No data or motion changes. */
@@ -1528,13 +1484,12 @@ input {
 .article-content [data-point-row] { align-items: start; }
 .article-content [data-point-row] > .rounded-full { white-space: normal; max-width: 135px; }
 .diagnosis-entry { overflow-wrap: anywhere; }
-.summary-panel .clinical-result > div { flex-wrap: wrap; }
 .edition-ticker-icon { align-self: center; margin-top: 0; }
 .edition-ticker { grid-template-columns: 16px minmax(0,1fr) auto; }
 .edition-ticker-link { grid-column: auto; }
 .edition-ticker-viewport { padding-block: 5px; }
 @media (min-width: 1280px) {
-  .vlk-workspace { grid-template-columns: clamp(232px,19vw,270px) minmax(0,1fr) 228px; }
+  .vlk-workspace { grid-template-columns: clamp(232px,19vw,270px) minmax(0,1fr); }
   .vlk-workspace[data-summary-empty="true"] { grid-template-columns: clamp(232px,19vw,270px) minmax(0,1fr); }
 }
 @media (min-width: 1024px) and (max-width: 1279px) {
@@ -1544,11 +1499,7 @@ input {
   .vlk-workspace > #vlk-panel-list { display: flex; flex-direction: column; min-height: 0; max-height: none; position: static; }
   .vlk-workspace > #vlk-panel-article { display: flex; min-height: 0; }
   .vlk-workspace:has(#vlk-panel-summary[data-active="true"]) > #vlk-panel-article { display: none; }
-  #vlk-panel-summary[data-active="true"] { grid-column: 2; grid-row: 1; }
   .article-header { max-height: 40%; }
-}
-@media (max-width: 1279px) {
-  .command-mode-bar > div > button { display: none; }
 }
 @media (max-width: 639px) {
   .app-shell[data-workspace="true"] .header-brand .brand-command-button { width: 48px; height: 48px; }
@@ -1573,34 +1524,22 @@ input {
 .app-shell[data-workspace="true"] .brand-command-button { width: 68px; height: 68px; }
 .app-shell[data-workspace="true"] .command-brand-vector { width: 64px; height: 64px; }
 .workspace-meta { flex-shrink: 0; }
-.article-action-rail { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; padding-bottom: max(8px,env(safe-area-inset-bottom)); border-top: 1px solid var(--hairline-strong); background: var(--surface); }
-.action-context { min-width: 0; font-size: 12px; line-height: 1.5; }
-.action-context strong, .action-context span { display: block; }
-.action-context span { color: var(--ink-soft); }
-.primary-point-action { min-height: 44px; height: auto; white-space: normal; flex-shrink: 0; max-width: 55%; transition: background-color 200ms var(--ease-standard); }
-.primary-point-action:active { transition-duration: 100ms; }
 .article-content { scroll-padding-block: 12px; }
 @media (min-width: 1024px) {
   .app-shell[data-workspace="true"] .workspace-meta { display: flex; min-height: 54px; background: var(--surface-muted); border-bottom: 1px solid var(--hairline); }
   .app-shell[data-workspace="true"] .edition-ticker { flex: 1; border: 0; padding-right: 12px; }
-  .command-mode-bar { border: 0; }
-  .command-mode-bar > div { padding: 4px 12px 4px 0; height: 100%; }
-  .command-mode-bar [aria-label="Режим роботи"] { padding: 0; }
-  .command-mode-bar button { min-height: 44px; }
 }
 @media (min-width: 1280px) { .return-to-reading { display: none; } }
 @media (max-width: 639px) {
   .command-brand-vector { width: 56px; height: 56px; }
   .app-shell[data-workspace="true"] .command-brand-vector { width: 44px; height: 44px; }
-  .article-action-rail { gap: 8px; padding-inline: 10px; }
-  .primary-point-action { font-size: 12px; padding-inline: 10px; }
 }
 .tdv-context-trigger { display: inline-flex; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; padding: 4px; border-radius: var(--radius); text-decoration: underline dotted; text-underline-offset: 4px; color: inherit; font-family: inherit; font-size: inherit; line-height: inherit; cursor: pointer; }
 .tdv-context-trigger:hover { background: var(--secondary); }
 .tdv-context-popover { z-index: 80; width: min(340px,calc(100vw - 24px)); max-height: min(400px,70dvh); overflow-y: auto; }
 
-/* Міра читання: рядок нормативного тексту лишається комфортним навіть тоді,
-   коли центральна панель забрала ширину порожнього зведення. */
+/* Міра читання: рядок нормативного тексту лишається комфортним навіть на
+   повній ширині центральної панелі. */
 .article-content .point-preview,
 .article-content .clinical-context + div p,
 .explanation-reader p {

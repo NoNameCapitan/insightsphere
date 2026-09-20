@@ -1,21 +1,19 @@
 "use client";
 
 import { useRef } from "react";
-import { BookOpen, ClipboardList, List } from "lucide-react";
+import { BookOpen, List } from "lucide-react";
 
-export type WorkspacePanel = "list" | "article" | "summary";
+export type WorkspacePanel = "list" | "article";
 
-export function WorkspaceTabs({ active, onChange, articleCount, basketCount }: {
+export function WorkspaceTabs({ active, onChange, articleCount }: {
   active: WorkspacePanel;
   onChange: (panel: WorkspacePanel) => void;
   articleCount: number;
-  basketCount: number;
 }) {
   const buttons = useRef<Array<HTMLButtonElement | null>>([]);
   const panels = [
     { id: "list", label: "Список", icon: List, count: articleCount },
     { id: "article", label: "Читання", icon: BookOpen, count: null },
-    { id: "summary", label: "Зведення", icon: ClipboardList, count: basketCount },
   ] as const;
 
   return <nav className="workspace-tabs" role="tablist" aria-label="Розділи робочого екрана">
@@ -38,7 +36,7 @@ export function WorkspaceTabs({ active, onChange, articleCount, basketCount }: {
       }}>
       <panel.icon aria-hidden="true" className="size-4" />
       {panel.label}
-      {panel.count !== null ? <span key={panel.count} className={`tab-count ${panel.id === "summary" ? "basket-count" : ""}`}>{panel.count}</span> : null}
+      {panel.count !== null ? <span key={panel.count} className="tab-count">{panel.count}</span> : null}
     </button>)}
   </nav>;
 }

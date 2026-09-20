@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { clearStoredSession, readStored, writeStored, SESSION_DATA_KEYS, SESSION_RESET_KEY } from '../lib/vlk-local-storage.ts';
-import { restoreSession } from '../lib/vlk-session.ts';
+import { EMPTY_DIRECTORY, restoreSession } from '../lib/vlk-session.ts';
 
 function fixture() {
   const data = new Map(SESSION_DATA_KEYS.map((key) => [key, 'private session']));
@@ -13,7 +13,7 @@ test('ending a session clears all current and legacy data, preserves preferences
   assert.equal(clearStoredSession(storage), true);
   for (const key of SESSION_DATA_KEYS) {
     assert.equal(storage.getItem(key), null, key);
-    assert.equal(restoreSession(storage.getItem(key)).basket.length, 0);
+    assert.deepEqual(restoreSession(storage.getItem(key)).directory, EMPTY_DIRECTORY);
   }
   assert.equal(storage.getItem('theme'), 'dark');
   assert.equal(storage.getItem('another-app'), 'keep');

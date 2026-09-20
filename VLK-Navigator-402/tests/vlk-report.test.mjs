@@ -3,14 +3,11 @@ import test from "node:test";
 
 import { ARTICLE_ANCHORS } from "../lib/vlk-anchors.ts";
 import {
-  buildCitizenSummaryText,
-  buildDraftText,
   buildPointWordingText,
   buildReferenceText,
 } from "../lib/vlk-report.ts";
 import { ARTICLE_RULES } from "../lib/vlk-rules.ts";
 import { ARTICLES, EDITION } from "../lib/vlk-sample-data.ts";
-import { createBasketItem } from "../lib/vlk-session.ts";
 
 const article = ARTICLES.find((entry) => entry.article === "39");
 const rule = ARTICLE_RULES["39"].find((entry) => entry.point === "б");
@@ -44,53 +41,4 @@ test("reference copy includes only supplied literal graph notes", () => {
   const text = buildReferenceText(article, rule, "II", [note]);
   assert.match(text, /Дослівні згадки для графи II/);
   assert.ok(text.includes(note));
-});
-
-test("the draft repeats the same verified data for every point", () => {
-  const basket = [
-    createBasketItem(article, rule),
-    createBasketItem(
-      ARTICLES.find((entry) => entry.article === "2"),
-      ARTICLE_RULES["2"][0],
-    ),
-  ];
-  const draft = buildDraftText(basket, "Військовослужбовець");
-
-  assert.match(draft, /^ЧЕРНЕТКА НАВІГАЦІЙНОГО ЗВЕДЕННЯ ВЛК/);
-  assert.match(draft, /Категорія оглядуваного: Військовослужбовець/);
-  assert.ok(draft.includes(`редакція від ${EDITION}`));
-  for (const item of basket) {
-    assert.ok(draft.includes(item.icd));
-    assert.ok(draft.includes(item.officialIncluded));
-    assert.ok(draft.includes(item.condition));
-    assert.ok(draft.includes(item.outcome));
-    assert.ok(draft.includes(`#${ARTICLE_ANCHORS[item.article]}`));
-  }
-  // Стаття 2 суворіша за пункт «б» статті 39.
-  assert.match(draft, /Попередній найсуворіший орієнтир: стаття 2 — Непридатні/);
-  assert.match(draft, /потребує перевірки лікарем/);
-});
-
-test("an empty draft says so instead of inventing a conclusion", () => {
-  const draft = buildDraftText([], "Військовозобов’язаний");
-  assert.match(draft, /Пункти до зведення не додані/);
-  assert.doesNotMatch(draft, /найсуворіший орієнтир/);
-});
-
-test("the citizen summary contains preparation checks without a fitness conclusion", () => {
-  const text = buildCitizenSummaryText([], "Військовозобов’язаний", ["Маю направлення"]);
-  assert.match(text, /ОСОБИСТИЙ СПИСОК НОРМ І ПІДГОТОВКИ ДО ВЛК/);
-  assert.match(text, /✓ Маю направлення/);
-  assert.match(text, /не визначає придатність/);
-  assert.doesNotMatch(text, /Попередній найсуворіший орієнтир/);
-});
-
-test('copied and draft ICD labels retain the explicit exceptions', () => {
-  const a = ARTICLES.find((entry) => entry.article === '10');
-  const rule = ARTICLE_RULES['10'][0];
-  for (const text of [buildReferenceText(a, rule), buildDraftText([createBasketItem(a, rule)], 'Військовозобов’язаний')]) {
-    assert.match(text, /МКХ-10 за Розкладом хвороб: D10-D49 · виключено: D45; D46; D47/);
-    assert.ok(text.includes(a.officialIncluded));
-    assert.ok(text.includes(rule.outcome));
-  }
 });

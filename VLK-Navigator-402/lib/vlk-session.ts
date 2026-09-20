@@ -1,5 +1,5 @@
 /**
- * Локальний стан робочої сесії лікаря або громадянина.
+ * Локальний стан робочої сесії лікаря.
  *
  * Усе зберігається лише в браузері користувача. Під час читання запис із
  * попередніх версій структури не ламає застосунок: збережений пункт
@@ -7,8 +7,7 @@
  * береться з поточної бази, а не зі старого запису.
  */
 
-import { ARTICLE_RULES, type ArticleRule } from "./vlk-rules.ts";
-import { ARTICLES, SPECIALTIES, type SpecialtyId, type VlkArticle } from "./vlk-sample-data.ts";
+import { SPECIALTIES, type SpecialtyId, type VlkArticle } from "./vlk-sample-data.ts";
 import { SCHEDULE_GRAPHS, type ScheduleGraph } from "./vlk-graphs.ts";
 
 export const SESSION_KEY = "vlk-402-session-v3";
@@ -22,46 +21,23 @@ export const EXAMINEE_TYPES = [
   "Кандидат до ВВНЗ",
 ] as const;
 
-export type Mode = "doctor" | "citizen";
 export type DoctorDirectory = Record<SpecialtyId, string>;
 
-export type BasketItem = {
-  id: string;
-  articleId: string;
-  article: string;
-  title: string;
-  icd: string;
-  officialIncluded: string;
-  point: string;
-  condition: string;
-  outcome: string;
-  doctors: string;
-};
-
 export type SessionState = {
-  basket: BasketItem[];
-  citizenChecked: string[];
   examineeType: string;
   scheduleGraph: ScheduleGraph;
-  mode: Mode;
   directory: DoctorDirectory;
 };
 
-export type RestoredSession = SessionState & {
-  /** Скільки збережених пунктів більше не існує в чинній редакції. */
-  dropped: number;
-};
+export type RestoredSession = SessionState;
 
 export const EMPTY_DIRECTORY = Object.fromEntries(
   SPECIALTIES.map((item) => [item.id, ""]),
 ) as DoctorDirectory;
 
 export const EMPTY_SESSION: SessionState = {
-  basket: [],
-  citizenChecked: [],
   examineeType: EXAMINEE_TYPES[0],
   scheduleGraph: "all",
-  mode: "doctor",
   directory: EMPTY_DIRECTORY,
 };
 
@@ -70,21 +46,6 @@ export function specialtyLabels(article: VlkArticle) {
     .map((id) => SPECIALTIES.find((item) => item.id === id)?.label)
     .filter(Boolean)
     .join(", ");
-}
-
-export function createBasketItem(article: VlkArticle, rule: ArticleRule): BasketItem {
-  return {
-    id: `${article.article}-${rule.point}`,
-    articleId: article.id,
-    article: article.article,
-    title: article.title,
-    icd: article.icd,
-    officialIncluded: article.officialIncluded,
-    point: rule.point,
-    condition: rule.condition,
-    outcome: rule.outcome,
-    doctors: specialtyLabels(article),
-  };
 }
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
@@ -96,32 +57,6 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
 function readString(source: Record<string, unknown>, key: string) {
   const value = source[key];
   return typeof value === "string" ? value : "";
-}
-
-/** Відновлює пункт кошика з довільного старого запису або повертає undefined. */
-function restoreBasketItem(raw: unknown): BasketItem | undefined {
-  const record = asRecord(raw);
-  if (!record) return undefined;
-
-  const articleNumber =
-    readString(record, "article") ||
-    readString(record, "articleId").replace(/^article-/, "") ||
-    readString(record, "id").split("-")[0];
-  const article = ARTICLES.find((entry) => entry.article === articleNumber);
-  if (!article) return undefined;
-
-  const rules = ARTICLE_RULES[article.article] ?? [];
-  if (!rules.length) return undefined;
-
-  const point = readString(record, "point") || readString(record, "id").split("-").slice(1).join("-");
-  const condition = readString(record, "condition");
-  const rule =
-    rules.find((entry) => entry.point === point) ??
-    rules.find((entry) => entry.condition === condition) ??
-    (rules.length === 1 ? rules[0] : undefined);
-  if (!rule) return undefined;
-
-  return createBasketItem(article, rule);
 }
 
 function restoreDirectory(raw: unknown): DoctorDirectory {
@@ -145,64 +80,33 @@ export function restoreSession(raw: unknown): RestoredSession {
     try {
       parsed = JSON.parse(raw);
     } catch {
-      return { ...EMPTY_SESSION, dropped: 0 };
+      return { ...EMPTY_SESSION };
     }
   }
 
   const record = asRecord(parsed);
-  if (!record) return { ...EMPTY_SESSION, dropped: 0 };
+  if (!record) return { ...EMPTY_SESSION };
 
-  const storedBasket = Array.isArray(record.basket) ? record.basket : [];
-  const basket: BasketItem[] = [];
-  let dropped = 0;
-  for (const entry of storedBasket) {
-    const item = restoreBasketItem(entry);
-    if (!item) {
-      dropped += 1;
-      continue;
-    }
-    if (basket.some((existing) => existing.id === item.id)) continue;
-    basket.push(item);
-  }
-
+  // Поля старіших версій (кошик, режим, чекліст) просто ігноруються.
   const examineeType = readString(record, "examineeType");
   const scheduleGraph = readString(record, "scheduleGraph");
-  const citizenChecked = Array.isArray(record.citizenChecked)
-    ? [...new Set(record.citizenChecked.filter((item): item is string => typeof item === "string"))]
-    : [];
-  const storedMode = readString(record, "mode");
-  const mode: Mode =
-    storedMode === "doctor" || storedMode === "citizen"
-      ? storedMode
-      : storedMode === "detailed"
-        ? "citizen"
-        : storedMode === "express"
-          ? "doctor"
-          : EMPTY_SESSION.mode;
 
   return {
-    basket,
-    citizenChecked,
-    dropped,
     examineeType: (EXAMINEE_TYPES as readonly string[]).includes(examineeType)
       ? examineeType
       : EMPTY_SESSION.examineeType,
     scheduleGraph: SCHEDULE_GRAPHS.some((item) => item.id === scheduleGraph)
       ? scheduleGraph as ScheduleGraph
       : EMPTY_SESSION.scheduleGraph,
-    mode,
     directory: restoreDirectory(record.directory),
   };
 }
 
 export function serializeSession(state: SessionState) {
   return JSON.stringify({
-    version: 3,
-    basket: state.basket.map((item) => ({ article: item.article, point: item.point })),
-    citizenChecked: state.citizenChecked,
+    version: 4,
     examineeType: state.examineeType,
     scheduleGraph: state.scheduleGraph,
-    mode: state.mode,
     directory: state.directory,
   });
 }

@@ -2,7 +2,6 @@
 
 import { VlkDialogContent } from "@/components/vlk/dialog-content";
 import { ClinicalMotion } from "@/components/vlk/clinical-motion";
-import { PrintReport } from "@/components/vlk/print-report";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -16,14 +15,10 @@ import {
   ChevronDown,
   Copy,
   ExternalLink,
-  FileText,
   History,
-  ListPlus,
   Maximize2,
   MoreHorizontal,
-  Plus,
   Search,
-  Printer,
   RotateCcw,
   ShieldCheck,
   Table2,
@@ -40,7 +35,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogDescription,
@@ -77,17 +71,13 @@ import { requestedPointIndex } from "@/lib/vlk-selection";
 import { copyPlainText } from "@/lib/vlk-clipboard";
 import { SessionResetDialog } from "@/components/vlk/session-reset-dialog";
 import { clearStoredSession, readStored, writeStored, SESSION_RESET_KEY } from "@/lib/vlk-local-storage";
-import {
-  CitizenPreparation,
-  CITIZEN_PREPARATION_CHECKS,
-} from "@/components/vlk/citizen-preparation";
 import { TdvDialog } from "@/components/vlk/tdv-dialog";
 import {
   ExplanationDocument,
   FullExplanationDialog,
 } from "@/components/vlk/explanation-document";
 import { Highlighted } from "@/components/vlk/highlighted";
-import { ARTICLE_RULES, type ArticleRule } from "@/lib/vlk-rules";
+import { ARTICLE_RULES } from "@/lib/vlk-rules";
 import { graphGuidance, SCHEDULE_GRAPHS, type ScheduleGraph } from "@/lib/vlk-graphs";
 import {
   ARTICLES,
@@ -101,7 +91,6 @@ import {
   matchesOutcomeFilter,
   outcomeStyles,
   OUTCOME_FILTERS,
-  strictestOutcome,
   type OutcomeFilterId,
 } from "@/lib/vlk-outcomes";
 import {
@@ -128,7 +117,6 @@ import {
 } from "@/lib/vlk-workspace";
 import { EDITION_NOTICE } from "@/lib/vlk-edition";
 import {
-  createBasketItem,
   EMPTY_DIRECTORY,
   EXAMINEE_TYPES,
   LEGACY_SESSION_KEYS,
@@ -136,9 +124,7 @@ import {
   serializeSession,
   SESSION_KEY,
   specialtyLabels,
-  type BasketItem,
   type DoctorDirectory,
-  type Mode,
 } from "@/lib/vlk-session";
 import { TDV_COLUMNS, TDV_RULES } from "@/lib/vlk-tdv";
 import {
@@ -153,23 +139,13 @@ import {
   articleExplanationParagraphs,
   pointExplanation,
 } from "@/lib/vlk-explanation-view";
-import { buildCitizenSummaryText, buildDraftText, buildPointWordingText, buildReferenceText } from "@/lib/vlk-report";
+import { buildPointWordingText, buildReferenceText } from "@/lib/vlk-report";
 import {
   explanationUrl as buildExplanationUrl,
   officialRuleUrl,
   TDV_DOCX_URL,
   TDV_URL,
 } from "@/lib/vlk-links";
-
-const ANALYSIS_CHECKS = [
-  "Діагноз і код підтверджені документами",
-  "Порушення функцій об’єктивно описані",
-  "Профільні обстеження завершені",
-  "Офіційні пояснення до статті звірено",
-  "Графу обліку та ТДВ звірено",
-];
-
-
 
 const FOCUS_RING =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ink)] focus-visible:ring-offset-1 focus-visible:ring-offset-background";
@@ -226,7 +202,6 @@ function pointLabelGenitive(point: string) {
 }
 
 export default function Home() {
-  const [mode, setMode] = useState<Mode>("doctor");
   // Порожнє значення означає, що лікар ще не обрав спеціальність:
   // до цього моменту перший екран лишається чистим.
   const [specialty, setSpecialty] = useState<SpecialtyId | "">("");
@@ -235,17 +210,12 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState("");
   const [selectedRuleIndex, setSelectedRuleIndex] = useState("");
-  const [checked, setChecked] = useState<string[]>([]);
-  const [citizenChecked, setCitizenChecked] = useState<string[]>([]);
-  const [basket, setBasket] = useState<BasketItem[]>([]);
   const [directory, setDirectory] = useState<DoctorDirectory>(EMPTY_DIRECTORY);
-  const [draftOpen, setDraftOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [outcomeFilter, setOutcomeFilter] = useState<OutcomeFilterId>("all");
-  const [copied, setCopied] = useState<"reference" | "point" | "draft" | "">("");
+  const [copied, setCopied] = useState<"reference" | "point" | "">("");
   const [online, setOnline] = useState(true);
   const [hydrated, setHydrated] = useState(false);
-  const [restoreNotice, setRestoreNotice] = useState("");
   const [explanationResult, setExplanationResult] = useState<{
     article: string; value?: ArticleExplanation; state: "ready" | "error";
   }>();
@@ -263,7 +233,6 @@ export default function Home() {
   const articleContentRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const searchBoxRef = useRef<HTMLDivElement>(null);
-  const draftTriggerRef = useRef<HTMLButtonElement>(null);
   const moreTriggerRef = useRef<HTMLButtonElement>(null);
   /** Чи додано запис в історію браузера при переході на робочий екран. */
   const historyPushedRef = useRef(false);
@@ -287,17 +256,9 @@ export default function Home() {
         }
       }
       const restored = restoreSession(stored);
-      setBasket(restored.basket);
-      setCitizenChecked(restored.citizenChecked);
       setExamineeType(restored.examineeType);
       setScheduleGraph(restored.scheduleGraph);
-      setMode(restored.mode);
       setDirectory(restored.directory);
-      if (restored.dropped) {
-        setRestoreNotice(
-          `${restored.dropped} збережених пунктів не знайдено в корпусі редакції від ${EDITION} — їх прибрано зі зведення.`,
-        );
-      }
       setHistory(readSearchHistory(readStored(SEARCH_HISTORY_KEY)));
       const workspace = readWorkspace(readStored(WORKSPACE_KEY));
       setLastSpecialty(workspace.specialty);
@@ -316,9 +277,9 @@ export default function Home() {
     if (!hydrated) return;
     writeStored(
       SESSION_KEY,
-      serializeSession({ basket, citizenChecked, examineeType, scheduleGraph, mode, directory }),
+      serializeSession({ examineeType, scheduleGraph, directory }),
     );
-  }, [basket, citizenChecked, directory, examineeType, hydrated, mode, scheduleGraph]);
+  }, [directory, examineeType, hydrated, scheduleGraph]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -374,7 +335,6 @@ export default function Home() {
     setSelectedId("");
     setSelectedRuleIndex("");
     setOutcomeFilter("all");
-    setChecked([]);
     setCopied("");
     setSearchOpen(false);
     setActiveHit(-1);
@@ -395,17 +355,12 @@ export default function Home() {
 
   const resetSessionView = useCallback(() => {
     resetToHome();
-    setBasket([]);
-    setCitizenChecked([]);
     setDirectory({ ...EMPTY_DIRECTORY });
     setExamineeType(EXAMINEE_TYPES[0]);
     setScheduleGraph("all");
-    setMode("doctor");
     setHistory([]);
     setRecent([]);
     setLastSpecialty("");
-    setRestoreNotice("");
-    setDraftOpen(false);
     setDirectoryOpen(false);
     setResetOpen(false);
     setManualCopy(null);
@@ -604,17 +559,6 @@ export default function Home() {
     : undefined;
   const tdvMarks = tdvRule ? TDV_COLUMNS.filter((column) => tdvRule[column.id]) : [];
 
-  const summaryItem = strictestOutcome(basket);
-  const summaryStyle = summaryItem ? outcomeStyles(summaryItem.outcome) : undefined;
-
-  const draftText = useMemo(
-    () =>
-      mode === "doctor"
-        ? buildDraftText(basket, examineeType, scheduleGraph)
-        : buildCitizenSummaryText(basket, examineeType, citizenChecked, scheduleGraph),
-    [basket, citizenChecked, examineeType, mode, scheduleGraph],
-  );
-
   const referenceText =
     selected && selectedRule
       ? buildReferenceText(selected, selectedRule, scheduleGraph, selectedGraphGuidance)
@@ -626,20 +570,8 @@ export default function Home() {
   }
 
   function resetArticleReview() {
-    setChecked([]);
     setSelectedRuleIndex("");
     setCopied("");
-  }
-
-  function changeMode(nextMode: Mode) {
-    setMode(nextMode);
-    setOutcomeFilter("all");
-  }
-
-  function toggleCitizenCheck(item: string, value: boolean) {
-    setCitizenChecked((current) =>
-      value ? [...new Set([...current, item])] : current.filter((entry) => entry !== item),
-    );
   }
 
   /**
@@ -673,7 +605,6 @@ export default function Home() {
     setHistory((current) => addSearchHistory(current, query));
     setSearchOpen(false);
     setActiveHit(-1);
-    setChecked([]);
     setCopied("");
     setSelectedRuleIndex(resolvedIndex === undefined ? "" : String(resolvedIndex));
     rememberView(article.article, resolvedIndex === undefined ? "" : (rules[resolvedIndex]?.point ?? ""));
@@ -756,34 +687,6 @@ export default function Home() {
     }
   }
 
-  function toggleCheck(step: string, next: boolean) {
-    setChecked((current) =>
-      next ? [...new Set([...current, step])] : current.filter((item) => item !== step),
-    );
-  }
-
-  function addArticleRuleToBasket(article: VlkArticle, rule: ArticleRule) {
-    showArticlePanel();
-    setSearchOpen(false);
-    const articleChanged = selected?.id !== article.id;
-    rememberView(article.article, rule.point);
-    setLastSpecialty(article.specialties[0]);
-    setSelectedId(article.id);
-    if (query.trim()) setSpecialty(article.specialties[0]);
-    const ruleIndex = (ARTICLE_RULES[article.article] ?? []).findIndex(
-      (entry) => entry.point === rule.point && entry.condition === rule.condition,
-    );
-    setSelectedRuleIndex(ruleIndex >= 0 ? String(ruleIndex) : "");
-    if (articleChanged) setChecked([]);
-    setCopied("");
-    const item = createBasketItem(article, rule);
-    setBasket((current) => [...current.filter((entry) => entry.id !== item.id), item]);
-    toast.success(
-      `Стаття ${item.article}${item.point === "—" ? "" : `, пункт «${item.point}»`} — ${mode === "doctor" ? "у зведенні" : "збережена"}`,
-    );
-  }
-
-
   /** Відкриває запис з останніх переглядів. */
   function openRecent(entry: RecentEntry) {
     const article = ARTICLES.find((item) => item.article === entry.article);
@@ -794,7 +697,6 @@ export default function Home() {
     setSpecialty(article.specialties[0]);
     setLastSpecialty(article.specialties[0]);
     setSelectedId(article.id);
-    setChecked([]);
     setCopied("");
     const index = (ARTICLE_RULES[article.article] ?? []).findIndex(
       (rule) => rule.point === entry.point,
@@ -803,43 +705,17 @@ export default function Home() {
     rememberView(entry.article, entry.point);
   }
 
-  function openBasketItem(item: BasketItem) {
-    const article = ARTICLES.find((entry) => entry.id === item.articleId);
-    if (!article) return;
-    showArticlePanel();
-    rememberView(article.article, item.point);
-    if (selected?.id !== article.id) resetArticleReview();
-    setQuery("");
-    setSearchOpen(false);
-    setSpecialty(article.specialties[0]);
-    setLastSpecialty(article.specialties[0]);
-    setSelectedId(article.id);
-    const index = (ARTICLE_RULES[article.article] ?? []).findIndex(
-      (rule) => rule.point === item.point,
-    );
-    setSelectedRuleIndex(index >= 0 ? String(index) : "");
-  }
-
-  async function copyText(text: string, type: "reference" | "point" | "draft") {
+  async function copyText(text: string, type: "reference" | "point") {
     copyTriggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
     if (await copyPlainText(text)) {
       setCopied(type);
-      toast.success(type === "draft" ? "Зведення скопійовано" : "Формулювання пункту скопійовано");
+      toast.success("Формулювання пункту скопійовано");
       copyTimerRef.current = setTimeout(() => setCopied(""), 1600);
     } else {
       setCopied("");
       setManualCopy(text);
     }
-  }
-
-  function openDraft(event: React.MouseEvent<HTMLButtonElement>) {
-    draftTriggerRef.current = event.currentTarget;
-    setDraftOpen(true);
-  }
-
-  function printDraft() {
-    window.print();
   }
 
   /** Стрілки переміщують фокус компактним списком статей. */
@@ -1012,9 +888,6 @@ export default function Home() {
                                 {hitRules.map((rule, pointIndex) => {
                                   if (requestedSearchPoint && rule.point !== requestedSearchPoint) return null;
                                   const style = outcomeStyles(rule.outcome);
-                                  const inBasket = basket.some(
-                                    (item) => item.id === `${hit.article.article}-${rule.point}`,
-                                  );
                                   return (
                                     <span
                                       key={`${hit.article.id}-${rule.point}-${pointIndex}`}
@@ -1031,15 +904,6 @@ export default function Home() {
                                         <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-black ${style.badge}`}>
                                           {style.label}
                                         </span>
-                                      </button>
-                                      <button
-                                        type="button"
-                                        aria-label={`Додати статтю ${hit.article.article}, ${pointLabel(rule.point)} до зведення`}
-                                        title={inBasket ? "Уже у зведенні" : "Додати до зведення"}
-                                        onClick={() => addArticleRuleToBasket(hit.article, rule)}
-                                        className={`grid w-6 place-items-center border-l border-[var(--hairline)] ${inBasket ? "bg-[var(--positive-bg)] text-[var(--positive-ink)]" : "text-[var(--accent-ink)] hover:bg-[var(--surface-sunken)]"} ${FOCUS_RING}`}
-                                      >
-                                        {inBasket ? <Check className="size-3" /> : <Plus className="size-3" />}
                                       </button>
                                     </span>
                                   );
@@ -1188,12 +1052,10 @@ export default function Home() {
               <DropdownMenuContent align="end" className="w-64">
                 <DropdownMenuLabel>Додаткові дії</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {mode === "doctor" ? (
-                  <DropdownMenuItem onSelect={() => setDirectoryOpen(true)}>
-                    <UsersRound />
-                    Довідник лікарів ВЛК
-                  </DropdownMenuItem>
-                ) : null}
+                <DropdownMenuItem onSelect={() => setDirectoryOpen(true)}>
+                  <UsersRound />
+                  Довідник лікарів ВЛК
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <a href={SOURCE_URL} target="_blank" rel="noreferrer">
                     <History />
@@ -1216,45 +1078,11 @@ export default function Home() {
 
       <div className="workspace-meta">
       <EditionTicker />
-      {showDashboard ? (
-      <div className="command-mode-bar border-b border-[var(--brand-rule)]/25 bg-[var(--surface-muted)]">
-        <div className="mx-auto flex max-w-[1720px] flex-wrap items-center justify-between gap-2 px-3 py-1.5 lg:px-5">
-          <div
-            className="flex items-center gap-0.5 rounded-full border border-[var(--hairline)] bg-card p-1"
-            aria-label="Режим роботи"
-          >
-            {(["doctor", "citizen"] as const).map((value) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => changeMode(value)}
-                aria-pressed={mode === value}
-                className={`min-h-9 rounded-full px-3.5 py-1.5 text-xs font-medium transition ${FOCUS_RING} ${mode === value ? "bg-[var(--brand-rule)] text-[var(--brand-bar)] shadow-[var(--shadow-soft)]" : "text-[var(--ink-soft)] hover:text-[var(--foreground)]"}`}
-              >
-                {value === "doctor" ? "Лікар" : "Громадянин"}
-              </button>
-            ))}
-          </div>
-
-          <button
-            type="button"
-            onClick={openDraft}
-            className={`flex min-h-9 items-center gap-2 rounded-full border border-[var(--warning-border)]/20 bg-[var(--warning-bg)] px-3.5 py-1.5 text-xs font-medium text-[var(--warning-ink)] transition hover:border-[var(--warning-border)]/35 ${FOCUS_RING}`}
-          >
-            <ListPlus className="size-4" />
-            {mode === "doctor" ? "Зведення" : "Збережені норми"} · {basket.length}
-          </button>
-        </div>
-      </div>
-      ) : null}
       </div>
 
       {showDashboard ? (<>
-      <WorkspaceTabs active={mobilePanel} onChange={setMobilePanel} articleCount={listArticles.length} basketCount={basket.length} />
-      <div
-        className="vlk-workspace mx-auto grid w-full max-w-[1920px] gap-3 p-2 lg:p-3"
-        data-summary-empty={mode === "doctor" && !basket.length ? "true" : undefined}
-      >
+      <WorkspaceTabs active={mobilePanel} onChange={setMobilePanel} articleCount={listArticles.length} />
+      <div className="vlk-workspace mx-auto grid w-full max-w-[1920px] gap-3 p-2 lg:p-3">
         <aside className="command-sidebar flex min-h-[440px] flex-col overflow-hidden rounded-2xl border border-[var(--hairline-strong)] bg-card text-foreground shadow-[var(--shadow-soft)] xl:min-h-0"
           id="vlk-panel-list" role="tabpanel" aria-labelledby="vlk-tab-list" data-mobile-panel="list" data-active={mobilePanel === "list"}>
           <div className="sidebar-controls shrink-0 border-b border-[var(--hairline)] p-3">
@@ -1289,14 +1117,12 @@ export default function Home() {
                   <SelectTrigger id="examinee-type" className="h-10 w-full bg-card text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>{EXAMINEE_TYPES.map((type) => <SelectItem key={type} value={type}>{type}</SelectItem>)}</SelectContent>
                 </Select>
-                {mode === "doctor" ? <>
-                  <label htmlFor="outcome-filter" className="block text-xs text-muted-foreground">Фільтр за результатом</label>
+                <label htmlFor="outcome-filter" className="block text-xs text-muted-foreground">Фільтр за результатом</label>
                   <Select value={outcomeFilter} onValueChange={(value) => setOutcomeFilter(value as OutcomeFilterId)}>
                     <SelectTrigger id="outcome-filter" className="h-10 w-full bg-card text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>{OUTCOME_FILTERS.map((item) => <SelectItem key={item.id} value={item.id}>{item.label}</SelectItem>)}</SelectContent>
                   </Select>
-                  {outcomeFilter !== "all" ? <p className="text-xs text-muted-foreground">Угорі — {articleCountLabel(filteredCount)} з обраним результатом. Інші статті залишаються доступними.</p> : null}
-                </> : null}
+                {outcomeFilter !== "all" ? <p className="text-xs text-muted-foreground">Угорі — {articleCountLabel(filteredCount)} з обраним результатом. Інші статті залишаються доступними.</p> : null}
                 <p className="text-xs leading-5 text-muted-foreground">Графа — контекст перегляду. Дослівний результат пункту не переобчислюється.</p>
               </div>
             </details>
@@ -1478,9 +1304,6 @@ export default function Home() {
                   {articleRules.map((rule, index) => {
                     const active = selectedRuleIndex === String(index);
                     const style = outcomeStyles(rule.outcome);
-                    const inBasket = basket.some(
-                      (item) => item.id === `${selected.article}-${rule.point}`,
-                    );
                     // Фільтр не ховає пункти: нерелевантні лише приглушені.
                     const dimmed =
                       outcomeFilter !== "all" && !matchesOutcomeFilter([rule.outcome], outcomeFilter);
@@ -1500,7 +1323,6 @@ export default function Home() {
                           <button
                             type="button"
                             data-point-row
-                            data-in-basket={inBasket || undefined}
                             id={`vlk-point-${index}`}
                             onClick={() => selectRule(active ? "" : String(index))}
                             aria-expanded={active}
@@ -1548,9 +1370,7 @@ export default function Home() {
                               </ol>
                               <div className={`mt-3 border-l-2 pl-3 ${style.bar}`}>
                                 <p className="text-[11px] font-semibold text-[var(--ink-soft)]">
-                                  {mode === "doctor"
-                                    ? "Попередній нормативний орієнтир · не рішення ВЛК"
-                                    : "Дослівне формулювання Наказу №402 · не персональний висновок"}
+                                  Попередній нормативний орієнтир · не рішення ВЛК
                                 </p>
                                 <p className="mt-1 text-sm font-bold leading-5">«{rule.outcome}»</p>
                                 <p className="mt-1 text-[10px] leading-4 text-[var(--ink-soft)]">
@@ -1781,12 +1601,6 @@ export default function Home() {
 
 
               </div>
-              {selectedRule ? <div className="article-action-rail" role="region" aria-label="Дії вибраного пункту">
-                <p className="action-context"><strong>Стаття {selected.article} · {pointLabel(selectedRule.point)}</strong><span>{scheduleGraph === "all" ? "Графа не обрана" : `Графа ${scheduleGraph}`}</span></p>
-                <Button type="button" className="primary-point-action" onClick={() => addArticleRuleToBasket(selected, selectedRule)} disabled={basket.some(item => item.id === `${selected.article}-${selectedRule.point}`)}>
-                  {basket.some(item => item.id === `${selected.article}-${selectedRule.point}`) ? <><Check />{mode === "doctor" ? "У зведенні" : "Збережено"}</> : <><Plus />{mode === "doctor" ? "Додати до зведення" : "Зберегти норму"}</>}
-                </Button>
-              </div> : null}
             </>
           ) : (
             <div className="grid flex-1 place-items-center p-10 text-center">
@@ -1800,143 +1614,6 @@ export default function Home() {
           )}
         </section>
 
-        <div id="vlk-panel-summary" role="tabpanel" aria-labelledby="vlk-tab-summary" data-mobile-panel="summary" data-active={mobilePanel === "summary"} className="summary-panel min-h-0 min-w-0">
-        {mode === "citizen" ? (
-          <CitizenPreparation
-            checked={citizenChecked}
-            selected={selected}
-            selectedRule={selectedRule}
-            onToggle={toggleCitizenCheck}
-          />
-        ) : (
-        <aside data-empty={!basket.length} className="verification-rail flex flex-col overflow-hidden rounded-2xl border border-[var(--brand-rule)]/25 bg-[var(--surface-muted)] shadow-[var(--shadow-soft)]">
-          <div className="flex items-center justify-between border-b border-[var(--hairline)] bg-card px-3 py-2.5">
-            <div>
-              <h2 className="text-sm font-bold">Зведення · <span key={basket.length} className="basket-count">{basket.length}</span></h2>
-            </div>
-            <span className="rounded-full bg-[var(--secondary)] px-2 py-1 text-[10px] font-bold text-[var(--accent-ink-strong)]">
-              локально
-            </span>
-          </div>
-
-          <div className="min-h-0 flex-1 overflow-y-auto p-2.5 scrollbar-thin">
-            {restoreNotice ? (
-              <div className="mb-2 rounded-lg border border-[var(--warning-border)]/25 bg-[var(--warning-bg)] p-2 text-[10px] leading-4 text-[var(--warning-ink)]">
-                {restoreNotice}
-              </div>
-            ) : null}
-
-            {summaryItem && summaryStyle ? (
-              <div aria-live="polite" aria-atomic="true">
-              <div key={summaryItem.id} className={`clinical-result rounded-lg border p-3 ${summaryStyle.box}`}>
-                <div className="flex items-center justify-between gap-2">
-                  <span className={`rounded-full px-2 py-1 text-[10px] font-black ${summaryStyle.badge}`}>
-                    {summaryStyle.label}
-                  </span>
-                  <span className="text-[10px] font-bold text-[var(--ink-soft)]">найсуворіший орієнтир</span>
-                </div>
-                <h3 className="mt-2 font-black">
-                  Стаття {summaryItem.article}
-                  {summaryItem.point === "—" ? "" : `, пункт «${summaryItem.point}»`}
-                </h3>
-                <p className="mt-1.5 text-xs font-semibold leading-5">«{summaryItem.outcome}»</p>
-                <p className="mt-2 text-[10px] leading-4 text-[var(--ink-muted)]">
-                  Категорія: {examineeType}. Остаточна звірка — лікарем за графою і ТДВ.
-                </p>
-              </div>
-              </div>
-            ) : (
-              <div className="py-2 text-sm text-muted-foreground">
-                <h3 className="font-medium">Ще немає пунктів</h3>
-                <p className="mt-1 text-xs leading-5">
-                  Відкрийте пункт і натисніть «Додати до зведення».
-                </p>
-                <Button variant="outline" className="return-to-reading mt-2 min-h-11" onClick={showArticlePanel}>До читання статті</Button>
-              </div>
-            )}
-
-            {basket.length ? (
-            <div className="mt-3 flex items-center justify-between">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
-                Вибрані пункти
-              </p>
-              {basket.length ? (
-                <button
-                  type="button"
-                  onClick={() => setBasket([])}
-                  className={`rounded px-1 py-0.5 text-[10px] font-bold text-[var(--critical-ink)] ${FOCUS_RING}`}
-                >
-                  Очистити
-                </button>
-              ) : null}
-            </div>
-            ) : null}
-            <div className="mt-1.5 space-y-1.5">
-              {basket.map((item) => {
-                const style = outcomeStyles(item.outcome);
-                return (
-                  <div key={item.id} className="diagnosis-entry rounded-lg border border-[var(--hairline)] bg-card p-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openBasketItem(item)}
-                        className={`min-w-0 rounded text-left ${FOCUS_RING}`}
-                      >
-                        <span className="block text-xs font-bold">
-                          Стаття {item.article}
-                          {item.point === "—" ? "" : `-${item.point}`} · {item.title}
-                        </span>
-                        <span className="mt-0.5 block break-words text-[10px] text-[var(--ink-muted)]">
-                          {articleIcdLabel(item)} · {item.doctors}
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={`Видалити статтю ${item.article} зі зведення`}
-                        onClick={() => setBasket((current) => current.filter((entry) => entry.id !== item.id))}
-                        className={`grid size-9 shrink-0 place-items-center rounded-md text-[var(--critical-ink)] hover:bg-[var(--critical-bg)] ${FOCUS_RING}`}
-                      >
-                        <X className="size-3.5" />
-                      </button>
-                    </div>
-                    <span className={`mt-1.5 inline-block rounded-full px-2 py-0.5 text-[9px] font-black ${style.badge}`}>
-                      {style.label}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="summary-disclaimer mt-3 rounded-lg border border-[var(--warning-border)]/20 bg-[var(--warning-bg)] p-2.5">
-              <div className="flex items-start gap-2">
-                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-[var(--warning-ink)]" />
-                <p className="text-[10px] leading-4 text-[var(--warning-ink)]">
-                  Алгоритм показує найсуворіший попередній орієнтир, але не враховує медичну
-                  взаємодію кількох станів і не замінює постанову ВЛК.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="shrink-0 space-y-1.5 border-t border-[var(--hairline)] bg-card p-2.5">
-            <Button
-              type="button"
-              size="sm"
-              onClick={openDraft}
-              disabled={!basket.length}
-              className="h-10 w-full bg-[var(--primary)] text-xs text-white hover:bg-[var(--primary-hover)]"
-            >
-              <FileText />
-              Переглянути зведення
-            </Button>
-            <div className="flex items-center justify-center gap-1.5 pt-1 text-[9px] text-[var(--ink-muted)]">
-              <ShieldCheck className="size-3" />
-              Дані зберігаються тільки в цьому браузері
-            </div>
-          </div>
-        </aside>
-        )}
-        </div>
       </div>
         </>
       ) : (
@@ -1953,24 +1630,7 @@ export default function Home() {
             </a>
           ) : null}
 
-          <div
-            className="mb-6 flex items-center gap-1 rounded-full border border-[var(--hairline)] bg-card p-1 shadow-[var(--shadow-soft)]"
-            aria-label="Оберіть режим навігатора"
-          >
-            {(["doctor", "citizen"] as const).map((value) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => changeMode(value)}
-                aria-pressed={mode === value}
-                className={`min-h-10 rounded-full px-5 py-2 text-sm font-semibold transition ${FOCUS_RING} ${mode === value ? "bg-[var(--primary)] text-white" : "text-[var(--ink-soft)] hover:bg-[var(--background)]"}`}
-              >
-                {value === "doctor" ? "Я лікар" : "Я проходжу ВЛК"}
-              </button>
-            ))}
-          </div>
-
-          {mode === "doctor" && lastSpecialty ? (
+          {lastSpecialty ? (
             <Button
               type="button"
               onClick={() => changeSpecialty(lastSpecialty)}
@@ -1983,14 +1643,10 @@ export default function Home() {
           ) : null}
 
           <h2 className="mt-4 max-w-2xl text-2xl font-semibold leading-tight sm:text-[28px]">
-            {mode === "doctor"
-              ? "Робоче місце лікаря ВЛК"
-              : "Знайдіть норму та підготуйте документи"}
+            Робоче місце лікаря ВЛК
           </h2>
           <p className="mt-2 max-w-xl text-base leading-6 text-[var(--ink-soft)]">
-            {mode === "doctor"
-              ? "Оберіть спеціальність або знайдіть норму за діагнозом, кодом МКХ-10 чи номером статті."
-              : "Почніть із діагнозу або коду МКХ-10 у пошуку вгорі."}
+            Оберіть спеціальність або знайдіть норму за діагнозом, кодом МКХ-10 чи номером статті.
           </p>
 
 
@@ -2044,8 +1700,7 @@ export default function Home() {
             </div>
           ) : null}
 
-          {mode === "doctor" ? (
-            <div className="specialty-grid mt-6 grid w-full grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
+          <div className="specialty-grid mt-6 grid w-full grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
               {welcomeSpecialties.map((item) => {
                 const count = ARTICLES.filter((article) =>
                   article.specialties.includes(item.id),
@@ -2068,34 +1723,7 @@ export default function Home() {
                   </button>
                 );
               })}
-            </div>
-          ) : (
-            <div className="mt-9 w-full max-w-2xl rounded-2xl border border-[var(--hairline)] bg-card p-4 text-left shadow-[var(--shadow-soft)]">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--accent-ink)]">
-                    Що підготувати
-                  </p>
-                  <h3 className="mt-1 text-base font-bold">Базовий чекліст перед ВЛК</h3>
-                </div>
-                <span className="rounded-full bg-[var(--secondary)] px-2 py-1 text-[10px] font-bold text-[var(--accent-ink-strong)]">
-                  без передачі даних
-                </span>
-              </div>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                {CITIZEN_PREPARATION_CHECKS.map((item) => (
-                  <div key={item} className="flex items-start gap-2 rounded-lg bg-[var(--surface-muted)] p-2.5">
-                    <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[var(--accent-ink)]" />
-                    <span className="text-xs leading-5 text-[var(--foreground)]">{item}</span>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-3 text-xs leading-5 text-[var(--ink-muted)]">
-                Почніть із пошуку у верхньому полі. Після вибору статті чекліст залишатиметься
-                праворуч на робочому екрані.
-              </p>
-            </div>
-          )}
+          </div>
 
           <TdvDialog
             trigger={
@@ -2105,18 +1733,6 @@ export default function Home() {
               </Button>
             }
           />
-
-          {basket.length ? (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={openDraft}
-              className="mt-5 h-10 bg-card"
-            >
-              <ListPlus />
-              Відкрити збережене зведення · {basket.length}
-            </Button>
-          ) : null}
 
           <p className="mt-5 flex items-center gap-1.5 text-[11px] text-[var(--ink-muted)]">
             <ShieldCheck className="size-3.5" />
@@ -2134,88 +1750,6 @@ export default function Home() {
 
       <SessionResetDialog open={resetOpen} onOpenChange={setResetOpen} onConfirm={finishSession} returnFocusRef={moreTriggerRef} />
 
-      <Dialog open={draftOpen} onOpenChange={setDraftOpen}>
-        <VlkDialogContent data-clinical-basket returnFocusRef={draftTriggerRef} className="flex flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl">
-          <DialogHeader className="border-b border-[var(--hairline)] p-4 pr-12">
-            <DialogTitle>
-              {mode === "doctor" ? "Зведення" : "Мій список підготовки до ВЛК"}
-            </DialogTitle>
-            <DialogDescription>
-              {mode === "doctor"
-                ? "Статті, пункти, ТДВ, чекліст і джерела. Довідкова навігація, не рішення ВЛК."
-                : "Збережені норми, відмічені документи та офіційне джерело. Не визначає придатність."}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="min-h-0 max-h-[58dvh] flex-1 overflow-y-auto scrollbar-thin">
-            <div className="border-b border-[var(--hairline)] bg-card px-4 py-3">
-              <div className="flex items-center justify-between">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
-                  {mode === "doctor"
-                    ? "Що ще треба перевірити перед постановою"
-                    : "Що вже підготовлено до проходження ВЛК"}
-                </p>
-                <span className="text-[10px] font-bold text-[var(--ink-muted)]">
-                  {mode === "doctor"
-                    ? `${checked.length}/${ANALYSIS_CHECKS.length}`
-                    : `${citizenChecked.length}/${CITIZEN_PREPARATION_CHECKS.length}`}
-                </span>
-              </div>
-              <div className="mt-1.5 grid gap-1.5 sm:grid-cols-2">
-                {(mode === "doctor" ? ANALYSIS_CHECKS : CITIZEN_PREPARATION_CHECKS).map((step) => (
-                  <label
-                    key={step}
-                    className="flex min-h-10 cursor-pointer items-start gap-2 rounded-lg border border-[var(--hairline)] bg-card p-2"
-                  >
-                    <Checkbox
-                      checked={
-                        mode === "doctor"
-                          ? checked.includes(step)
-                          : citizenChecked.includes(step)
-                      }
-                      onCheckedChange={(value) =>
-                        mode === "doctor"
-                          ? toggleCheck(step, value === true)
-                          : toggleCitizenCheck(step, value === true)
-                      }
-                      className="mt-0.5"
-                    />
-                    <span className="text-xs leading-4">{step}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-            <ul className="space-y-2 p-4" aria-label="Збережені пункти">
-              {basket.map((item) => <li key={item.id} className="rounded-lg border border-border bg-card p-3">
-                <p className="text-sm font-semibold">Стаття {item.article}{item.point === "—" ? "" : ` · пункт «${item.point}»`}</p>
-                <p className="mt-1 text-sm">{item.condition}</p>
-                <p className="mt-2 text-sm font-medium">{item.outcome}</p>
-              </li>)}
-              {!basket.length ? <li className="text-sm text-muted-foreground">У зведенні ще немає пунктів.</li> : null}
-            </ul>
-            <Accordion type="single" collapsible className="px-4 pb-3">
-              <AccordionItem value="experimental-export">
-                <AccordionTrigger className="text-sm">Додатково · чернетка та експорт</AccordionTrigger>
-                <AccordionContent>
-                  <p className="mb-3 text-sm text-muted-foreground">Експериментальний експорт. Перед використанням перевірте форматування та формулювання.</p>
-                  <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted p-3 font-sans text-xs leading-5">{draftText}</pre>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Button variant="outline" onClick={() => copyText(draftText, "draft")}>
-                      <Copy /> {copied === "draft" ? "Скопійовано" : "Копіювати чернетку"}
-                    </Button>
-                    <Button variant="outline" onClick={printDraft}><Printer /> Друк / PDF</Button>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-          <DialogFooter className="shrink-0 border-t border-[var(--hairline)] p-3">
-            <Button onClick={() => setDraftOpen(false)} className="bg-[var(--primary)] text-white">
-              Готово
-            </Button>
-          </DialogFooter>
-        </VlkDialogContent>
-      </Dialog>
-      <section className="vlk-print-sheet" aria-hidden="true"><h1>VLK Навігатор · Робоче зведення</h1><PrintReport text={draftText} /></section>
     </main>
   );
 }
