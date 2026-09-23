@@ -1,0 +1,187 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root {
+  color-scheme: light;
+}
+html,
+body {
+  background: #f6f8f7;
+  color: #192c28;
+}
+@layer base {
+  body {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  * {
+    border-color: theme("colors.slate.200");
+  }
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:focus-visible,
+  a:focus-visible,
+  summary:focus-visible {
+    outline: 3px solid #50a88b;
+    outline-offset: 3px;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+}
+@layer components {
+  .container-app {
+    @apply mx-auto w-full max-w-[1440px] px-4 sm:px-7 lg:px-9;
+  }
+  .btn {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 text-white shadow-sm hover:bg-brand-700 active:translate-y-px;
+  }
+  .btn-ghost {
+    @apply btn border border-slate-200 bg-white text-ink hover:border-brand-200 hover:bg-brand-50;
+  }
+  .btn-sm {
+    @apply min-h-9 rounded-lg px-2.5 py-1.5 text-xs;
+  }
+  .card {
+    @apply rounded-2xl border border-slate-200/80 bg-white shadow-[0_2px_8px_-4px_rgba(25,44,40,0.12)];
+  }
+  .input {
+    @apply w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-ink placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100;
+  }
+  .label {
+    @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-slate-500;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium;
+  }
+  .page-eyebrow {
+    @apply mb-2 text-[10px] font-semibold uppercase tracking-[.18em] text-brand-600;
+  }
+  .page-title {
+    @apply text-2xl font-bold tracking-tight sm:text-3xl;
+  }
+  .metric-card {
+    @apply card flex items-start justify-between p-5;
+  }
+  .metric-value {
+    @apply mt-3 text-3xl font-semibold tabular-nums tracking-tight;
+  }
+  .sidebar-link {
+    @apply flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-white;
+  }
+  .sidebar-link.active {
+    @apply bg-[#294339] text-[#d3f6e0];
+  }
+  .lead-card {
+    @apply transition duration-200 hover:border-brand-200 hover:shadow-md;
+  }
+}
+.app-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 244px;
+  background: #182b25;
+  color: #d3f6e0;
+  padding: 28px 18px;
+  display: flex;
+  flex-direction: column;
+  z-index: 30;
+}
+.app-main,
+.app-footer {
+  margin-left: 244px;
+}
+.mobile-header,
+.mobile-nav {
+  display: none;
+}
+.skip-link {
+  position: fixed;
+  left: 20px;
+  top: -100px;
+  padding: 12px;
+  background: white;
+  z-index: 100;
+}
+.skip-link:focus {
+  top: 12px;
+}
+.page-enter {
+  animation: enter 0.25s ease-out;
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.radar-visual {
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      #43896a25 0 22%,
+      transparent 22% 37%,
+      #43896a20 37% 37.5%,
+      transparent 37.5% 55%,
+      #43896a18 55% 55.5%,
+      transparent 55.5%
+    ),
+    linear-gradient(135deg, #173c30, #132d25);
+}
+@media (max-width: 1023px) {
+  .app-sidebar {
+    display: none;
+  }
+  .app-main,
+  .app-footer {
+    margin-left: 0;
+  }
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    padding: 0 18px;
+    background: white;
+    border-bottom: 1px solid #e2e8e6;
+  }
+  .mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    background: #fffffff5;
+    backdrop-filter: blur(12px);
+    border-top: 1px solid #e2e8e6;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    z-index: 40;
+  }
+  .app-footer {
+    padding-bottom: 100px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,596 @@
+
+> ai-lead-hunter@0.3.0 test
+> node --import tsx --test tests/*.test.ts
+
+TAP version 13
+# Subtest: migrates old 8 statuses into 5 stages
+ok 1 - migrates old 8 statuses into 5 stages
+  ---
+  duration_ms: 2.387045
+  type: 'test'
+  ...
+# Subtest: migration is idempotent on already-migrated values
+ok 2 - migration is idempotent on already-migrated values
+  ---
+  duration_ms: 1.505658
+  type: 'test'
+  ...
+# Subtest: migrateCampaigns preserves leads, notes and verification
+ok 3 - migrateCampaigns preserves leads, notes and verification
+  ---
+  duration_ms: 2.409152
+  type: 'test'
+  ...
+# Subtest: nextActionForLead gives a stage-appropriate action
+ok 4 - nextActionForLead gives a stage-appropriate action
+  ---
+  duration_ms: 0.527561
+  type: 'test'
+  ...
+# Subtest: onboarding step flow differs for demo vs real
+ok 5 - onboarding step flow differs for demo vs real
+  ---
+  duration_ms: 0.416462
+  type: 'test'
+  ...
+# Subtest: env snippet never contains a real key and honors maps flag
+ok 6 - env snippet never contains a real key and honors maps flag
+  ---
+  duration_ms: 0.194237
+  type: 'test'
+  ...
+# Subtest: extracts published emails and social profiles, skipping share links and junk
+ok 7 - extracts published emails and social profiles, skipping share links and junk
+  ---
+  duration_ms: 4.576369
+  type: 'test'
+  ...
+# Subtest: empty page yields no contacts
+ok 8 - empty page yields no contacts
+  ---
+  duration_ms: 0.433839
+  type: 'test'
+  ...
+# Subtest: social channels are enabled only for published links
+ok 9 - social channels are enabled only for published links
+  ---
+  duration_ms: 1.20948
+  type: 'test'
+  ...
+# Subtest: CSV starts with a UTF-8 BOM for Excel
+ok 10 - CSV starts with a UTF-8 BOM for Excel
+  ---
+  duration_ms: 3.611721
+  type: 'test'
+  ...
+# Subtest: CSV header includes key columns
+ok 11 - CSV header includes key columns
+  ---
+  duration_ms: 0.632861
+  type: 'test'
+  ...
+# Subtest: CSV contains a row with the lead name and score
+ok 12 - CSV contains a row with the lead name and score
+  ---
+  duration_ms: 1.740493
+  type: 'test'
+  ...
+# Subtest: CSV escapes commas and quotes
+ok 13 - CSV escapes commas and quotes
+  ---
+  duration_ms: 0.447939
+  type: 'test'
+  ...
+# Subtest: empty input still yields a header line
+ok 14 - empty input still yields a header line
+  ---
+  duration_ms: 0.259901
+  type: 'test'
+  ...
+# Subtest: noWebsite / hasWebsite are respected
+ok 15 - noWebsite / hasWebsite are respected
+  ---
+  duration_ms: 5.197487
+  type: 'test'
+  ...
+# Subtest: hasPhone filter
+ok 16 - hasPhone filter
+  ---
+  duration_ms: 0.755481
+  type: 'test'
+  ...
+# Subtest: rating + reviews thresholds
+ok 17 - rating + reviews thresholds
+  ---
+  duration_ms: 0.583859
+  type: 'test'
+  ...
+# Subtest: category filter matches the lead niche
+ok 18 - category filter matches the lead niche
+  ---
+  duration_ms: 0.447161
+  type: 'test'
+  ...
+# Subtest: normalizeFilters resolves the no/has website conflict
+ok 19 - normalizeFilters resolves the no/has website conflict
+  ---
+  duration_ms: 0.333112
+  type: 'test'
+  ...
+# Subtest: applyFilters narrows a list
+ok 20 - applyFilters narrows a list
+  ---
+  duration_ms: 3.271969
+  type: 'test'
+  ...
+# Subtest: Google adapter paginates, keeps address and international phone, honors request budget
+ok 21 - Google adapter paginates, keeps address and international phone, honors request budget
+  ---
+  duration_ms: 11.871722
+  type: 'test'
+  ...
+# Subtest: Google failure is an explicit error rather than fictional results
+ok 22 - Google failure is an explicit error rather than fictional results
+  ---
+  duration_ms: 1.785544
+  type: 'test'
+  ...
+# Subtest: search route rejects malformed inputs and keeps missing-key demo explicit
+ok 23 - search route rejects malformed inputs and keeps missing-key demo explicit
+  ---
+  duration_ms: 28.94306
+  type: 'test'
+  ...
+# Subtest: search route rejects cross-origin POST
+ok 24 - search route rejects cross-origin POST
+  ---
+  duration_ms: 0.799605
+  type: 'test'
+  ...
+# Subtest: live empty search stays live; upstream error is 502
+ok 25 - live empty search stays live; upstream error is 502
+  ---
+  duration_ms: 4.369882
+  type: 'test'
+  ...
+# Subtest: AI reads provider text and rejects truncated/empty completions
+ok 26 - AI reads provider text and rejects truncated/empty completions
+  ---
+  duration_ms: 0.433929
+  type: 'test'
+  ...
+# Subtest: AI routes send only validated minimal data and handle missing config
+ok 27 - AI routes send only validated minimal data and handle missing config
+  ---
+  duration_ms: 3.659813
+  type: 'test'
+  ...
+# Subtest: same-origin requests through a reverse proxy are accepted
+ok 28 - same-origin requests through a reverse proxy are accepted
+  ---
+  duration_ms: 0.466961
+  type: 'test'
+  ...
+# Subtest: tel: link uses normalized E.164
+ok 29 - tel: link uses normalized E.164
+  ---
+  duration_ms: 1.63145
+  type: 'test'
+  ...
+# Subtest: WhatsApp uses wa.me with digits and encoded text
+ok 30 - WhatsApp uses wa.me with digits and encoded text
+  ---
+  duration_ms: 0.435088
+  type: 'test'
+  ...
+# Subtest: Viber deep link includes +number and text
+ok 31 - Viber deep link includes +number and text
+  ---
+  duration_ms: 0.439862
+  type: 'test'
+  ...
+# Subtest: email builders encode subject + body
+ok 32 - email builders encode subject + body
+  ---
+  duration_ms: 0.670895
+  type: 'test'
+  ...
+# Subtest: availableChannels reflects missing contact data honestly
+ok 33 - availableChannels reflects missing contact data honestly
+  ---
+  duration_ms: 0.658876
+  type: 'test'
+  ...
+# Subtest: workspace password gate rejects missing/wrong credentials and supports UTF-8
+ok 34 - workspace password gate rejects missing/wrong credentials and supports UTF-8
+  ---
+  duration_ms: 8.441093
+  type: 'test'
+  ...
+# Subtest: normalizes Ukrainian national formats to E.164
+ok 35 - normalizes Ukrainian national formats to E.164
+  ---
+  duration_ms: 1.802397
+  type: 'test'
+  ...
+# Subtest: keeps explicit international numbers
+ok 36 - keeps explicit international numbers
+  ---
+  duration_ms: 0.347054
+  type: 'test'
+  ...
+# Subtest: rejects empty / junk / too-short input
+ok 37 - rejects empty / junk / too-short input
+  ---
+  duration_ms: 0.534365
+  type: 'test'
+  ...
+# Subtest: phoneDigitsIntl strips the plus for wa.me / viber
+ok 38 - phoneDigitsIntl strips the plus for wa.me / viber
+  ---
+  duration_ms: 0.244282
+  type: 'test'
+  ...
+# Subtest: digitsOnly keeps only digits
+ok 39 - digitsOnly keeps only digits
+  ---
+  duration_ms: 0.225779
+  type: 'test'
+  ...
+# Subtest: generic 'store' type never turns a bakery or pharmacy into repair
+ok 40 - generic 'store' type never turns a bakery or pharmacy into repair
+  ---
+  duration_ms: 5.334608
+  type: 'test'
+  ...
+# Subtest: requested niche wins when the place matches it
+ok 41 - requested niche wins when the place matches it
+  ---
+  duration_ms: 0.312572
+  type: 'test'
+  ...
+# Subtest: permanently closed places are dropped from live results
+ok 42 - permanently closed places are dropped from live results
+  ---
+  duration_ms: 51.629489
+  type: 'test'
+  ...
+# Subtest: geocoding returns a point or null, never throws
+ok 43 - geocoding returns a point or null, never throws
+  ---
+  duration_ms: 1.621699
+  type: 'test'
+  ...
+# Subtest: parses '50 салонів краси поруч зі мною без сайту'
+ok 44 - parses '50 салонів краси поруч зі мною без сайту'
+  ---
+  duration_ms: 145.788139
+  type: 'test'
+  ...
+# Subtest: parses 'стоматології на Позняках для онлайн-запису'
+ok 45 - parses 'стоматології на Позняках для онлайн-запису'
+  ---
+  duration_ms: 51.365086
+  type: 'test'
+  ...
+# Subtest: parses 'Я продаю сайти за $300. Кому поруч це може бути цікаво?'
+ok 46 - parses 'Я продаю сайти за $300. Кому поруч це може бути цікаво?'
+  ---
+  duration_ms: 4.358699
+  type: 'test'
+  ...
+# Subtest: defaults to whole Kyiv / 30 leads when nothing is specified
+ok 47 - defaults to whole Kyiv / 30 leads when nothing is specified
+  ---
+  duration_ms: 1.918146
+  type: 'test'
+  ...
+# Subtest: recognises regional cities in declension and phone filter wording
+ok 48 - recognises regional cities in declension and phone filter wording
+  ---
+  duration_ms: 2.527002
+  type: 'test'
+  ...
+# Subtest: strict radius returns zero rather than distant businesses
+ok 49 - strict radius returns zero rather than distant businesses
+  ---
+  duration_ms: 3.559564
+  type: 'test'
+  ...
+# Subtest: medical center does not become Kyiv city center
+ok 50 - medical center does not become Kyiv city center
+  ---
+  duration_ms: 14.234301
+  type: 'test'
+  ...
+# Subtest: cities containing ки are not Kyiv
+ok 51 - cities containing ки are not Kyiv
+  ---
+  duration_ms: 171.304864
+  type: 'test'
+  ...
+# Subtest: city search without explicit radius covers the whole city
+ok 52 - city search without explicit radius covers the whole city
+  ---
+  duration_ms: 0.49757
+  type: 'test'
+  ...
+# Subtest: explicit address wins and unknown address is not silently centered on Kyiv
+ok 53 - explicit address wins and unknown address is not silently centered on Kyiv
+  ---
+  duration_ms: 0.42198
+  type: 'test'
+  ...
+# Subtest: Kyiv district coordinates are used for explicit Kyiv addresses
+ok 54 - Kyiv district coordinates are used for explicit Kyiv addresses
+  ---
+  duration_ms: 0.262978
+  type: 'test'
+  ...
+# Subtest: a street outside Kyiv cannot silently become a Kyiv district
+ok 55 - a street outside Kyiv cannot silently become a Kyiv district
+  ---
+  duration_ms: 0.257386
+  type: 'test'
+  ...
+# Subtest: prices do not become a lead limit
+ok 56 - prices do not become a lead limit
+  ---
+  duration_ms: 20.714489
+  type: 'test'
+  ...
+# Subtest: English repair and nail are not implicitly AI offers
+ok 57 - English repair and nail are not implicitly AI offers
+  ---
+  duration_ms: 19.983742
+  type: 'test'
+  ...
+# Subtest: service center is not classified as СТО from substring
+ok 58 - service center is not classified as СТО from substring
+  ---
+  duration_ms: 1.529124
+  type: 'test'
+  ...
+# Subtest: declined Ukrainian city names resolve
+ok 59 - declined Ukrainian city names resolve
+  ---
+  duration_ms: 0.571512
+  type: 'test'
+  ...
+# Subtest: request rejects arrays, null, strings and unbounded values
+ok 60 - request rejects arrays, null, strings and unbounded values
+  ---
+  duration_ms: 5.82936
+  type: 'test'
+  ...
+# Subtest: near-me requires both coordinates
+ok 61 - near-me requires both coordinates
+  ---
+  duration_ms: 0.576185
+  type: 'test'
+  ...
+# Subtest: SSRF blocks mapped, expanded, reserved and credentialed URLs
+ok 62 - SSRF blocks mapped, expanded, reserved and credentialed URLs
+  ---
+  duration_ms: 3.036981
+  type: 'test'
+  ...
+# Subtest: CSV neutralizes formula payloads and preserves do-not-contact
+ok 63 - CSV neutralizes formula payloads and preserves do-not-contact
+  ---
+  duration_ms: 1.093197
+  type: 'test'
+  ...
+# Subtest: separate business branches with same domain and phone survive deduplication
+ok 64 - separate business branches with same domain and phone survive deduplication
+  ---
+  duration_ms: 0.407493
+  type: 'test'
+  ...
+# Subtest: place IDs remain case-sensitive
+ok 65 - place IDs remain case-sensitive
+  ---
+  duration_ms: 0.260335
+  type: 'test'
+  ...
+# Subtest: backup roundtrip preserves notes, stages, follow-up and no-contact flag
+ok 66 - backup roundtrip preserves notes, stages, follow-up and no-contact flag
+  ---
+  duration_ms: 5.250536
+  type: 'test'
+  ...
+# Subtest: malformed backup and unsafe links are rejected before changing data
+ok 67 - malformed backup and unsafe links are rejected before changing data
+  ---
+  duration_ms: 4.181945
+  type: 'test'
+  ...
+# Subtest: do-not-contact takes precedence over suggested outreach
+ok 68 - do-not-contact takes precedence over suggested outreach
+  ---
+  duration_ms: 0.82237
+  type: 'test'
+  ...
+# Subtest: unknown business status is not presented as confirmed activity
+ok 69 - unknown business status is not presented as confirmed activity
+  ---
+  duration_ms: 0.573317
+  type: 'test'
+  ...
+# Subtest: outreach does not promise invented losses or payback
+ok 70 - outreach does not promise invented losses or payback
+  ---
+  duration_ms: 0.395849
+  type: 'test'
+  ...
+# Subtest: radius boundary uses the full distance precision
+ok 71 - radius boundary uses the full distance precision
+  ---
+  duration_ms: 0.459206
+  type: 'test'
+  ...
+# Subtest: labelFor uses the documented thresholds
+ok 72 - labelFor uses the documented thresholds
+  ---
+  duration_ms: 1.039697
+  type: 'test'
+  ...
+# Subtest: a no-website business flags missing_website with high severity
+ok 73 - a no-website business flags missing_website with high severity
+  ---
+  duration_ms: 1.354581
+  type: 'test'
+  ...
+# Subtest: scoring is deterministic for identical input
+ok 74 - scoring is deterministic for identical input
+  ---
+  duration_ms: 0.313022
+  type: 'test'
+  ...
+# Subtest: a missing website produces more pain than a healthy booking site
+ok 75 - a missing website produces more pain than a healthy booking site
+  ---
+  duration_ms: 0.411141
+  type: 'test'
+  ...
+# Subtest: opportunityReason is always present and non-empty
+ok 76 - opportunityReason is always present and non-empty
+  ---
+  duration_ms: 0.220233
+  type: 'test'
+  ...
+# Subtest: blocks http://localhost
+ok 77 - blocks http://localhost
+  ---
+  duration_ms: 1.544574
+  type: 'test'
+  ...
+# Subtest: blocks http://localhost:3000
+ok 78 - blocks http://localhost:3000
+  ---
+  duration_ms: 0.244297
+  type: 'test'
+  ...
+# Subtest: blocks http://127.0.0.1
+ok 79 - blocks http://127.0.0.1
+  ---
+  duration_ms: 1.099261
+  type: 'test'
+  ...
+# Subtest: blocks http://127.0.0.1:8080
+ok 80 - blocks http://127.0.0.1:8080
+  ---
+  duration_ms: 0.135739
+  type: 'test'
+  ...
+# Subtest: blocks http://0.0.0.0
+ok 81 - blocks http://0.0.0.0
+  ---
+  duration_ms: 0.32737
+  type: 'test'
+  ...
+# Subtest: blocks http://169.254.169.254
+ok 82 - blocks http://169.254.169.254
+  ---
+  duration_ms: 0.184119
+  type: 'test'
+  ...
+# Subtest: blocks http://169.254.169.254/latest/meta-data/
+ok 83 - blocks http://169.254.169.254/latest/meta-data/
+  ---
+  duration_ms: 0.200727
+  type: 'test'
+  ...
+# Subtest: blocks http://192.168.1.1
+ok 84 - blocks http://192.168.1.1
+  ---
+  duration_ms: 0.247643
+  type: 'test'
+  ...
+# Subtest: blocks http://10.0.0.5
+ok 85 - blocks http://10.0.0.5
+  ---
+  duration_ms: 0.355837
+  type: 'test'
+  ...
+# Subtest: blocks http://172.16.5.4
+ok 86 - blocks http://172.16.5.4
+  ---
+  duration_ms: 0.4582
+  type: 'test'
+  ...
+# Subtest: blocks https://metadata.google.internal
+ok 87 - blocks https://metadata.google.internal
+  ---
+  duration_ms: 0.130687
+  type: 'test'
+  ...
+# Subtest: blocks http://[::1]
+ok 88 - blocks http://[::1]
+  ---
+  duration_ms: 1.165057
+  type: 'test'
+  ...
+# Subtest: blocks non-http(s) schemes
+ok 89 - blocks non-http(s) schemes
+  ---
+  duration_ms: 0.137204
+  type: 'test'
+  ...
+# Subtest: allows https://example.com (syntax)
+ok 90 - allows https://example.com (syntax)
+  ---
+  duration_ms: 0.124843
+  type: 'test'
+  ...
+# Subtest: allows http://example.com/path (syntax)
+ok 91 - allows http://example.com/path (syntax)
+  ---
+  duration_ms: 0.085034
+  type: 'test'
+  ...
+# Subtest: allows example.com (syntax)
+ok 92 - allows example.com (syntax)
+  ---
+  duration_ms: 0.153427
+  type: 'test'
+  ...
+# Subtest: allows https://sub.business.example.com (syntax)
+ok 93 - allows https://sub.business.example.com (syntax)
+  ---
+  duration_ms: 0.098942
+  type: 'test'
+  ...
+# Subtest: classifies private IPv4 ranges
+ok 94 - classifies private IPv4 ranges
+  ---
+  duration_ms: 0.228079
+  type: 'test'
+  ...
+# Subtest: classifies IPv6 ranges
+ok 95 - classifies IPv6 ranges
+  ---
+  duration_ms: 0.362435
+  type: 'test'
+  ...
+# Subtest: classifies hostnames
+ok 96 - classifies hostnames
+  ---
+  duration_ms: 0.311119
+  type: 'test'
+  ...
+# Subtest: campaign storage: dedupe, merge, quota errors and corrupt-data preservation
+ok 97 - campaign storage: dedupe, merge, quota errors and corrupt-data preservation
+  ---
+  duration_ms: 11.475869
+  type: 'test'
+  ...
+1..97
+# tests 97
+# suites 0
+# pass 97
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2589.157541
