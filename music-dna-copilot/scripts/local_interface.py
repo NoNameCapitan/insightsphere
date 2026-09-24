@@ -83,6 +83,19 @@ except Exception:  # pragma: no cover
     import_youtube_takeout = import_multi_service = import_lastfm = merge_listening_sources = None
     export_portable_dna = source_common = enrich_genres = None
 
+# 3.0 product layer (JSON API + web app). The 2.x workspace stays at /classic.
+try:
+    from dna3 import api as dna3_api
+    from dna3.store import Store as Dna3Store
+except Exception:  # pragma: no cover
+    dna3_api = None
+    Dna3Store = None
+WEB = ROOT / "web"
+WEB_TYPES = {".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8",
+             ".js": "text/javascript; charset=utf-8", ".svg": "image/svg+xml",
+             ".json": "application/json; charset=utf-8", ".png": "image/png", ".ico": "image/x-icon",
+             ".webmanifest": "application/manifest+json"}
+
 # Internal modules (split out of this file; routes/UI unchanged).
 from mtr_app.i18n import *  # noqa: F401,F403
 from mtr_app.io_http import *  # noqa: F401,F403
@@ -242,7 +255,7 @@ Music DNA Copilot 2.2 · local-first · no accounts · see START_FOR_FRIEND.md
 </footer>{_support_footer()}</body></html>""".encode("utf-8")
 
 
-def lang_bar(lang, path="/"):
+def lang_bar(lang, path="/classic"):
     names = {"en": "EN", "ru": "RU", "uk": "UK"}
     links = "".join(
         f"<a href='{path}?lang={code}' class='{'active' if code == lang else ''}'>{names[code]}</a>"
@@ -602,6 +615,7 @@ def render_home(lang=DEFAULT_LANG, message="", message_class="ok"):
         f"<span class='small'>{t(lang, 'spotify_not_configured')}</span></span>"
     )
     body = f"""
+<p class="small"><a href="/">&larr; Music DNA 3.0</a> &middot; Classic workspace (2.x tools, kept for power users)</p>
 {lang_bar(lang)}
 <section class="hero">
   <span class="pill">{t(lang, 'tagline')}</span>
@@ -1389,7 +1403,7 @@ def render_data_page(lang=DEFAULT_LANG):
 <section class="card">
   <h1>{t(lang, 'data_title')}</h1>
   <p class="small">{t(lang, 'data_intro')}
-     <a href="/?lang={esc(lang)}">← {t(lang, 'btn_go')}</a></p>
+     <a href="/classic?lang={esc(lang)}">← {t(lang, 'btn_go')}</a></p>
 </section>
 <section class="card">
   <h2>{t(lang, 'data_files')}</h2>
@@ -1509,7 +1523,7 @@ def render_self_test_page(lang=DEFAULT_LANG):
 <section class="card">
   <h1>Self-Test — personal testing checklist</h1>
   <p class="small">Work top to bottom. Statuses update as you use the app.
-     <a href="/?lang={esc(lang)}">← Home</a> · <a href="/sources">Sources</a> ·
+     <a href="/classic?lang={esc(lang)}">← Home</a> · <a href="/sources">Sources</a> ·
      <a href="/queue">Queue</a> · <a href="/data">Local data</a></p>
   <p class="small">Full 3-day plan: see <strong>SELF_TEST_PLAN.md</strong> in the project folder.</p>
 </section>{sections}"""
@@ -1541,7 +1555,7 @@ def render_sources_page(lang=DEFAULT_LANG):
     body = f"""
 <section class="card">
   <h1>{t(lang, 'sources_title')}</h1>
-  <p class="small">{t(lang, 'sources_intro')} <a href="/?lang={esc(lang)}">← {t(lang, 'btn_go')}</a></p>
+  <p class="small">{t(lang, 'sources_intro')} <a href="/classic?lang={esc(lang)}">← {t(lang, 'btn_go')}</a></p>
 </section>
 <section class="card">
   <h2>{t(lang, 'sources_ready_now')}</h2>
@@ -1800,7 +1814,7 @@ def render_results(profile, recs, source_label, prompt, catalog_note, lang,
   <h2>{t(lang, 'prompt_title')}</h2>
   <p class="small">{t(lang, 'prompt_note')}</p>
   <textarea readonly id="promptBox">{esc(prompt[:6000])}</textarea>
-  <p><a href="/?lang={esc(lang)}">{t(lang, 'run_again')}</a></p>
+  <p><a href="/classic?lang={esc(lang)}">{t(lang, 'run_again')}</a></p>
 </section>
 <script>
 const LANG = {json.dumps(lang)};
@@ -1849,7 +1863,7 @@ def render_error(exc, lang=DEFAULT_LANG):
   <h2>{t(lang, 'err_title')}</h2>
   <p>{esc(exc)}</p>
   <p class="small">{t(lang, 'err_hint')}</p>
-  <p><a href="/?lang={esc(lang)}">{t(lang, 'back')}</a></p>
+  <p><a href="/classic?lang={esc(lang)}">{t(lang, 'back')}</a></p>
 </section>
 """
     return page(t(lang, "err_title"), body, lang)
@@ -1971,9 +1985,72 @@ class Handler(BaseHTTPRequestHandler):
             lines = [f"{r.get('artist', '?')} — {r.get('track_title', '?')}" for r in recs]
             self._send_text("\n".join(lines) or "(empty)", "text/plain; charset=utf-8", "shortlist.txt")
 
+    # -- 3.0 web app + API ----------------------------------------------------
+
+    def serve_web(self, rel):
+        """Static files for the 3.0 app. Only files inside web/ are served."""
+        target = (WEB / rel).resolve()
+        if WEB.resolve() not in target.parents and target != WEB.resolve() or not target.is_file():
+            return self.respond(b"Not found", status=404, content_type="text/plain; charset=utf-8")
+        data = target.read_bytes()
+        self.send_response(200)
+        self.send_header("Content-Type", WEB_TYPES.get(target.suffix, "application/octet-stream"))
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "no-cache")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        if target.suffix == ".html":
+            self.send_header("Content-Security-Policy",
+                             "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; "
+                             "connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+            self.send_header("Referrer-Policy", "no-referrer")
+        self.end_headers()
+        self.wfile.write(data)
+
+    def handle_v3(self, method):
+        if dna3_api is None:
+            return self.respond_json({"ok": False, "error": {"code": "INTERNAL", "title": "Unavailable",
+                                                             "message": "The 3.0 app module could not be loaded."}}, status=500)
+        store = Dna3Store(OUTPUTS)
+        body, form = b"", None
+        if method == "POST":
+            try:
+                if self.headers.get("Content-Type", "").startswith("multipart/form-data"):
+                    if self.headers.get(dna3_api.CLIENT_HEADER) != "3":
+                        return self.respond_json({"ok": False, "error": {"code": "FORBIDDEN", "title": "Blocked",
+                                                  "message": "Requests must come from the Music DNA app."}}, status=403)
+                    form = parse_post_fields(self)
+                else:
+                    body = _read_limited_body(self, MAX_JSON_BODY_BYTES)
+            except RequestTooLargeError as exc:
+                return self.respond_json({"ok": False, "error": {"code": "PAYLOAD_TOO_LARGE", "title": "File too large",
+                                          "message": "That file is larger than this app accepts.", "detail": str(exc)}}, status=413)
+        resp = dna3_api.dispatch(store, method, self.path, self.headers, body, form)
+        self.send_response(resp.status)
+        self.send_header("Content-Type", resp.content_type)
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        for k, v in resp.headers.items():
+            self.send_header(k, v)
+        if resp.stream is not None:
+            self.send_header("Connection", "close")
+            self.end_headers()
+            for chunk in resp.stream:
+                self.wfile.write(chunk)
+                self.wfile.flush()
+            return
+        self.send_header("Content-Length", str(len(resp.body or b"")))
+        self.end_headers()
+        self.wfile.write(resp.body or b"")
+
     def do_GET(self):
         parsed = urlsplit(self.path)
         qs = parse_qs(parsed.query)
+        if parsed.path.startswith("/api/v3/"):
+            return self.handle_v3("GET")
+        if parsed.path in ("/", "/index.html"):
+            return self.serve_web("index.html")
+        if parsed.path.startswith("/assets/"):
+            return self.serve_web(parsed.path.lstrip("/"))
         lang = self.lang(qs)
         if parsed.path == "/spotify/login":
             return self.spotify_login(qs, lang)
@@ -2018,6 +2095,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.export_shortlist("csv")
         if parsed.path == "/export/shortlist.txt":
             return self.export_shortlist("txt")
+        if parsed.path not in ("/classic", "/classic/"):
+            return self.respond(render_error("Page not found.", lang), status=404, lang=lang)
         message = ""
         if qs.get("spotify") == ["connected"]:
             message = t(lang, "spotify_msg_connected")
@@ -2041,7 +2120,7 @@ class Handler(BaseHTTPRequestHandler):
         remember = qs.get("remember", ["0"])[0] == "1"
         verifier, challenge = spotify_connector.generate_pkce_pair()
         state = secrets.token_urlsafe(24)
-        SPOTIFY.pending[state] = (verifier, remember, lang)
+        SPOTIFY.pending[state] = (verifier, remember, lang, qs.get("next", [""])[0] == "v3")
         self.redirect(spotify_connector.build_authorize_url(client_id, redirect_uri, challenge, state))
 
     def spotify_callback(self, qs):
@@ -2049,11 +2128,12 @@ class Handler(BaseHTTPRequestHandler):
         pending = SPOTIFY.pending.pop(state, None)
         if pending is None:
             SPOTIFY.last_error = "OAuth state mismatch. Try connecting again."
-            return self.redirect("/")
-        verifier, remember, lang = pending
+            return self.redirect("/#/sources?spotify=failed")
+        verifier, remember, lang, v3 = (tuple(pending) + (False,))[:4]
+        home = "/" if v3 else "/classic"
         if "error" in qs:
             SPOTIFY.last_error = f"Spotify authorization failed: {qs['error'][0]}"
-            return self.redirect(f"/?lang={lang}")
+            return self.redirect("/#/sources?spotify=failed" if v3 else f"/classic?lang={lang}")
         try:
             client_id, redirect_uri = spotify_connector.load_config()
             session = spotify_connector.SpotifySession(client_id, redirect_uri, remember=remember)
@@ -2062,22 +2142,24 @@ class Handler(BaseHTTPRequestHandler):
             session.save()
             SPOTIFY.session = session
             SPOTIFY.last_error = ""
-            return self.redirect(f"/?lang={lang}&spotify=connected")
+            return self.redirect("/#/sources?spotify=connected" if v3 else f"/classic?lang={lang}&spotify=connected")
         except Exception as exc:
             SPOTIFY.last_error = str(exc)
-            return self.redirect(f"/?lang={lang}")
+            return self.redirect("/#/sources?spotify=failed" if v3 else f"{home}?lang={lang}")
 
     def spotify_disconnect(self, lang):
         SPOTIFY.session = None
         SPOTIFY.last_error = ""
         if spotify_connector is not None:
             spotify_connector.SpotifySession.delete_saved()
-        self.redirect(f"/?lang={lang}&spotify=disconnected")
+        self.redirect(f"/classic?lang={lang}&spotify=disconnected")
 
     # -- POST ----------------------------------------------------------------
 
     def do_POST(self):
         parsed = urlsplit(self.path)
+        if parsed.path.startswith("/api/v3/"):
+            return self.handle_v3("POST")
         if parsed.path == "/feedback":
             return self.handle_feedback()
         if parsed.path == "/enhance":

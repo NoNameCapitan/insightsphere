@@ -420,9 +420,9 @@ def main():
         for lang, marker in (("en", "Music DNA Copilot"),
                              ("ru", "Источник музыки"),
                              ("uk", "Джерело музики")):
-            html = _open(f"{base}/?lang={lang}").read().decode()
+            html = _open(f"{base}/classic?lang={lang}").read().decode()
             check(f"home page renders [{lang}]", marker in html and "privacy" in html.lower() or marker in html)
-        home_en = _open(f"{base}/?lang=en").read().decode()
+        home_en = _open(f"{base}/classic?lang=en").read().decode()
         check("home renders Last.fm source card", 'value="lastfm"' in home_en and "Last.fm" in home_en)
         check("Last.fm missing-key message shown cleanly", "Add LASTFM_API_KEY" in home_en)
         check("Last.fm username field present", 'name="lastfm_username"' in home_en)
@@ -450,7 +450,7 @@ def main():
                                      headers={"Content-Type": "application/json"})
         pres = json.loads(_open(req).read().decode())
         check("custom preset saved via UI route", pres.get("ok") and pres.get("id", "").startswith("custom:"))
-        new_home = _open(f"{base}/?lang=en").read().decode()
+        new_home = _open(f"{base}/classic?lang=en").read().decode()
         check("saved custom preset appears on home", "Smoke Preset" in new_home)
         try:
             req = urllib.request.Request(f"{base}/preset/delete",
@@ -682,7 +682,7 @@ def main():
         check("portable DNA JSON downloadable", isinstance(pdna, dict) and len(pdna) >= 3, list(pdna)[:5])
         card = _open(f"{base}/export/dna-card?lang=en").read().decode()
         check("DNA Card renders as self-contained HTML", card.lstrip().lower().startswith("<!doctype html"))
-        home_after = _open(f"{base}/?lang=en").read().decode()
+        home_after = _open(f"{base}/classic?lang=en").read().decode()
         check("merged source becomes available after an import", 'value="merged"' in home_after)
         print("   - posting merged /recommend ...", flush=True)
         req = urllib.request.Request(f"{base}/recommend",
@@ -704,7 +704,7 @@ def main():
         # monetization footer appears only when SUPPORT_URL is set
         os.environ["SUPPORT_URL"] = "https://example.test/support"
         try:
-            shtml = _open(f"{base}/?lang=en").read().decode()
+            shtml = _open(f"{base}/classic?lang=en").read().decode()
             check("Support link appears when SUPPORT_URL set", "Support this project" in shtml)
         finally:
             del os.environ["SUPPORT_URL"]

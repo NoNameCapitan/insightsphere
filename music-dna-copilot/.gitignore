@@ -70,3 +70,4 @@ local_config.json
 !data/artist_genre_seed.json
 !vercel.json
 !outputs/.gitkeep
+!data/starter_catalog_3_0.json
