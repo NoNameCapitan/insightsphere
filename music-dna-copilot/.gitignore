@@ -59,9 +59,14 @@ data/*
 .Trashes
 ehthumbs.db
 Thumbs.db
-outputs/
+outputs/*
 *.pyc
 
 # UI-set provider credentials (local only)
 outputs/local_config.json
 local_config.json
+
+# Shipped project files that the broad patterns above would otherwise hide
+!data/artist_genre_seed.json
+!vercel.json
+!outputs/.gitkeep

@@ -1,0 +1,292 @@
+{
+ "version": "1",
+ "description": "Small hand-curated artist -> genre seed used ONLY to fill genres for tracks that arrive without tags (offline). Genres filled from here are always marked genres_inferred=true. Extend freely; wrong entries only affect inferred genres.",
+ "artists": {
+  "Boards of Canada": [
+   "idm",
+   "ambient",
+   "electronic"
+  ],
+  "The xx": [
+   "indie pop",
+   "dream pop",
+   "electronic"
+  ],
+  "Mr.Kitty": [
+   "darkwave",
+   "synthpop",
+   "electronic"
+  ],
+  "Radiohead": [
+   "alternative rock",
+   "art rock",
+   "electronic"
+  ],
+  "Massive Attack": [
+   "trip hop",
+   "electronic"
+  ],
+  "Portishead": [
+   "trip hop",
+   "electronic"
+  ],
+  "Aphex Twin": [
+   "idm",
+   "electronic",
+   "ambient"
+  ],
+  "Burial": [
+   "dubstep",
+   "ambient",
+   "electronic"
+  ],
+  "Brian Eno": [
+   "ambient",
+   "electronic"
+  ],
+  "Nils Frahm": [
+   "modern classical",
+   "ambient"
+  ],
+  "Ólafur Arnalds": [
+   "modern classical",
+   "ambient"
+  ],
+  "Max Richter": [
+   "modern classical",
+   "ambient"
+  ],
+  "Daft Punk": [
+   "french house",
+   "electronic"
+  ],
+  "Justice": [
+   "french house",
+   "electronic"
+  ],
+  "The Weeknd": [
+   "r&b",
+   "synthpop",
+   "pop"
+  ],
+  "Carpenter Brut": [
+   "synthwave",
+   "darkwave",
+   "electronic"
+  ],
+  "Perturbator": [
+   "synthwave",
+   "darkwave",
+   "electronic"
+  ],
+  "Gunship": [
+   "synthwave",
+   "electronic"
+  ],
+  "The Midnight": [
+   "synthwave",
+   "electronic"
+  ],
+  "Depeche Mode": [
+   "synthpop",
+   "new wave",
+   "electronic"
+  ],
+  "Joy Division": [
+   "post-punk",
+   "new wave"
+  ],
+  "Molchat Doma": [
+   "post-punk",
+   "darkwave",
+   "coldwave"
+  ],
+  "Lebanon Hanover": [
+   "darkwave",
+   "post-punk",
+   "coldwave"
+  ],
+  "Boy Harsher": [
+   "darkwave",
+   "synthpop",
+   "electronic"
+  ],
+  "Nine Inch Nails": [
+   "industrial rock",
+   "industrial",
+   "electronic"
+  ],
+  "Rammstein": [
+   "industrial metal",
+   "neue deutsche härte"
+  ],
+  "Metallica": [
+   "thrash metal",
+   "heavy metal"
+  ],
+  "Tool": [
+   "progressive metal",
+   "alternative metal"
+  ],
+  "Deftones": [
+   "alternative metal",
+   "shoegaze"
+  ],
+  "Sleep": [
+   "stoner metal",
+   "doom metal"
+  ],
+  "Electric Wizard": [
+   "doom metal",
+   "stoner metal"
+  ],
+  "Neurosis": [
+   "post-metal",
+   "sludge metal"
+  ],
+  "Isis": [
+   "post-metal",
+   "sludge metal"
+  ],
+  "Cult of Luna": [
+   "post-metal",
+   "sludge metal"
+  ],
+  "Deafheaven": [
+   "blackgaze",
+   "post-metal",
+   "black metal"
+  ],
+  "Alcest": [
+   "blackgaze",
+   "post-metal",
+   "shoegaze"
+  ],
+  "Burzum": [
+   "black metal",
+   "dark ambient",
+   "dungeon synth"
+  ],
+  "Mortiis": [
+   "dungeon synth",
+   "dark ambient"
+  ],
+  "Wardruna": [
+   "nordic folk",
+   "dark folk",
+   "ambient"
+  ],
+  "Heilung": [
+   "dark folk",
+   "ritual ambient"
+  ],
+  "Swans": [
+   "experimental rock",
+   "post-rock",
+   "no wave"
+  ],
+  "Godspeed You! Black Emperor": [
+   "post-rock",
+   "experimental"
+  ],
+  "Explosions in the Sky": [
+   "post-rock",
+   "instrumental rock"
+  ],
+  "Mogwai": [
+   "post-rock",
+   "instrumental rock"
+  ],
+  "Slowdive": [
+   "shoegaze",
+   "dream pop"
+  ],
+  "My Bloody Valentine": [
+   "shoegaze",
+   "noise pop"
+  ],
+  "Beach House": [
+   "dream pop",
+   "indie pop"
+  ],
+  "Cocteau Twins": [
+   "dream pop",
+   "ethereal wave"
+  ],
+  "Kraftwerk": [
+   "electronic",
+   "synthpop",
+   "krautrock"
+  ],
+  "Tame Impala": [
+   "psychedelic rock",
+   "indie pop"
+  ],
+  "Arctic Monkeys": [
+   "indie rock",
+   "alternative rock"
+  ],
+  "Billie Eilish": [
+   "pop",
+   "electropop",
+   "alternative pop"
+  ],
+  "Lana Del Rey": [
+   "dream pop",
+   "baroque pop",
+   "alternative pop"
+  ],
+  "Kendrick Lamar": [
+   "hip hop",
+   "conscious hip hop"
+  ],
+  "Bonobo": [
+   "downtempo",
+   "electronic",
+   "trip hop"
+  ],
+  "Tycho": [
+   "chillwave",
+   "electronic",
+   "ambient"
+  ],
+  "ONUKA": [
+   "electronic",
+   "folktronica",
+   "ukrainian pop"
+  ],
+  "Go_A": [
+   "folktronica",
+   "electronic",
+   "ukrainian folk"
+  ],
+  "DakhaBrakha": [
+   "ukrainian folk",
+   "world",
+   "experimental"
+  ],
+  "Океан Ельзи": [
+   "ukrainian rock",
+   "alternative rock"
+  ],
+  "Kalush": [
+   "ukrainian hip hop",
+   "folk rap"
+  ],
+  "Jinjer": [
+   "progressive metal",
+   "metalcore",
+   "groove metal"
+  ],
+  "Drudkh": [
+   "atmospheric black metal",
+   "black metal",
+   "folk metal"
+  ],
+  "Kauan": [
+   "post-rock",
+   "doom metal",
+   "atmospheric"
+  ]
+ }
+}
