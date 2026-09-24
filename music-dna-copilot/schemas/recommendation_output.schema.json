@@ -1,0 +1,215 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Recommendation Output",
+  "description": "The structured output of the music recommendation engine.",
+  "type": "object",
+  "required": [
+    "generated_at",
+    "parameters",
+    "recommendations"
+  ],
+  "properties": {
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "parameters": {
+      "type": "object",
+      "required": [
+        "mood_score",
+        "task",
+        "novelty_level",
+        "novelty_distance"
+      ],
+      "properties": {
+        "mood_score": {
+          "type": "number",
+          "minimum": -2,
+          "maximum": 2
+        },
+        "mood_label": {
+          "type": "string"
+        },
+        "task": {
+          "type": "string"
+        },
+        "novelty_level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "novelty_label": {
+          "type": "string"
+        },
+        "novelty_distance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "candidate_catalog": {
+          "type": "string"
+        }
+      }
+    },
+    "music_dna_summary": {
+      "type": "string"
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "track_title",
+          "artist",
+          "group",
+          "confidence_score",
+          "why_like",
+          "why_not_like",
+          "mood_match",
+          "task_match",
+          "novelty_level",
+          "explanation"
+        ],
+        "properties": {
+          "track_title": {
+            "type": "string"
+          },
+          "artist": {
+            "type": "string"
+          },
+          "genres": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "group": {
+            "type": "string",
+            "enum": [
+              "safe_match",
+              "adjacent_discovery",
+              "wildcard"
+            ]
+          },
+          "confidence_score": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "why_like": {
+            "type": "string"
+          },
+          "why_not_like": {
+            "type": "string"
+          },
+          "mood_match": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "task_match": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "novelty_level": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "How novel this track is relative to the user's known taste."
+          },
+          "experimental_distance": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "How wide the recommendation search range was allowed to be by the user's slider."
+          },
+          "explanation": {
+            "type": "string"
+          },
+          "search_links": {
+            "type": "object",
+            "properties": {
+              "spotify_search": {
+                "type": "string"
+              },
+              "youtube_search": {
+                "type": "string"
+              },
+              "youtube_music_search": {
+                "type": "string"
+              }
+            }
+          },
+          "scoring_breakdown": {
+            "type": "object",
+            "properties": {
+              "genre_affinity_score": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "artist_recurrence_score": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "mood_match_score": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "task_match_score": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "novelty_distance_score": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "recency_score": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "long_term_consistency_score": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "track_familiarity": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "track_novelty": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "feedback_options": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "like",
+          "save",
+          "replay",
+          "completed",
+          "skip",
+          "not_for_me",
+          "too_similar",
+          "too_strange",
+          "more_like_this"
+        ]
+      }
+    }
+  }
+}
