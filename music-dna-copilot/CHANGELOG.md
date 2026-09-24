@@ -1,5 +1,31 @@
 # Changelog
 
+## 3.0.0 — Product UX, unified music intelligence, beta-ready
+
+Full notes: `RELEASE_NOTES_3_0.md`. Baseline audit: `BASELINE_2_8.md`.
+
+### Added
+- New consumer web app at `/` (Home, DNA, Capsules, History, Sources, Settings) with guided
+  onboarding, DNA map, capsule player, Mystery reveal, change feed, Privacy & Data and an
+  Advanced area (Quality Lab, beta dashboard, identity graph, diagnostics).
+- `scripts/dna3/` product layer + `/api/v3` JSON API (CSRF/Host guards, confirmations).
+- Capsule reranking stage (session taste, tier identity, recency/rejection avoidance, A/B MMR challenger).
+- Spotify Extended Streaming History import; per-service imports; duplicate-file detection.
+- Learning safety: exploratory-tier negative dampening and per-capsule contribution caps.
+- 3.0 offline starter catalog (real recordings, audio features marked as estimates).
+- `test_v3_product.py` (97 checks); smoke now also runs resolver, beta, provider-adapter and identity-v2 suites.
+
+### Fixed
+- Capsules reported provider *search* pages as exact `provider_id` resolutions.
+- Provider identity (ISRC / ids) was lost between ranking and routing.
+- Identity merge was O(n²) (1.5k rows ≈ 113 s); now blocked, 30k rows ≈ 0.6 s, still conservative.
+- Multi-service imports overwrote one another.
+- `.gitignore` hid shipped files.
+
+### Changed
+- The 2.x workspace moved from `/` to `/classic` (unchanged otherwise).
+
+
 ## 2.4.0 — Adaptive Music DNA Brain
 
 ### Added

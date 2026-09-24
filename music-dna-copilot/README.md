@@ -1,4 +1,9 @@
-# Music DNA Copilot 2.0 🧬🎧
+# Music DNA Copilot 3.0 🧬🎧
+
+> **3.0:** a new consumer app at `http://127.0.0.1:8765/` (guided onboarding, DNA map,
+> capsules, history, sources, privacy centre). The 2.x workspace below lives on at
+> `/classic`. See **RELEASE_NOTES_3_0.md** and **BASELINE_2_8.md**.
+
 
 **Merge your listening history from Spotify, YouTube Music (Google Takeout), Last.fm and plain files into one private Music DNA profile — then get explainable, genre-aware recommendations tuned by mood, task and experimentality. 100% local, Python stdlib only.**
 

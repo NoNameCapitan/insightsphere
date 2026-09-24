@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0b0c0f">
+  <meta name="description" content="Music DNA Copilot combines your listening history from every service into one evolving, private taste profile.">
+  <title>Music DNA</title>
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/app.css">
+  <script type="module" src="/assets/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="shell">
+    <aside class="sidebar" aria-label="Primary">
+      <a class="brand" href="#/" aria-label="Music DNA home">
+        <img class="brand-mark" src="/assets/icon.svg" alt="">
+        <span class="brand-name">Music DNA<small>Copilot 3.0</small></span>
+      </a>
+      <nav class="nav" id="nav" aria-label="Main navigation"></nav>
+      <div class="sidebar-foot"><span class="dot" aria-hidden="true"></span>Local-first · nothing leaves this computer</div>
+    </aside>
+    <header class="topbar">
+      <a class="brand" href="#/" aria-label="Music DNA home">
+        <img class="brand-mark" src="/assets/icon.svg" alt="">
+        <span class="brand-name">Music DNA</span>
+      </a>
+      <a class="btn btn-ghost btn-sm" href="#/settings" aria-label="Settings" id="topbar-settings"></a>
+    </header>
+    <main id="main" tabindex="-1">
+      <div class="page"><div class="skeleton" aria-hidden="true"></div><p class="sr-only" role="status">Loading…</p></div>
+    </main>
+  </div>
+  <nav class="bottom-nav" id="bottom-nav" aria-label="Main navigation"></nav>
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+  <dialog id="confirm" aria-labelledby="confirm-title">
+    <form method="dialog">
+      <h2 id="confirm-title"></h2>
+      <p id="confirm-text"></p>
+      <div class="row">
+        <button class="btn btn-ghost" value="cancel">Cancel</button>
+        <button class="btn btn-danger" value="ok" id="confirm-ok">Confirm</button>
+      </div>
+    </form>
+  </dialog>
+  <noscript><p class="muted">Music DNA needs JavaScript. The classic workspace works without it: <a href="/classic">open classic</a>.</p></noscript>
+</body>
+</html>

@@ -25,7 +25,7 @@ ZIP_PATH = DIST / f"{RELEASE_NAME}.zip"
 # Top-level entries that may be included (whitelist — anything not listed here
 # is ignored entirely, so stray files never leak into a release).
 INCLUDE_TOP = [
-    "scripts", "examples", "schemas", "data", "ux", "docs", "api",
+    "scripts", "examples", "schemas", "data", "ux", "docs", "api", "web",
     "index.html", "app.py", "vercel.json", "pyproject.toml", "VERCEL_DEPLOY.md",
     ".env.example", "requirements.txt", ".gitignore",
     "start_linux.sh", "start_mac.command", "start_windows.bat",
@@ -34,7 +34,7 @@ INCLUDE_TOP = [
     "README.md", "README_FOR_NORMAL_USER.md", "START_HERE.md", "START_FOR_FRIEND.md", "SELF_TEST_PLAN.md",
     "DAILY_USE.md", "RC_CHECKLIST.md", "CONNECTORS.md", "KNOWN_LIMITATIONS.md",
     "LASTFM_SETUP.md", "SPOTIFY_SETUP.md", "LOCAL_APP.md", "MONETIZATION.md",
-    "roadmap.md", "CHANGELOG.md", "MERGE_NOTES.md", "VERSION", "DEMO.md", "AI_SKILL_USAGE.md", "SKILL.md",
+    "roadmap.md", "CHANGELOG.md", "RELEASE_NOTES_3_0.md", "BASELINE_2_8.md", "MERGE_NOTES.md", "VERSION", "DEMO.md", "AI_SKILL_USAGE.md", "SKILL.md",
 ]
 
 # Directory names that are excluded wherever they appear.

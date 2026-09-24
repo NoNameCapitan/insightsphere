@@ -35,6 +35,7 @@ REQUIRED_SCRIPTS = [
     "merge_listening_sources.py",
     "enrich_genres.py",
     "mtr_app/i18n.py",
+    "dna3/api.py",
 ]
 LINE = "=" * 60
 

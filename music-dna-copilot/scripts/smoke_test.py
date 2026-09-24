@@ -384,6 +384,17 @@ def main():
     rc = run_test_module("test_recommendation_quality")
     check("test_recommendation_quality.py passes", rc == 0)
 
+    print("20f. 2.3-2.8 foundations (resolver, beta, provider adapter, identity v2)")
+    for mod in ("test_track_resolver", "test_beta_instrumentation", "test_provider_adapter", "test_identity_graph_v2"):
+        r = run([sys.executable, str(SCRIPTS / f"{mod}.py")], timeout=60)
+        last = (r.stdout or "").strip().splitlines()
+        check(f"{mod}.py passes", r.returncode == 0, last[-1] if last else "")
+
+    print("20g. Music DNA Copilot 3.0 product layer + /api/v3")
+    r = run([sys.executable, str(SCRIPTS / "test_v3_product.py")], timeout=300)
+    last = (r.stdout or "").strip().splitlines()
+    check("test_v3_product.py passes", r.returncode == 0, last[-1] if last else "")
+
     print("21. Local UI (after isolated subprocess suites)")
     import local_interface as li
     print("21a. Regression: feedback schema compatibility (uses local_interface)")

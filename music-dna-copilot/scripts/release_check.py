@@ -70,6 +70,9 @@ def main():
     check("Vercel root app.py entrypoint is included", present("app.py"))
     check("Vercel API compatibility handler is included", present("api/index.py"))
     check("pyproject.toml Vercel entrypoint is included", present("pyproject.toml"))
+    check("3.0 web app is included", present("web/index.html") and present("web/assets/app.js") and present("web/assets/dna-viz.js"))
+    check("3.0 product layer is included", present("scripts/dna3/api.py") and present("scripts/dna3/capsules.py"))
+    check("3.0 starter catalog is included", present("data/starter_catalog_3_0.json"))
 
     # --- app status check runs ---
     try:

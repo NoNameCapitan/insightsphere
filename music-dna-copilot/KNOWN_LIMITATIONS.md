@@ -98,3 +98,24 @@ own consent screen with read-only scopes, and disconnecting deletes any stored t
 - Merging dedups by normalized "title + artist"; different recordings with identical names will merge.
 - Very large Takeout files (>64 MB) must be trimmed or raise `MTR_MAX_UPLOAD_BYTES`; whole-archive `.zip`
   import is planned (roadmap 2.4).
+
+
+## 3.0
+
+- **Playback is not observable.** Music opens in other apps, so "Listened", "Replay" and
+  "Skip" are self-reported. The app records link opens, never inferred completion.
+- **Candidate catalog is small offline.** Without Spotify search candidates, capsules draw
+  from two built-in starter catalogs (~160 tracks). Their audio features are editorial
+  estimates, and capsules can repeat across many sessions. Connect Spotify for a live catalog.
+- **Exact routing needs identity.** Tracks without a Spotify id / ISRC open as a *search*
+  (clearly labelled). There is no Apple Music/Deezer/TIDAL catalog lookup yet.
+- **Apple Music live access is not implemented** (needs Apple developer credentials and a
+  Music User Token). Import the Apple privacy export instead.
+- **Non-Spotify/Last.fm/YouTube imports use a generic column importer**; official export
+  formats vary and may need column renaming.
+- Re-importing a service replaces its previous import (exports are usually cumulative).
+  Live Spotify "recent" plays and an Extended History export can overlap by a few plays.
+- The 3.0 app UI is English-only; the classic workspace keeps EN/RU/UK.
+- Fuzzy identity matching only compares tracks that share a title prefix and artist
+  initial, so rare true duplicates may stay separate (by design: false negatives over
+  false positives).

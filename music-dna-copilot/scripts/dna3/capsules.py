@@ -581,7 +581,7 @@ def finish(store: Store, cid, abandon_if_untouched=False):
     cap = load(store, cid)
     if cap["state"] in ("completed", "abandoned"):
         return view(store, cap)
-    if cap["state"] == "opened" or (abandon_if_untouched and not cap.get("events")):
+    if cap["state"] == "opened" or not cap.get("events"):
         cap = transition(cap, "abandoned")
         beta(store, "capsule_abandoned", capsule_id=cid, capsule_rarity=cap["rarity"],
              context=(cap.get("context") or {}).get("intent"))
