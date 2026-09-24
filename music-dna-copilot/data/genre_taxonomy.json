@@ -1,0 +1,1548 @@
+{
+  "version": "1.0",
+  "description": "Deep genre taxonomy for the Music DNA Copilot (families -> subgenres/microgenres, aliases, mood/energy/valence, contexts, related and distant genres).",
+  "families": {
+    "rock": {
+      "parent": null,
+      "subgenres": [
+        "post-punk",
+        "gothic rock",
+        "shoegaze",
+        "dream pop",
+        "indie rock",
+        "alternative rock",
+        "psychedelic rock",
+        "krautrock",
+        "garage rock",
+        "noise rock",
+        "post-rock",
+        "classic rock",
+        "hard rock",
+        "progressive rock",
+        "art rock"
+      ],
+      "microgenres": [
+        "math rock",
+        "slowcore",
+        "jangle pop",
+        "space rock",
+        "stoner rock"
+      ],
+      "aliases": [
+        "rock music",
+        "rock & roll",
+        "rock and roll"
+      ],
+      "mood_tags": [
+        "energetic",
+        "raw",
+        "driving",
+        "melodic"
+      ],
+      "energy_range": [
+        0.45,
+        0.9
+      ],
+      "valence_range": [
+        0.35,
+        0.75
+      ],
+      "typical_contexts": [
+        "night_drive",
+        "workout",
+        "urban_walk",
+        "party"
+      ],
+      "related_genres": [
+        "alternative",
+        "indie",
+        "metal",
+        "punk",
+        "pop"
+      ],
+      "incompatible_or_distant_genres": [
+        "classical",
+        "reggaeton",
+        "k-pop",
+        "ambient"
+      ]
+    },
+    "metal": {
+      "parent": null,
+      "subgenres": [
+        "black metal",
+        "death metal",
+        "doom metal",
+        "sludge metal",
+        "stoner metal",
+        "thrash metal",
+        "heavy metal",
+        "atmospheric black metal",
+        "post-metal",
+        "symphonic metal",
+        "industrial metal",
+        "metalcore",
+        "deathcore",
+        "gothic metal",
+        "power metal",
+        "progressive metal",
+        "folk metal",
+        "groove metal",
+        "nu metal"
+      ],
+      "microgenres": [
+        "blackgaze",
+        "depressive black metal",
+        "funeral doom",
+        "melodic death metal",
+        "technical death metal",
+        "djent",
+        "atmospheric sludge"
+      ],
+      "aliases": [
+        "metal music",
+        "heavy metal music"
+      ],
+      "mood_tags": [
+        "dark",
+        "aggressive",
+        "intense",
+        "epic",
+        "heavy"
+      ],
+      "energy_range": [
+        0.6,
+        1.0
+      ],
+      "valence_range": [
+        0.1,
+        0.45
+      ],
+      "typical_contexts": [
+        "workout",
+        "aggressive_energy",
+        "gaming",
+        "black_metal_mood",
+        "horror"
+      ],
+      "related_genres": [
+        "rock",
+        "industrial",
+        "gothic",
+        "punk",
+        "experimental"
+      ],
+      "incompatible_or_distant_genres": [
+        "pop",
+        "k-pop",
+        "reggaeton",
+        "jazz",
+        "r&b",
+        "ambient"
+      ]
+    },
+    "punk": {
+      "parent": null,
+      "subgenres": [
+        "hardcore punk",
+        "post-punk",
+        "pop punk",
+        "skate punk",
+        "crust punk",
+        "anarcho-punk",
+        "garage punk",
+        "emo",
+        "screamo",
+        "ska punk"
+      ],
+      "microgenres": [
+        "d-beat",
+        "powerviolence",
+        "egg punk",
+        "melodic hardcore"
+      ],
+      "aliases": [
+        "punk rock"
+      ],
+      "mood_tags": [
+        "raw",
+        "rebellious",
+        "fast",
+        "energetic"
+      ],
+      "energy_range": [
+        0.6,
+        1.0
+      ],
+      "valence_range": [
+        0.3,
+        0.7
+      ],
+      "typical_contexts": [
+        "aggressive_energy",
+        "workout",
+        "party"
+      ],
+      "related_genres": [
+        "rock",
+        "metal",
+        "alternative",
+        "indie"
+      ],
+      "incompatible_or_distant_genres": [
+        "classical",
+        "ambient",
+        "soundtrack",
+        "k-pop"
+      ]
+    },
+    "electronic": {
+      "parent": null,
+      "subgenres": [
+        "techno",
+        "house",
+        "deep house",
+        "acid house",
+        "trance",
+        "ambient techno",
+        "drum and bass",
+        "jungle",
+        "breakbeat",
+        "IDM",
+        "synthwave",
+        "darkwave",
+        "EBM",
+        "industrial",
+        "vaporwave",
+        "chillwave",
+        "future garage",
+        "electro",
+        "minimal techno",
+        "progressive house",
+        "dubstep",
+        "downtempo",
+        "trip hop"
+      ],
+      "microgenres": [
+        "lo-fi house",
+        "melodic techno",
+        "liquid dnb",
+        "neurofunk",
+        "hardgroove",
+        "ambient dub",
+        "future bass",
+        "glitch"
+      ],
+      "aliases": [
+        "electronica",
+        "edm",
+        "electronic dance music",
+        "electronic music"
+      ],
+      "mood_tags": [
+        "hypnotic",
+        "energetic",
+        "futuristic",
+        "driving",
+        "atmospheric"
+      ],
+      "energy_range": [
+        0.4,
+        0.95
+      ],
+      "valence_range": [
+        0.3,
+        0.75
+      ],
+      "typical_contexts": [
+        "focus",
+        "night_drive",
+        "party",
+        "workout",
+        "cyberpunk",
+        "writing",
+        "gaming"
+      ],
+      "related_genres": [
+        "synthwave",
+        "industrial",
+        "ambient",
+        "pop",
+        "experimental",
+        "phonk"
+      ],
+      "incompatible_or_distant_genres": [
+        "country",
+        "folk",
+        "classical",
+        "metal"
+      ]
+    },
+    "hip-hop": {
+      "parent": null,
+      "subgenres": [
+        "boom bap",
+        "trap",
+        "conscious rap",
+        "drill",
+        "cloud rap",
+        "jazz rap",
+        "old school hip hop",
+        "experimental hip hop",
+        "g-funk",
+        "grime",
+        "lo-fi hip hop",
+        "phonk"
+      ],
+      "microgenres": [
+        "memphis rap",
+        "plugg",
+        "horrorcore",
+        "abstract hip hop",
+        "emo rap"
+      ],
+      "aliases": [
+        "hip hop",
+        "hiphop",
+        "rap",
+        "rap music"
+      ],
+      "mood_tags": [
+        "confident",
+        "rhythmic",
+        "urban",
+        "laid-back"
+      ],
+      "energy_range": [
+        0.45,
+        0.9
+      ],
+      "valence_range": [
+        0.35,
+        0.75
+      ],
+      "typical_contexts": [
+        "urban_walk",
+        "party",
+        "workout",
+        "gaming",
+        "tiktok_reels"
+      ],
+      "related_genres": [
+        "r&b",
+        "pop",
+        "soul",
+        "phonk",
+        "electronic"
+      ],
+      "incompatible_or_distant_genres": [
+        "classical",
+        "metal",
+        "folk",
+        "ambient"
+      ]
+    },
+    "pop": {
+      "parent": null,
+      "subgenres": [
+        "dance pop",
+        "electropop",
+        "synth-pop",
+        "indie pop",
+        "art pop",
+        "dream pop",
+        "bedroom pop",
+        "alt pop",
+        "power pop",
+        "baroque pop",
+        "hyperpop"
+      ],
+      "microgenres": [
+        "bubblegum pop",
+        "city pop",
+        "sophisti-pop",
+        "chamber pop"
+      ],
+      "aliases": [
+        "pop music"
+      ],
+      "mood_tags": [
+        "bright",
+        "catchy",
+        "upbeat",
+        "accessible"
+      ],
+      "energy_range": [
+        0.45,
+        0.85
+      ],
+      "valence_range": [
+        0.5,
+        0.9
+      ],
+      "typical_contexts": [
+        "party",
+        "tiktok_reels",
+        "romantic",
+        "urban_walk"
+      ],
+      "related_genres": [
+        "r&b",
+        "electronic",
+        "indie",
+        "k-pop",
+        "hyperpop"
+      ],
+      "incompatible_or_distant_genres": [
+        "metal",
+        "black metal",
+        "noise rock",
+        "death metal"
+      ]
+    },
+    "r&b": {
+      "parent": null,
+      "subgenres": [
+        "contemporary r&b",
+        "neo soul",
+        "alternative r&b",
+        "quiet storm",
+        "new jack swing",
+        "funk"
+      ],
+      "microgenres": [
+        "pbr&b",
+        "trapsoul",
+        "future soul"
+      ],
+      "aliases": [
+        "rnb",
+        "r and b",
+        "rhythm and blues"
+      ],
+      "mood_tags": [
+        "smooth",
+        "sensual",
+        "warm",
+        "groovy"
+      ],
+      "energy_range": [
+        0.3,
+        0.7
+      ],
+      "valence_range": [
+        0.4,
+        0.8
+      ],
+      "typical_contexts": [
+        "romantic",
+        "urban_walk",
+        "writing"
+      ],
+      "related_genres": [
+        "soul",
+        "hip-hop",
+        "pop",
+        "jazz"
+      ],
+      "incompatible_or_distant_genres": [
+        "metal",
+        "punk",
+        "black metal",
+        "industrial"
+      ]
+    },
+    "soul": {
+      "parent": null,
+      "subgenres": [
+        "motown",
+        "southern soul",
+        "neo soul",
+        "funk",
+        "gospel soul",
+        "northern soul"
+      ],
+      "microgenres": [
+        "psychedelic soul",
+        "blue-eyed soul"
+      ],
+      "aliases": [
+        "soul music"
+      ],
+      "mood_tags": [
+        "warm",
+        "emotional",
+        "groovy",
+        "uplifting"
+      ],
+      "energy_range": [
+        0.35,
+        0.75
+      ],
+      "valence_range": [
+        0.45,
+        0.85
+      ],
+      "typical_contexts": [
+        "romantic",
+        "writing",
+        "urban_walk"
+      ],
+      "related_genres": [
+        "r&b",
+        "jazz",
+        "funk",
+        "hip-hop"
+      ],
+      "incompatible_or_distant_genres": [
+        "metal",
+        "punk",
+        "techno",
+        "black metal"
+      ]
+    },
+    "jazz": {
+      "parent": null,
+      "subgenres": [
+        "bebop",
+        "cool jazz",
+        "modal jazz",
+        "free jazz",
+        "jazz fusion",
+        "swing",
+        "hard bop",
+        "smooth jazz",
+        "nu jazz",
+        "spiritual jazz"
+      ],
+      "microgenres": [
+        "jazz funk",
+        "jazz rap",
+        "acid jazz",
+        "ecm-style"
+      ],
+      "aliases": [
+        "jazz music"
+      ],
+      "mood_tags": [
+        "sophisticated",
+        "smooth",
+        "improvisational",
+        "mellow"
+      ],
+      "energy_range": [
+        0.25,
+        0.7
+      ],
+      "valence_range": [
+        0.4,
+        0.8
+      ],
+      "typical_contexts": [
+        "focus",
+        "writing",
+        "romantic",
+        "sleep"
+      ],
+      "related_genres": [
+        "soul",
+        "classical",
+        "ambient",
+        "experimental"
+      ],
+      "incompatible_or_distant_genres": [
+        "metal",
+        "trap",
+        "hyperpop",
+        "drill"
+      ]
+    },
+    "classical": {
+      "parent": null,
+      "subgenres": [
+        "baroque",
+        "romantic",
+        "modern classical",
+        "minimalism",
+        "opera",
+        "chamber music",
+        "symphonic",
+        "contemporary classical",
+        "neoclassical"
+      ],
+      "microgenres": [
+        "piano solo",
+        "string quartet",
+        "choral"
+      ],
+      "aliases": [
+        "classical music",
+        "orchestral"
+      ],
+      "mood_tags": [
+        "elegant",
+        "emotional",
+        "cinematic",
+        "calm"
+      ],
+      "energy_range": [
+        0.1,
+        0.6
+      ],
+      "valence_range": [
+        0.3,
+        0.75
+      ],
+      "typical_contexts": [
+        "focus",
+        "sleep",
+        "writing",
+        "cinematic_video",
+        "romantic"
+      ],
+      "related_genres": [
+        "soundtrack",
+        "ambient",
+        "experimental",
+        "jazz"
+      ],
+      "incompatible_or_distant_genres": [
+        "trap",
+        "metal",
+        "punk",
+        "phonk",
+        "hyperpop"
+      ]
+    },
+    "ambient": {
+      "parent": null,
+      "subgenres": [
+        "dark ambient",
+        "drone",
+        "ambient techno",
+        "space ambient",
+        "new age",
+        "lowercase",
+        "ambient dub"
+      ],
+      "microgenres": [
+        "dungeon synth",
+        "field recording",
+        "textural ambient"
+      ],
+      "aliases": [
+        "ambient music"
+      ],
+      "mood_tags": [
+        "atmospheric",
+        "calm",
+        "meditative",
+        "spacious",
+        "dark"
+      ],
+      "energy_range": [
+        0.05,
+        0.4
+      ],
+      "valence_range": [
+        0.2,
+        0.6
+      ],
+      "typical_contexts": [
+        "sleep",
+        "focus",
+        "writing",
+        "cinematic_video",
+        "dark_mystic_video",
+        "horror"
+      ],
+      "related_genres": [
+        "electronic",
+        "classical",
+        "experimental",
+        "soundtrack",
+        "industrial"
+      ],
+      "incompatible_or_distant_genres": [
+        "punk",
+        "party pop",
+        "trap",
+        "metal"
+      ]
+    },
+    "experimental": {
+      "parent": null,
+      "subgenres": [
+        "avant-garde",
+        "noise",
+        "musique concrete",
+        "glitch",
+        "sound collage",
+        "free improvisation",
+        "modern composition"
+      ],
+      "microgenres": [
+        "harsh noise",
+        "plunderphonics",
+        "lowercase"
+      ],
+      "aliases": [
+        "experimental music",
+        "avant garde"
+      ],
+      "mood_tags": [
+        "abstract",
+        "challenging",
+        "textural"
+      ],
+      "energy_range": [
+        0.2,
+        0.9
+      ],
+      "valence_range": [
+        0.2,
+        0.6
+      ],
+      "typical_contexts": [
+        "writing",
+        "cinematic_video",
+        "dark_mystic_video"
+      ],
+      "related_genres": [
+        "ambient",
+        "industrial",
+        "electronic",
+        "jazz",
+        "classical"
+      ],
+      "incompatible_or_distant_genres": [
+        "pop",
+        "k-pop",
+        "reggaeton"
+      ]
+    },
+    "folk": {
+      "parent": null,
+      "subgenres": [
+        "indie folk",
+        "folk rock",
+        "contemporary folk",
+        "traditional folk",
+        "americana",
+        "freak folk",
+        "chamber folk",
+        "singer-songwriter"
+      ],
+      "microgenres": [
+        "neofolk",
+        "dark folk",
+        "stomp and holler"
+      ],
+      "aliases": [
+        "folk music"
+      ],
+      "mood_tags": [
+        "acoustic",
+        "intimate",
+        "earthy",
+        "reflective"
+      ],
+      "energy_range": [
+        0.2,
+        0.6
+      ],
+      "valence_range": [
+        0.35,
+        0.75
+      ],
+      "typical_contexts": [
+        "writing",
+        "sad_reflection",
+        "sleep",
+        "romantic"
+      ],
+      "related_genres": [
+        "country",
+        "indie",
+        "rock",
+        "world"
+      ],
+      "incompatible_or_distant_genres": [
+        "techno",
+        "trap",
+        "metal",
+        "hyperpop"
+      ]
+    },
+    "country": {
+      "parent": null,
+      "subgenres": [
+        "classic country",
+        "alt-country",
+        "outlaw country",
+        "country rock",
+        "bluegrass",
+        "honky tonk",
+        "contemporary country"
+      ],
+      "microgenres": [
+        "red dirt",
+        "cowpunk"
+      ],
+      "aliases": [
+        "country music"
+      ],
+      "mood_tags": [
+        "earthy",
+        "storytelling",
+        "warm"
+      ],
+      "energy_range": [
+        0.3,
+        0.75
+      ],
+      "valence_range": [
+        0.4,
+        0.8
+      ],
+      "typical_contexts": [
+        "urban_walk",
+        "writing",
+        "party"
+      ],
+      "related_genres": [
+        "folk",
+        "rock",
+        "americana",
+        "blues"
+      ],
+      "incompatible_or_distant_genres": [
+        "techno",
+        "black metal",
+        "hyperpop",
+        "drill"
+      ]
+    },
+    "reggae": {
+      "parent": null,
+      "subgenres": [
+        "roots reggae",
+        "dub",
+        "dancehall",
+        "ska",
+        "rocksteady",
+        "lovers rock"
+      ],
+      "microgenres": [
+        "steppers",
+        "ragga"
+      ],
+      "aliases": [
+        "reggae music"
+      ],
+      "mood_tags": [
+        "laid-back",
+        "warm",
+        "groovy",
+        "sunny"
+      ],
+      "energy_range": [
+        0.3,
+        0.7
+      ],
+      "valence_range": [
+        0.5,
+        0.9
+      ],
+      "typical_contexts": [
+        "party",
+        "urban_walk",
+        "romantic"
+      ],
+      "related_genres": [
+        "soul",
+        "hip-hop",
+        "world",
+        "pop"
+      ],
+      "incompatible_or_distant_genres": [
+        "metal",
+        "black metal",
+        "industrial",
+        "classical"
+      ]
+    },
+    "latin": {
+      "parent": null,
+      "subgenres": [
+        "reggaeton",
+        "salsa",
+        "bachata",
+        "cumbia",
+        "latin pop",
+        "bossa nova",
+        "tango",
+        "merengue",
+        "latin trap"
+      ],
+      "microgenres": [
+        "dembow",
+        "neoperreo"
+      ],
+      "aliases": [
+        "latin music",
+        "musica latina"
+      ],
+      "mood_tags": [
+        "danceable",
+        "warm",
+        "rhythmic",
+        "festive"
+      ],
+      "energy_range": [
+        0.5,
+        0.95
+      ],
+      "valence_range": [
+        0.5,
+        0.95
+      ],
+      "typical_contexts": [
+        "party",
+        "romantic",
+        "urban_walk",
+        "tiktok_reels"
+      ],
+      "related_genres": [
+        "pop",
+        "world",
+        "hip-hop",
+        "reggae"
+      ],
+      "incompatible_or_distant_genres": [
+        "metal",
+        "black metal",
+        "ambient",
+        "industrial"
+      ]
+    },
+    "world": {
+      "parent": null,
+      "subgenres": [
+        "afrobeat",
+        "afrobeats",
+        "balkan",
+        "celtic",
+        "flamenco",
+        "fado",
+        "gqom",
+        "highlife",
+        "middle eastern",
+        "indian classical"
+      ],
+      "microgenres": [
+        "desert blues",
+        "ethio-jazz"
+      ],
+      "aliases": [
+        "world music",
+        "global"
+      ],
+      "mood_tags": [
+        "diverse",
+        "rhythmic",
+        "traditional"
+      ],
+      "energy_range": [
+        0.3,
+        0.9
+      ],
+      "valence_range": [
+        0.4,
+        0.85
+      ],
+      "typical_contexts": [
+        "urban_walk",
+        "party",
+        "cinematic_video",
+        "writing"
+      ],
+      "related_genres": [
+        "folk",
+        "latin",
+        "reggae",
+        "jazz"
+      ],
+      "incompatible_or_distant_genres": [
+        "black metal",
+        "hyperpop",
+        "drill"
+      ]
+    },
+    "soundtrack": {
+      "parent": null,
+      "subgenres": [
+        "film score",
+        "video game music",
+        "epic orchestral",
+        "ambient score",
+        "synth score",
+        "trailer music"
+      ],
+      "microgenres": [
+        "dark cinematic",
+        "hybrid orchestral",
+        "horror score"
+      ],
+      "aliases": [
+        "score",
+        "ost",
+        "original soundtrack",
+        "cinematic"
+      ],
+      "mood_tags": [
+        "cinematic",
+        "epic",
+        "atmospheric",
+        "tense",
+        "emotional"
+      ],
+      "energy_range": [
+        0.2,
+        0.8
+      ],
+      "valence_range": [
+        0.25,
+        0.7
+      ],
+      "typical_contexts": [
+        "cinematic_video",
+        "gaming",
+        "focus",
+        "writing",
+        "dark_mystic_video",
+        "horror"
+      ],
+      "related_genres": [
+        "classical",
+        "ambient",
+        "electronic",
+        "experimental",
+        "synthwave"
+      ],
+      "incompatible_or_distant_genres": [
+        "trap",
+        "reggaeton",
+        "hyperpop",
+        "punk"
+      ]
+    },
+    "industrial": {
+      "parent": null,
+      "subgenres": [
+        "EBM",
+        "industrial metal",
+        "power electronics",
+        "industrial techno",
+        "aggrotech",
+        "noise"
+      ],
+      "microgenres": [
+        "rhythmic noise",
+        "dark electro",
+        "martial industrial"
+      ],
+      "aliases": [
+        "industrial music"
+      ],
+      "mood_tags": [
+        "mechanical",
+        "harsh",
+        "dark",
+        "aggressive"
+      ],
+      "energy_range": [
+        0.55,
+        0.95
+      ],
+      "valence_range": [
+        0.1,
+        0.4
+      ],
+      "typical_contexts": [
+        "aggressive_energy",
+        "cyberpunk",
+        "gaming",
+        "dark_mystic_video",
+        "horror"
+      ],
+      "related_genres": [
+        "electronic",
+        "metal",
+        "gothic",
+        "experimental",
+        "synthwave"
+      ],
+      "incompatible_or_distant_genres": [
+        "pop",
+        "folk",
+        "country",
+        "reggae"
+      ]
+    },
+    "gothic": {
+      "parent": null,
+      "subgenres": [
+        "gothic rock",
+        "darkwave",
+        "gothic metal",
+        "ethereal wave",
+        "deathrock",
+        "coldwave"
+      ],
+      "microgenres": [
+        "dark cabaret",
+        "neoclassical darkwave"
+      ],
+      "aliases": [
+        "goth",
+        "gothic music"
+      ],
+      "mood_tags": [
+        "dark",
+        "melancholic",
+        "romantic",
+        "brooding"
+      ],
+      "energy_range": [
+        0.3,
+        0.7
+      ],
+      "valence_range": [
+        0.15,
+        0.45
+      ],
+      "typical_contexts": [
+        "sad_reflection",
+        "dark_mystic_video",
+        "night_drive",
+        "horror"
+      ],
+      "related_genres": [
+        "rock",
+        "metal",
+        "industrial",
+        "synthwave",
+        "ambient"
+      ],
+      "incompatible_or_distant_genres": [
+        "pop",
+        "reggaeton",
+        "k-pop",
+        "country"
+      ]
+    },
+    "alternative": {
+      "parent": null,
+      "subgenres": [
+        "alternative rock",
+        "grunge",
+        "britpop",
+        "indie rock",
+        "post-grunge",
+        "alt pop"
+      ],
+      "microgenres": [
+        "slacker rock",
+        "college rock"
+      ],
+      "aliases": [
+        "alt",
+        "alternative music"
+      ],
+      "mood_tags": [
+        "melodic",
+        "moody",
+        "energetic"
+      ],
+      "energy_range": [
+        0.4,
+        0.85
+      ],
+      "valence_range": [
+        0.3,
+        0.7
+      ],
+      "typical_contexts": [
+        "night_drive",
+        "urban_walk",
+        "writing",
+        "workout"
+      ],
+      "related_genres": [
+        "rock",
+        "indie",
+        "pop",
+        "punk"
+      ],
+      "incompatible_or_distant_genres": [
+        "reggaeton",
+        "classical",
+        "trap"
+      ]
+    },
+    "indie": {
+      "parent": null,
+      "subgenres": [
+        "indie rock",
+        "indie pop",
+        "indie folk",
+        "bedroom pop",
+        "dream pop",
+        "lo-fi indie",
+        "indietronica"
+      ],
+      "microgenres": [
+        "twee pop",
+        "jangle pop"
+      ],
+      "aliases": [
+        "independent",
+        "indie music"
+      ],
+      "mood_tags": [
+        "mellow",
+        "melodic",
+        "intimate",
+        "wistful"
+      ],
+      "energy_range": [
+        0.3,
+        0.75
+      ],
+      "valence_range": [
+        0.35,
+        0.75
+      ],
+      "typical_contexts": [
+        "writing",
+        "urban_walk",
+        "romantic",
+        "sad_reflection"
+      ],
+      "related_genres": [
+        "alternative",
+        "rock",
+        "pop",
+        "folk"
+      ],
+      "incompatible_or_distant_genres": [
+        "death metal",
+        "drill",
+        "hardstyle"
+      ]
+    },
+    "k-pop": {
+      "parent": null,
+      "subgenres": [
+        "k-pop dance",
+        "k-ballad",
+        "k-hip hop",
+        "k-r&b"
+      ],
+      "microgenres": [
+        "girl group",
+        "boy group"
+      ],
+      "aliases": [
+        "kpop",
+        "korean pop"
+      ],
+      "mood_tags": [
+        "bright",
+        "energetic",
+        "polished",
+        "catchy"
+      ],
+      "energy_range": [
+        0.55,
+        0.95
+      ],
+      "valence_range": [
+        0.55,
+        0.95
+      ],
+      "typical_contexts": [
+        "party",
+        "tiktok_reels",
+        "workout"
+      ],
+      "related_genres": [
+        "pop",
+        "hyperpop",
+        "electronic",
+        "r&b"
+      ],
+      "incompatible_or_distant_genres": [
+        "black metal",
+        "doom metal",
+        "dark ambient",
+        "noise"
+      ]
+    },
+    "j-pop": {
+      "parent": null,
+      "subgenres": [
+        "j-rock",
+        "city pop",
+        "anime music",
+        "shibuya-kei",
+        "j-r&b"
+      ],
+      "microgenres": [
+        "idol pop",
+        "denpa"
+      ],
+      "aliases": [
+        "jpop",
+        "japanese pop"
+      ],
+      "mood_tags": [
+        "bright",
+        "melodic",
+        "energetic",
+        "nostalgic"
+      ],
+      "energy_range": [
+        0.45,
+        0.9
+      ],
+      "valence_range": [
+        0.5,
+        0.9
+      ],
+      "typical_contexts": [
+        "party",
+        "gaming",
+        "tiktok_reels",
+        "urban_walk"
+      ],
+      "related_genres": [
+        "pop",
+        "k-pop",
+        "electronic",
+        "rock"
+      ],
+      "incompatible_or_distant_genres": [
+        "black metal",
+        "drill",
+        "power electronics"
+      ]
+    },
+    "ukrainian": {
+      "parent": null,
+      "subgenres": [
+        "ukrainian rock",
+        "ukrainian folk",
+        "ukrainian hip hop",
+        "ukrainian pop",
+        "ukrainian electronic",
+        "ethno-chaos"
+      ],
+      "microgenres": [
+        "folk-rock ukrainian",
+        "ukrainian indie"
+      ],
+      "aliases": [
+        "ukraine",
+        "українська музика",
+        "ukrainian music"
+      ],
+      "mood_tags": [
+        "folk",
+        "emotional",
+        "resilient",
+        "melodic"
+      ],
+      "energy_range": [
+        0.35,
+        0.85
+      ],
+      "valence_range": [
+        0.35,
+        0.8
+      ],
+      "typical_contexts": [
+        "ukrainian_context",
+        "urban_walk",
+        "writing",
+        "party"
+      ],
+      "related_genres": [
+        "folk",
+        "world",
+        "rock",
+        "pop",
+        "electronic"
+      ],
+      "incompatible_or_distant_genres": [
+        "death metal",
+        "drill",
+        "hardstyle"
+      ]
+    },
+    "phonk": {
+      "parent": "hip-hop",
+      "subgenres": [
+        "drift phonk",
+        "memphis phonk",
+        "house phonk",
+        "atmospheric phonk"
+      ],
+      "microgenres": [
+        "brazilian phonk",
+        "aggressive phonk"
+      ],
+      "aliases": [
+        "phonk music"
+      ],
+      "mood_tags": [
+        "dark",
+        "aggressive",
+        "hypnotic",
+        "driving"
+      ],
+      "energy_range": [
+        0.6,
+        0.95
+      ],
+      "valence_range": [
+        0.2,
+        0.5
+      ],
+      "typical_contexts": [
+        "night_drive",
+        "gaming",
+        "workout",
+        "cyberpunk",
+        "aggressive_energy",
+        "tiktok_reels"
+      ],
+      "related_genres": [
+        "hip-hop",
+        "electronic",
+        "synthwave",
+        "industrial"
+      ],
+      "incompatible_or_distant_genres": [
+        "classical",
+        "folk",
+        "jazz",
+        "country"
+      ]
+    },
+    "synthwave": {
+      "parent": "electronic",
+      "subgenres": [
+        "outrun",
+        "darksynth",
+        "retrowave",
+        "spacesynth",
+        "dreamwave",
+        "chillsynth"
+      ],
+      "microgenres": [
+        "cyberpunk synth",
+        "horror synth"
+      ],
+      "aliases": [
+        "synth wave",
+        "retro wave",
+        "outrun"
+      ],
+      "mood_tags": [
+        "nostalgic",
+        "driving",
+        "neon",
+        "atmospheric",
+        "dark"
+      ],
+      "energy_range": [
+        0.45,
+        0.85
+      ],
+      "valence_range": [
+        0.3,
+        0.7
+      ],
+      "typical_contexts": [
+        "night_drive",
+        "cyberpunk",
+        "gaming",
+        "focus",
+        "dark_mystic_video"
+      ],
+      "related_genres": [
+        "electronic",
+        "darkwave",
+        "industrial",
+        "soundtrack",
+        "phonk"
+      ],
+      "incompatible_or_distant_genres": [
+        "country",
+        "folk",
+        "reggae",
+        "classical"
+      ]
+    },
+    "hyperpop": {
+      "parent": "pop",
+      "subgenres": [
+        "glitchcore",
+        "bubblegum bass",
+        "digicore",
+        "pc music"
+      ],
+      "microgenres": [
+        "dariacore",
+        "scenecore"
+      ],
+      "aliases": [
+        "hyper pop",
+        "hyper-pop"
+      ],
+      "mood_tags": [
+        "maximal",
+        "glitchy",
+        "energetic",
+        "playful"
+      ],
+      "energy_range": [
+        0.6,
+        1.0
+      ],
+      "valence_range": [
+        0.4,
+        0.9
+      ],
+      "typical_contexts": [
+        "party",
+        "tiktok_reels",
+        "gaming"
+      ],
+      "related_genres": [
+        "pop",
+        "electronic",
+        "k-pop",
+        "experimental"
+      ],
+      "incompatible_or_distant_genres": [
+        "classical",
+        "jazz",
+        "folk",
+        "doom metal"
+      ]
+    }
+  }
+}

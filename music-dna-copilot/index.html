@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Music DNA Copilot</title>
+<style>
+:root{--bg:#12141a;--card:#1b1e27;--line:#2a2e3a;--ink:#e8e6df;--dim:#9a97a3;--acc:#7c9a84;--acc2:#5b7a63;--warn:#d6a85a;--err:#d67b7b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+main{max-width:720px;margin:0 auto;padding:14px 14px 40px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0}
+h1{font-size:1.45rem;margin:.1em 0;letter-spacing:.2px}
+h2{font-size:1.05rem;margin:.2em 0 .5em;color:var(--ink)}
+.step{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--acc2);color:#fff;font-size:.85rem;font-weight:700;margin-right:8px}
+.small{font-size:.85rem;color:var(--dim)}
+label{display:block;font-size:.85rem;color:var(--dim);margin:12px 0 5px}
+input,select,textarea{width:100%;padding:13px;border:1px solid var(--line);border-radius:12px;font:inherit;background:#141721;color:var(--ink)}
+textarea{min-height:120px}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),linear-gradient(135deg,var(--dim) 50%,transparent 50%);background-position:calc(100% - 20px) 50%,calc(100% - 14px) 50%;background-size:6px 6px;background-repeat:no-repeat}
+input[type=range]{padding:0;height:34px;accent-color:var(--acc)}
+button{border:0;border-radius:14px;padding:14px 20px;font:inherit;font-weight:600;cursor:pointer;min-height:48px}
+.primary{background:var(--acc);color:#10130f;width:100%;font-size:1.05rem}
+.ghost{background:#141721;color:var(--ink);border:1px solid var(--line)}
+.src{display:block;width:100%;text-align:left;margin:8px 0;padding:15px}
+.src.active{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{background:#141721;border:1px solid var(--line);border-radius:999px;padding:9px 14px;font-size:.85rem;color:var(--ink);cursor:pointer;min-height:40px}
+.chip.active{border-color:var(--acc);color:#cfe3d4}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:.78rem;margin:2px 4px 2px 0;color:var(--dim)}
+.grp{border-left:4px solid var(--acc2);padding-left:12px;margin:16px 0}
+.rec{border:1px solid var(--line);border-radius:14px;padding:13px;margin:9px 0;background:#171a23}
+.warn{color:var(--warn)}.err{color:var(--err)}
+.langs{display:flex;gap:6px;justify-content:flex-end}
+.langs button{padding:7px 13px;min-height:36px;border-radius:10px;background:#141721;color:var(--dim);border:1px solid var(--line);font-size:.85rem}
+.langs button.active{color:var(--ink);border-color:var(--acc)}
+details{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0;background:#171a23}
+summary{cursor:pointer;font-weight:600;min-height:32px;display:flex;align-items:center}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.row2{grid-template-columns:1fr}}
+a{color:#a7c4ae}
+.slidewrap{display:flex;justify-content:space-between;font-size:.78rem;color:var(--dim)}
+footer{text-align:center;padding:18px;font-size:.8rem;color:var(--dim)}
+</style>
+</head>
+<body><main>
+
+<div class="langs">
+  <button id="l-uk" onclick="setLang('uk')">UA</button>
+  <button id="l-ru" onclick="setLang('ru')">RU</button>
+  <button id="l-en" onclick="setLang('en')">EN</button>
+</div>
+
+<section class="card">
+  <h1 data-i18n="title"></h1>
+  <p class="small" data-i18n="subtitle"></p>
+  <p class="small" data-i18n="privacy"></p>
+</section>
+
+<section class="card">
+  <h2><span class="step">1</span><span data-i18n="s1"></span></h2>
+  <button class="ghost src active" id="src-demo" onclick="pick('demo')">🎵 <span data-i18n="src_demo"></span></button>
+  <button class="ghost src" id="src-owner" onclick="pick('owner_demo')">🌑 <span data-i18n="src_owner"></span></button>
+  <button class="ghost src" id="src-paste" onclick="pick('paste')">✍️ <span data-i18n="src_paste"></span></button>
+  <div id="pasteBox" style="display:none">
+    <label data-i18n="paste_label"></label>
+    <textarea id="tracks"></textarea>
+  </div>
+</section>
+
+<section class="card">
+  <h2><span class="step">2</span><span data-i18n="s2"></span></h2>
+  <label data-i18n="presets_label"></label>
+  <div class="chips" id="presetChips"></div>
+  <label><span data-i18n="mood_label"></span> — <span id="moodVal"></span></label>
+  <input type="range" id="mood" min="-2" max="2" step="1" value="0" oninput="moodShow()">
+  <div class="slidewrap"><span data-i18n="mood_lo"></span><span data-i18n="mood_hi"></span></div>
+  <label data-i18n="task_label"></label>
+  <select id="task"></select>
+  <label><span data-i18n="novelty_label"></span> — <span id="novVal">3</span></label>
+  <input type="range" id="novelty" min="1" max="5" step="1" value="3" oninput="document.getElementById('novVal').textContent=this.value">
+  <div class="slidewrap"><span data-i18n="nov_lo"></span><span data-i18n="nov_hi"></span></div>
+  <details>
+    <summary data-i18n="advanced"></summary>
+    <label data-i18n="include_label"></label>
+    <input id="include" placeholder="doom metal, darkwave">
+    <label data-i18n="exclude_label"></label>
+    <input id="exclude" placeholder="metalcore, edm">
+    <label data-i18n="strict_label"></label>
+    <select id="strictness">
+      <option value="" data-i18n="strict_off"></option>
+      <option value="soft" data-i18n="strict_soft"></option>
+      <option value="balanced" data-i18n="strict_bal"></option>
+      <option value="strict" data-i18n="strict_strict"></option>
+    </select>
+  </details>
+</section>
+
+<section class="card">
+  <h2><span class="step">3</span><span data-i18n="s3"></span></h2>
+  <button class="primary" id="goBtn" onclick="go()" data-i18n="generate"></button>
+  <p class="small" id="status" style="min-height:1.2em;margin-bottom:0"></p>
+</section>
+
+<section class="card" id="out" style="display:none">
+  <h2 data-i18n="dna_title"></h2>
+  <div id="dna"></div>
+  <div id="recs"></div>
+  <div class="row2" style="margin-top:14px">
+    <button class="ghost" onclick="copyMD()" data-i18n="copy_md"></button>
+    <button class="ghost" onclick="copyJSON()" data-i18n="copy_json"></button>
+  </div>
+  <p class="small" id="copied" style="min-height:1.1em"></p>
+</section>
+
+<details class="card" style="background:var(--card)">
+  <summary data-i18n="lim_title"></summary>
+  <ul class="small">
+    <li data-i18n="lim1"></li>
+    <li data-i18n="lim2"></li>
+    <li data-i18n="lim3"></li>
+    <li data-i18n="lim4"></li>
+    <li data-i18n="lim5"></li>
+  </ul>
+</details>
+
+<footer data-i18n="footer"></footer>
+
+<script>
+const I18N = {
+ uk: {
+  title:"Music DNA Copilot",
+  enriched:(f,m)=>`Жанри доповнено для ${f} з ${m} треків без тегів (офлайн-карта, позначено як імовірні).`, conf:"Впевненість профілю", conf_l:{High:"висока",Medium:"середня",Low:"низька"},
+  subtitle:"Зрозумій свій музичний смак і отримай чесні рекомендації з поясненням — Safe / Adjacent / Wildcard.",
+  privacy:"Демо працює без підключення акаунтів. Вставлені треки обробляються лише в цій сесії й ніде не зберігаються.",
+  s1:"Додай свій смак", s2:"Обери настрій", s3:"Отримай рекомендації",
+  src_demo:"Спробувати демо", src_owner:"Темний/важкий демо-смак (60 треків)", src_paste:"Вставити мої треки",
+  paste_label:"По одному треку в рядку: «Трек — Виконавець», «Трек - Виконавець» або «Track by Artist»",
+  paste_ph:"Mirror Reaper — Bell Witch\nMarrow by YOB\nA Solitary Reign by Amenra\nFinland - Cult of Luna",
+  presets_label:"Швидкі пресети",
+  mood_label:"Настрій", mood_lo:"темний", mood_hi:"світлий",
+  task_label:"Контекст / задача",
+  novelty_label:"Новизна", nov_lo:"безпечно", nov_hi:"експериментально",
+  advanced:"Розширені налаштування",
+  include_label:"Включити жанри (через кому)", exclude_label:"Виключити жанри",
+  strict_label:"Жанрова строгість", strict_off:"(вимкнено)", strict_soft:"М'яко", strict_bal:"Збалансовано", strict_strict:"Строго",
+  generate:"Згенерувати рекомендації", loading:"Аналізую смак…",
+  err:"Не вдалося згенерувати рекомендації. Спробуй ще раз або використай демо-режим.",
+  dna_title:"Твоя Music DNA",
+  dna_line:(d,s)=>`${s} · ${d.tracks_analyzed} треків · тон: ${d.emotional_tone} · енергія ${d.energy_level} · толерантність до нового ${d.novelty_tolerance}`,
+  top_artists:"Улюблені виконавці",
+  g_safe:"✅ Безпечний збіг", g_adj:"🧭 Суміжні відкриття", g_wild:"🃏 Дикі карти",
+  why:"Чому підходить", risk:"Можливий ризик",
+  none:"Немає результатів — спробуй «Збалансовано» або додай більше треків.",
+  copy_md:"Копіювати Markdown", copy_json:"Копіювати JSON", copied:"Скопійовано ✓",
+  lim_title:"Що працює в цьому онлайн-демо?",
+  lim1:"Демо-рекомендації працюють.", lim2:"Вставлені треки працюють.",
+  lim3:"Підключення акаунтів у публічному демо недоступне.",
+  lim4:"Last.fm і Spotify доступні лише в локальній версії для самотестування.",
+  lim5:"Це демо не зберігає жодних персональних даних.",
+  footer:"Локально-перший музичний асистент · демо-режим · без акаунтів · без трекінгу",
+  src_names:{demo:"Демо-бібліотека",owner_demo:"Темний/важкий демо-смак",paste:"Вставлені треки"},
+  tasks:{night_drive:"Нічна поїздка",work_focus:"Фокус / робота",walking:"Прогулянка",workout:"Тренування",relaxation:"Розслаблення",sad_mood:"Сумний настрій",ai_video:"Відео / креатор",discovering_new_artists:"Нові виконавці",surprise_me:"Здивуй мене"},
+  presets:{postmetal:"Post-metal / Doom / Sludge",abm:"Atmospheric Black Metal",darkwave:"Darkwave — нічна прогулянка",dungeon:"Dungeon Synth / Ambient",night:"Night Drive",mystic:"Dark Mystic Video",focus:"Фокус: без вокалу",heavy:"Важко, але не metalcore",mel:"Меланхолійно, але красиво",exp:"Експериментальні відкриття"}
+ },
+ ru: {
+  title:"Music DNA Copilot",
+  enriched:(f,m)=>`Жанры дополнены для ${f} из ${m} треков без тегов (офлайн-карта, помечены как предполагаемые).`, conf:"Уверенность профиля", conf_l:{High:"высокая",Medium:"средняя",Low:"низкая"},
+  subtitle:"Пойми свой музыкальный вкус и получи честные рекомендации с объяснением — Safe / Adjacent / Wildcard.",
+  privacy:"Демо работает без подключения аккаунтов. Вставленные треки обрабатываются только в этой сессии и нигде не сохраняются.",
+  s1:"Добавь свой вкус", s2:"Выбери настроение", s3:"Получи рекомендации",
+  src_demo:"Попробовать демо", src_owner:"Тёмный/тяжёлый демо-вкус (60 треков)", src_paste:"Вставить мои треки",
+  paste_label:"По одному треку в строке: «Трек — Исполнитель», «Трек - Исполнитель» или «Track by Artist»",
+  paste_ph:"Mirror Reaper — Bell Witch\nMarrow by YOB\nA Solitary Reign by Amenra\nFinland - Cult of Luna",
+  presets_label:"Быстрые пресеты",
+  mood_label:"Настроение", mood_lo:"тёмное", mood_hi:"светлое",
+  task_label:"Контекст / задача",
+  novelty_label:"Новизна", nov_lo:"безопасно", nov_hi:"экспериментально",
+  advanced:"Расширенные настройки",
+  include_label:"Включить жанры (через запятую)", exclude_label:"Исключить жанры",
+  strict_label:"Жанровая строгость", strict_off:"(выключено)", strict_soft:"Мягко", strict_bal:"Сбалансировано", strict_strict:"Строго",
+  generate:"Сгенерировать рекомендации", loading:"Анализирую вкус…",
+  err:"Не удалось сгенерировать рекомендации. Попробуй ещё раз или используй демо-режим.",
+  dna_title:"Твоя Music DNA",
+  dna_line:(d,s)=>`${s} · ${d.tracks_analyzed} треков · тон: ${d.emotional_tone} · энергия ${d.energy_level} · толерантность к новому ${d.novelty_tolerance}`,
+  top_artists:"Любимые исполнители",
+  g_safe:"✅ Безопасное совпадение", g_adj:"🧭 Смежные открытия", g_wild:"🃏 Дикие карты",
+  why:"Почему подходит", risk:"Возможный риск",
+  none:"Нет результатов — попробуй «Сбалансировано» или добавь больше треков.",
+  copy_md:"Копировать Markdown", copy_json:"Копировать JSON", copied:"Скопировано ✓",
+  lim_title:"Что работает в этом онлайн-демо?",
+  lim1:"Демо-рекомендации работают.", lim2:"Вставленные треки работают.",
+  lim3:"Подключение аккаунтов в публичном демо недоступно.",
+  lim4:"Last.fm и Spotify доступны только в локальной версии для самотестирования.",
+  lim5:"Это демо не хранит никаких персональных данных.",
+  footer:"Локально-первый музыкальный ассистент · демо-режим · без аккаунтов · без трекинга",
+  src_names:{demo:"Демо-библиотека",owner_demo:"Тёмный/тяжёлый демо-вкус",paste:"Вставленные треки"},
+  tasks:{night_drive:"Ночная поездка",work_focus:"Фокус / работа",walking:"Прогулка",workout:"Тренировка",relaxation:"Расслабление",sad_mood:"Грустное настроение",ai_video:"Видео / креатор",discovering_new_artists:"Новые исполнители",surprise_me:"Удиви меня"},
+  presets:{postmetal:"Post-metal / Doom / Sludge",abm:"Atmospheric Black Metal",darkwave:"Darkwave — ночная прогулка",dungeon:"Dungeon Synth / Ambient",night:"Night Drive",mystic:"Dark Mystic Video",focus:"Фокус: без вокала",heavy:"Тяжело, но не metalcore",mel:"Меланхолично, но красиво",exp:"Экспериментальные открытия"}
+ },
+ en: {
+  title:"Music DNA Copilot",
+  enriched:(f,m)=>`Genres filled for ${f} of ${m} tagless tracks (offline map, marked as inferred).`, conf:"Profile confidence", conf_l:{High:"high",Medium:"medium",Low:"low"},
+  subtitle:"Understand your music taste and get honest, explained recommendations — Safe / Adjacent / Wildcard.",
+  privacy:"Demo mode runs without account connection. Pasted tracks are processed only for this session and are never stored.",
+  s1:"Add your taste", s2:"Choose mood", s3:"Get recommendations",
+  src_demo:"Try demo", src_owner:"Dark/heavy demo taste (60 tracks)", src_paste:"Paste my tracks",
+  paste_label:"One track per line: “Track — Artist”, “Track - Artist” or “Track by Artist”",
+  paste_ph:"Mirror Reaper — Bell Witch\nMarrow by YOB\nA Solitary Reign by Amenra\nFinland - Cult of Luna",
+  presets_label:"Quick presets",
+  mood_label:"Mood", mood_lo:"dark", mood_hi:"bright",
+  task_label:"Task / context",
+  novelty_label:"Novelty", nov_lo:"safe", nov_hi:"experimental",
+  advanced:"Advanced settings",
+  include_label:"Include genres (comma-separated)", exclude_label:"Exclude genres",
+  strict_label:"Genre strictness", strict_off:"(off)", strict_soft:"Loose", strict_bal:"Balanced", strict_strict:"Strict",
+  generate:"Generate recommendations", loading:"Analyzing taste…",
+  err:"Could not generate recommendations. Try again or use demo mode.",
+  dna_title:"Your Music DNA",
+  dna_line:(d,s)=>`${s} · ${d.tracks_analyzed} tracks · tone: ${d.emotional_tone} · energy ${d.energy_level} · novelty tolerance ${d.novelty_tolerance}`,
+  top_artists:"Top artists",
+  g_safe:"✅ Safe Match", g_adj:"🧭 Adjacent Discovery", g_wild:"🃏 Wildcard",
+  why:"Why it matches", risk:"Possible risk",
+  none:"No results — try Balanced mode or add more tracks.",
+  copy_md:"Copy Markdown", copy_json:"Copy JSON", copied:"Copied ✓",
+  lim_title:"What works in this online demo?",
+  lim1:"Demo recommendations work.", lim2:"Pasted tracks work.",
+  lim3:"Account connection is not available in this public demo.",
+  lim4:"Last.fm / Spotify are available only in the local self-test version.",
+  lim5:"No personal data is stored by this demo.",
+  footer:"Local-first music assistant · demo mode · no accounts · no tracking",
+  src_names:{demo:"Demo library",owner_demo:"Dark/heavy demo taste",paste:"Pasted tracks"},
+  tasks:{night_drive:"Night drive",work_focus:"Focus / deep work",walking:"Walking",workout:"Workout",relaxation:"Relaxation",sad_mood:"Sad mood",ai_video:"Video / creator",discovering_new_artists:"Discover new artists",surprise_me:"Surprise me"},
+  presets:{postmetal:"Post-metal / Doom / Sludge",abm:"Atmospheric Black Metal",darkwave:"Darkwave Night Walk",dungeon:"Dungeon Synth / Ambient",night:"Night Drive",mystic:"Dark Mystic Video",focus:"Focus: No Vocals",heavy:"Heavy but Not Metalcore",mel:"Melancholic but Beautiful",exp:"Experimental Discovery"}
+ }
+};
+
+const PRESETS = {
+ postmetal:{mood:-1,novelty:3,task:"relaxation",strictness:"balanced",include:"post-metal, doom metal, sludge metal",exclude:"metalcore, deathcore, pop punk, nu metal"},
+ abm:{mood:-1,novelty:3,task:"relaxation",strictness:"strict",include:"atmospheric black metal, blackgaze",exclude:"deathcore, metalcore"},
+ darkwave:{mood:-1,novelty:3,task:"walking",strictness:"balanced",include:"darkwave, post-punk, coldwave",exclude:""},
+ dungeon:{mood:-1,novelty:3,task:"work_focus",strictness:"balanced",include:"dungeon synth, dark ambient",exclude:""},
+ night:{mood:-1,novelty:3,task:"night_drive",strictness:"",include:"synthwave, darkwave, electronic",exclude:""},
+ mystic:{mood:-1,novelty:4,task:"ai_video",strictness:"",include:"dark ambient, industrial",exclude:""},
+ focus:{mood:0,novelty:2,task:"work_focus",strictness:"balanced",include:"ambient, electronic, classical",exclude:"pop, rap, vocal"},
+ heavy:{mood:1,novelty:3,task:"workout",strictness:"balanced",include:"metal, sludge metal, stoner metal",exclude:"metalcore, deathcore, pop punk"},
+ mel:{mood:-1,novelty:3,task:"sad_mood",strictness:"",include:"slowcore, dream pop, post-rock, ambient",exclude:"edm, trap"},
+ exp:{mood:1,novelty:5,task:"discovering_new_artists",strictness:"soft",include:"experimental, avant-garde",exclude:""}
+};
+
+let LANG="uk", source="demo", last=null, activePreset=null;
+function detectLang(){
+  const saved=localStorage.getItem("mtr_lang");
+  if(saved&&I18N[saved])return saved;
+  const b=(navigator.language||"").toLowerCase();
+  if(b.startsWith("ru"))return"ru";
+  if(b.startsWith("en"))return"en";
+  return"uk";
+}
+function T(){return I18N[LANG];}
+function setLang(l){
+  LANG=l; localStorage.setItem("mtr_lang",l);
+  document.documentElement.lang = l==="uk"?"uk":l;
+  for(const b of ["uk","ru","en"]) document.getElementById("l-"+b).classList.toggle("active",b===l);
+  document.querySelectorAll("[data-i18n]").forEach(el=>{const v=T()[el.dataset.i18n]; if(typeof v==="string") el.textContent=v;});
+  document.getElementById("tracks").placeholder=T().paste_ph;
+  const task=document.getElementById("task"); const cur=task.value;
+  task.innerHTML=Object.entries(T().tasks).map(([k,v])=>`<option value="${k}">${v}</option>`).join("");
+  task.value=cur&&T().tasks[cur]?cur:"surprise_me";
+  const chips=document.getElementById("presetChips");
+  chips.innerHTML=Object.entries(T().presets).map(([k,v])=>`<button type="button" class="chip${k===activePreset?' active':''}" onclick="applyPreset('${k}')">${v}</button>`).join("");
+  moodShow();
+  if(last)render(last);
+}
+function moodShow(){
+  const v=+document.getElementById("mood").value;
+  const names={uk:{"-2":"дуже темний","-1":"темний","0":"нейтральний","1":"світлий","2":"ейфоричний"},
+               ru:{"-2":"очень тёмное","-1":"тёмное","0":"нейтральное","1":"светлое","2":"эйфория"},
+               en:{"-2":"very dark","-1":"dark","0":"neutral","1":"bright","2":"euphoric"}};
+  document.getElementById("moodVal").textContent=names[LANG][String(v)];
+}
+function pick(s){
+  source=s;
+  for(const [id,val] of [["src-demo","demo"],["src-owner","owner_demo"],["src-paste","paste"]])
+    document.getElementById(id).classList.toggle("active",val===s);
+  document.getElementById("pasteBox").style.display=(s==="paste")?"block":"none";
+}
+function applyPreset(k){
+  const p=PRESETS[k]; if(!p)return; activePreset=k;
+  document.getElementById("mood").value=p.mood;
+  document.getElementById("novelty").value=p.novelty;
+  document.getElementById("novVal").textContent=p.novelty;
+  document.getElementById("task").value=p.task;
+  document.getElementById("strictness").value=p.strictness;
+  document.getElementById("include").value=p.include;
+  document.getElementById("exclude").value=p.exclude;
+  moodShow();
+  document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));
+  event.target.classList.add("active");
+}
+async function go(){
+  const st=document.getElementById("status"); st.textContent=T().loading; st.className="small";
+  document.getElementById("goBtn").disabled=true;
+  const body={source, tracks_text:document.getElementById("tracks").value,
+    mood:document.getElementById("mood").value, task:document.getElementById("task").value,
+    novelty:document.getElementById("novelty").value, strictness:document.getElementById("strictness").value,
+    include:document.getElementById("include").value, exclude:document.getElementById("exclude").value};
+  try{
+    const r=await fetch("/api/recommend",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(!d.ok){st.textContent=d.error||T().err; st.className="small err";}
+    else{last=d; st.textContent=""; render(d); document.getElementById("out").scrollIntoView({behavior:"smooth"});}
+  }catch(e){st.textContent=T().err; st.className="small err";}
+  document.getElementById("goBtn").disabled=false;
+}
+function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function render(d){
+  document.getElementById("out").style.display="block";
+  const g=d.dna, t=T();
+  const srcName=t.src_names[source]||d.source_label;
+  document.getElementById("dna").innerHTML=
+    `<p class="small">${esc(t.dna_line(g,srcName))}</p>`+
+    `<p>${g.top_genres.map(x=>'<span class="pill">'+esc(x)+"</span>").join("")}</p>`+
+    (g.top_artists.length?`<p class="small">${t.top_artists}: ${g.top_artists.map(esc).join(", ")}</p>`:"")+
+    (d.coverage?`<p class="small">${t.conf}: <strong>${esc(t.conf_l[d.coverage.confidence_level]||d.coverage.confidence_level)}</strong></p>`:"")+
+    (d.genre_enrichment&&d.genre_enrichment.filled?`<p class="small">🏷️ ${esc(t.enriched(d.genre_enrichment.filled,d.genre_enrichment.missing))}</p>`:"")+
+    (d.note?`<p class="small warn">${esc(d.note)}</p>`:"");
+  const names={safe_match:t.g_safe,adjacent_discovery:t.g_adj,wildcard:t.g_wild};
+  let html="";
+  for(const key of ["safe_match","adjacent_discovery","wildcard"]){
+    const items=d.recommendations.filter(r=>r.group===key);
+    if(!items.length)continue;
+    html+=`<div class="grp"><h2>${names[key]}</h2>`+items.map(r=>
+      `<div class="rec"><strong>${esc(r.artist)} — ${esc(r.track_title)}</strong>
+       <span class="pill">${Math.round((r.confidence||0)*100)}%</span><br>
+       <span class="small">${(r.genres||[]).map(esc).join(" · ")}</span>
+       <p class="small" style="margin:.5em 0 0"><em>${t.why}:</em> ${esc(r.why)}</p>
+       ${r.risk?`<p class="small warn" style="margin:.3em 0 0"><em>${t.risk}:</em> ${esc(r.risk)}</p>`:""}
+      </div>`).join("")+"</div>";
+  }
+  document.getElementById("recs").innerHTML=html||`<p class="small warn">${t.none}</p>`;
+}
+function flash(){const c=document.getElementById("copied");c.textContent=T().copied;setTimeout(()=>c.textContent="",1500);}
+function copyJSON(){if(last)navigator.clipboard.writeText(JSON.stringify(last,null,2)).then(flash);}
+function copyMD(){
+  if(!last)return;
+  const g=last.dna,t=T();
+  let md=`# Music DNA\n\n${g.tracks_analyzed} tracks · ${g.emotional_tone} · energy ${g.energy_level}\nGenres: ${g.top_genres.join(", ")}\n\n`;
+  for(const r of last.recommendations)md+=`- **${r.artist} — ${r.track_title}** [${r.group}] (${Math.round((r.confidence||0)*100)}%)\n  ${r.why}\n`;
+  navigator.clipboard.writeText(md).then(flash);
+}
+setLang(detectLang());
+</script>
+</main></body></html>

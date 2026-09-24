@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Music Taste Profile (Music DNA)",
+  "description": "The computed taste profile representing the user's Music DNA.",
+  "type": "object",
+  "required": ["generated_at", "core_genres", "recurring_artists", "mood_profile", "energy_level", "novelty_tolerance"],
+  "properties": {
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when the profile was generated."
+    },
+    "core_genres": {
+      "type": "array",
+      "description": "Top genres by affinity, ordered from highest to lowest.",
+      "items": {
+        "type": "object",
+        "required": ["genre", "affinity_score"],
+        "properties": {
+          "genre": { "type": "string" },
+          "affinity_score": { "type": "number", "minimum": 0, "maximum": 1, "description": "Normalized affinity from 0 to 1." }
+        }
+      }
+    },
+    "recurring_artists": {
+      "type": "array",
+      "description": "Artists that appear most frequently in listening history.",
+      "items": {
+        "type": "object",
+        "required": ["artist_name", "recurrence_score"],
+        "properties": {
+          "artist_name": { "type": "string" },
+          "recurrence_score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "play_count": { "type": "integer" }
+        }
+      }
+    },
+    "mood_profile": {
+      "type": "object",
+      "description": "Average emotional profile based on listening data.",
+      "properties": {
+        "average_valence": { "type": "number", "minimum": 0, "maximum": 1, "description": "Average positivity of tracks." },
+        "average_energy": { "type": "number", "minimum": 0, "maximum": 1 },
+        "dominant_moods": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "E.g., ['melancholic', 'energetic', 'calm']."
+        }
+      }
+    },
+    "energy_level": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Overall energy preference from 0 (very calm) to 1 (very energetic)."
+    },
+    "mainstream_vs_niche": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "0 = very niche, 1 = very mainstream."
+    },
+    "repetition_pattern": {
+      "type": "object",
+      "description": "How much the user repeats tracks vs. explores new ones.",
+      "properties": {
+        "repeat_ratio": { "type": "number", "minimum": 0, "maximum": 1, "description": "Fraction of plays that are repeats." },
+        "unique_track_ratio": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "novelty_tolerance": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Estimated openness to new music (0 = very conservative, 1 = very adventurous)."
+    },
+    "taste_drift": {
+      "type": "object",
+      "description": "Comparison of short-term, medium-term, and long-term listening behavior.",
+      "properties": {
+        "short_term_genres": { "type": "array", "items": { "type": "string" } },
+        "long_term_genres": { "type": "array", "items": { "type": "string" } },
+        "new_patterns": { "type": "array", "items": { "type": "string" }, "description": "Genres/artists that appeared recently." },
+        "disappeared_patterns": { "type": "array", "items": { "type": "string" }, "description": "Genres/artists that faded away." },
+        "stable_patterns": { "type": "array", "items": { "type": "string" }, "description": "Genres/artists that remain consistent." }
+      }
+    },
+    "emotional_tone": {
+      "type": "string",
+      "description": "Overall emotional tone of the user's music (e.g., 'melancholic-energetic', 'calm-positive')."
+    },
+    "possible_use_cases": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Suggested content use cases based on taste (e.g., 'Night drive playlists', 'Focus music')."
+    }
+  }
+}
