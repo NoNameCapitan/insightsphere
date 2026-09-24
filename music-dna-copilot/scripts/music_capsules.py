@@ -16,7 +16,14 @@ except ImportError:
 
 CAPSULE_SIZES = {"common": 5, "rare": 10, "legendary": 15, "mystery": 10}
 VALID_STATES = ("opened", "started", "completed", "abandoned")
-TRACK_EVENTS = ("completed", "skip", "save", "replay", "not_for_me")
+TRACK_EVENTS = ("completed", "skip", "save", "replay", "not_for_me",
+                "love", "more_like_this", "too_similar", "too_strange")
+# Explicit = the user told us what they think. Self-reported = the user told us
+# what happened (we cannot observe playback in external apps).
+SIGNAL_KIND = {"love": "explicit", "save": "explicit", "not_for_me": "explicit",
+               "more_like_this": "explicit", "too_similar": "explicit", "too_strange": "explicit",
+               "completed": "self_reported", "replay": "self_reported", "skip": "self_reported"}
+TERMINAL_EVENTS = {"completed", "skip", "not_for_me", "save", "love", "replay"}
 
 def _now(): return datetime.now(timezone.utc).isoformat()
 def _norm(v): return re.sub(r"\s+", " ", str(v or "").strip().lower())
@@ -54,17 +61,20 @@ def _diverse_select(items, size, max_per_artist=2, recent_track_ids=None, recent
             if len(chosen)>=size: break
     return chosen
 
-def build_capsule(recommendations, rarity="common", context=None, *, preferred_provider="spotify", recent_track_ids=None, recent_artists=None, capsule_id=None, available_providers=None, provider_catalogs=None):
+def build_capsule(recommendations, rarity="common", context=None, *, preferred_provider="spotify", recent_track_ids=None, recent_artists=None, capsule_id=None, available_providers=None, provider_catalogs=None, fallback_order=None, preselected=False):
     rarity=str(rarity).lower()
     if rarity not in CAPSULE_SIZES: raise ValueError(f"Unknown capsule rarity: {rarity}")
     items=recommendations.get("recommendations", recommendations if isinstance(recommendations,list) else [])
     size=CAPSULE_SIZES[rarity]
-    selected=_diverse_select(items,size,2,recent_track_ids,recent_artists)
+    selected=list(items)[:size] if preselected else _diverse_select(items,size,2,recent_track_ids,recent_artists)
     tracks=[]
     for rank,t in enumerate(selected,1):
-        x=dict(t); x["track_id"]=_track_id(x); x["capsule_rank"]=rank; x["provider_links"]=provider_links(x)
+        x=dict(t); x["track_id"]=_track_id(x); x["capsule_rank"]=rank
         if route_track:
-            x["playback_route"] = route_track(x, preferred_provider=preferred_provider, available_providers=available_providers, catalogs=provider_catalogs)
+            # Route BEFORE attaching search links: a search page must never be
+            # mistaken for an exact provider identity (fixed in 3.0).
+            x["playback_route"] = route_track(x, preferred_provider=preferred_provider, available_providers=available_providers, catalogs=provider_catalogs, fallback_order=fallback_order)
+        x["provider_links"]=provider_links(x)
         if rarity=="mystery":
             x["mystery_reveal"]={"track_title":x.get("track_title"),"artist":x.get("artist")}
             x["track_title"]="Hidden track"; x["artist"]="Reveal after listening"
@@ -89,14 +99,14 @@ def record_track_event(capsule, track_id, action, timestamp=None):
     if action not in TRACK_EVENTS: raise ValueError(f"Invalid track event: {action}")
     ids={t.get("track_id") for t in capsule.get("tracks",[])}
     if track_id not in ids: raise ValueError("Track does not belong to capsule")
-    out=dict(capsule); out["events"]=list(capsule.get("events",[]))+[{"timestamp":timestamp or _now(),"track_id":track_id,"action":action}]
+    out=dict(capsule); out["events"]=list(capsule.get("events",[]))+[{"timestamp":timestamp or _now(),"track_id":track_id,"action":action,"signal_kind":SIGNAL_KIND.get(action,"explicit")}]
     return out
 
 def capsule_metrics(capsule):
     events=capsule.get("events",[]); n=max(1,len(capsule.get("tracks",[])))
     counts={a:sum(1 for e in events if e.get("action")==a) for a in TRACK_EVENTS}
     touched=len({e.get("track_id") for e in events})
-    positive=counts["save"]+counts["replay"]
+    positive=len({e.get("track_id") for e in events if e.get("action") in ("save","replay","love")})
     return {"tracks":len(capsule.get("tracks",[])),"tracks_with_feedback":touched,"completion_rate":round(counts["completed"]/n,3),
             "save_rate":round(counts["save"]/n,3),"replay_rate":round(counts["replay"]/n,3),"rejection_rate":round(counts["not_for_me"]/n,3),
             "hit_rate":round(min(1.0,positive/n),3),"event_counts":counts}

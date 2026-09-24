@@ -15,10 +15,12 @@ EVENTS = {
     "session_started", "source_connected", "dna_generated", "capsule_opened",
     "capsule_started", "track_played", "track_completed", "track_skipped",
     "track_saved", "track_replayed", "track_rejected", "capsule_completed",
-    "capsule_abandoned", "session_returned", "resolver_result"
+    "capsule_abandoned", "session_returned", "resolver_result",
+    # 3.0 additions
+    "track_loved", "track_feedback", "onboarding_completed", "capsule_revealed",
 }
 FUNNEL = ("session_started","dna_generated","capsule_opened","capsule_started","track_played","capsule_completed")
-ALLOWED = {"event","ts","session_id","anonymous_user_id","capsule_id","capsule_rarity","provider","resolver_status","algorithm_variant","context","value"}
+ALLOWED = {"event","ts","session_id","anonymous_user_id","capsule_id","capsule_rarity","provider","resolver_status","algorithm_variant","algorithm_version","context","value","signal_kind"}
 
 def _now(): return datetime.now(timezone.utc).isoformat()
 def anonymous_id(seed: str) -> str: return hashlib.sha256(str(seed).encode()).hexdigest()[:16]
@@ -106,5 +108,26 @@ def retention(events, days=7):
         if any(t.date()>first.date() and t<=first+timedelta(days=days) for t in times): returned+=1
     return {"window_days":days,"users":eligible,"returned_users":returned,"return_rate":round(returned/max(1,eligible),3)}
 
+def outcome_breakdown(events, key):
+    """Capsule outcomes grouped by any allowed field (rarity/context/provider/variant).
+
+    `track_played` means the user opened the track in a service or reported
+    listening to it; the app cannot observe playback inside external apps."""
+    by=defaultdict(Counter)
+    for e in events:
+        k=e.get(key)
+        if k: by[str(k)][e.get("event")]+=1
+    out={}
+    for k,c in by.items():
+        opened=c["capsule_opened"]; started=c["capsule_started"]; played=max(1,c["track_played"])
+        out[k]={"opened":opened,"started":started,"completed":c["capsule_completed"],
+                "completion_rate":round(c["capsule_completed"]/max(1,started),3),
+                "save_rate":round(c["track_saved"]/played,3),"replay_rate":round(c["track_replayed"]/played,3),
+                "rejection_rate":round(c["track_rejected"]/played,3)}
+    return out
+
 def beta_report(events):
-    return {"kind":"music_dna_beta_report","version":"2.8","generated_at":_now(),"privacy":{"local_only":True,"raw_track_titles_required":False,"raw_listening_history_required":False},"events":len(events),"sessions":len({e.get('session_id') for e in events if e.get('session_id')}),"funnel":funnel(events),"retention":retention(events),"capsules":capsule_outcomes(events),"provider_health":provider_health(events),"experiments":experiment_summary(events)}
+    return {"kind":"music_dna_beta_report","version":"3.0","generated_at":_now(),"privacy":{"local_only":True,"raw_track_titles_required":False,"raw_listening_history_required":False},"events":len(events),"sessions":len({e.get('session_id') for e in events if e.get('session_id')}),"funnel":funnel(events),"retention":retention(events),"capsules":capsule_outcomes(events),"provider_health":provider_health(events),"experiments":experiment_summary(events),
+            "breakdowns":{k:outcome_breakdown(events,k) for k in ("capsule_rarity","context","provider","algorithm_variant")},
+            "definitions":{"track_played":"Opened in a music service or marked as listened; playback inside external apps is not observable.",
+                           "returning_users_proxy":"Users with events on a later calendar day within the window (local device only)."}}

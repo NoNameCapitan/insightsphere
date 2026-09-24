@@ -10,6 +10,13 @@ from difflib import SequenceMatcher
 from urllib.parse import quote_plus
 
 PROVIDER_ORDER=("spotify","apple_music","youtube_music","deezer","tidal","soundcloud")
+PROVIDER_LABELS={"spotify":"Spotify","apple_music":"Apple Music","youtube_music":"YouTube Music",
+                 "deezer":"Deezer","tidal":"TIDAL","soundcloud":"SoundCloud"}
+_SEARCH_URL=re.compile(r"/search\b|[?&](q|term|search_query)=",re.I)
+
+def is_search_url(url):
+    """A provider *search* page is never evidence of an exact track identity."""
+    return bool(url) and bool(_SEARCH_URL.search(str(url)))
 
 def _norm(v):
     s=str(v or "").lower().strip()
@@ -42,7 +49,7 @@ def _provider_ids(t):
 
 def _direct_url(provider, track):
     links=track.get("provider_links") or track.get("external_urls") or {}
-    if isinstance(links,dict) and links.get(provider): return links[provider]
+    if isinstance(links,dict) and links.get(provider) and not is_search_url(links[provider]): return links[provider]
     ids=_provider_ids(track); pid=ids.get(provider)
     if provider=="spotify":
         uri=track.get("provider_uri")
@@ -75,9 +82,15 @@ def resolve_in_catalog(track, provider, catalog):
         return {"provider":provider,"status":"resolved","method":"fuzzy_metadata","confidence":round(score,3),"url":_direct_url(provider,r) or search_url(provider,r),"match":r}
     return {"provider":provider,"status":"search_fallback","method":"provider_search","confidence":0.0,"url":search_url(provider,track)}
 
-def route_track(track, *, preferred_provider="spotify", available_providers=None, catalogs=None):
-    available=set(available_providers or PROVIDER_ORDER); catalogs=catalogs or {}
-    chain=[preferred_provider]+[p for p in PROVIDER_ORDER if p!=preferred_provider]
+def route_track(track, *, preferred_provider="spotify", available_providers=None, catalogs=None, fallback_order=None):
+    """Try the preferred provider, then the (user-configured) fallback chain.
+
+    fallback_order: optional ordered list of fallback providers. When given, only
+    the preferred provider plus these fallbacks are tried (unless
+    available_providers says otherwise)."""
+    order=[p for p in (fallback_order if fallback_order is not None else PROVIDER_ORDER) if p!=preferred_provider]
+    chain=[preferred_provider]+order
+    available=set(available_providers or chain); catalogs=catalogs or {}
     attempts=[]
     for p in chain:
         if p not in available: continue

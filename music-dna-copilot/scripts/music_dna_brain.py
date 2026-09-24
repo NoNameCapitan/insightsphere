@@ -11,11 +11,20 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ACTION_WEIGHT = {
-    "completed": 0.45, "complete": 0.45, "like": 0.8, "save": 1.25,
+    "completed": 0.45, "complete": 0.45, "like": 0.8, "love": 1.1, "save": 1.25,
     "replay": 1.5, "more_like_this": 1.35,
     "skip": -0.55, "not_for_me": -1.25, "dislike": -1.25,
 }
 NOVELTY_DELTA = {"too_similar": 0.08, "too_strange": -0.08}
+
+# Learning safety (3.0). Exploratory capsules are *expected* to miss sometimes,
+# so their negative signals count half. And one capsule can move any single
+# genre/artist only a bounded amount, so one Legendary session cannot rewrite
+# years of listening.
+EXPLORATORY_TIERS = {"legendary", "mystery"}
+EXPLORATORY_NEGATIVE_FACTOR = 0.5
+PER_CAPSULE_GENRE_CAP = 1.0
+PER_CAPSULE_ARTIST_CAP = 1.2
 
 def clamp(v, lo=0.0, hi=1.0): return max(lo, min(hi, v))
 
@@ -58,6 +67,7 @@ def build_adaptive_dna(history_tracks=None, feedback_path=None, now=None):
         if a: artists[a] += 0.22*w
         evidence += 1
 
+    per_capsule_g=defaultdict(float); per_capsule_a=defaultdict(float)
     for r in _feedback_records(feedback_path):
         action=_norm(r.get("action") or r.get("feedback")); rw=recency_weight(r.get("timestamp"),now,90.0)
         if action in NOVELTY_DELTA:
@@ -65,12 +75,21 @@ def build_adaptive_dna(history_tracks=None, feedback_path=None, now=None):
         base=ACTION_WEIGHT.get(action)
         if base is None: continue
         w=base*rw
+        if w<0 and _norm(r.get("capsule_rarity")) in EXPLORATORY_TIERS:
+            w*=EXPLORATORY_NEGATIVE_FACTOR
         positive += max(0,w); negative += max(0,-w); evidence += 1
-        for g in r.get("genres",[]) or []: genres[_norm(g)] += w
-        a=_norm(r.get("artist"));
-        if a: artists[a] += 1.15*w
-        task=_norm(r.get("task"));
+        cap_id=r.get("capsule_id")
+        for g in r.get("genres",[]) or []:
+            if cap_id: per_capsule_g[(cap_id,_norm(g))] += w
+            else: genres[_norm(g)] += w
+        a=_norm(r.get("artist"))
+        if a:
+            if cap_id: per_capsule_a[(cap_id,a)] += 1.15*w
+            else: artists[a] += 1.15*w
+        task=_norm(r.get("task"))
         if task: contexts[task] += 0.5*w
+    for (_cid,g),v in per_capsule_g.items(): genres[g] += max(-PER_CAPSULE_GENRE_CAP,min(PER_CAPSULE_GENRE_CAP,v))
+    for (_cid,a),v in per_capsule_a.items(): artists[a] += max(-PER_CAPSULE_ARTIST_CAP,min(PER_CAPSULE_ARTIST_CAP,v))
 
     # tanh prevents a long history from making preferences irreversible.
     squash=lambda x,scale: round(math.tanh(x/scale),4)
@@ -86,7 +105,9 @@ def build_adaptive_dna(history_tracks=None, feedback_path=None, now=None):
         "feedback_balance":round(positive/posneg,3) if posneg else None,
         "confidence":round(clamp(1-math.exp(-evidence/25.0)),3),
         "learning_rules":{"history_half_life_days":120,"feedback_half_life_days":90,
-                          "single_skip_is_bounded":True,"affinity_squash":"tanh"},
+                          "single_skip_is_bounded":True,"affinity_squash":"tanh",
+                          "exploratory_negative_factor":EXPLORATORY_NEGATIVE_FACTOR,
+                          "per_capsule_genre_cap":PER_CAPSULE_GENRE_CAP,"per_capsule_artist_cap":PER_CAPSULE_ARTIST_CAP},
     }
 
 def track_learning_adjustment(track, adaptive, task=None):

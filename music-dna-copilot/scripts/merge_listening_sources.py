@@ -68,6 +68,11 @@ def discover_default_inputs():
             if source not in {"csv", "json", "manual"}:
                 continue
         files.append(path)
+    # 3.0: one normalized file per imported service (outputs/imports/<service>.json),
+    # so importing a second service never overwrites the first.
+    imports_dir = OUTPUTS / "imports"
+    if imports_dir.is_dir():
+        files.extend(sorted(imports_dir.glob("*.json")))
     return files
 
 
@@ -80,9 +85,28 @@ def load_history(path):
 
 from identity_graph import match_tracks, identity_key, provider_ids
 
+def _fuzzy_block(track):
+    """Blocking key for fuzzy identity matching.
+
+    Fuzzy matches require title similarity >= 0.90, so candidates are only
+    compared inside the same block: normalized-title prefix plus the artist's
+    first letter (ignoring a leading "the"; artist similarity must be >= 0.88). This turns the
+    former all-pairs scan (unusable beyond a few thousand rows) into a near
+    linear pass. Deliberately conservative: a rare true match whose titles
+    differ in the first characters stays unmerged (false negative), never the
+    other way round.
+    """
+    from source_common import normalize_key
+    title, artist = normalize_key(track.get("track_name", ""), track.get("artist_name", ""))
+    if artist.startswith("the "):
+        artist = artist[4:]
+    return title.replace(" ", "")[:4] + "|" + artist[:1]
+
+
 def merge_histories(histories):
     merged = {}
     order = []
+    blocks = {}
     for history in histories:
         fallback_source = history.get("source", "unknown")
         for track in history.get("tracks", []):
@@ -93,9 +117,10 @@ def merge_histories(histories):
             isrc = str(track.get("isrc", "")).strip().upper()
             key = identity_key(track)
             # Conservative fuzzy fallback against existing entities when exact IDs are absent.
+            block = _fuzzy_block(track)
             if key not in merged and key and key[0] == "name":
-                for candidate_key, candidate in merged.items():
-                    verdict = match_tracks(candidate, track)
+                for candidate_key in blocks.get(block, ()):
+                    verdict = match_tracks(merged[candidate_key], track)
                     if verdict["match"]:
                         key = candidate_key
                         break
@@ -124,6 +149,7 @@ def merge_histories(histories):
                     record["_played_at_list"] = [record["played_at"]]
                 merged[key] = record
                 order.append(key)
+                blocks.setdefault(block, []).append(key)
                 continue
 
             record = merged[key]
