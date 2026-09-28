@@ -1,64 +1,76 @@
-# Start here (for a friend)
+# Music DNA Copilot — старт для друга / start for a friend
 
-This is a small music recommendation app that runs **entirely on your own computer**.
-No account, no sign-up, no internet required to try it. Your data stays on your machine.
+*(English below.)*
 
-## What it does
-You give it some music you like (or just use the built-in demo). It analyzes your taste,
-then suggests tracks grouped as **Safe match**, **Adjacent discovery**, and **Wildcard**,
-and explains *why* each was picked. You can save the good ones and export a list.
+## По-русски
 
-## Start it (no accounts needed)
-1. Make sure you have **Python 3.10 or newer** (`python3 --version`).
-2. In a terminal, go into this folder and run:
-   ```
-   python3 scripts/start_app.py
-   ```
-   (or double-click `start_mac.command`, `start_windows.bat`, or `start_linux.sh`).
-3. Your browser opens the app at a local address like `http://127.0.0.1:8765/`.
-4. Not sure if things are set up? Run `python3 scripts/start_app.py --check` for a status report.
+Music DNA Copilot собирает твою музыку из разных сервисов в один личный «музыкальный ДНК»
+и подбирает капсулы треков под настроение. Всё работает **на твоём компьютере**: без
+регистрации, данные никуда не отправляются.
 
-## Use Demo Mode (the easiest start)
-On the home page, pick **Demo** as the source and press **Generate recommendations**.
-That's it — no data or setup required.
+### Вариант 1 — программа (проще всего, Python не нужен)
+Скачай файл для своей системы со страницы релиза:
+**https://github.com/NoNameCapitan/insightsphere/releases/tag/music-dna-v3.2.0**
 
-## Use a preset
-Open **My presets**, pick one (try **Night Drive** or **Focus / Deep Work**), click
-**Apply**, then **Generate**. Presets fill in mood, energy, and genre direction for you.
+| Система | Файл | Запуск |
+|---|---|---|
+| Windows 10/11 | `music-dna-copilot-3.2.0-windows-x64.zip` | распаковать → `Music DNA Copilot\Music DNA Copilot.exe` |
+| macOS (M1 и новее) | `music-dna-copilot-3.2.0-macos-arm64.zip` | распаковать → перетащить в «Программы» |
+| Linux | `music-dna-copilot-3.2.0-linux-x64.tar.gz` | распаковать → `music-dna-copilot/music-dna-copilot` |
 
-## Generate recommendations
-Choose a source (Demo to start), optionally a preset or mood/genre, then **Generate**.
-Each result card shows the track, why it fits, and quick buttons.
+Первый запуск: программа без цифровой подписи.
+- **Windows:** в синем окне SmartScreen нажми «Подробнее» → «Выполнить в любом случае».
+- **macOS:** правый клик по программе → «Открыть» → «Открыть».
 
-## Save tracks to Listen Later
-On any result, click **🕑 Listen later** (or **♥ Favorite**, or **＋ Shortlist**). Find
-everything you saved on the **Queue** page.
+### Вариант 2 — из этого архива (нужен Python 3.10+)
+1. Установи Python с https://www.python.org/downloads/ (на Windows отметь «Add Python to PATH»).
+2. Распакуй архив и дважды кликни:
+   - Windows: `RUN_APP_WINDOWS.bat`
+   - macOS: `RUN_APP_MAC.command`
+   - Linux: `RUN_APP_LINUX.sh`
+3. Приложение откроется в браузере по адресу `http://127.0.0.1:8765/`. Закрыть — окно терминала.
 
-## Export your shortlist
-Open **Queue** and export your shortlist as **CSV** or **TXT** to listen in any player.
-You can also export a **Music DNA report** describing your taste.
+   Или в отдельном окне, как программа: `python desktop_app.py`.
 
-## Optional: connect Last.fm (only if you want)
-Copy `.env.example` to `.env`, add `LASTFM_API_KEY` and `LASTFM_USERNAME`, then enable
-"Use Last.fm similar tracks" before generating. See `LASTFM_SETUP.md`. Read-only — it
-never posts anything.
+### Первые шаги
+1. **Попробуй демо:** на первом экране выбери демо-библиотеку и посмотри свой DNA и капсулы.
+2. **Своя музыка:** страница **Sources**.
+   - Проще всего **ListenBrainz** (только имя пользователя) или **Last.fm** (имя + бесплатный API-ключ).
+   - Любой сервис можно загрузить файлом экспорта кнопкой **Import**: Spotify, Apple, Google Takeout для YouTube, CSV.
+   - Spotify, YouTube Music, Deezer и Apple Music подключаются вживую после разовой настройки: шаги написаны прямо на карточке.
+3. Нажми **Rebuild DNA** и открой **Capsules**: выбери настроение и получи подборку.
+4. Отмечай треки (❤️, «не моё», «слишком похоже»), и DNA будет учиться.
 
-## Optional: connect Spotify (only if you want)
-Add your Spotify app credentials to `.env` and use the Spotify login button. See
-`SPOTIFY_SETUP.md`. Read-only — it does not change your Spotify account or playlists.
+Данные хранятся только у тебя.
+- **Программа:** в папке пользователя, в `%APPDATA%\Music DNA Copilot` на Windows.
+- **Из архива:** в папке `outputs/`.
 
-## Reset or delete your local data
-Open the **Local data** page (`/data`) to see what's saved, **export a backup**, clear
-individual lists, or **Full reset** (it asks for confirmation first). Nothing is ever sent
-anywhere.
+Удалить всё можно в **Settings → Privacy & Data**.
 
-## Privacy
-Everything stays on your computer in the `outputs/` folder. The app makes **no network
-calls** unless *you* choose to configure Last.fm or Spotify. There are no accounts, no
-cloud, no tracking, and no payments.
+---
 
-## Good to know
-- Demo, manual entry, and CSV/JSON upload all work with no internet.
-- Apple Music and Spotify playlist export are **not** included (planned for the future).
-- If a strict, narrow genre search returns few results, try **Broaden genre** or a
-  different preset — the bundled sample library is small.
+## In English
+
+Music DNA Copilot combines your listening from several services into one private Music DNA
+and builds track capsules for your mood. It runs **on your own computer**: no account, and
+nothing is uploaded.
+
+**Option 1 — desktop app (no Python needed):** download the file for your system from
+https://github.com/NoNameCapitan/insightsphere/releases/tag/music-dna-v3.2.0 and start it.
+- Windows: `Music DNA Copilot.exe`. If SmartScreen appears, choose More info → Run anyway.
+- macOS: right-click the app → Open.
+
+**Option 2 — from this archive (Python 3.10+):**
+1. Unzip.
+2. Double-click `RUN_APP_WINDOWS.bat`, `RUN_APP_MAC.command` or `RUN_APP_LINUX.sh`, or run `python run_app.py`.
+3. The app opens at `http://127.0.0.1:8765/`. For its own window, run `python desktop_app.py`.
+
+**First steps:**
+1. Try the demo.
+2. Go to **Sources**:
+   - ListenBrainz (user name only) or Last.fm connect with no developer app.
+   - Import an export file from any service.
+   - Spotify, YouTube Music, Deezer and Apple Music connect live after a one-time setup shown on their card.
+3. **Rebuild DNA**, then open **Capsules**.
+
+More: `README.md`, `DESKTOP_APP.md`, `CONNECTORS.md`, `KNOWN_LIMITATIONS.md`.
