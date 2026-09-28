@@ -85,6 +85,11 @@ except Exception:  # pragma: no cover
 
 # 3.0 product layer (JSON API + web app). The 2.x workspace stays at /classic.
 try:
+    import connectors as live_connectors
+except Exception:  # pragma: no cover - optional
+    live_connectors = None
+
+try:
     from dna3 import api as dna3_api
     from dna3.store import Store as Dna3Store
 except Exception:  # pragma: no cover
@@ -1987,7 +1992,7 @@ class Handler(BaseHTTPRequestHandler):
 
     # -- 3.0 web app + API ----------------------------------------------------
 
-    def serve_web(self, rel):
+    def serve_web(self, rel, csp=None):
         """Static files for the 3.0 app. Only files inside web/ are served."""
         target = (WEB / rel).resolve()
         if WEB.resolve() not in target.parents and target != WEB.resolve() or not target.is_file():
@@ -1999,7 +2004,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-cache")
         self.send_header("X-Content-Type-Options", "nosniff")
         if target.suffix == ".html":
-            self.send_header("Content-Security-Policy",
+            self.send_header("Content-Security-Policy", csp or
                              "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; "
                              "connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
             self.send_header("Referrer-Policy", "no-referrer")
@@ -2051,6 +2056,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.serve_web("index.html")
         if parsed.path.startswith("/assets/"):
             return self.serve_web(parsed.path.lstrip("/"))
+        if parsed.path.startswith("/connect/"):
+            return self.connect_get(parsed.path, qs)
         lang = self.lang(qs)
         if parsed.path == "/spotify/login":
             return self.spotify_login(qs, lang)
@@ -2103,6 +2110,78 @@ class Handler(BaseHTTPRequestHandler):
         elif qs.get("spotify") == ["disconnected"]:
             message = t(lang, "spotify_msg_disconnected")
         self.respond(render_home(lang, esc(message)), lang=lang)
+
+    # -- Live connectors (connectors/): OAuth callbacks + Apple MusicKit ------
+
+    APPLE_CSP = ("default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; "
+                 "script-src 'self' https://js-cdn.music.apple.com; connect-src 'self' https://*.apple.com; "
+                 "frame-src https://*.apple.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'")
+
+    def _loopback_host(self):
+        host = (self.headers.get("Host") or "").rsplit(":", 1)[0].strip().lower()
+        return not host or host in ("127.0.0.1", "localhost", "[::1]", "::1")
+
+    def connect_get(self, path, qs):
+        if live_connectors is None:
+            return self.redirect("/#/sources?connect_failed=unavailable")
+        if not self._loopback_host():
+            return self.respond(b"Blocked", status=403, content_type="text/plain; charset=utf-8")
+        parts = path.strip("/").split("/")          # connect/<provider>/<action>
+        if len(parts) != 3:
+            return self.respond(b"Not found", status=404, content_type="text/plain; charset=utf-8")
+        pid, action = parts[1], parts[2]
+        manager = live_connectors.MANAGER
+        state = qs.get("state", [""])[0]
+        if pid == "apple_music" and action == "start":
+            if not manager.pending_for(pid, state):
+                return self.redirect("/#/sources?connect_failed=apple_music")
+            return self.serve_web("connect-apple.html", csp=self.APPLE_CSP)
+        if pid == "apple_music" and action == "config":
+            if not manager.pending_for(pid, state):
+                return self.respond_json({"ok": False, "error": "This sign-in expired. Start again."}, status=400)
+            conn = manager.connector(pid)
+            try:
+                token = conn.developer_token(manager.config(pid))
+            except live_connectors.ConnectorError as exc:
+                return self.respond_json({"ok": False, "error": str(exc)}, status=400)
+            return self.respond_json({"ok": True, "developer_token": token, "app_name": "Music DNA Copilot",
+                                      "build": getattr(dna3_api, "VERSION", "3"), "musickit_js": "https://js-cdn.music.apple.com/musickit/v3/musickit.js"})
+        if action == "callback" and pid in live_connectors.LIVE_IDS:
+            err = qs.get("error_reason", qs.get("error", [""]))[0]
+            code = qs.get("code", [""])[0]
+            if "?" in state:
+                # Deezer carries our state inside the redirect URI; tolerate a
+                # service appending "?code=" instead of "&code=".
+                state, extra = state.split("?", 1)
+                extra_qs = parse_qs(extra)
+                code = code or extra_qs.get("code", [""])[0]
+                err = err or extra_qs.get("error_reason", [""])[0]
+            try:
+                manager.finish(pid, state, code=code, error_text=err or None)
+            except live_connectors.ConnectorError as exc:
+                manager.last_error[pid] = str(exc)
+                return self.redirect(f"/#/sources?connect_failed={pid}")
+            return self.redirect(f"/#/sources?connected={pid}")
+        return self.respond(b"Not found", status=404, content_type="text/plain; charset=utf-8")
+
+    def apple_music_token(self):
+        """MusicKit page posts the Music User Token here (same-origin only)."""
+        if live_connectors is None or not self._loopback_host() or \
+                self.headers.get("X-MusicDNA-Client") != "3":
+            return self.respond_json({"ok": False, "error": "Blocked"}, status=403)
+        try:
+            body = json.loads(_read_limited_body(self, 64 * 1024).decode("utf-8") or "{}")
+        except Exception:
+            return self.respond_json({"ok": False, "error": "Bad request"}, status=400)
+        manager = live_connectors.MANAGER
+        try:
+            if body.get("error"):
+                manager.finish("apple_music", body.get("state"), error_text=str(body["error"])[:200])
+            manager.finish("apple_music", body.get("state"), user_token=str(body.get("music_user_token") or ""))
+        except live_connectors.ConnectorError as exc:
+            manager.last_error["apple_music"] = str(exc)
+            return self.respond_json({"ok": False, "error": str(exc), "next": "/#/sources?connect_failed=apple_music"})
+        return self.respond_json({"ok": True, "next": "/#/sources?connected=apple_music"})
 
     # -- Spotify OAuth (V2) ----------------------------------------------------
 
@@ -2160,6 +2239,8 @@ class Handler(BaseHTTPRequestHandler):
         parsed = urlsplit(self.path)
         if parsed.path.startswith("/api/v3/"):
             return self.handle_v3("POST")
+        if parsed.path == "/connect/apple_music/token":
+            return self.apple_music_token()
         if parsed.path == "/feedback":
             return self.handle_feedback()
         if parsed.path == "/enhance":

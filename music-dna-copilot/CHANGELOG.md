@@ -1,5 +1,28 @@
 # Changelog
 
+## 3.1.0 — Live connectors
+
+Full notes: `RELEASE_NOTES_3_1.md`.
+
+### Added
+- `scripts/connectors/`: one contract + manager for live, read-only connectors (PKCE,
+  single-use sign-in states with a 10-minute TTL, private `connectors.json` (0600),
+  opt-in token persistence, refresh-and-retry, classified errors).
+- ListenBrainz (public listens by user name), Deezer (OAuth: history + favourites),
+  YouTube Music (Google OAuth + YouTube Data API: liked music), Apple Music (MusicKit
+  sign-in; developer token signed locally with a pure-Python ES256 implementation).
+- One-time setup forms on the Sources page with steps, the exact redirect address to
+  register (with Copy) and "stay connected on this computer"; Connect is then one click
+  and the first sync runs automatically.
+- Spotify Client ID can be set from the UI; `.env` still wins when present.
+- Privacy & Data: shows the credentials file and a "Forget all connections" action.
+- `test_live_connectors.py` (105 checks, offline fakes) wired into the smoke test.
+
+### Changed
+- Live syncs of the new services are stored in `outputs/live/` and merged with imports
+  from the same service instead of replacing them.
+- Cards for services without a usable public API explain why there is no Connect button.
+
 ## 3.0.0 — Product UX, unified music intelligence, beta-ready
 
 Full notes: `RELEASE_NOTES_3_0.md`. Baseline audit: `BASELINE_2_8.md`.

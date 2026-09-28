@@ -11,8 +11,10 @@ Version: 2.0.0 (see `VERSION`, `CHANGELOG.md`, `MERGE_NOTES.md`).
 
 - Python 3.10+ **standard library only**. No pip deps, no React/Next.js, no database, no Docker.
 - Local-first: user data only in `outputs/`. No cloud storage, accounts, payments, telemetry.
-- Connectors are read-only. No Spotify write scopes. YouTube Music = Google Takeout **file import only**
-  (no cookies, no unofficial login). Apple Music / local folders: placeholders only, never faked.
+- Connectors are read-only and official-API only. No Spotify write scopes. No cookies, scraping or
+  unofficial logins (YouTube Music live = Google OAuth + YouTube Data API liked music; Apple Music live =
+  MusicKit). Services without a usable public API stay import-only and their card says why. Local
+  folders: placeholder only, never faked. Live connectors live in `scripts/connectors/` (see CONNECTORS.md).
 - Keep the structure: engine in `scripts/`, UI in `scripts/local_interface.py` + `scripts/mtr_app/`,
   hosted demo in `app.py` + `api/_engine.py` + `index.html` (stateless, no writes).
 - Every user-visible string exists in EN, RU and UK (`mtr_app/i18n.py`, `mtr_app/i18n_multi.py`).
@@ -24,6 +26,7 @@ Version: 2.0.0 (see `VERSION`, `CHANGELOG.md`, `MERGE_NOTES.md`).
 |---|---|
 | Launch | `run_app.py`, `RUN_APP_*`, `start_*` (delegate), `scripts/start_app.py` |
 | Import | `normalize_*`, `import_youtube_takeout.py`, `import_lastfm.py`, `lastfm_client.py`, `spotify_connector.py` |
+| Live connectors (3.1) | `connectors/` (base manager, listenbrainz, deezer, youtube_music, apple_music, es256), `dna3/sources.py`, `web/connect-apple.html` |
 | Merge / coverage | `source_common.py`, `merge_listening_sources.py` |
 | Enrichment | `enrich_genres.py`, `data/artist_genre_seed.json`, `genre_taxonomy.py`, `data/genre_taxonomy.json` |
 | Engine | `analyze_taste.py`, `generate_recommendations.py`, `candidate_engine.py` |

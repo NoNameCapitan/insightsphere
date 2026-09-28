@@ -109,8 +109,7 @@ own consent screen with read-only scopes, and disconnecting deletes any stored t
   estimates, and capsules can repeat across many sessions. Connect Spotify for a live catalog.
 - **Exact routing needs identity.** Tracks without a Spotify id / ISRC open as a *search*
   (clearly labelled). There is no Apple Music/Deezer/TIDAL catalog lookup yet.
-- **Apple Music live access is not implemented** (needs Apple developer credentials and a
-  Music User Token). Import the Apple privacy export instead.
+- ~~Apple Music live access is not implemented~~ — added in 3.1 (see below).
 - **Non-Spotify/Last.fm/YouTube imports use a generic column importer**; official export
   formats vary and may need column renaming.
 - Re-importing a service replaces its previous import (exports are usually cumulative).
@@ -119,3 +118,37 @@ own consent screen with read-only scopes, and disconnecting deletes any stored t
 - Fuzzy identity matching only compares tracks that share a title prefix and artist
   initial, so rare true duplicates may stay separate (by design: false negatives over
   false positives).
+
+## 3.1 — live connectors
+
+- **"One click" starts after a one-time setup.** Spotify, Deezer, YouTube Music and Apple
+  Music only let apps that are registered with them read an account. This is a local app
+  with no central server, so each person registers a free developer app once and pastes its
+  credentials on the Sources page. ListenBrainz needs only a user name. A hosted,
+  truly zero-setup version would need one operator-registered app per service, public
+  OAuth callbacks and server-side, per-user encrypted token storage; that is not built.
+- **Spotify development mode:** only accounts added under the app's User Management can
+  connect (Spotify's rule for apps without extended quota).
+- **YouTube Music:** Google offers no API for YouTube Music play history. The live
+  connection reads your *liked* videos in the Music category; titles of non-"Topic"
+  uploads are parsed from "Artist - Title" (lower confidence). Use Google Takeout for
+  full history. Google OAuth apps in "Testing" need your account listed as a test user,
+  and Google may expire test-mode refresh tokens after 7 days (reconnect when asked).
+- **Apple Music:** requires a paid Apple Developer membership for the MusicKit key.
+  The sign-in page loads MusicKit JS from Apple's CDN (the only third-party script in
+  the app, allowed only on that page). Music User Tokens can't be refreshed; Apple
+  expires them after months and the card then asks you to reconnect. Recently played is
+  limited by Apple to the latest few dozen items; heavy rotation contributes album-level
+  artist signals only.
+- **Deezer** has at times paused registration of new developer apps. Its token exchange
+  needs the app secret, which is stored locally (0600) like the other credentials.
+- **ListenBrainz** shows only listens your scrobbler sent; sync reads the latest 5,000.
+- **TIDAL** (beta API, no play history), **SoundCloud** (closed app registration),
+  **Amazon Music** (invite-only API), **Qobuz, Bandcamp, Pandora** (no listener API) and
+  **Yandex Music** (no official API; unofficial login tools are not used) stay import-only.
+- The live connectors are tested offline against recorded response shapes
+  (`scripts/test_live_connectors.py`); they have not been exercised against the live
+  services from the CI/cloud environment, which has no access to them.
+- Live syncs are stored as separate files (`outputs/live/`) so they never overwrite an
+  imported export; overlapping plays between an export and a live sync are merged by the
+  normal identity rules.

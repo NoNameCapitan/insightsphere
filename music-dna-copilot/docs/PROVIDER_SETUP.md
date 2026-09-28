@@ -40,17 +40,35 @@ Scopes: read-only only (e.g. recently played / top items). The app **never** req
 scopes and never modifies your account or playlists. Tokens are stored locally in `outputs/`
 and are excluded from git and release archives.
 
-## YouTube Music (import only — no direct connection)
-There is **no** direct YouTube Music account login. There is no reliable official OAuth path,
-so the app does not pretend to connect. Instead, export your history via **Google Takeout**
-(YouTube and YouTube Music → history) and import the resulting CSV/JSON, or paste tracks
-manually. This is labeled "Import", not "Connect", on purpose.
+## YouTube Music (live liked music, or Takeout import)
+**Live (3.1):** Sources → YouTube Music → **Set up once**. Create a Google Cloud project, enable
+"YouTube Data API v3", configure the OAuth consent screen (External, Testing, add yourself as a
+test user) and create an **OAuth client ID of type Desktop app**; paste its ID and secret, then
+**Save and connect**. This is Google's official sign-in and API, read-only
+(`youtube.readonly`). Google offers no API for YouTube Music *play history*, so the live
+connection reads the songs you **liked** (Music category). No cookies, no unofficial login.
+**Import:** for full history, export it via **Google Takeout** (YouTube and YouTube Music →
+history) and import the file.
 
-## Apple Music (future / planned)
-Not implemented. There is no connect button. A future version could use an Apple Developer
-token + MusicKit user authorization, but that is out of scope for now.
+## Deezer (live, 3.1)
+Sources → Deezer → **Set up once**: create an app at developers.deezer.com/myapps, set its
+application domain / redirect URL to the address the form shows, paste the Application ID and
+Secret key, then **Save and connect**. Reads listening history and favourite tracks. Deezer has
+at times paused new app registration; if so, import an export instead.
+
+## ListenBrainz (live, 3.1)
+Sources → ListenBrainz → type your user name → **Connect**. Public listens need no password
+or app; an optional user token (listenbrainz.org → Settings) only raises rate limits.
+
+## Apple Music (live, 3.1)
+Requires an Apple Developer Program membership (Apple's rule for MusicKit). In Certificates,
+Identifiers & Profiles → Keys, create a key with **Media Services (MusicKit)** and download the
+.p8 file. Sources → Apple Music → **Set up once**: paste Team ID, Key ID and the .p8 contents
+(or a developer token you already have). The developer token is signed on your computer.
+**Connect** opens Apple's MusicKit sign-in; Apple returns a Music User Token to the app.
+Without a developer membership, import the Apple privacy export (Play Activity CSV).
 
 ## Privacy
 Your listening data stays on this device. The app runs a **local-only** HTTP server on
-`127.0.0.1` and makes no network calls unless you configure Last.fm or Spotify or export a
-file yourself. No cloud, no accounts on our side, no tracking, no payments.
+`127.0.0.1` and makes no network calls unless you connect a service (Spotify, Apple Music, YouTube
+Music, Deezer, Last.fm, ListenBrainz) or open a music link yourself. No cloud, no accounts on our side, no tracking, no payments.

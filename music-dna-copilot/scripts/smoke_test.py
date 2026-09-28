@@ -395,6 +395,11 @@ def main():
     last = (r.stdout or "").strip().splitlines()
     check("test_v3_product.py passes", r.returncode == 0, last[-1] if last else "")
 
+    print("20h. Live connectors (ListenBrainz, Deezer, YouTube Music, Apple Music, Spotify setup)")
+    r = run([sys.executable, str(SCRIPTS / "test_live_connectors.py")], timeout=300)
+    last = (r.stdout or "").strip().splitlines()
+    check("test_live_connectors.py passes", r.returncode == 0, last[-1] if last else "")
+
     print("21. Local UI (after isolated subprocess suites)")
     import local_interface as li
     print("21a. Regression: feedback schema compatibility (uses local_interface)")
@@ -581,8 +586,8 @@ def main():
               "Last.fm account connector." not in readme
               and "expansion (Last.fm/Spotify) lands" not in readme)
         connectors = (ROOT / "CONNECTORS.md").read_text(encoding="utf-8")
-        check("Apple Music documented as future/planned only",
-              "FUTURE / PLANNED" in connectors)
+        check("Apple Music live access documented with its real requirement",
+              "Apple Developer MusicKit key" in connectors and "no usable public API" in connectors)
         env_example = (ROOT / ".env.example").read_text(encoding="utf-8")
         check(".env.example does not require SPOTIFY_CLIENT_SECRET",
               "SPOTIFY_CLIENT_SECRET" not in env_example)

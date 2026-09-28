@@ -3,7 +3,9 @@
 Status honesty rules
 --------------------
 * A provider is `connected` only when a live session/credentials prove it
-  (Spotify: an OAuth session; Last.fm: API key + username configured).
+  (Spotify, Deezer, YouTube Music, Apple Music: a token the service issued
+  and accepted; ListenBrainz: the service confirmed the user exists;
+  Last.fm: API key + username configured).
 * `imported` means a normalized export from that service is on disk.
 * Capability badges come from what the code can actually do today:
   LIVE_CONNECTION, IMPORT, REQUIRES_SETUP or COMING_SOON. There is no fake
@@ -33,10 +35,11 @@ LEGACY_FILES = {
 # id, label, import parser, short description of what to upload
 PROVIDERS = [
     ("spotify", "Spotify", "spotify_export", "Live read-only connection, or your Extended Streaming History (.json) from Spotify's privacy page."),
-    ("apple_music", "Apple Music", "multi", "Apple privacy export: the Play Activity CSV (track + artist columns)."),
+    ("apple_music", "Apple Music", "multi", "Live connection through Apple's MusicKit sign-in, or the Apple privacy export (Play Activity CSV)."),
     ("lastfm", "Last.fm", "lastfm", "Live scrobble sync with your username + free API key, or an export file."),
-    ("youtube_music", "YouTube Music", "takeout", "Google Takeout watch-history (.json/.html) or YouTube Music library CSV."),
-    ("deezer", "Deezer", "multi", "CSV/JSON export with track and artist columns."),
+    ("listenbrainz", "ListenBrainz", None, "Live public listening history by user name. No password, no developer app."),
+    ("youtube_music", "YouTube Music", "takeout", "Live sign-in with Google for the songs you liked, or Google Takeout watch-history (.json/.html)."),
+    ("deezer", "Deezer", "multi", "Live sign-in with your Deezer app for history and favourites, or a CSV/JSON export."),
     ("tidal", "TIDAL", "multi", "CSV/JSON export with track and artist columns."),
     ("soundcloud", "SoundCloud", "multi", "CSV/JSON export with track and artist columns."),
     ("amazon_music", "Amazon Music", "multi", "CSV/JSON export with track and artist columns."),
@@ -60,8 +63,14 @@ def label(source_id):
     return LABELS.get(source_id, str(source_id).replace("_", " ").title())
 
 
+LIVE_SUFFIX = "_live"
+
+
 def canonical_source(source_id):
     """Map the many 2.x source ids onto 3.0 provider ids."""
+    source_id = str(source_id or "")
+    if source_id.endswith(LIVE_SUFFIX):
+        source_id = source_id[: -len(LIVE_SUFFIX)]
     return {"youtube_takeout": "youtube_music", "generic": "generic_csv", "sample": "demo",
             "spotify_export": "spotify"}.get(source_id, source_id)
 
@@ -109,9 +118,48 @@ def lastfm_state():
     return bool(status.get("api_key_present")), status.get("username") or None
 
 
+def live_connectors():
+    """(MANAGER, LIVE_IDS) or (None, ()) when the connectors package is unavailable."""
+    try:
+        from connectors import LIVE_IDS, MANAGER
+        return MANAGER, LIVE_IDS
+    except Exception:  # pragma: no cover - optional
+        return None, ()
+
+
+def base_url(store):
+    return getattr(store, "request_base_url", None) or "http://127.0.0.1:8765"
+
+
+def _connector_error(provider, exc):
+    """ConnectorError -> ProductError with plain wording."""
+    kind = getattr(exc, "kind", "provider")
+    name = label(provider)
+    text = str(exc)
+    if kind == "setup":
+        return ProductError("REQUIRES_SETUP", f"{name} needs setup", text, detail=text)
+    if kind == "auth":
+        return ProductError("AUTH_EXPIRED", f"{name} connection needs attention",
+                            f"{text} Your existing data is safe.", detail=text)
+    if kind == "rate_limit":
+        return ProductError("RATE_LIMITED", f"{name} asked us to slow down",
+                            "Too many requests in a short time. Try again in a few minutes.", detail=text)
+    if kind == "offline":
+        return ProductError("OFFLINE", f"Couldn't reach {name}",
+                            "You may be offline, or the service is down. Nothing was changed.", detail=text)
+    return ProductError("PROVIDER_UNAVAILABLE", f"{name} isn't responding",
+                        f"{name} returned an unexpected answer. Nothing was changed; try again later.", detail=text)
+
+
 # ---------------------------------------------------------------------------
 # Discovering normalized histories on disk
 # ---------------------------------------------------------------------------
+
+def live_path(store: Store, provider):
+    """Where a live sync of `provider` is stored. Kept apart from file imports
+    so connecting a service never overwrites an export you imported."""
+    return store.base / "live" / f"{provider}.json"
+
 
 def source_files(store: Store):
     """{provider_id: Path} for every normalized history the user imported."""
@@ -123,6 +171,10 @@ def source_files(store: Store):
     if store.imports_dir.is_dir():
         for p in sorted(store.imports_dir.glob("*.json")):
             found[p.stem] = p
+    live_dir = live_path(store, "x").parent
+    if live_dir.is_dir():
+        for p in sorted(live_dir.glob("*.json")):
+            found[p.stem + LIVE_SUFFIX] = p
     # 2.x classic-UI artefacts: count them only when they are genuine imports.
     legacy_multi = store.path("multi_service_normalized.json")
     if legacy_multi.exists():
@@ -188,25 +240,65 @@ def _registry(store):
         return {}
 
 
+# Why a service has no live connection (shown on its card instead of a fake button).
+NO_LIVE_REASON = {
+    "tidal": "No live connection yet: TIDAL's developer API is in beta and offers no play history. Import an export instead.",
+    "soundcloud": "No live connection: SoundCloud rarely approves new API apps. Import an export instead.",
+    "amazon_music": "No live connection: Amazon Music's API is invite-only. Import an export instead.",
+    "qobuz": "No live connection: Qobuz has no public API for listeners. Import an export instead.",
+    "bandcamp": "No live connection: Bandcamp has no public API for fans. Import your collection export.",
+    "yandex_music": "No live connection: Yandex Music has no official public API (unofficial login tools are not used). Import an export.",
+    "pandora": "No live connection: Pandora has no public API. Import an export instead.",
+}
+
+
+def _combined_stats(paths):
+    stats = None
+    for path in paths:
+        st = _history_stats(json.loads(path.read_text(encoding="utf-8")))
+        if stats is None:
+            stats = st
+            continue
+        stats["rows"] += st["rows"]
+        stats["events"] += st["events"]
+        for k, pick in (("first_played", min), ("last_played", max)):
+            vals = [v for v in (stats[k], st[k]) if v]
+            stats[k] = pick(vals) if vals else None
+    return stats
+
+
+def _setup_spec(pid, conn, store):
+    """What the one-time setup form needs: fields, steps and the exact
+    redirect address to register with the service."""
+    spec = conn.describe()
+    if pid == "spotify":
+        spec["redirect_uri"] = f"{base_url(store)}/spotify/callback"
+    elif conn.auth == "oauth":
+        spec["redirect_uri"] = f"{base_url(store)}/connect/{pid}/callback"
+    if pid == "deezer":
+        spec["redirect_domain"] = base_url(store)
+    return spec
+
+
 def provider_cards(store: Store):
     files = source_files(store)
     registry = _registry(store)
     sp_configured, sp_connected, sp_who, sp_error = spotify_state()
     lf_key, lf_user = lastfm_state()
-    apple = _mod("apple_music_connector")
+    manager, live_ids = live_connectors()
     cards = []
     for pid, name, parser, how in PROVIDERS:
         card = {"id": pid, "label": name, "how_to": how, "state": "not_connected",
                 "capabilities": [], "badge": "IMPORT", "note": None, "stats": None,
                 "last_synced": None, "can_import": parser is not None, "can_connect": False,
-                "can_sync": False, "error": None}
+                "can_sync": False, "error": None, "setup": None, "configured": False, "live": False}
         reg = registry.get(pid) or {}
-        path = files.get(pid)
-        if pid == "spotify" and "spotify_export" in files and not path:
-            path = files["spotify_export"]
-        if path is not None:
+        paths = [p for p in (files.get(pid), files.get(pid + LIVE_SUFFIX)) if p is not None]
+        if pid == "spotify" and "spotify_export" in files and files["spotify_export"] not in paths:
+            paths.append(files["spotify_export"])
+        if paths:
             try:
-                card["stats"] = _history_stats(json.loads(path.read_text(encoding="utf-8")))
+                card["stats"] = _combined_stats(paths)
                 card["state"] = "imported"
             except (OSError, ValueError):
                 card["error"] = "The saved data for this source is unreadable. Re-import it."
@@ -214,14 +306,23 @@ def provider_cards(store: Store):
             if not card["last_synced"]:
                 try:
                     from datetime import datetime, timezone
-                    card["last_synced"] = datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()
+                    newest = max(p.stat().st_mtime for p in paths)
+                    card["last_synced"] = datetime.fromtimestamp(newest, timezone.utc).isoformat()
                 except OSError:
                     pass
+        conn = manager.registry.get(pid) if manager else None
+        if conn is not None:
+            card["setup"] = _setup_spec(pid, conn, store)
+            card["reads"] = conn.reads
+            card["limits"] = conn.limits
         if pid == "spotify":
             card["capabilities"] = ["live", "import"]
+            card["live"] = True
+            card["configured"] = sp_configured
+            card["auth"] = "spotify"
             if not sp_configured:
                 card["badge"] = "REQUIRES_SETUP"
-                card["note"] = "Live connection needs your own free Spotify app Client ID in .env (see SPOTIFY_SETUP.md). Export import works without it."
+                card["note"] = "One-time setup: paste the Client ID of your free Spotify app. After that, Connect is one click."
             else:
                 card["badge"] = "LIVE_CONNECTION"
                 card["can_connect"] = not sp_connected
@@ -235,8 +336,11 @@ def provider_cards(store: Store):
                 card["error"] = sp_error
         elif pid == "lastfm":
             card["capabilities"] = ["live", "import"]
+            card["live"] = True
+            card["auth"] = "lastfm"
             if lf_key and lf_user:
                 card["badge"] = "LIVE_CONNECTION"
+                card["configured"] = True
                 card["state"] = "connected" if card["state"] == "imported" else "configured"
                 card["can_sync"] = True
                 card["account"] = lf_user
@@ -244,18 +348,39 @@ def provider_cards(store: Store):
                 card["badge"] = "LIVE_CONNECTION"
                 card["can_connect"] = True
                 card["note"] = "Live sync needs your username and a free Last.fm API key. Export files work offline."
-        elif pid == "apple_music":
-            card["capabilities"] = ["import"]
-            status = apple.config_status() if apple else {}
-            card["note"] = ("Live Apple Music access is not available: it requires Apple developer credentials "
-                            "and a Music User Token. Import your Apple privacy export instead.")
-            card["live_setup_missing"] = status.get("missing", [])
+        elif pid in live_ids and conn is not None:
+            st = manager.status(pid)
+            card["live"] = True
+            card["auth"] = conn.auth
+            card["configured"] = st["configured"]
+            card["capabilities"] = ["live"] + (["import"] if parser else [])
+            card["config_public"] = st["config_public"]
+            if st["connected"]:
+                card["badge"] = "LIVE_CONNECTION"
+                card["state"] = "connected"
+                card["can_sync"] = True
+                card["account"] = st["account"]
+                card["last_synced"] = st["last_sync"] or card["last_synced"]
+                card["remembered"] = st["remembered"]
+            elif st["configured"]:
+                card["badge"] = "LIVE_CONNECTION"
+                card["can_connect"] = True
+                if card["state"] == "imported":
+                    card["note"] = "Not connected right now. Your previously synced or imported data is still part of your DNA."
+            else:
+                card["badge"] = "LIVE_CONNECTION" if pid == "listenbrainz" else "REQUIRES_SETUP"
+                card["can_connect"] = pid == "listenbrainz"
+                card["note"] = conn.limits if pid != "listenbrainz" else None
+            if st["error"]:
+                card["error"] = st["error"]
         elif pid == "local_files":
             card["badge"] = "COMING_SOON"
             card["capabilities"] = []
         else:
             card["capabilities"] = ["import"]
-            if pid not in ("generic_csv", "generic_json", "youtube_music"):
+            if pid in NO_LIVE_REASON:
+                card["note"] = NO_LIVE_REASON[pid]
+            elif pid not in ("generic_csv", "generic_json", "youtube_music"):
                 card["note"] = "Uses the generic column importer; official export formats vary."
         cards.append(card)
     return cards
@@ -389,6 +514,8 @@ def remove_source(store: Store, provider: str):
     targets = []
     if provider in files:
         targets.append(files[provider])
+    if provider + LIVE_SUFFIX in files:
+        targets.append(files[provider + LIVE_SUFFIX])
     if provider == "spotify" and "spotify_export" in files:
         targets.append(files["spotify_export"])
     if not targets:
@@ -450,8 +577,16 @@ def sync_provider(store: Store, provider: str):
             raise _classify_provider_error("lastfm", exc)
         target = store.path(LEGACY_FILES["lastfm"])
     else:
-        raise ProductError("BAD_REQUEST", "Sync not available",
-                           f"{label(provider)} has no live sync. Import an export file instead.")
+        manager, live_ids = live_connectors()
+        if provider not in live_ids:
+            raise ProductError("BAD_REQUEST", "Sync not available",
+                               f"{label(provider)} has no live sync. Import an export file instead.")
+        from connectors import ConnectorError
+        try:
+            history = manager.fetch(provider)
+        except ConnectorError as exc:
+            raise _connector_error(provider, exc)
+        target = live_path(store, provider)
     if not history.get("tracks"):
         raise ProductError("NOT_ENOUGH_DATA", "No listening history returned",
                            f"{label(provider)} returned no tracks yet. Listen a little and try again.")
@@ -494,7 +629,66 @@ def disconnect(store: Store, provider: str):
     elif provider == "lastfm":
         from mtr_app import local_config
         local_config.clear_lastfm()
+    elif provider in live_connectors()[1]:
+        live_connectors()[0].disconnect(provider)
     else:
         raise ProductError("BAD_REQUEST", "Nothing to disconnect",
                            f"{label(provider)} has no live connection; you can remove its imported data instead.")
     return {"provider": provider, "disconnected": True}
+
+
+# ---------------------------------------------------------------------------
+# One-time setup and one-click connect
+# ---------------------------------------------------------------------------
+
+def save_setup(store: Store, provider: str, fields: dict):
+    """Store the user's own developer-app credentials for one service."""
+    manager, live_ids = live_connectors()
+    if manager is None or (provider not in live_ids and provider != "spotify"):
+        raise ProductError("BAD_REQUEST", "Nothing to set up", f"{label(provider)} has no live connection to set up.")
+    from connectors import ConnectorError
+    fields = {k: v for k, v in (fields or {}).items() if isinstance(v, str)}
+    try:
+        status = manager.save_setup(provider, fields)
+    except ConnectorError as exc:
+        raise _connector_error(provider, exc)
+    if provider == "spotify":
+        # Remember which callback address the user registered (this port).
+        manager._update("spotify", config={**manager.config("spotify"),
+                                           "redirect_uri": f"{base_url(store)}/spotify/callback"})
+        from mtr_app.spotify_state import SPOTIFY
+        SPOTIFY.session = None
+        SPOTIFY.last_error = ""
+    return {"provider": provider, "configured": status["configured"]}
+
+
+def clear_setup(store: Store, provider: str):
+    manager, live_ids = live_connectors()
+    if manager is None or (provider not in live_ids and provider != "spotify"):
+        raise ProductError("BAD_REQUEST", "Nothing to clear", f"{label(provider)} has no saved setup.")
+    if provider == "spotify":
+        disconnect(store, "spotify")
+    return manager.clear_setup(provider)
+
+
+def connect(store: Store, provider: str, remember=True):
+    """Start a connection. Returns where the browser should go next."""
+    manager, live_ids = live_connectors()
+    if provider == "spotify":
+        q = "next=v3" + ("&remember=1" if remember else "")
+        return {"provider": provider, "redirect": f"/spotify/login?{q}"}
+    if provider not in live_ids:
+        raise ProductError("BAD_REQUEST", "No live connection",
+                           f"{label(provider)} can't be connected live. Import an export file instead.")
+    from connectors import ConnectorError
+    conn = manager.connector(provider)
+    try:
+        if conn.auth == "username":
+            status = manager.connect_username(provider, remember=remember)
+            return {"provider": provider, "connected": True, "account": status["account"]}
+        started = manager.start(provider, base_url(store), remember=remember)
+    except ConnectorError as exc:
+        raise _connector_error(provider, exc)
+    if conn.auth == "musickit":
+        return {"provider": provider, "redirect": f"/connect/{provider}/start?state={started['state']}"}
+    return {"provider": provider, "redirect": started["redirect"]}

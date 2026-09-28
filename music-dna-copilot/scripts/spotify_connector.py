@@ -575,10 +575,25 @@ def build_candidate_catalog(session: SpotifySession, history: dict,
 # Config + CLI
 # ---------------------------------------------------------------------------
 
+def _ui_setup() -> dict:
+    """Spotify settings saved from the app's setup form (connectors.json)."""
+    try:
+        from connectors import MANAGER
+        return MANAGER.config("spotify")
+    except Exception:
+        return {}
+
+
 def load_config() -> tuple[str, str]:
     env = load_env()
     client_id = env.get("SPOTIFY_CLIENT_ID", "").strip()
-    redirect_uri = env.get("SPOTIFY_REDIRECT_URI", DEFAULT_REDIRECT_URI).strip() or DEFAULT_REDIRECT_URI
+    redirect_uri = env.get("SPOTIFY_REDIRECT_URI", "").strip()
+    if not client_id or client_id == "your_spotify_client_id_here":
+        # Fallback: Client ID saved from the app's one-time setup form.
+        ui = _ui_setup()
+        client_id = ui.get("client_id", "")
+        redirect_uri = redirect_uri or ui.get("redirect_uri", "")
+    redirect_uri = redirect_uri or DEFAULT_REDIRECT_URI
     if not client_id or client_id == "your_spotify_client_id_here":
         raise SpotifyAuthError(
             "SPOTIFY_CLIENT_ID is not configured. Copy .env.example to .env, create an app at "

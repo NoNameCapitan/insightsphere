@@ -594,3 +594,21 @@ svg.i { width: 18px; height: 18px; flex: none; display: inline-block; vertical-a
 .dna-svg text { font-size: 15px; }
 .dna-svg .fam-label { font-size: 17px; }
 .dna-svg .artist-label, .dna-svg .sat-label { font-size: 14px; }
+
+/* Apple Music MusicKit sign-in page (connect-apple.html) */
+.connect-page { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; }
+.connect-card { max-width: 480px; width: 100%; display: grid; gap: 12px; }
+.connect-status { font-size: 14px; }
+.connect-status.err { color: var(--danger, #ff6b6b); }
+
+/* Live-connector setup form on provider cards */
+.setup-form { border-top: 1px solid var(--line, rgba(255,255,255,.08)); padding-top: 12px; margin-top: 4px; }
+.setup-form textarea.input { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; resize: vertical; min-height: 84px; }
+.setup-steps { margin: 0; padding-left: 20px; font-size: 13px; color: var(--muted, #a3a7b3); display: grid; gap: 4px; }
+.field small { display: block; margin-top: 4px; font-size: 12px; }
+.field-label { display: block; font-size: 13px; margin-bottom: 6px; color: var(--muted); font-weight: 600; }
+.copy-row { display: flex; gap: 8px; align-items: center; min-width: 0; }
+.copy-value { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 12.5px; padding: 8px 10px; border-radius: 8px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); user-select: all; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13px; cursor: pointer; }
+.check input { width: 16px; height: 16px; accent-color: var(--signal, #8bf); }

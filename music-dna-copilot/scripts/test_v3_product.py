@@ -20,6 +20,9 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(HERE))
+# Never read or write the real per-user connector config/tokens during tests.
+import os  # noqa: E402
+os.environ["MTR_CONFIG_DIR"] = tempfile.mkdtemp(prefix="mtr-v3-")
 
 from dna3 import api, capsules as C, dna as D, sources as SRC  # noqa: E402
 from dna3.errors import ProductError  # noqa: E402
@@ -86,7 +89,8 @@ def main():
     cards = {c["id"]: c for c in SRC.provider_cards(s)}
     check("nothing is connected on a fresh install", all(c["state"] == "not_connected" for c in cards.values()))
     check("local folder is COMING_SOON", cards["local_files"]["badge"] == "COMING_SOON")
-    check("Apple Music never claims live access", cards["apple_music"]["capabilities"] == ["import"])
+    check("Apple Music live access only after real setup", cards["apple_music"]["badge"] == "REQUIRES_SETUP"
+          and not cards["apple_music"]["can_connect"] and cards["apple_music"]["state"] == "not_connected")
     check("NO_SOURCES before any import", raises("NO_SOURCES", lambda: list(D.build_steps(s))))
     ex = ROOT / "examples"
     r = SRC.import_file(s, "lastfm", "l.json", (ex / "sample_lastfm_export.json").read_bytes())

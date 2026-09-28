@@ -816,6 +816,31 @@ function providerGrid(cards, onboarding = false) {
   const list = [...cards].sort((a, b) => order(a) - order(b));
   return `<div class="provider-grid">${list.map((c) => providerCard(c, onboarding)).join("")}</div>`;
 }
+function setupPanel(c) {
+  const s = c.setup;
+  if (!s || c.id === "lastfm") return "";
+  const fid = (f) => `su-${esc(c.id)}-${esc(f.name)}`;
+  const fields = s.fields.map((f) => {
+    const stored = (c.config_public || {})[f.name];
+    const ph = f.secret && stored ? "Saved. Leave blank to keep it" : "";
+    const input = f.multiline
+      ? `<textarea class="input" id="${fid(f)}" name="${esc(f.name)}" rows="4" autocomplete="off" spellcheck="false" placeholder="${esc(ph)}"></textarea>`
+      : `<input class="input" id="${fid(f)}" name="${esc(f.name)}" ${f.secret ? 'type="password"' : ""} autocomplete="off" spellcheck="false" value="${f.secret ? "" : esc(stored || "")}" placeholder="${esc(ph)}" ${f.required && !(f.secret && stored) ? "required" : ""}>`;
+    return `<div class="field"><label for="${fid(f)}">${esc(f.label)}${f.required ? "" : ' <span class="faint">(optional)</span>'}</label>${input}${f.help ? `<small class="faint">${esc(f.help)}</small>` : ""}</div>`;
+  }).join("");
+  const redirect = s.redirect_uri ? `<div class="field"><span class="field-label">${c.id === "deezer" ? "Application domain / redirect URL" : s.needs_redirect_registration ? "Redirect URI to register" : "Sign-in returns to (nothing to register)"}</span>
+      <div class="copy-row"><code class="copy-value">${esc(c.id === "deezer" ? s.redirect_domain : s.redirect_uri)}</code><button type="button" class="btn btn-sm btn-ghost" data-act="copy" data-value="${esc(c.id === "deezer" ? s.redirect_domain : s.redirect_uri)}">Copy</button></div></div>` : "";
+  const steps = c.id === "listenbrainz" ? "" : `<ol class="setup-steps">${s.setup_steps.map((x) => `<li>${esc(x)}</li>`).join("")}</ol>
+      ${s.dashboard_url ? `<p><a class="link-btn" href="${esc(s.dashboard_url)}" target="_blank" rel="noopener noreferrer">Open the developer page ↗</a></p>` : ""}`;
+  return `<form class="stack setup-form" data-form="setup" data-provider="${esc(c.id)}" data-label="${esc(c.label)}" hidden>
+      ${c.id === "listenbrainz" ? "" : `<p class="faint" style="font-size:12.5px">One-time setup. ${esc(c.label)} only lets apps registered by you read your account, so you create a free app once; after that, connecting is one click.</p>`}
+      ${steps}${redirect}${fields}
+      <label class="check"><input type="checkbox" name="remember" checked> Stay connected on this computer</label>
+      <div class="provider-actions"><button class="btn btn-sm btn-primary">${c.id === "listenbrainz" ? "Connect" : "Save and connect"}</button>
+        ${c.configured && c.id !== "listenbrainz" ? `<button type="button" class="btn btn-sm btn-ghost" data-act="forget" data-provider="${esc(c.id)}" data-label="${esc(c.label)}">Forget setup</button>` : ""}</div>
+      <p class="faint" style="font-size:12px">Saved only on this computer, readable by your user account alone. Access is read-only.</p>
+    </form>`;
+}
 function providerCard(c, onboarding) {
   let [bc, bl] = BADGE[c.badge] || ["import", c.badge];
   // Capability, not state: never let "live" read as "connected" when it isn't.
@@ -823,25 +848,37 @@ function providerCard(c, onboarding) {
   const stateBadge = c.state === "connected" ? `<span class="badge connected">Connected</span>` : c.state === "imported" ? `<span class="badge imported">Imported</span>` : c.state === "configured" ? `<span class="badge live">Configured</span>` : "";
   const st = c.stats;
   const meta = st ? `<div class="provider-meta"><b>${n(st.events)}</b> events · <b>${n(st.rows)}</b> rows${c.last_synced ? ` · ${c.state === "connected" ? "synced" : "imported"} ${esc(ago(c.last_synced))}` : ""}</div>` : "";
+  const live = c.live && c.id !== "lastfm";
   const acts = [];
-  if (c.id === "spotify" && c.can_connect) acts.push(`<a class="btn btn-sm btn-primary" href="/spotify/login?next=v3">Connect</a>`);
+  if (live && c.can_connect && c.configured) acts.push(`<button class="btn btn-sm btn-primary" data-act="connect" data-provider="${esc(c.id)}" data-label="${esc(c.label)}">Connect</button>`);
+  if (live && c.state !== "connected" && (!c.configured || c.id === "listenbrainz")) acts.push(`<button class="btn btn-sm ${c.id === "listenbrainz" ? "btn-primary" : ""}" data-act="setup">${c.id === "listenbrainz" ? "Connect" : "Set up once"}</button>`);
+  if (live && c.configured && c.state !== "connected" && c.id !== "listenbrainz" && !onboarding) acts.push(`<button class="btn btn-sm btn-ghost" data-act="setup">Setup</button>`);
   if (c.id === "lastfm" && c.can_connect) acts.push(`<button class="btn btn-sm" data-act="lastfm-setup">Set up live sync</button>`);
   if (c.can_sync) acts.push(`<button class="btn btn-sm" data-act="sync" data-provider="${esc(c.id)}">${icon("sync")} Sync</button>`);
-  if (c.can_import) acts.push(`<label class="btn btn-sm file-btn ${c.state === "not_connected" && !c.can_connect ? "btn-primary" : ""}">${icon("upload")} ${c.state === "imported" ? "Re-import" : "Import"}<input type="file" data-act="import" data-provider="${esc(c.id)}" accept=".json,.csv,.html,.htm,.tsv,.txt" aria-label="Import ${esc(c.label)} export file"></label>`);
-  if (!onboarding && (c.state === "connected" || c.state === "configured") && (c.id === "spotify" || c.id === "lastfm")) acts.push(`<button class="btn btn-sm btn-ghost" data-act="disconnect" data-provider="${esc(c.id)}" data-label="${esc(c.label)}">Disconnect</button>`);
+  if (c.can_import) acts.push(`<label class="btn btn-sm file-btn ${c.state === "not_connected" && !c.can_connect && !live ? "btn-primary" : ""}">${icon("upload")} ${c.state === "imported" ? "Re-import" : "Import"}<input type="file" data-act="import" data-provider="${esc(c.id)}" accept=".json,.csv,.html,.htm,.tsv,.txt" aria-label="Import ${esc(c.label)} export file"></label>`);
+  if (!onboarding && (c.state === "connected" || c.state === "configured") && c.live) acts.push(`<button class="btn btn-sm btn-ghost" data-act="disconnect" data-provider="${esc(c.id)}" data-label="${esc(c.label)}">Disconnect</button>`);
   if (!onboarding && c.stats) acts.push(`<button class="btn btn-sm btn-ghost" data-act="remove" data-provider="${esc(c.id)}" data-label="${esc(c.label)}">Remove data</button>`);
   return `<article class="provider ${c.state === "connected" || c.state === "imported" ? "is-active" : ""}" aria-labelledby="pv-${esc(c.id)}">
     <div class="provider-head"><div><div class="provider-name" id="pv-${esc(c.id)}">${esc(c.label)}</div>${c.account ? `<div class="provider-meta">${esc(c.account)}</div>` : ""}</div>
       <div class="row" style="gap:6px;justify-content:flex-end">${stateBadge}<span class="badge ${bc}">${esc(bl)}</span></div></div>
     ${meta}
     <p class="how">${esc(c.how_to)}</p>
+    ${c.reads && live ? `<p class="faint" style="font-size:12.5px">Reads: ${esc(c.reads)}</p>` : ""}
     ${c.note ? `<p class="note">${esc(c.note)}</p>` : ""}
     ${c.error ? `<p class="err" role="alert">${esc(c.error)}</p>` : ""}
     ${c.id === "lastfm" ? `<form class="stack" data-form="lastfm" hidden><div class="field"><label for="lf-user">Last.fm username</label><input class="input" id="lf-user" name="username" autocomplete="username" required></div>
       <div class="field"><label for="lf-key">API key <span class="faint">(free at last.fm/api)</span></label><input class="input" id="lf-key" name="api_key" autocomplete="off"></div>
       <button class="btn btn-sm btn-primary">Save and sync</button><p class="faint" style="font-size:12px">Stored only in outputs/local_config.json on this computer.</p></form>` : ""}
+    ${live ? setupPanel(c) : ""}
     ${acts.length ? `<div class="provider-actions">${acts.join("")}</div>` : ""}
   </article>`;
+}
+async function startConnect(p, label, remember = true) {
+  const { connect } = await api(`sources/${p}/connect`, { method: "POST", body: { remember } });
+  if (connect.redirect) { location.href = connect.redirect; return false; }
+  const { sync } = await api(`sources/${p}/sync`, { method: "POST", body: {} });
+  toast(`${label} connected${connect.account ? ` as ${connect.account}` : ""}: ${n(sync.events)} listening events synced.`, "ok");
+  return true;
 }
 function bindSources(root, onboarding) {
   root.addEventListener("change", async (ev) => {
@@ -869,6 +906,19 @@ function bindSources(root, onboarding) {
         const { sync } = await api(`sources/${p}/sync`, { method: "POST", body: {} });
         toast(`${sync.label} synced: ${n(sync.events)} listening events.`, "ok");
         S.sourcesDirty = true; route();
+      } else if (b.dataset.act === "connect") {
+        b.disabled = true;
+        if (await startConnect(p, b.dataset.label, true)) { S.sourcesDirty = !onboarding; route(); }
+      } else if (b.dataset.act === "setup") {
+        const f = $('[data-form="setup"]', b.closest(".provider")); f.hidden = false; b.hidden = true;
+        const first = $("input:not([type=checkbox]), textarea", f); if (first) first.focus();
+      } else if (b.dataset.act === "copy") {
+        try { await navigator.clipboard.writeText(b.dataset.value); toast("Copied.", "ok"); }
+        catch { toast("Select the address and copy it manually.", "error"); }
+      } else if (b.dataset.act === "forget") {
+        if (!(await confirmDialog(`Forget ${b.dataset.label} setup?`, "The app credentials and any saved sign-in for this service are deleted from this computer. Synced data stays until you remove it.", "Forget setup"))) return;
+        await api(`sources/${p}/forget`, { method: "POST", body: { confirm: true } });
+        toast(`${b.dataset.label} setup forgotten.`, "ok"); route();
       } else if (b.dataset.act === "lastfm-setup") {
         const f = $('[data-form="lastfm"]', b.closest(".provider")); f.hidden = false; $("input", f).focus(); b.hidden = true;
       } else if (b.dataset.act === "disconnect") {
@@ -883,6 +933,21 @@ function bindSources(root, onboarding) {
     } catch (e) { showError(e); route(); }
   });
   root.addEventListener("submit", async (ev) => {
+    const sf = ev.target.closest('[data-form="setup"]');
+    if (sf) {
+      ev.preventDefault();
+      const p = sf.dataset.provider;
+      const fd = new FormData(sf);
+      const remember = fd.get("remember") === "on";
+      fd.delete("remember");
+      const fields = Object.fromEntries([...fd.entries()].filter(([, v]) => String(v).trim() !== ""));
+      const btn = $("button.btn-primary", sf); btn.disabled = true;
+      try {
+        await api(`sources/${p}/setup`, { method: "POST", body: { fields } });
+        if (await startConnect(p, sf.dataset.label, remember)) { S.sourcesDirty = !onboarding; route(); }
+      } catch (e) { showError(e); btn.disabled = false; }
+      return;
+    }
     const f = ev.target.closest('[data-form="lastfm"]');
     if (!f) return;
     ev.preventDefault();
@@ -896,8 +961,20 @@ function bindSources(root, onboarding) {
 }
 async function viewSources(m, params) {
   const [src, st] = [await api("sources"), await refresh()];
-  if (params.get("spotify") === "connected") toast("Spotify connected. Sync to pull your listening.", "ok");
   if (params.get("spotify") === "failed") toast("Spotify connection didn't complete. Nothing was changed; try again.", "error");
+  const cf = params.get("connect_failed");
+  if (cf) toast(`${SOURCE_NAMES[cf] || "The service"}: connection didn't complete. Nothing was changed; see the card for details.`, "error");
+  const done = params.get("connected") || (params.get("spotify") === "connected" ? "spotify" : null);
+  if (done && S.lastConnectToast !== location.hash) {
+    S.lastConnectToast = location.hash;
+    try {
+      const { sync } = await api(`sources/${done}/sync`, { method: "POST", body: {} });
+      toast(`${SOURCE_NAMES[done] || done} connected: ${n(sync.events)} listening events synced.`, "ok");
+      S.sourcesDirty = true;
+      history.replaceState(null, "", "#/sources");
+      return viewSources(m, new URLSearchParams());
+    } catch (e) { showError(e); }
+  }
   const d = st.dna;
   const rawRows = src.active.reduce((a, s) => a + (s.rows || 0), 0);
   const rawEvents = src.active.reduce((a, s) => a + (s.events || 0), 0);
@@ -932,6 +1009,7 @@ viewSources.after = () => {
 
 /* ------------------------------------------------------------------ settings */
 const PROVIDERS = { spotify: "Spotify", apple_music: "Apple Music", youtube_music: "YouTube Music", deezer: "Deezer", tidal: "TIDAL", soundcloud: "SoundCloud" };
+const SOURCE_NAMES = { ...PROVIDERS, listenbrainz: "ListenBrainz", lastfm: "Last.fm" };
 async function viewSettings() {
   const { settings: s } = await api("settings");
   S.settings = s;
@@ -1003,7 +1081,9 @@ async function viewPrivacy() {
       <dt>Music DNA</dt><dd>${p.stored.music_dna.exists ? fmtB(p.stored.music_dna.bytes) : "Not built"}</dd>
       <dt>Capsules</dt><dd>${p.stored.capsules.count}</dd>
       <dt>Reactions</dt><dd>${p.stored.feedback.count}</dd>
-      <dt>Analytics events</dt><dd>${p.stored.analytics_events.count}</dd></dl></section>
+      <dt>Analytics events</dt><dd>${p.stored.analytics_events.count}</dd>
+      <dt>Connection credentials</dt><dd>${p.stored.connections && p.stored.connections.exists ? `${fmtB(p.stored.connections.bytes)} · private file` : "None saved"}</dd></dl>
+      ${p.stored.connections && p.stored.connections.exists ? `<p class="faint" style="font-size:12.5px;margin-top:8px">${esc(p.stored.connections.contains)} ${esc(p.stored.connections.file)}</p>` : ""}</section>
     <section class="card privacy-sec"><h3>What analytics contain</h3><p><b>${p.analytics.enabled ? "On" : "Off"}</b> · local only. ${esc(p.analytics.contains)}</p><p style="margin-top:8px"><b>Never:</b> ${esc(p.analytics.never_contains)}</p></section>
   </div>
   <section class="card" style="margin-top:16px"><h2>Export</h2><p class="muted" style="margin:6px 0 14px">Download your data as JSON.</p>
@@ -1014,7 +1094,8 @@ async function viewPrivacy() {
       ${[["reset_session", "Reset session taste", "Forget this session's short-term reactions. Core DNA is untouched.", "Reset"],
          ["delete_history", "Delete capsule history", "Removes past capsules. Learned preferences stay.", "Delete"],
          ["reset_dna", "Reset Music DNA", "Removes everything learned from your reactions and the DNA snapshot. Imports stay; rebuild afterwards.", "Reset"],
-         ["delete_analytics", "Delete analytics", "Removes local analytics events.", "Delete"]].map(([a, t, d, l]) =>
+         ["delete_analytics", "Delete analytics", "Removes local analytics events.", "Delete"],
+         ["forget_connections", "Forget all connections", "Disconnects every live service and deletes the app credentials and sign-in tokens saved on this computer. Synced listening data stays.", "Forget"]].map(([a, t, d, l]) =>
         `<div class="setting"><div><b>${t}</b><small>${d}</small></div><button class="btn btn-sm btn-danger" data-act="priv" data-action="${a}" data-title="${t}" data-desc="${d}" data-label="${l}">${l}</button></div>`).join("")}
       <div class="setting"><div><b>Disconnect a provider</b><small>Manage live connections and imported data per service.</small></div><a class="btn btn-sm" href="#/sources">Sources</a></div>
     </div></section>`;

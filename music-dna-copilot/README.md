@@ -1,5 +1,10 @@
-# Music DNA Copilot 3.0 🧬🎧
+# Music DNA Copilot 3.1 🧬🎧
 
+> **3.1:** live, read-only connections to **Spotify, Apple Music, YouTube Music, Deezer,
+> Last.fm and ListenBrainz**, set up from the Sources page (no `.env` editing). After a
+> one-time setup each service connects with one click. See **RELEASE_NOTES_3_1.md** and
+> **CONNECTORS.md**.
+>
 > **3.0:** a new consumer app at `http://127.0.0.1:8765/` (guided onboarding, DNA map,
 > capsules, history, sources, privacy centre). The 2.x workspace below lives on at
 > `/classic`. See **RELEASE_NOTES_3_0.md** and **BASELINE_2_8.md**.
@@ -40,11 +45,14 @@ The older `start_*` launchers still work and call `run_app.py`.
 | Demo / owner-style demo | one click | ✅ |
 | Manual paste | "Track — Artist" lines | ✅ (+ genre enrichment) |
 | CSV / JSON | upload | ✅ |
-| Spotify | OAuth PKCE, read-only, your own Client ID | ✅ (`SPOTIFY_SETUP.md`) |
+| Spotify | live OAuth PKCE, read-only, your own Client ID (paste it on the Sources page) **or** Extended Streaming History import | ✅ (`SPOTIFY_SETUP.md`) |
 | Last.fm | username (free API key) **or** export file (offline) | ✅ (`LASTFM_SETUP.md`) |
-| YouTube / YouTube Music | **Google Takeout file import** — no password, no cookies | ✅ |
+| ListenBrainz | live, public listens by user name — no app, no password | ✅ 3.1 |
+| YouTube / YouTube Music | live Google sign-in (liked music, official YouTube Data API) **or** Google Takeout import — no cookies | ✅ 3.1 |
+| Deezer | live OAuth with your Deezer app (history + favourites) **or** export import | ✅ 3.1 |
+| Apple Music | live MusicKit sign-in (needs an Apple Developer MusicKit key) **or** privacy-export import | ✅ 3.1 |
+| TIDAL, SoundCloud, Amazon, Qobuz, Bandcamp, Yandex, Pandora | export import (no usable public API; the card says why) | ✅ import |
 | Merged profile | all imported sources, deduped, play counts summed | ✅ |
-| Apple Music | — | ⏳ planned, not implemented |
 | Local music folder | — | ⏳ planned, not implemented |
 
 ## Tests
@@ -55,6 +63,7 @@ python scripts/smoke_test.py            # runs every suite (≈170 checks)
 python scripts/test_multi_source.py
 python scripts/test_genre_enrichment.py
 python scripts/test_spotify_connector.py
+python scripts/test_live_connectors.py     # 3.1 connectors, offline fakes
 python scripts/run_demo.py --mood 1 --task night_drive --novelty 4 --max 9
 python scripts/make_release_zip.py && python scripts/release_check.py
 ```

@@ -4,7 +4,7 @@
 A **local-first Music DNA assistant**. It analyzes music taste on your own computer, explains it, and recommends tracks in three honest groups (Safe Match / Adjacent Discovery / Wildcard) with a reason and a risk for each. No account, no cloud, no payment.
 
 ## 2. What this app is not
-Not a Spotify replacement, not a streaming player, not a SaaS. It never modifies your Spotify playlists, never uploads your data, and doesn't pretend to connect to YouTube Music or Apple Music (import-only / future).
+Not a Spotify replacement, not a streaming player, not a SaaS. It never modifies your Spotify playlists, never uploads your data, and only connects to services through their official, read-only sign-in and APIs (no cookies, no scraping).
 
 ## 3. Fastest way to test it
 Launch → keep **Use demo library** selected → press **Generate recommendations**. That's it. Then open **Self-Test** (link at the top of the home page) for the guided checklist.

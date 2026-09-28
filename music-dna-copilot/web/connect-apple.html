@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Connect Apple Music · Music DNA</title>
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/app.css">
+  <script type="module" src="/assets/connect-apple.js"></script>
+</head>
+<body>
+  <main class="connect-page" id="main">
+    <section class="card connect-card" aria-labelledby="ca-title">
+      <img class="brand-mark" src="/assets/icon.svg" alt="" width="40" height="40">
+      <h1 id="ca-title">Connect Apple Music</h1>
+      <p class="muted">Apple asks you to sign in and allow read-only access. Music DNA reads your recently played
+        tracks, heavy rotation and library songs. Nothing is uploaded; the data stays on this computer.</p>
+      <p class="connect-status" id="status" role="status" aria-live="polite">Loading Apple's MusicKit…</p>
+      <div class="provider-actions">
+        <button class="btn btn-primary" id="authorize" type="button" disabled>Sign in with Apple Music</button>
+        <a class="btn btn-ghost" href="/#/sources">Cancel</a>
+      </div>
+      <p class="faint" style="font-size:12.5px;margin-top:14px">MusicKit JS is loaded from Apple (js-cdn.music.apple.com). Your Apple ID password goes only to Apple.</p>
+    </section>
+  </main>
+</body>
+</html>

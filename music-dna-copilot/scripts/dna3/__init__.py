@@ -12,4 +12,4 @@ files in the local `outputs/` folder, and missing data is reported as
 missing.
 """
 
-VERSION = "3.0.0"
+VERSION = "3.1.0"

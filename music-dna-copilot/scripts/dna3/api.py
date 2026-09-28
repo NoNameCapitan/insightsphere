@@ -92,8 +92,9 @@ def privacy_inventory(store: Store):
     return {
         "stays_local": ("Everything. Music DNA Copilot runs on this computer; your history, DNA, capsules, "
                         "feedback and analytics are files in the outputs/ folder. Nothing is uploaded."),
-        "network_calls": ("Only when you ask: Spotify (read-only OAuth) and Last.fm sync, and the music-service "
-                          "links you open. Opening a link sends that search or track to that service."),
+        "network_calls": ("Only when you ask: read-only sign-in and sync with the services you connect (Spotify, "
+                          "Deezer, YouTube Music, Apple Music, Last.fm, ListenBrainz), and the music-service links "
+                          "you open. Opening a link sends that search or track to that service."),
         "imported": [{"id": k, "label": sources.label(sources.canonical_source(k)), "file": p.name, **info(p)}
                      for k, p in files.items()],
         "stored": {
@@ -101,6 +102,7 @@ def privacy_inventory(store: Store):
             "capsules": {"count": len(caps), "exists": bool(caps)},
             "feedback": {"count": len(feedback), **info(store.feedback_path)},
             "analytics_events": {"count": len(events), **info(store.beta_path)},
+            "connections": _connections_inventory(),
         },
         "analytics": {
             "enabled": store.settings().get("analytics_enabled", True),
@@ -110,6 +112,20 @@ def privacy_inventory(store: Store):
         "deletable": ["capsule history", "session taste", "learned Music DNA (feedback)", "analytics events",
                       "individual imported sources", "live connections"],
     }
+
+
+def _connections_inventory():
+    manager, _ids = sources.live_connectors()
+    if manager is None:
+        return {"exists": False}
+    path = manager.path
+    try:
+        size = path.stat().st_size
+    except OSError:
+        return {"exists": False, "file": str(path)}
+    return {"exists": True, "bytes": size, "file": str(path),
+            "contains": "App credentials you pasted in setup and, when you chose to stay connected, access tokens. "
+                        "Readable only by your user account (0600)."}
 
 
 def _privacy_action(store: Store, action, body):
@@ -133,6 +149,22 @@ def _privacy_action(store: Store, action, body):
     if action == "delete_analytics":
         store.beta_path.unlink(missing_ok=True)
         return {"note": "Local analytics events deleted."}
+    if action == "forget_connections":
+        forgotten = []
+        manager, live_ids = sources.live_connectors()
+        for pid in ("spotify", "lastfm", *live_ids):
+            try:
+                sources.disconnect(store, pid)
+                forgotten.append(pid)
+            except ProductError:
+                pass
+        if manager is not None:
+            for pid in ("spotify", *live_ids):
+                manager.clear_setup(pid)
+        return {"note": "Every live connection was disconnected and the saved app credentials and tokens on this "
+                        "computer were deleted. Synced listening data stays until you remove it. To revoke access "
+                        "on the services' side too, remove the app in each account's settings.",
+                "providers": forgotten}
     raise bad_request(f"Unknown privacy action '{action}'.")
 
 
@@ -216,6 +248,14 @@ def _build_stream(store: Store, demo):
     return Response(200, None, content_type="application/x-ndjson; charset=utf-8", stream=gen())
 
 
+def request_base_url(headers):
+    """The app's own origin, always spelled 127.0.0.1 so OAuth redirect
+    addresses match what the user registered with each service."""
+    host = headers.get("Host") or ""
+    port = host.rsplit(":", 1)[1] if ":" in host and not host.endswith("]") else ""
+    return f"http://127.0.0.1:{port}" if port.isdigit() else "http://127.0.0.1"
+
+
 def dispatch(store: Store, method, raw_path, headers, body_bytes=b"", form=None):
     """Route one /api/v3 request. `form` is pre-parsed multipart fields (imports)."""
     parts = urlsplit(raw_path)
@@ -226,6 +266,7 @@ def dispatch(store: Store, method, raw_path, headers, body_bytes=b"", form=None)
         host = (headers.get("Host") or "").rsplit(":", 1)[0].strip().lower()
         if host and host not in LOOPBACK_HOSTS:
             raise ProductError("BAD_REQUEST", "Blocked", "This app only answers requests addressed to localhost.")
+        store.request_base_url = request_base_url(headers)
         if method == "POST" and headers.get(CLIENT_HEADER) != "3":
             return Response.json({"error": {"code": "FORBIDDEN", "title": "Blocked",
                                             "message": "Requests must come from the Music DNA app."}}, status=403)
@@ -315,6 +356,17 @@ def _route(store, method, seg, query, body, form):
             return Response.json({"import": result})
         if len(seg) == 3 and seg[1] == "lastfm" and seg[2] == "credentials":
             return Response.json({"lastfm": sources.save_lastfm_credentials(body.get("username"), body.get("api_key"))})
+        if len(seg) == 3 and seg[2] == "setup":
+            return Response.json({"setup": sources.save_setup(store, seg[1], body.get("fields") or {})})
+        if len(seg) == 3 and seg[2] == "forget":
+            if not body.get("confirm"):
+                raise ProductError("BAD_REQUEST", "Please confirm", "This action needs confirmation.", requires_confirmation=True)
+            return Response.json({"result": sources.clear_setup(store, seg[1])})
+        if len(seg) == 3 and seg[2] == "connect":
+            result = sources.connect(store, seg[1], remember=body.get("remember", True) is not False)
+            if result.get("connected"):
+                capsules.beta(store, "source_connected", provider=seg[1])
+            return Response.json({"connect": result})
         if len(seg) == 3 and seg[2] == "sync":
             result = sources.sync_provider(store, seg[1])
             if store.settings().get("demo_mode"):
