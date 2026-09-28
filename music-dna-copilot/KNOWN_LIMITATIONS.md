@@ -124,7 +124,7 @@ own consent screen with read-only scopes, and disconnecting deletes any stored t
 - **"One click" starts after a one-time setup.** Spotify, Deezer, YouTube Music and Apple
   Music only let apps that are registered with them read an account. This is a local app
   with no central server, so each person registers a free developer app once and pastes its
-  credentials on the Sources page. ListenBrainz needs only a user name. A hosted,
+  credentials on the My music page. ListenBrainz needs only a user name. A hosted,
   truly zero-setup version would need one operator-registered app per service, public
   OAuth callbacks and server-side, per-user encrypted token storage; that is not built.
 - **Spotify development mode:** only accounts added under the app's User Management can

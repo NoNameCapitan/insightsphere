@@ -309,6 +309,42 @@ def main():
     r = api.dispatch(s, "GET", "/api/v3/export/feedback", H)
     check("export sends an attachment", "attachment" in r.headers.get("Content-Disposition", ""))
 
+    print("11b. Language (RU / UK / EN)")
+    from dna3 import i18n
+    lang = fresh()
+    D.build(lang, demo=True)
+    RU = {**H, "X-MusicDNA-Lang": "ru"}
+    UK = {**H, "X-MusicDNA-Lang": "uk"}
+    _, en_state = call(lang, "GET", "state")
+    _, ru_state = call(lang, "GET", "state", headers=RU)
+    check("English stays the default", en_state["tiers"]["common"]["label"] == "Common")
+    check("tiers and moods in Russian", ru_state["tiers"]["common"]["label"] == "Знакомое"
+          and ru_state["intents"]["surprise"] == "Удиви меня")
+    check("data (artists, genres) never translated", ru_state["dna"]["top_artists"] == en_state["dna"]["top_artists"]
+          and ru_state["dna"]["top_genres"] == en_state["dna"]["top_genres"])
+    _, uk_src = call(lang, "GET", "sources", headers=UK)
+    lb = next(c for c in uk_src["cards"] if c["id"] == "listenbrainz")
+    check("source cards in Ukrainian", lb["how_to"].startswith("Досить"))
+    _, steps = call(lang, "POST", "dna/build", {"demo": True}, headers=RU)
+    check("streamed build steps in Russian", steps[0]["label"] == "Читаю историю прослушиваний" and steps[-1]["step"] == "done")
+    _, err = call(lang, "GET", "nope", headers=RU)
+    check("errors in Russian, original kept", err["error"]["title"] == "Не найдено" and "could not be found" in err["error"]["original"])
+    _, cap = call(lang, "POST", "capsules", {"tier": "common", "intent": "chill"}, headers=RU)
+    t0 = cap["capsule"]["tracks"][0]
+    _, cap_en = call(lang, "GET", f"capsules/{cap['capsule']['capsule_id']}")
+    check("track titles untouched, reasons translated", t0["title"] == cap_en["capsule"]["tracks"][0]["title"]
+          and cap["capsule"]["context"]["intent_label"] == "Отдых")
+    check("pattern translation", i18n.translate("You already listen to Amenra.", "ru") == "Ты уже слушаешь Amenra."
+          and i18n.translate("Search Deezer", "uk") == "Знайти в Deezer")
+    check("unknown text stays as is", i18n.translate("Some new sentence.", "ru") == "Some new sentence.")
+    r = api.dispatch(lang, "GET", "/api/v3/export/dna", RU)
+    check("exports are not translated", "attachment" in r.headers.get("Content-Disposition", ""))
+    code, body = call(lang, "POST", "settings", {"language": "uk"})
+    check("language setting saved", code == 200 and body["settings"]["language"] == "uk")
+    code, _ = call(lang, "POST", "settings", {"language": "de"})
+    check("unknown language rejected", code == 400)
+    check("i18n entries have both translations", all(isinstance(v, tuple) and len(v) == 2 and all(v) for v in i18n.EXACT.values()))
+
     print("12. HTTP mount in local_interface")
     import local_interface as li
     from http.server import HTTPServer

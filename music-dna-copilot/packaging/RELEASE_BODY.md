@@ -17,6 +17,8 @@ Music DNA Copilot, your private, cross-service Music DNA, as a desktop app. No P
 
 Updating = replacing the app; your data folder is kept.
 
-**Connecting services:** Spotify, Apple Music, YouTube Music, Deezer, Last.fm and ListenBrainz connect read-only from the **Sources** page after a one-time setup. TIDAL, SoundCloud and others import export files.
+**Language:** Russian, Ukrainian or English (switch at the bottom of the menu).
+
+**Adding your music:** open **My music**. Easiest: your Last.fm or ListenBrainz user name, or a history file from any service (the page says where to get it). Spotify, Apple Music, YouTube Music and Deezer can also connect directly after a one-time setup.
 
 Details: `DESKTOP_APP.md`, `CONNECTORS.md`, `KNOWN_LIMITATIONS.md` in the repository.

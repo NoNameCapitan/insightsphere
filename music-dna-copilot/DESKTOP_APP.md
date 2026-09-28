@@ -35,7 +35,7 @@ Actions (`.github/workflows/desktop-app.yml`):
   on the same app (single instance).
 - Uses port **8765** when free, so a Spotify redirect URI registered for
   `http://127.0.0.1:8765/spotify/callback` keeps working; otherwise the next free port
-  (the Sources page always shows the exact address to register).
+  (the My music page always shows the exact address to register).
 
 ## Where your data is
 | System | Folder |

@@ -1,5 +1,9 @@
-# Music DNA Copilot 3.2 🧬🎧
+# Music DNA Copilot 3.3 🧬🎧
 
+> **3.3:** **simpler, in your language.** The app speaks Russian, Ukrainian or English, has
+> four sections (Home, My taste, My music, Settings), picks music in two taps (mood, how much
+> new), rates tracks with three buttons, and updates your taste by itself when you add music.
+>
 > **3.2:** a **desktop app** for Windows, macOS and Linux: own window and icon, no Python
 > to install, data in your user folder. See **DESKTOP_APP.md**.
 >
@@ -49,7 +53,7 @@ The older `start_*` launchers still work and call `run_app.py`.
 | Demo / owner-style demo | one click | ✅ |
 | Manual paste | "Track — Artist" lines | ✅ (+ genre enrichment) |
 | CSV / JSON | upload | ✅ |
-| Spotify | live OAuth PKCE, read-only, your own Client ID (paste it on the Sources page) **or** Extended Streaming History import | ✅ (`SPOTIFY_SETUP.md`) |
+| Spotify | live OAuth PKCE, read-only, your own Client ID (paste it on the My music page) **or** Extended Streaming History import | ✅ (`SPOTIFY_SETUP.md`) |
 | Last.fm | username (free API key) **or** export file (offline) | ✅ (`LASTFM_SETUP.md`) |
 | ListenBrainz | live, public listens by user name — no app, no password | ✅ 3.1 |
 | YouTube / YouTube Music | live Google sign-in (liked music, official YouTube Data API) **or** Google Takeout import — no cookies | ✅ 3.1 |

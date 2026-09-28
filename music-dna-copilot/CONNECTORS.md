@@ -6,7 +6,7 @@ This repository is connector-ready, but the current MVP intentionally avoids fak
 
 | Source | Live connection | Setup once | What is read |
 |--------|-----------------|------------|--------------|
-| Spotify | ✅ OAuth PKCE (`spotify_connector.py`) | free Spotify app Client ID (paste on Sources page or `.env`) | top, recent, saved, playlists, followed artists |
+| Spotify | ✅ OAuth PKCE (`spotify_connector.py`) | free Spotify app Client ID (paste it on the My music page or in `.env`) | top, recent, saved, playlists, followed artists |
 | Last.fm | ✅ API (`lastfm_client.py`) | username + free API key | recent scrobbles, similar tracks |
 | ListenBrainz | ✅ public API (`connectors/listenbrainz.py`) | user name only | latest 5,000 listens |
 | Deezer | ✅ OAuth (`connectors/deezer.py`) | your Deezer app ID + secret | listening history + favourite tracks |

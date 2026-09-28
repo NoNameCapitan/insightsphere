@@ -14,7 +14,7 @@ The V2 connector uses **Authorization Code with PKCE** — no client secret has 
 
 ## 2. Configure the project
 
-**Easiest (3.1+):** open the app → **Sources** → Spotify → **Set up once**, paste the Client
+**Easiest (3.1+):** open the app → **My music** → Connect an account → Spotify → **Set up**, paste the Client
 ID and click **Save and connect**. The form shows the exact Redirect URI for the port the
 app is running on; register that one in step 1. Nothing to edit by hand.
 

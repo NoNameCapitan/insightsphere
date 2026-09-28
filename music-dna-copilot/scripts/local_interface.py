@@ -257,7 +257,7 @@ def page(title, body, lang=DEFAULT_LANG):
 </head>
 <body><main>{body}</main>
 <footer style="text-align:center;padding:14px;font-size:12px;opacity:0.7">
-Music DNA Copilot 3.2 · classic workspace · local-first · no accounts · see START_FOR_FRIEND.md
+Music DNA Copilot 3.3 · classic workspace · local-first · no accounts · see START_FOR_FRIEND.md
 </footer>{_support_footer()}</body></html>""".encode("utf-8")
 
 

@@ -13,7 +13,7 @@ import json
 import traceback
 from urllib.parse import parse_qs, urlsplit
 
-from . import VERSION, capsules, dna as dna_mod, sources
+from . import VERSION, capsules, dna as dna_mod, i18n, sources
 from .errors import ProductError, bad_request, not_found
 from .store import CorruptedDataError, Store, now_iso
 
@@ -258,6 +258,35 @@ def request_base_url(headers):
 
 def dispatch(store: Store, method, raw_path, headers, body_bytes=b"", form=None):
     """Route one /api/v3 request. `form` is pre-parsed multipart fields (imports)."""
+    resp = _dispatch(store, method, raw_path, headers, body_bytes, form)
+    return _localized(resp, i18n.pick_lang(headers.get(i18n.LANG_HEADER)))
+
+
+def _localized(resp, lang):
+    """Rewrite the UI text of a JSON (or NDJSON stream) answer for the page's language.
+    Downloads (exports) are data and stay as they are."""
+    if lang == "en" or "Content-Disposition" in resp.headers:
+        return resp
+    if resp.stream is not None:
+        inner = resp.stream
+
+        def gen():
+            for chunk in inner:
+                try:
+                    yield (json.dumps(i18n.localize(json.loads(chunk), lang), ensure_ascii=False) + "\n").encode()
+                except ValueError:
+                    yield chunk
+        resp.stream = gen()
+        return resp
+    if resp.body and resp.content_type.startswith("application/json"):
+        try:
+            resp.body = json.dumps(i18n.localize(json.loads(resp.body), lang), ensure_ascii=False).encode("utf-8")
+        except ValueError:
+            pass
+    return resp
+
+
+def _dispatch(store: Store, method, raw_path, headers, body_bytes=b"", form=None):
     parts = urlsplit(raw_path)
     path = parts.path[len("/api/v3"):].strip("/")
     seg = path.split("/") if path else []

@@ -1,5 +1,32 @@
 # Changelog
 
+## 3.3.0 — Simple mode, in your language
+
+### Changed
+- The app is now in **Russian, Ukrainian or English** (follows the system language; switch at
+  the bottom of the menu or in Settings). Server-side wording (moods, mix types, steps, service
+  cards, errors) is translated by `scripts/dna3/i18n.py` from the `X-MusicDNA-Lang` header;
+  track titles, artists and genres are never translated, exports stay as data.
+- Four sections instead of six: **Home, My taste, My music, Settings**. Capsules live on Home;
+  past mixes are one tap away.
+- Picking music is two questions: the mood, and how much new music (Familiar 5 / Mix 10 /
+  Discoveries 15). The hidden-titles "surprise" mix and free-text moods appear only with
+  technical details turned on.
+- A track has three rating buttons (Like, Skip, Not for me); the rest are under "More".
+- **My music** replaces the wall of 16 service cards with three ways to add music: by user name
+  (ListenBrainz, Last.fm), from a file (pick the service, with short "where to get the file"
+  help), or by connecting an account (Spotify, YouTube Music, Deezer, Apple Music).
+- Your taste **rebuilds automatically** after adding, updating or deleting music; there is no
+  separate "Rebuild" step to remember.
+- My taste shows the map, top genres and top artists; the measures, changes and session
+  details moved under "Details". Settings keep language and "open tracks in"; everything else
+  is under "For advanced users".
+- Errors come in plain words with the original explanation in small print.
+
+### Added
+- `language` setting (`en`, `ru`, `uk`, or follow the browser).
+- 13 language checks in `test_v3_product.py`.
+
 ## 3.2.0 — Desktop app
 
 ### Added

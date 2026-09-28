@@ -39,6 +39,7 @@ DEFAULT_SETTINGS = {
     "analytics_enabled": True,      # local-only; never leaves this device
     "advanced_mode": False,
     "motion": "system",             # system | reduced | full
+    "language": None,               # None = follow the browser; or en | ru | uk
     "demo_mode": False,
     "session_reset_at": None,
     "anonymous_seed": None,
@@ -179,6 +180,9 @@ class Store:
                 if not isinstance(value, list) or any(v not in PROVIDER_CHOICES for v in value):
                     raise ValueError("fallback_order must be a list of known providers")
                 value = list(dict.fromkeys(value))[:5]
+            elif key == "language":
+                if value not in (None, "en", "ru", "uk"):
+                    raise ValueError("language must be en, ru or uk")
             elif key == "motion":
                 if value not in ("system", "reduced", "full"):
                     raise ValueError("motion must be system, reduced or full")

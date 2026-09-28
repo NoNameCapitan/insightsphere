@@ -65,7 +65,7 @@ function anchor(a) {
 }
 
 export function renderDNA(container, dna, opts = {}) {
-  const { compact = false, changed = [], onSelect = null, label = "Music DNA map", illustration = false } = opts;
+  const { compact = false, changed = [], onSelect = null, label = "Music DNA map", illustration = false, eventsLabel = null, descPrefix = null } = opts;
   const { fams, sats, arts } = layout(dna, compact);
   const changedFams = new Set(sats.filter((s) => changed.includes(s.name)).map((s) => s.fam));
   changed.forEach((c) => fams.forEach((f) => { if (f.genres?.includes(c)) changedFams.add(f.id); }));
@@ -87,7 +87,7 @@ export function renderDNA(container, dna, opts = {}) {
     <circle class="nucleus-ring breathe" cx="${C}" cy="${C}" r="76" stroke-width="1.5"/>
     <circle class="nucleus-core" cx="${C}" cy="${C}" r="58"/>
     ${illustration ? "" : `<text x="${C}" y="${C + (compact ? 6 : 2)}" text-anchor="middle" class="fam-label" font-size="22">${esc(fmt(events))}</text>
-    <text x="${C}" y="${C + (compact ? 32 : 22)}" text-anchor="middle" class="nucleus-sub" font-size="11">${compact ? "events" : "listening events"}</text>`}
+    <text x="${C}" y="${C + (compact ? 32 : 22)}" text-anchor="middle" class="nucleus-sub" font-size="11">${esc(eventsLabel || (compact ? "events" : "listening events"))}</text>`}
   </g>`);
   parts.push(`<g aria-hidden="true">${sats.map((s) =>
     `<circle class="sat${s.kind === "microgenre" ? " micro" : ""}" data-fam="${esc(s.fam)}" cx="${s.x.toFixed(1)}" cy="${s.y.toFixed(1)}" r="${s.s.toFixed(1)}"><title>${esc(s.name)} · ${pct(s.affinity)}</title></circle>`).join("")}
@@ -109,7 +109,7 @@ export function renderDNA(container, dna, opts = {}) {
     </g>`;
   }).join(""));
 
-  const desc = `Taste map with ${fams.length} genre families around a nucleus of ${events} listening events. ` +
+  const desc = (descPrefix || `Taste map with ${fams.length} genre families around a nucleus of ${events} listening events.`) + " " +
     fams.map((f) => `${f.label} ${pct(f.affinity)}`).join(", ") + ".";
   container.innerHTML = `<svg class="dna-svg viz-enter${compact ? " compact" : ""}" viewBox="-40 -40 880 880" role="group" aria-label="${esc(label)}">
     <desc>${esc(desc)}</desc>${parts.join("")}</svg>`;
