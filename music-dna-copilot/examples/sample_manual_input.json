@@ -1,0 +1,46 @@
+{
+  "source": "manual",
+  "exported_at": "2026-06-10T18:00:00Z",
+  "user_id": "manual_demo_user",
+  "tracks": [
+    {
+      "track_name": "Nightcall",
+      "artist_name": "Kavinsky",
+      "genres": ["synthwave", "electronic"],
+      "play_count": 5,
+      "audio_features": {
+        "energy": 0.62,
+        "valence": 0.38,
+        "danceability": 0.65,
+        "tempo": 97,
+        "instrumentalness": 0.31
+      }
+    },
+    {
+      "track_name": "Midnight City",
+      "artist_name": "M83",
+      "genres": ["electronic", "synthwave", "indie"],
+      "play_count": 4,
+      "audio_features": {
+        "energy": 0.71,
+        "valence": 0.22,
+        "danceability": 0.58,
+        "tempo": 105,
+        "instrumentalness": 0.13
+      }
+    },
+    {
+      "track_name": "Intro",
+      "artist_name": "The xx",
+      "genres": ["indie", "post-punk"],
+      "play_count": 2,
+      "audio_features": {
+        "energy": 0.30,
+        "valence": 0.40,
+        "danceability": 0.55,
+        "tempo": 110,
+        "instrumentalness": 0.80
+      }
+    }
+  ]
+}

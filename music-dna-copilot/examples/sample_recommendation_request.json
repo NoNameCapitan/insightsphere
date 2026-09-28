@@ -1,0 +1,8 @@
+{
+  "taste_profile_path": "examples/sample_taste_profile.json",
+  "mood_score": 1.0,
+  "task": "night_drive",
+  "novelty_level": 3,
+  "language": "en",
+  "max_recommendations": 5
+}

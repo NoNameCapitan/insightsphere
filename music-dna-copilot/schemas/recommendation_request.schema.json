@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Recommendation Request",
+  "description": "The input parameters for generating music recommendations.",
+  "type": "object",
+  "required": ["taste_profile_path", "mood_score", "task", "novelty_level"],
+  "properties": {
+    "taste_profile_path": {
+      "type": "string",
+      "description": "Path to the taste profile JSON file."
+    },
+    "mood_score": {
+      "type": "number",
+      "minimum": -2,
+      "maximum": 2,
+      "description": "User's current mood. -2 = very dark/melancholic, -1 = calm/sad, 0 = neutral, +1 = energetic/bright, +2 = euphoric/danceable."
+    },
+    "task": {
+      "type": "string",
+      "description": "The use-case the user wants music for.",
+      "enum": [
+        "work_focus",
+        "walking",
+        "workout",
+        "night_drive",
+        "sad_mood",
+        "romantic_mood",
+        "party",
+        "relaxation",
+        "tiktok_reels",
+        "ai_video",
+        "playlist_creation",
+        "discovering_new_artists",
+        "surprise_me"
+      ]
+    },
+    "novelty_level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "How far from the user's usual taste. 1 = Only similar, 2 = Slightly new, 3 = Balanced, 4 = More experimental, 5 = Surprise me."
+    },
+    "language": {
+      "type": "string",
+      "enum": ["en", "ru", "uk", "es", "de"],
+      "default": "en",
+      "description": "Preferred language for the output."
+    },
+    "max_recommendations": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50,
+      "default": 15,
+      "description": "Maximum number of recommendations to return."
+    },
+    "include_familiar": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, tracks the user already knows may be recommended; otherwise known tracks are penalized/removed."
+    },
+    "genre_constraints": {
+      "type": "object",
+      "description": "Optional deep-genre direction. When all selection lists are empty and no exclusions are set, genre constraints are inactive and scoring behaves as taste/mood/task only.",
+      "properties": {
+        "selected_families": { "type": "array", "items": { "type": "string" } },
+        "selected_subgenres": { "type": "array", "items": { "type": "string" } },
+        "selected_microgenres": { "type": "array", "items": { "type": "string" } },
+        "exclude_genres": { "type": "array", "items": { "type": "string" } },
+        "strictness": { "type": "string", "enum": ["soft", "balanced", "strict"], "default": "balanced" },
+        "discovery_direction": { "type": "string", "enum": ["inside", "adjacent", "cross_genre"], "default": "adjacent" },
+        "prefer_obscure": { "type": "boolean", "default": false },
+        "prefer_popular": { "type": "boolean", "default": false },
+        "prefer_instrumental": { "type": "boolean", "default": false },
+        "prefer_vocal": { "type": "boolean", "default": false },
+        "prefer_ukrainian": { "type": "boolean", "default": false }
+      }
+    }
+  }
+}

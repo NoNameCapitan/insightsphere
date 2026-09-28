@@ -1,0 +1,122 @@
+{
+  "generated_at": "2026-06-10T18:41:49.520457+00:00",
+  "core_genres": [
+    {
+      "genre": "synthwave",
+      "affinity_score": 1.0
+    },
+    {
+      "genre": "electronic",
+      "affinity_score": 1.0
+    },
+    {
+      "genre": "pop",
+      "affinity_score": 0.5
+    },
+    {
+      "genre": "r&b",
+      "affinity_score": 0.5
+    },
+    {
+      "genre": "indie",
+      "affinity_score": 0.5
+    },
+    {
+      "genre": "french house",
+      "affinity_score": 0.25
+    },
+    {
+      "genre": "chillwave",
+      "affinity_score": 0.25
+    },
+    {
+      "genre": "psychedelic",
+      "affinity_score": 0.25
+    },
+    {
+      "genre": "alternative",
+      "affinity_score": 0.25
+    }
+  ],
+  "recurring_artists": [
+    {
+      "artist_name": "The Weeknd",
+      "recurrence_score": 1.0,
+      "play_count": 2
+    },
+    {
+      "artist_name": "M83",
+      "recurrence_score": 0.5,
+      "play_count": 1
+    },
+    {
+      "artist_name": "Kavinsky",
+      "recurrence_score": 0.5,
+      "play_count": 1
+    },
+    {
+      "artist_name": "HOME",
+      "recurrence_score": 0.5,
+      "play_count": 1
+    },
+    {
+      "artist_name": "Tame Impala",
+      "recurrence_score": 0.5,
+      "play_count": 1
+    }
+  ],
+  "mood_profile": {
+    "average_valence": 0.445,
+    "average_energy": 0.65,
+    "dominant_moods": [
+      "balanced"
+    ]
+  },
+  "energy_level": 0.65,
+  "mainstream_vs_niche": 0.5,
+  "repetition_pattern": {
+    "repeat_ratio": 0.0,
+    "unique_track_ratio": 1.0
+  },
+  "novelty_tolerance": 1.0,
+  "taste_drift": {
+    "short_term_genres": [
+      "pop",
+      "synthwave",
+      "r&b",
+      "electronic",
+      "indie",
+      "psychedelic",
+      "alternative"
+    ],
+    "long_term_genres": [
+      "synthwave",
+      "electronic",
+      "french house",
+      "chillwave",
+      "indie",
+      "psychedelic",
+      "alternative"
+    ],
+    "new_patterns": [
+      "pop",
+      "r&b"
+    ],
+    "disappeared_patterns": [
+      "chillwave",
+      "french house"
+    ],
+    "stable_patterns": [
+      "electronic",
+      "alternative",
+      "indie",
+      "psychedelic",
+      "synthwave"
+    ]
+  },
+  "emotional_tone": "balanced-energetic",
+  "possible_use_cases": [
+    "Night drive playlists",
+    "Playlist creation"
+  ]
+}

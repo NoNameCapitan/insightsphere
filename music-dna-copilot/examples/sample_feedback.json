@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-06-10T18:00:00+00:00",
+  "track_title": "Nightcall",
+  "artist": "Kavinsky",
+  "genres": ["synthwave", "electronic"],
+  "group": "safe_match",
+  "action": "more_like_this",
+  "mood": -1,
+  "task": "night_drive",
+  "experimentality": 3,
+  "source": "demo library",
+  "reason": "Good mood fit for late evening driving."
+}

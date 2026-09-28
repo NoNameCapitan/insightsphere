@@ -1,0 +1,4 @@
+# No external dependencies are required, including for the V2 Spotify OAuth connector.
+# Python 3.10+ recommended.
+# The local browser UI and the Spotify connector use only Python standard library modules
+# (http.server, urllib, hashlib, secrets).

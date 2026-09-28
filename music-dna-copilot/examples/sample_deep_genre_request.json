@@ -1,0 +1,17 @@
+{
+  "mood": -1,
+  "task": "dark_mystic_video",
+  "novelty": 3,
+  "max": 9,
+  "genre_constraints": {
+    "selected_families": ["metal", "ambient"],
+    "selected_subgenres": ["atmospheric black metal", "dark ambient"],
+    "selected_microgenres": [],
+    "exclude_genres": ["metalcore", "deathcore"],
+    "strictness": "balanced",
+    "discovery_direction": "adjacent",
+    "prefer_obscure": true,
+    "prefer_instrumental": true,
+    "prefer_ukrainian": false
+  }
+}

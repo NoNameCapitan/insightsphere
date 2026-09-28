@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Genre Taxonomy",
+  "description": "Deep genre taxonomy: families with subgenres/microgenres, aliases, mood/energy/valence ranges, contexts, and related/distant genres.",
+  "type": "object",
+  "required": ["version", "families"],
+  "properties": {
+    "version": { "type": "string" },
+    "description": { "type": "string" },
+    "families": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["subgenres", "microgenres", "aliases", "mood_tags",
+                     "energy_range", "valence_range", "typical_contexts",
+                     "related_genres", "incompatible_or_distant_genres"],
+        "properties": {
+          "parent": { "type": ["string", "null"] },
+          "subgenres": { "type": "array", "items": { "type": "string" } },
+          "microgenres": { "type": "array", "items": { "type": "string" } },
+          "aliases": { "type": "array", "items": { "type": "string" } },
+          "mood_tags": { "type": "array", "items": { "type": "string" } },
+          "energy_range": {
+            "type": "array", "items": { "type": "number", "minimum": 0, "maximum": 1 },
+            "minItems": 2, "maxItems": 2
+          },
+          "valence_range": {
+            "type": "array", "items": { "type": "number", "minimum": 0, "maximum": 1 },
+            "minItems": 2, "maxItems": 2
+          },
+          "typical_contexts": { "type": "array", "items": { "type": "string" } },
+          "related_genres": { "type": "array", "items": { "type": "string" } },
+          "incompatible_or_distant_genres": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

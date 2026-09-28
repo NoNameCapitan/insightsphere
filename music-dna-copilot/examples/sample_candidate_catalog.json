@@ -1,0 +1,650 @@
+{
+  "source": "demo_candidate_catalog",
+  "description": "Local demo candidate catalog. Replace with Spotify/Last.fm/API search results in V2.",
+  "tracks": [
+    {
+      "track_title": "Midnight City",
+      "artist": "M83",
+      "genres": [
+        "synthpop",
+        "electronic",
+        "indie"
+      ],
+      "valence": 0.55,
+      "energy": 0.72,
+      "tempo": 105,
+      "instrumentalness": 0.1,
+      "popularity": 0.84
+    },
+    {
+      "track_title": "Intro",
+      "artist": "The xx",
+      "genres": [
+        "indie",
+        "ambient",
+        "electronic"
+      ],
+      "valence": 0.35,
+      "energy": 0.42,
+      "tempo": 100,
+      "instrumentalness": 0.78,
+      "popularity": 0.82
+    },
+    {
+      "track_title": "After Dark",
+      "artist": "Mr.Kitty",
+      "genres": [
+        "darkwave",
+        "synthwave",
+        "electronic"
+      ],
+      "valence": 0.28,
+      "energy": 0.68,
+      "tempo": 100,
+      "instrumentalness": 0.2,
+      "popularity": 0.78
+    },
+    {
+      "track_title": "Nightcall",
+      "artist": "Kavinsky",
+      "genres": [
+        "synthwave",
+        "electronic",
+        "soundtrack"
+      ],
+      "valence": 0.33,
+      "energy": 0.62,
+      "tempo": 91,
+      "instrumentalness": 0.25,
+      "popularity": 0.86
+    },
+    {
+      "track_title": "Genesis",
+      "artist": "Grimes",
+      "genres": [
+        "electropop",
+        "experimental",
+        "indie"
+      ],
+      "valence": 0.58,
+      "energy": 0.64,
+      "tempo": 95,
+      "instrumentalness": 0.15,
+      "popularity": 0.74
+    },
+    {
+      "track_title": "Oblivion",
+      "artist": "Grimes",
+      "genres": [
+        "electropop",
+        "experimental",
+        "indie"
+      ],
+      "valence": 0.57,
+      "energy": 0.76,
+      "tempo": 156,
+      "instrumentalness": 0.02,
+      "popularity": 0.81
+    },
+    {
+      "track_title": "Teardrop",
+      "artist": "Massive Attack",
+      "genres": [
+        "trip hop",
+        "downtempo",
+        "electronic"
+      ],
+      "valence": 0.3,
+      "energy": 0.46,
+      "tempo": 78,
+      "instrumentalness": 0.05,
+      "popularity": 0.84
+    },
+    {
+      "track_title": "Angel",
+      "artist": "Massive Attack",
+      "genres": [
+        "trip hop",
+        "downtempo",
+        "electronic"
+      ],
+      "valence": 0.22,
+      "energy": 0.59,
+      "tempo": 94,
+      "instrumentalness": 0.18,
+      "popularity": 0.78
+    },
+    {
+      "track_title": "Porcelain",
+      "artist": "Moby",
+      "genres": [
+        "downtempo",
+        "ambient",
+        "electronic"
+      ],
+      "valence": 0.4,
+      "energy": 0.34,
+      "tempo": 96,
+      "instrumentalness": 0.58,
+      "popularity": 0.79
+    },
+    {
+      "track_title": "Experience",
+      "artist": "Ludovico Einaudi",
+      "genres": [
+        "classical",
+        "cinematic",
+        "piano"
+      ],
+      "valence": 0.42,
+      "energy": 0.36,
+      "tempo": 126,
+      "instrumentalness": 0.94,
+      "popularity": 0.83
+    },
+    {
+      "track_title": "Time",
+      "artist": "Hans Zimmer",
+      "genres": [
+        "cinematic",
+        "soundtrack",
+        "ambient"
+      ],
+      "valence": 0.37,
+      "energy": 0.51,
+      "tempo": 68,
+      "instrumentalness": 0.91,
+      "popularity": 0.88
+    },
+    {
+      "track_title": "Cornfield Chase",
+      "artist": "Hans Zimmer",
+      "genres": [
+        "cinematic",
+        "soundtrack",
+        "ambient"
+      ],
+      "valence": 0.43,
+      "energy": 0.45,
+      "tempo": 90,
+      "instrumentalness": 0.96,
+      "popularity": 0.85
+    },
+    {
+      "track_title": "Everything in Its Right Place",
+      "artist": "Radiohead",
+      "genres": [
+        "alternative",
+        "electronic",
+        "art rock"
+      ],
+      "valence": 0.31,
+      "energy": 0.49,
+      "tempo": 123,
+      "instrumentalness": 0.25,
+      "popularity": 0.83
+    },
+    {
+      "track_title": "Weird Fishes/Arpeggi",
+      "artist": "Radiohead",
+      "genres": [
+        "alternative",
+        "art rock",
+        "indie"
+      ],
+      "valence": 0.45,
+      "energy": 0.58,
+      "tempo": 152,
+      "instrumentalness": 0.08,
+      "popularity": 0.86
+    },
+    {
+      "track_title": "Retrograde",
+      "artist": "James Blake",
+      "genres": [
+        "alternative r&b",
+        "electronic",
+        "soul"
+      ],
+      "valence": 0.32,
+      "energy": 0.55,
+      "tempo": 139,
+      "instrumentalness": 0.03,
+      "popularity": 0.78
+    },
+    {
+      "track_title": "Limit to Your Love",
+      "artist": "James Blake",
+      "genres": [
+        "alternative r&b",
+        "electronic",
+        "minimal"
+      ],
+      "valence": 0.28,
+      "energy": 0.38,
+      "tempo": 140,
+      "instrumentalness": 0.1,
+      "popularity": 0.74
+    },
+    {
+      "track_title": "A Moment Apart",
+      "artist": "ODESZA",
+      "genres": [
+        "electronic",
+        "future bass",
+        "cinematic"
+      ],
+      "valence": 0.6,
+      "energy": 0.72,
+      "tempo": 82,
+      "instrumentalness": 0.65,
+      "popularity": 0.76
+    },
+    {
+      "track_title": "Line Of Sight",
+      "artist": "ODESZA",
+      "genres": [
+        "electronic",
+        "future bass",
+        "indie"
+      ],
+      "valence": 0.65,
+      "energy": 0.68,
+      "tempo": 105,
+      "instrumentalness": 0.18,
+      "popularity": 0.75
+    },
+    {
+      "track_title": "Innerbloom",
+      "artist": "RÜFÜS DU SOL",
+      "genres": [
+        "deep house",
+        "electronic",
+        "indie dance"
+      ],
+      "valence": 0.5,
+      "energy": 0.62,
+      "tempo": 122,
+      "instrumentalness": 0.44,
+      "popularity": 0.82
+    },
+    {
+      "track_title": "On Hold",
+      "artist": "The xx",
+      "genres": [
+        "indie",
+        "electronic",
+        "alternative"
+      ],
+      "valence": 0.5,
+      "energy": 0.61,
+      "tempo": 125,
+      "instrumentalness": 0.05,
+      "popularity": 0.78
+    },
+    {
+      "track_title": "Take Me Out",
+      "artist": "Franz Ferdinand",
+      "genres": [
+        "indie rock",
+        "alternative",
+        "rock"
+      ],
+      "valence": 0.64,
+      "energy": 0.78,
+      "tempo": 105,
+      "instrumentalness": 0.0,
+      "popularity": 0.86
+    },
+    {
+      "track_title": "Reptilia",
+      "artist": "The Strokes",
+      "genres": [
+        "indie rock",
+        "alternative",
+        "rock"
+      ],
+      "valence": 0.55,
+      "energy": 0.82,
+      "tempo": 158,
+      "instrumentalness": 0.0,
+      "popularity": 0.84
+    },
+    {
+      "track_title": "Electric Feel",
+      "artist": "MGMT",
+      "genres": [
+        "psychedelic pop",
+        "indie",
+        "electropop"
+      ],
+      "valence": 0.76,
+      "energy": 0.68,
+      "tempo": 103,
+      "instrumentalness": 0.0,
+      "popularity": 0.86
+    },
+    {
+      "track_title": "Sweet Disposition",
+      "artist": "The Temper Trap",
+      "genres": [
+        "indie rock",
+        "alternative",
+        "pop rock"
+      ],
+      "valence": 0.68,
+      "energy": 0.74,
+      "tempo": 129,
+      "instrumentalness": 0.02,
+      "popularity": 0.82
+    },
+    {
+      "track_title": "Bad Guy",
+      "artist": "Billie Eilish",
+      "genres": [
+        "pop",
+        "electropop",
+        "alternative pop"
+      ],
+      "valence": 0.56,
+      "energy": 0.43,
+      "tempo": 135,
+      "instrumentalness": 0.13,
+      "popularity": 0.88
+    },
+    {
+      "track_title": "Blinding Lights",
+      "artist": "The Weeknd",
+      "genres": [
+        "pop",
+        "synthwave",
+        "r&b"
+      ],
+      "valence": 0.33,
+      "energy": 0.73,
+      "tempo": 171,
+      "instrumentalness": 0.0,
+      "popularity": 0.92
+    },
+    {
+      "track_title": "Starboy",
+      "artist": "The Weeknd",
+      "genres": [
+        "pop",
+        "r&b",
+        "electronic"
+      ],
+      "valence": 0.49,
+      "energy": 0.59,
+      "tempo": 186,
+      "instrumentalness": 0.0,
+      "popularity": 0.91
+    },
+    {
+      "track_title": "Levitating",
+      "artist": "Dua Lipa",
+      "genres": [
+        "pop",
+        "dance",
+        "nu-disco"
+      ],
+      "valence": 0.9,
+      "energy": 0.8,
+      "tempo": 103,
+      "instrumentalness": 0.0,
+      "popularity": 0.9
+    },
+    {
+      "track_title": "Strobe",
+      "artist": "deadmau5",
+      "genres": [
+        "progressive house",
+        "electronic",
+        "trance"
+      ],
+      "valence": 0.48,
+      "energy": 0.64,
+      "tempo": 128,
+      "instrumentalness": 0.72,
+      "popularity": 0.79
+    },
+    {
+      "track_title": "Opus",
+      "artist": "Eric Prydz",
+      "genres": [
+        "progressive house",
+        "electronic",
+        "dance"
+      ],
+      "valence": 0.54,
+      "energy": 0.75,
+      "tempo": 126,
+      "instrumentalness": 0.63,
+      "popularity": 0.72
+    },
+    {
+      "track_title": "Windowlicker",
+      "artist": "Aphex Twin",
+      "genres": [
+        "idm",
+        "experimental",
+        "electronic"
+      ],
+      "valence": 0.39,
+      "energy": 0.69,
+      "tempo": 101,
+      "instrumentalness": 0.55,
+      "popularity": 0.72
+    },
+    {
+      "track_title": "Xtal",
+      "artist": "Aphex Twin",
+      "genres": [
+        "ambient",
+        "idm",
+        "electronic"
+      ],
+      "valence": 0.44,
+      "energy": 0.36,
+      "tempo": 114,
+      "instrumentalness": 0.78,
+      "popularity": 0.71
+    },
+    {
+      "track_title": "Says",
+      "artist": "Nils Frahm",
+      "genres": [
+        "modern classical",
+        "ambient",
+        "electronic"
+      ],
+      "valence": 0.38,
+      "energy": 0.5,
+      "tempo": 104,
+      "instrumentalness": 0.95,
+      "popularity": 0.69
+    },
+    {
+      "track_title": "Hoppípolla",
+      "artist": "Sigur Rós",
+      "genres": [
+        "post-rock",
+        "ambient",
+        "cinematic"
+      ],
+      "valence": 0.72,
+      "energy": 0.54,
+      "tempo": 132,
+      "instrumentalness": 0.35,
+      "popularity": 0.77
+    },
+    {
+      "track_title": "Svefn-g-englar",
+      "artist": "Sigur Rós",
+      "genres": [
+        "post-rock",
+        "ambient",
+        "dream pop"
+      ],
+      "valence": 0.3,
+      "energy": 0.35,
+      "tempo": 76,
+      "instrumentalness": 0.66,
+      "popularity": 0.68
+    },
+    {
+      "track_title": "Breathe Me",
+      "artist": "Sia",
+      "genres": [
+        "pop",
+        "indie pop",
+        "piano"
+      ],
+      "valence": 0.25,
+      "energy": 0.29,
+      "tempo": 120,
+      "instrumentalness": 0.0,
+      "popularity": 0.78
+    },
+    {
+      "track_title": "Holocene",
+      "artist": "Bon Iver",
+      "genres": [
+        "indie folk",
+        "folk",
+        "ambient"
+      ],
+      "valence": 0.38,
+      "energy": 0.32,
+      "tempo": 148,
+      "instrumentalness": 0.08,
+      "popularity": 0.79
+    },
+    {
+      "track_title": "Bloodbuzz Ohio",
+      "artist": "The National",
+      "genres": [
+        "indie rock",
+        "alternative",
+        "baroque pop"
+      ],
+      "valence": 0.36,
+      "energy": 0.65,
+      "tempo": 107,
+      "instrumentalness": 0.0,
+      "popularity": 0.74
+    },
+    {
+      "track_title": "DNA.",
+      "artist": "Kendrick Lamar",
+      "genres": [
+        "hip hop",
+        "rap",
+        "conscious rap"
+      ],
+      "valence": 0.38,
+      "energy": 0.91,
+      "tempo": 140,
+      "instrumentalness": 0.0,
+      "popularity": 0.85
+    },
+    {
+      "track_title": "N95",
+      "artist": "Kendrick Lamar",
+      "genres": [
+        "hip hop",
+        "rap",
+        "experimental rap"
+      ],
+      "valence": 0.42,
+      "energy": 0.67,
+      "tempo": 139,
+      "instrumentalness": 0.0,
+      "popularity": 0.8
+    },
+    {
+      "track_title": "Can I Kick It?",
+      "artist": "A Tribe Called Quest",
+      "genres": [
+        "hip hop",
+        "jazz rap",
+        "old school"
+      ],
+      "valence": 0.82,
+      "energy": 0.58,
+      "tempo": 99,
+      "instrumentalness": 0.0,
+      "popularity": 0.8
+    },
+    {
+      "track_title": "Royals",
+      "artist": "Lorde",
+      "genres": [
+        "pop",
+        "alt pop",
+        "minimal"
+      ],
+      "valence": 0.38,
+      "energy": 0.43,
+      "tempo": 85,
+      "instrumentalness": 0.0,
+      "popularity": 0.84
+    },
+    {
+      "track_title": "Green Light",
+      "artist": "Lorde",
+      "genres": [
+        "pop",
+        "dance pop",
+        "alt pop"
+      ],
+      "valence": 0.7,
+      "energy": 0.72,
+      "tempo": 129,
+      "instrumentalness": 0.0,
+      "popularity": 0.79
+    },
+    {
+      "track_title": "Sweet Dreams (Are Made of This)",
+      "artist": "Eurythmics",
+      "genres": [
+        "new wave",
+        "synthpop",
+        "pop"
+      ],
+      "valence": 0.63,
+      "energy": 0.7,
+      "tempo": 125,
+      "instrumentalness": 0.0,
+      "popularity": 0.86
+    },
+    {
+      "track_title": "Enjoy the Silence",
+      "artist": "Depeche Mode",
+      "genres": [
+        "synthpop",
+        "new wave",
+        "darkwave"
+      ],
+      "valence": 0.44,
+      "energy": 0.61,
+      "tempo": 113,
+      "instrumentalness": 0.01,
+      "popularity": 0.86
+    },
+    {
+      "track_title": "Blue Monday",
+      "artist": "New Order",
+      "genres": [
+        "new wave",
+        "dance",
+        "electronic"
+      ],
+      "valence": 0.58,
+      "energy": 0.78,
+      "tempo": 130,
+      "instrumentalness": 0.28,
+      "popularity": 0.84
+    }
+  ]
+}

@@ -1,0 +1,1489 @@
+{
+ "note": "Offline starter catalog for Music DNA Copilot 3.0 capsules. Artists and titles are real, well-known recordings; valence/energy/tempo/instrumentalness/popularity are editorial ESTIMATES for offline scoring, not measured audio features. Connect Spotify for a live candidate catalog.",
+ "features_estimated": true,
+ "version": "3.0",
+ "tracks": [
+  {
+   "track_title": "Through Silver in Blood",
+   "artist": "Neurosis",
+   "genres": [
+    "post-metal",
+    "sludge metal"
+   ],
+   "valence": 0.15,
+   "energy": 0.85,
+   "tempo": 95,
+   "instrumentalness": 0.4,
+   "popularity": 0.35
+  },
+  {
+   "track_title": "Holy Tears",
+   "artist": "Isis",
+   "genres": [
+    "post-metal",
+    "atmospheric sludge"
+   ],
+   "valence": 0.2,
+   "energy": 0.75,
+   "tempo": 110,
+   "instrumentalness": 0.3,
+   "popularity": 0.35
+  },
+  {
+   "track_title": "Finland",
+   "artist": "Cult of Luna",
+   "genres": [
+    "post-metal",
+    "atmospheric sludge"
+   ],
+   "valence": 0.2,
+   "energy": 0.8,
+   "tempo": 100,
+   "instrumentalness": 0.4,
+   "popularity": 0.3
+  },
+  {
+   "track_title": "Last Day of Winter",
+   "artist": "Pelican",
+   "genres": [
+    "post-metal",
+    "instrumental"
+   ],
+   "valence": 0.3,
+   "energy": 0.7,
+   "tempo": 105,
+   "instrumentalness": 0.9,
+   "popularity": 0.3
+  },
+  {
+   "track_title": "Harper Lewis",
+   "artist": "Russian Circles",
+   "genres": [
+    "post-metal",
+    "post-rock",
+    "instrumental"
+   ],
+   "valence": 0.25,
+   "energy": 0.8,
+   "tempo": 120,
+   "instrumentalness": 0.95,
+   "popularity": 0.35
+  },
+  {
+   "track_title": "Oblivion",
+   "artist": "Mastodon",
+   "genres": [
+    "progressive metal",
+    "sludge metal"
+   ],
+   "valence": 0.3,
+   "energy": 0.85,
+   "tempo": 115,
+   "instrumentalness": 0.1,
+   "popularity": 0.6
+  },
+  {
+   "track_title": "Funeralopolis",
+   "artist": "Electric Wizard",
+   "genres": [
+    "doom metal",
+    "stoner metal"
+   ],
+   "valence": 0.15,
+   "energy": 0.75,
+   "tempo": 80,
+   "instrumentalness": 0.2,
+   "popularity": 0.45
+  },
+  {
+   "track_title": "Dragonaut",
+   "artist": "Sleep",
+   "genres": [
+    "stoner metal",
+    "doom metal"
+   ],
+   "valence": 0.3,
+   "energy": 0.75,
+   "tempo": 90,
+   "instrumentalness": 0.2,
+   "popularity": 0.45
+  },
+  {
+   "track_title": "Foreigner",
+   "artist": "Pallbearer",
+   "genres": [
+    "doom metal"
+   ],
+   "valence": 0.15,
+   "energy": 0.6,
+   "tempo": 75,
+   "instrumentalness": 0.2,
+   "popularity": 0.3
+  },
+  {
+   "track_title": "Orchard",
+   "artist": "Windhand",
+   "genres": [
+    "doom metal",
+    "stoner metal"
+   ],
+   "valence": 0.2,
+   "energy": 0.65,
+   "tempo": 78,
+   "instrumentalness": 0.2,
+   "popularity": 0.25
+  },
+  {
+   "track_title": "Diaken",
+   "artist": "Amenra",
+   "genres": [
+    "post-metal",
+    "sludge metal"
+   ],
+   "valence": 0.1,
+   "energy": 0.8,
+   "tempo": 85,
+   "instrumentalness": 0.3,
+   "popularity": 0.25
+  },
+  {
+   "track_title": "Marrow",
+   "artist": "YOB",
+   "genres": [
+    "doom metal"
+   ],
+   "valence": 0.2,
+   "energy": 0.55,
+   "tempo": 70,
+   "instrumentalness": 0.3,
+   "popularity": 0.25
+  },
+  {
+   "track_title": "Aghartha",
+   "artist": "Sunn O)))",
+   "genres": [
+    "drone metal",
+    "drone"
+   ],
+   "valence": 0.05,
+   "energy": 0.4,
+   "tempo": 60,
+   "instrumentalness": 0.9,
+   "popularity": 0.2
+  },
+  {
+   "track_title": "Old Black",
+   "artist": "Earth",
+   "genres": [
+    "drone metal",
+    "post-rock"
+   ],
+   "valence": 0.2,
+   "energy": 0.4,
+   "tempo": 70,
+   "instrumentalness": 0.95,
+   "popularity": 0.2
+  },
+  {
+   "track_title": "State of Non-Return",
+   "artist": "Om",
+   "genres": [
+    "stoner metal",
+    "doom metal"
+   ],
+   "valence": 0.25,
+   "energy": 0.6,
+   "tempo": 85,
+   "instrumentalness": 0.3,
+   "popularity": 0.2
+  },
+  {
+   "track_title": "Green Machine",
+   "artist": "Kyuss",
+   "genres": [
+    "stoner rock"
+   ],
+   "valence": 0.45,
+   "energy": 0.9,
+   "tempo": 125,
+   "instrumentalness": 0.1,
+   "popularity": 0.5
+  },
+  {
+   "track_title": "Compendium",
+   "artist": "Elder",
+   "genres": [
+    "stoner rock",
+    "psychedelic"
+   ],
+   "valence": 0.35,
+   "energy": 0.8,
+   "tempo": 118,
+   "instrumentalness": 0.3,
+   "popularity": 0.3
+  },
+  {
+   "track_title": "Take My Bones Away",
+   "artist": "Baroness",
+   "genres": [
+    "sludge metal",
+    "progressive metal"
+   ],
+   "valence": 0.35,
+   "energy": 0.9,
+   "tempo": 140,
+   "instrumentalness": 0.1,
+   "popularity": 0.45
+  },
+  {
+   "track_title": "Dream House",
+   "artist": "Deafheaven",
+   "genres": [
+    "blackgaze",
+    "post-metal"
+   ],
+   "valence": 0.3,
+   "energy": 0.95,
+   "tempo": 165,
+   "instrumentalness": 0.2,
+   "popularity": 0.45
+  },
+  {
+   "track_title": "Autre Temps",
+   "artist": "Alcest",
+   "genres": [
+    "blackgaze",
+    "shoegaze"
+   ],
+   "valence": 0.3,
+   "energy": 0.7,
+   "tempo": 120,
+   "instrumentalness": 0.3,
+   "popularity": 0.35
+  },
+  {
+   "track_title": "In the Shadow of Our Pale Companion",
+   "artist": "Agalloch",
+   "genres": [
+    "atmospheric black metal",
+    "dark folk"
+   ],
+   "valence": 0.2,
+   "energy": 0.6,
+   "tempo": 110,
+   "instrumentalness": 0.4,
+   "popularity": 0.3
+  },
+  {
+   "track_title": "With Hearts Toward None I",
+   "artist": "Mgła",
+   "genres": [
+    "black metal"
+   ],
+   "valence": 0.1,
+   "energy": 0.9,
+   "tempo": 150,
+   "instrumentalness": 0.3,
+   "popularity": 0.3
+  },
+  {
+   "track_title": "Marked for Death",
+   "artist": "Emma Ruth Rundle",
+   "genres": [
+    "dark folk",
+    "post-rock"
+   ],
+   "valence": 0.15,
+   "energy": 0.35,
+   "tempo": 80,
+   "instrumentalness": 0.1,
+   "popularity": 0.3
+  },
+  {
+   "track_title": "Carrion Flowers",
+   "artist": "Chelsea Wolfe",
+   "genres": [
+    "gothic",
+    "doom metal",
+    "darkwave"
+   ],
+   "valence": 0.1,
+   "energy": 0.7,
+   "tempo": 95,
+   "instrumentalness": 0.1,
+   "popularity": 0.4
+  },
+  {
+   "track_title": "Ulvinde",
+   "artist": "Myrkur",
+   "genres": [
+    "atmospheric black metal",
+    "dark folk"
+   ],
+   "valence": 0.2,
+   "energy": 0.5,
+   "tempo": 90,
+   "instrumentalness": 0.3,
+   "popularity": 0.25
+  },
+  {
+   "track_title": "Helvegen",
+   "artist": "Wardruna",
+   "genres": [
+    "nordic folk",
+    "dark folk"
+   ],
+   "valence": 0.2,
+   "energy": 0.4,
+   "tempo": 80,
+   "instrumentalness": 0.3,
+   "popularity": 0.45
+  },
+  {
+   "track_title": "Krigsgaldr",
+   "artist": "Heilung",
+   "genres": [
+    "nordic folk",
+    "ritual ambient"
+   ],
+   "valence": 0.2,
+   "energy": 0.55,
+   "tempo": 90,
+   "instrumentalness": 0.3,
+   "popularity": 0.4
+  },
+  {
+   "track_title": "Ashes in the Snow",
+   "artist": "Mono",
+   "genres": [
+    "post-rock",
+    "cinematic"
+   ],
+   "valence": 0.3,
+   "energy": 0.55,
+   "tempo": 100,
+   "instrumentalness": 0.98,
+   "popularity": 0.35
+  },
+  {
+   "track_title": "Your Hand in Mine",
+   "artist": "Explosions in the Sky",
+   "genres": [
+    "post-rock",
+    "instrumental"
+   ],
+   "valence": 0.45,
+   "energy": 0.5,
+   "tempo": 105,
+   "instrumentalness": 0.98,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Storm",
+   "artist": "Godspeed You! Black Emperor",
+   "genres": [
+    "post-rock",
+    "experimental"
+   ],
+   "valence": 0.25,
+   "energy": 0.55,
+   "tempo": 100,
+   "instrumentalness": 0.95,
+   "popularity": 0.4
+  },
+  {
+   "track_title": "The Mighty Rio Grande",
+   "artist": "This Will Destroy You",
+   "genres": [
+    "post-rock",
+    "ambient"
+   ],
+   "valence": 0.3,
+   "energy": 0.4,
+   "tempo": 80,
+   "instrumentalness": 0.98,
+   "popularity": 0.35
+  },
+  {
+   "track_title": "Auto Rock",
+   "artist": "Mogwai",
+   "genres": [
+    "post-rock"
+   ],
+   "valence": 0.35,
+   "energy": 0.5,
+   "tempo": 95,
+   "instrumentalness": 0.95,
+   "popularity": 0.5
+  },
+  {
+   "track_title": "All Is Violent, All Is Bright",
+   "artist": "God Is an Astronaut",
+   "genres": [
+    "post-rock",
+    "instrumental"
+   ],
+   "valence": 0.4,
+   "energy": 0.6,
+   "tempo": 110,
+   "instrumentalness": 0.95,
+   "popularity": 0.4
+  },
+  {
+   "track_title": "The Seer",
+   "artist": "Swans",
+   "genres": [
+    "experimental",
+    "post-rock",
+    "drone"
+   ],
+   "valence": 0.15,
+   "energy": 0.6,
+   "tempo": 90,
+   "instrumentalness": 0.6,
+   "popularity": 0.3
+  },
+  {
+   "track_title": "Gallowdance",
+   "artist": "Lebanon Hanover",
+   "genres": [
+    "darkwave",
+    "coldwave"
+   ],
+   "valence": 0.2,
+   "energy": 0.6,
+   "tempo": 125,
+   "instrumentalness": 0.1,
+   "popularity": 0.45
+  },
+  {
+   "track_title": "Sudno (Boris Ryzhy)",
+   "artist": "Molchat Doma",
+   "genres": [
+    "post-punk",
+    "coldwave",
+    "darkwave"
+   ],
+   "valence": 0.2,
+   "energy": 0.65,
+   "tempo": 140,
+   "instrumentalness": 0.1,
+   "popularity": 0.6
+  },
+  {
+   "track_title": "Durdu Dünya",
+   "artist": "She Past Away",
+   "genres": [
+    "darkwave",
+    "post-punk"
+   ],
+   "valence": 0.2,
+   "energy": 0.7,
+   "tempo": 130,
+   "instrumentalness": 0.1,
+   "popularity": 0.4
+  },
+  {
+   "track_title": "Pain",
+   "artist": "Boy Harsher",
+   "genres": [
+    "darkwave",
+    "synthwave"
+   ],
+   "valence": 0.25,
+   "energy": 0.6,
+   "tempo": 110,
+   "instrumentalness": 0.2,
+   "popularity": 0.45
+  },
+  {
+   "track_title": "Too Soon to Tell",
+   "artist": "Drab Majesty",
+   "genres": [
+    "darkwave",
+    "dream pop"
+   ],
+   "valence": 0.3,
+   "energy": 0.6,
+   "tempo": 120,
+   "instrumentalness": 0.2,
+   "popularity": 0.35
+  },
+  {
+   "track_title": "A Day",
+   "artist": "Clan of Xymox",
+   "genres": [
+    "darkwave",
+    "gothic"
+   ],
+   "valence": 0.2,
+   "energy": 0.55,
+   "tempo": 120,
+   "instrumentalness": 0.2,
+   "popularity": 0.3
+  },
+  {
+   "track_title": "Disintegration",
+   "artist": "The Cure",
+   "genres": [
+    "gothic",
+    "post-punk"
+   ],
+   "valence": 0.2,
+   "energy": 0.65,
+   "tempo": 125,
+   "instrumentalness": 0.1,
+   "popularity": 0.6
+  },
+  {
+   "track_title": "Disorder",
+   "artist": "Joy Division",
+   "genres": [
+    "post-punk"
+   ],
+   "valence": 0.35,
+   "energy": 0.75,
+   "tempo": 155,
+   "instrumentalness": 0.1,
+   "popularity": 0.65
+  },
+  {
+   "track_title": "Spellbound",
+   "artist": "Siouxsie and the Banshees",
+   "genres": [
+    "post-punk",
+    "gothic"
+   ],
+   "valence": 0.4,
+   "energy": 0.8,
+   "tempo": 165,
+   "instrumentalness": 0.1,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Heaven or Las Vegas",
+   "artist": "Cocteau Twins",
+   "genres": [
+    "dream pop",
+    "ethereal wave"
+   ],
+   "valence": 0.55,
+   "energy": 0.6,
+   "tempo": 120,
+   "instrumentalness": 0.3,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "The Host of Seraphim",
+   "artist": "Dead Can Dance",
+   "genres": [
+    "ethereal wave",
+    "neoclassical"
+   ],
+   "valence": 0.1,
+   "energy": 0.3,
+   "tempo": 70,
+   "instrumentalness": 0.5,
+   "popularity": 0.45
+  },
+  {
+   "track_title": "Love Comes Close",
+   "artist": "Cold Cave",
+   "genres": [
+    "darkwave",
+    "synthpop"
+   ],
+   "valence": 0.3,
+   "energy": 0.7,
+   "tempo": 125,
+   "instrumentalness": 0.1,
+   "popularity": 0.4
+  },
+  {
+   "track_title": "Hurt",
+   "artist": "Nine Inch Nails",
+   "genres": [
+    "industrial",
+    "industrial rock"
+   ],
+   "valence": 0.1,
+   "energy": 0.35,
+   "tempo": 90,
+   "instrumentalness": 0.1,
+   "popularity": 0.7
+  },
+  {
+   "track_title": "Headhunter",
+   "artist": "Front 242",
+   "genres": [
+    "ebm",
+    "industrial"
+   ],
+   "valence": 0.4,
+   "energy": 0.8,
+   "tempo": 122,
+   "instrumentalness": 0.2,
+   "popularity": 0.45
+  },
+  {
+   "track_title": "Join in the Chant",
+   "artist": "Nitzer Ebb",
+   "genres": [
+    "ebm",
+    "industrial"
+   ],
+   "valence": 0.35,
+   "energy": 0.85,
+   "tempo": 125,
+   "instrumentalness": 0.2,
+   "popularity": 0.35
+  },
+  {
+   "track_title": "N.W.O.",
+   "artist": "Ministry",
+   "genres": [
+    "industrial metal",
+    "industrial"
+   ],
+   "valence": 0.25,
+   "energy": 0.95,
+   "tempo": 140,
+   "instrumentalness": 0.1,
+   "popularity": 0.45
+  },
+  {
+   "track_title": "Stonefist",
+   "artist": "HEALTH",
+   "genres": [
+    "industrial",
+    "noise rock"
+   ],
+   "valence": 0.3,
+   "energy": 0.8,
+   "tempo": 115,
+   "instrumentalness": 0.1,
+   "popularity": 0.4
+  },
+  {
+   "track_title": "Archangel",
+   "artist": "Burial",
+   "genres": [
+    "dubstep",
+    "ambient",
+    "electronic"
+   ],
+   "valence": 0.25,
+   "energy": 0.5,
+   "tempo": 139,
+   "instrumentalness": 0.3,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Virginal I",
+   "artist": "Tim Hecker",
+   "genres": [
+    "ambient",
+    "drone"
+   ],
+   "valence": 0.2,
+   "energy": 0.35,
+   "tempo": 80,
+   "instrumentalness": 0.98,
+   "popularity": 0.25
+  },
+  {
+   "track_title": "Requiem for Dying Mothers, Part 1",
+   "artist": "Stars of the Lid",
+   "genres": [
+    "ambient",
+    "drone"
+   ],
+   "valence": 0.2,
+   "energy": 0.1,
+   "tempo": 60,
+   "instrumentalness": 0.98,
+   "popularity": 0.25
+  },
+  {
+   "track_title": "An Ending (Ascent)",
+   "artist": "Brian Eno",
+   "genres": [
+    "ambient"
+   ],
+   "valence": 0.35,
+   "energy": 0.1,
+   "tempo": 60,
+   "instrumentalness": 0.98,
+   "popularity": 0.6
+  },
+  {
+   "track_title": "dlp 1.1",
+   "artist": "William Basinski",
+   "genres": [
+    "ambient",
+    "drone"
+   ],
+   "valence": 0.25,
+   "energy": 0.1,
+   "tempo": 60,
+   "instrumentalness": 0.98,
+   "popularity": 0.3
+  },
+  {
+   "track_title": "Poa Alpina",
+   "artist": "Biosphere",
+   "genres": [
+    "arctic ambient",
+    "ambient"
+   ],
+   "valence": 0.2,
+   "energy": 0.15,
+   "tempo": 70,
+   "instrumentalness": 0.98,
+   "popularity": 0.25
+  },
+  {
+   "track_title": "Roygbiv",
+   "artist": "Boards of Canada",
+   "genres": [
+    "idm",
+    "electronic"
+   ],
+   "valence": 0.6,
+   "energy": 0.4,
+   "tempo": 95,
+   "instrumentalness": 0.9,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Shum",
+   "artist": "Go_A",
+   "genres": [
+    "ukrainian",
+    "ukrainian electronic",
+    "ukrainian folk"
+   ],
+   "valence": 0.5,
+   "energy": 0.85,
+   "tempo": 130,
+   "instrumentalness": 0.1,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Stefania",
+   "artist": "Kalush Orchestra",
+   "genres": [
+    "ukrainian",
+    "ukrainian folk",
+    "hip hop"
+   ],
+   "valence": 0.6,
+   "energy": 0.75,
+   "tempo": 110,
+   "instrumentalness": 0.1,
+   "popularity": 0.6
+  },
+  {
+   "track_title": "Vesna",
+   "artist": "DakhaBrakha",
+   "genres": [
+    "ukrainian folk",
+    "world"
+   ],
+   "valence": 0.55,
+   "energy": 0.6,
+   "tempo": 110,
+   "instrumentalness": 0.2,
+   "popularity": 0.4
+  },
+  {
+   "track_title": "Obiimy",
+   "artist": "Okean Elzy",
+   "genres": [
+    "ukrainian rock",
+    "ukrainian"
+   ],
+   "valence": 0.55,
+   "energy": 0.55,
+   "tempo": 95,
+   "instrumentalness": 0.1,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Vidlik",
+   "artist": "ONUKA",
+   "genres": [
+    "ukrainian electronic",
+    "ukrainian"
+   ],
+   "valence": 0.4,
+   "energy": 0.55,
+   "tempo": 115,
+   "instrumentalness": 0.2,
+   "popularity": 0.4
+  },
+  {
+   "track_title": "Pisces",
+   "artist": "Jinjer",
+   "genres": [
+    "progressive metal",
+    "ukrainian",
+    "metalcore"
+   ],
+   "valence": 0.3,
+   "energy": 0.8,
+   "tempo": 95,
+   "instrumentalness": 0.1,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "1944",
+   "artist": "Jamala",
+   "genres": [
+    "ukrainian",
+    "soul"
+   ],
+   "valence": 0.2,
+   "energy": 0.5,
+   "tempo": 90,
+   "instrumentalness": 0.1,
+   "popularity": 0.45
+  },
+  {
+   "track_title": "No One Knows",
+   "artist": "Queens of the Stone Age",
+   "genres": [
+    "stoner rock",
+    "alternative"
+   ],
+   "valence": 0.55,
+   "energy": 0.85,
+   "tempo": 170,
+   "instrumentalness": 0.1,
+   "popularity": 0.7
+  },
+  {
+   "track_title": "Let It Happen",
+   "artist": "Tame Impala",
+   "genres": [
+    "psychedelic",
+    "electronic"
+   ],
+   "valence": 0.5,
+   "energy": 0.7,
+   "tempo": 125,
+   "instrumentalness": 0.3,
+   "popularity": 0.75
+  },
+  {
+   "track_title": "Rattlesnake",
+   "artist": "King Gizzard & the Lizard Wizard",
+   "genres": [
+    "psychedelic",
+    "garage rock"
+   ],
+   "valence": 0.5,
+   "energy": 0.9,
+   "tempo": 150,
+   "instrumentalness": 0.2,
+   "popularity": 0.5
+  },
+  {
+   "track_title": "Maria También",
+   "artist": "Khruangbin",
+   "genres": [
+    "psychedelic",
+    "funk"
+   ],
+   "valence": 0.6,
+   "energy": 0.65,
+   "tempo": 110,
+   "instrumentalness": 0.8,
+   "popularity": 0.6
+  },
+  {
+   "track_title": "When the Sun Hits",
+   "artist": "Slowdive",
+   "genres": [
+    "shoegaze",
+    "dream pop"
+   ],
+   "valence": 0.35,
+   "energy": 0.65,
+   "tempo": 110,
+   "instrumentalness": 0.2,
+   "popularity": 0.6
+  },
+  {
+   "track_title": "Only Shallow",
+   "artist": "My Bloody Valentine",
+   "genres": [
+    "shoegaze"
+   ],
+   "valence": 0.4,
+   "energy": 0.85,
+   "tempo": 125,
+   "instrumentalness": 0.3,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Space Song",
+   "artist": "Beach House",
+   "genres": [
+    "dream pop",
+    "indie"
+   ],
+   "valence": 0.3,
+   "energy": 0.5,
+   "tempo": 145,
+   "instrumentalness": 0.2,
+   "popularity": 0.75
+  },
+  {
+   "track_title": "Apocalypse",
+   "artist": "Cigarettes After Sex",
+   "genres": [
+    "dream pop",
+    "ambient pop"
+   ],
+   "valence": 0.25,
+   "energy": 0.3,
+   "tempo": 95,
+   "instrumentalness": 0.1,
+   "popularity": 0.75
+  },
+  {
+   "track_title": "Pink Moon",
+   "artist": "Nick Drake",
+   "genres": [
+    "folk",
+    "indie folk"
+   ],
+   "valence": 0.35,
+   "energy": 0.2,
+   "tempo": 90,
+   "instrumentalness": 0.2,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Fourth of July",
+   "artist": "Sufjan Stevens",
+   "genres": [
+    "indie folk",
+    "folk"
+   ],
+   "valence": 0.15,
+   "energy": 0.15,
+   "tempo": 80,
+   "instrumentalness": 0.1,
+   "popularity": 0.6
+  },
+  {
+   "track_title": "So What",
+   "artist": "Miles Davis",
+   "genres": [
+    "jazz",
+    "modal jazz"
+   ],
+   "valence": 0.55,
+   "energy": 0.35,
+   "tempo": 135,
+   "instrumentalness": 0.9,
+   "popularity": 0.65
+  },
+  {
+   "track_title": "Naima",
+   "artist": "John Coltrane",
+   "genres": [
+    "jazz"
+   ],
+   "valence": 0.4,
+   "energy": 0.2,
+   "tempo": 65,
+   "instrumentalness": 0.9,
+   "popularity": 0.5
+  },
+  {
+   "track_title": "Time Moves Slow",
+   "artist": "BADBADNOTGOOD",
+   "genres": [
+    "jazz",
+    "soul"
+   ],
+   "valence": 0.35,
+   "energy": 0.35,
+   "tempo": 80,
+   "instrumentalness": 0.3,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Roads",
+   "artist": "Portishead",
+   "genres": [
+    "trip hop"
+   ],
+   "valence": 0.1,
+   "energy": 0.3,
+   "tempo": 80,
+   "instrumentalness": 0.2,
+   "popularity": 0.6
+  },
+  {
+   "track_title": "Aruarian Dance",
+   "artist": "Nujabes",
+   "genres": [
+    "jazz rap",
+    "hip hop",
+    "downtempo"
+   ],
+   "valence": 0.55,
+   "energy": 0.45,
+   "tempo": 90,
+   "instrumentalness": 0.8,
+   "popularity": 0.6
+  },
+  {
+   "track_title": "Midnight in a Perfect World",
+   "artist": "DJ Shadow",
+   "genres": [
+    "trip hop",
+    "hip hop"
+   ],
+   "valence": 0.3,
+   "energy": 0.45,
+   "tempo": 90,
+   "instrumentalness": 0.6,
+   "popularity": 0.5
+  },
+  {
+   "track_title": "Legend Has It",
+   "artist": "Run the Jewels",
+   "genres": [
+    "hip hop",
+    "rap"
+   ],
+   "valence": 0.5,
+   "energy": 0.85,
+   "tempo": 95,
+   "instrumentalness": 0.0,
+   "popularity": 0.6
+  },
+  {
+   "track_title": "Baby",
+   "artist": "Four Tet",
+   "genres": [
+    "electronic",
+    "house"
+   ],
+   "valence": 0.55,
+   "energy": 0.65,
+   "tempo": 125,
+   "instrumentalness": 0.5,
+   "popularity": 0.5
+  },
+  {
+   "track_title": "Open Eye Signal",
+   "artist": "Jon Hopkins",
+   "genres": [
+    "electronic",
+    "idm",
+    "techno"
+   ],
+   "valence": 0.35,
+   "energy": 0.75,
+   "tempo": 120,
+   "instrumentalness": 0.9,
+   "popularity": 0.5
+  },
+  {
+   "track_title": "Bad Kingdom",
+   "artist": "Moderat",
+   "genres": [
+    "electronic",
+    "idm"
+   ],
+   "valence": 0.3,
+   "energy": 0.65,
+   "tempo": 125,
+   "instrumentalness": 0.3,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Kerala",
+   "artist": "Bonobo",
+   "genres": [
+    "downtempo",
+    "electronic"
+   ],
+   "valence": 0.5,
+   "energy": 0.6,
+   "tempo": 120,
+   "instrumentalness": 0.7,
+   "popularity": 0.6
+  },
+  {
+   "track_title": "Veridis Quo",
+   "artist": "Daft Punk",
+   "genres": [
+    "electronic",
+    "french house"
+   ],
+   "valence": 0.4,
+   "energy": 0.5,
+   "tempo": 110,
+   "instrumentalness": 0.95,
+   "popularity": 0.6
+  },
+  {
+   "track_title": "Can't Do Without You",
+   "artist": "Caribou",
+   "genres": [
+    "electronic",
+    "house"
+   ],
+   "valence": 0.55,
+   "energy": 0.7,
+   "tempo": 122,
+   "instrumentalness": 0.4,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Future Club",
+   "artist": "Perturbator",
+   "genres": [
+    "synthwave",
+    "darksynth"
+   ],
+   "valence": 0.3,
+   "energy": 0.85,
+   "tempo": 115,
+   "instrumentalness": 0.9,
+   "popularity": 0.5
+  },
+  {
+   "track_title": "Turbo Killer",
+   "artist": "Carpenter Brut",
+   "genres": [
+    "synthwave",
+    "darksynth"
+   ],
+   "valence": 0.35,
+   "energy": 0.9,
+   "tempo": 120,
+   "instrumentalness": 0.9,
+   "popularity": 0.5
+  },
+  {
+   "track_title": "Pursuit",
+   "artist": "Gesaffelstein",
+   "genres": [
+    "techno",
+    "darkwave",
+    "electronic"
+   ],
+   "valence": 0.2,
+   "energy": 0.8,
+   "tempo": 125,
+   "instrumentalness": 0.8,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Computer Love",
+   "artist": "Kraftwerk",
+   "genres": [
+    "synthpop",
+    "electronic"
+   ],
+   "valence": 0.45,
+   "energy": 0.55,
+   "tempo": 120,
+   "instrumentalness": 0.4,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Change (In the House of Flies)",
+   "artist": "Deftones",
+   "genres": [
+    "alternative metal",
+    "shoegaze"
+   ],
+   "valence": 0.3,
+   "energy": 0.7,
+   "tempo": 90,
+   "instrumentalness": 0.1,
+   "popularity": 0.75
+  },
+  {
+   "track_title": "Schism",
+   "artist": "Tool",
+   "genres": [
+    "progressive metal",
+    "alternative metal"
+   ],
+   "valence": 0.3,
+   "energy": 0.75,
+   "tempo": 110,
+   "instrumentalness": 0.1,
+   "popularity": 0.75
+  },
+  {
+   "track_title": "Trains",
+   "artist": "Porcupine Tree",
+   "genres": [
+    "progressive rock"
+   ],
+   "valence": 0.45,
+   "energy": 0.55,
+   "tempo": 95,
+   "instrumentalness": 0.1,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Reckoner",
+   "artist": "Radiohead",
+   "genres": [
+    "art rock",
+    "alternative"
+   ],
+   "valence": 0.35,
+   "energy": 0.5,
+   "tempo": 105,
+   "instrumentalness": 0.2,
+   "popularity": 0.7
+  },
+  {
+   "track_title": "Where Is My Mind?",
+   "artist": "Pixies",
+   "genres": [
+    "alternative",
+    "indie rock"
+   ],
+   "valence": 0.4,
+   "energy": 0.65,
+   "tempo": 80,
+   "instrumentalness": 0.1,
+   "popularity": 0.8
+  },
+  {
+   "track_title": "Do I Wanna Know?",
+   "artist": "Arctic Monkeys",
+   "genres": [
+    "indie rock",
+    "alternative"
+   ],
+   "valence": 0.4,
+   "energy": 0.55,
+   "tempo": 85,
+   "instrumentalness": 0.1,
+   "popularity": 0.85
+  },
+  {
+   "track_title": "Ghost of Perdition",
+   "artist": "Opeth",
+   "genres": [
+    "progressive metal",
+    "death metal"
+   ],
+   "valence": 0.25,
+   "energy": 0.85,
+   "tempo": 110,
+   "instrumentalness": 0.2,
+   "popularity": 0.5
+  },
+  {
+   "track_title": "Flying Whales",
+   "artist": "Gojira",
+   "genres": [
+    "progressive metal",
+    "death metal"
+   ],
+   "valence": 0.25,
+   "energy": 0.9,
+   "tempo": 105,
+   "instrumentalness": 0.2,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Fjara",
+   "artist": "Sólstafir",
+   "genres": [
+    "post-metal",
+    "atmospheric"
+   ],
+   "valence": 0.25,
+   "energy": 0.55,
+   "tempo": 80,
+   "instrumentalness": 0.2,
+   "popularity": 0.4
+  },
+  {
+   "track_title": "July",
+   "artist": "Katatonia",
+   "genres": [
+    "gothic metal",
+    "alternative metal"
+   ],
+   "valence": 0.2,
+   "energy": 0.7,
+   "tempo": 110,
+   "instrumentalness": 0.1,
+   "popularity": 0.45
+  },
+  {
+   "track_title": "Untouchable, Part 1",
+   "artist": "Anathema",
+   "genres": [
+    "atmospheric rock",
+    "progressive rock"
+   ],
+   "valence": 0.3,
+   "energy": 0.65,
+   "tempo": 120,
+   "instrumentalness": 0.1,
+   "popularity": 0.45
+  },
+  {
+   "track_title": "Love You to Death",
+   "artist": "Type O Negative",
+   "genres": [
+    "gothic metal",
+    "doom metal"
+   ],
+   "valence": 0.2,
+   "energy": 0.5,
+   "tempo": 80,
+   "instrumentalness": 0.1,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "On the Nature of Daylight",
+   "artist": "Max Richter",
+   "genres": [
+    "modern classical",
+    "neoclassical"
+   ],
+   "valence": 0.15,
+   "energy": 0.15,
+   "tempo": 60,
+   "instrumentalness": 0.98,
+   "popularity": 0.65
+  },
+  {
+   "track_title": "Spiegel im Spiegel",
+   "artist": "Arvo Pärt",
+   "genres": [
+    "classical",
+    "minimalism"
+   ],
+   "valence": 0.3,
+   "energy": 0.05,
+   "tempo": 60,
+   "instrumentalness": 0.98,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Flight from the City",
+   "artist": "Jóhann Jóhannsson",
+   "genres": [
+    "modern classical",
+    "ambient"
+   ],
+   "valence": 0.2,
+   "energy": 0.15,
+   "tempo": 70,
+   "instrumentalness": 0.9,
+   "popularity": 0.5
+  },
+  {
+   "track_title": "Saman",
+   "artist": "Ólafur Arnalds",
+   "genres": [
+    "modern classical",
+    "ambient"
+   ],
+   "valence": 0.3,
+   "energy": 0.1,
+   "tempo": 70,
+   "instrumentalness": 0.95,
+   "popularity": 0.55
+  },
+  {
+   "track_title": "Pink + White",
+   "artist": "Frank Ocean",
+   "genres": [
+    "r&b",
+    "alternative r&b"
+   ],
+   "valence": 0.6,
+   "energy": 0.5,
+   "tempo": 160,
+   "instrumentalness": 0.0,
+   "popularity": 0.8
+  },
+  {
+   "track_title": "Running Up That Hill (A Deal with God)",
+   "artist": "Kate Bush",
+   "genres": [
+    "art pop",
+    "synthpop"
+   ],
+   "valence": 0.4,
+   "energy": 0.6,
+   "tempo": 108,
+   "instrumentalness": 0.1,
+   "popularity": 0.85
+  },
+  {
+   "track_title": "Jóga",
+   "artist": "Björk",
+   "genres": [
+    "art pop",
+    "electronic"
+   ],
+   "valence": 0.3,
+   "energy": 0.45,
+   "tempo": 90,
+   "instrumentalness": 0.2,
+   "popularity": 0.6
+  },
+  {
+   "track_title": "Two Weeks",
+   "artist": "FKA twigs",
+   "genres": [
+    "alternative r&b",
+    "electronic"
+   ],
+   "valence": 0.35,
+   "energy": 0.5,
+   "tempo": 100,
+   "instrumentalness": 0.1,
+   "popularity": 0.6
+  },
+  {
+   "track_title": "Video Games",
+   "artist": "Lana Del Rey",
+   "genres": [
+    "baroque pop",
+    "dream pop"
+   ],
+   "valence": 0.2,
+   "energy": 0.3,
+   "tempo": 120,
+   "instrumentalness": 0.0,
+   "popularity": 0.8
+  },
+  {
+   "track_title": "Water No Get Enemy",
+   "artist": "Fela Kuti",
+   "genres": [
+    "afrobeat",
+    "funk"
+   ],
+   "valence": 0.7,
+   "energy": 0.7,
+   "tempo": 105,
+   "instrumentalness": 0.4,
+   "popularity": 0.5
+  }
+ ]
+}
