@@ -9,8 +9,9 @@ Builds for **Windows**, **macOS (Apple Silicon)** and **Linux** are produced by 
 Actions (`.github/workflows/desktop-app.yml`):
 
 - every pull request that touches the app: open the workflow run → **Artifacts**;
-- every tag named `music-dna-v…` (for example `music-dna-v3.2.0`): the files are attached
-  to that GitHub **Release**.
+- **Releases**: a push of a tag named `music-dna-v…`, or a pushed commit whose message
+  contains `[release]` (the workflow then tags that commit `music-dna-v<VERSION>`), publishes
+  a GitHub **Release** with all three files. Release notes: `packaging/RELEASE_BODY.md`.
 
 | System | File | Start |
 |---|---|---|
