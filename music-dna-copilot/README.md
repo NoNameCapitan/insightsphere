@@ -1,5 +1,8 @@
-# Music DNA Copilot 3.1 🧬🎧
+# Music DNA Copilot 3.2 🧬🎧
 
+> **3.2:** a **desktop app** for Windows, macOS and Linux: own window and icon, no Python
+> to install, data in your user folder. See **DESKTOP_APP.md**.
+>
 > **3.1:** live, read-only connections to **Spotify, Apple Music, YouTube Music, Deezer,
 > Last.fm and ListenBrainz**, set up from the Sources page (no `.env` editing). After a
 > one-time setup each service connects with one click. See **RELEASE_NOTES_3_1.md** and
@@ -26,6 +29,7 @@
 
 | OS | Do this |
 |---|---|
+| **Desktop app (no Python needed)** | download the build for your system and open it — see `DESKTOP_APP.md` |
 | **Windows** | double-click `RUN_APP_WINDOWS.bat` |
 | **macOS** | double-click `RUN_APP_MAC.command` |
 | **Linux** | run `./RUN_APP_LINUX.sh` |

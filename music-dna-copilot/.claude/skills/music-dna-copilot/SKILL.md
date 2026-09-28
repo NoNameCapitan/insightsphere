@@ -10,7 +10,7 @@ Version: 2.0.0 (see `VERSION`, `CHANGELOG.md`, `MERGE_NOTES.md`).
 ## Hard constraints
 
 - Python 3.10+ **standard library only**. No pip deps, no React/Next.js, no database, no Docker.
-- Local-first: user data only in `outputs/`. No cloud storage, accounts, payments, telemetry.
+- Local-first: user data only in `outputs/` (relocatable with `MTR_OUTPUTS_DIR`; the desktop build uses the per-user app-data folder). No cloud storage, accounts, payments, telemetry.
 - Connectors are read-only and official-API only. No Spotify write scopes. No cookies, scraping or
   unofficial logins (YouTube Music live = Google OAuth + YouTube Data API liked music; Apple Music live =
   MusicKit). Services without a usable public API stay import-only and their card says why. Local
@@ -24,7 +24,8 @@ Version: 2.0.0 (see `VERSION`, `CHANGELOG.md`, `MERGE_NOTES.md`).
 
 | Area | Files |
 |---|---|
-| Launch | `run_app.py`, `RUN_APP_*`, `start_*` (delegate), `scripts/start_app.py` |
+| Launch | `run_app.py`, `desktop_app.py` (desktop window), `RUN_APP_*`, `start_*` (delegate), `scripts/start_app.py` |
+| Desktop builds | `packaging/build_desktop.py`, `packaging/ci_check_binary.py`, `.github/workflows/desktop-app.yml` (repo root) |
 | Import | `normalize_*`, `import_youtube_takeout.py`, `import_lastfm.py`, `lastfm_client.py`, `spotify_connector.py` |
 | Live connectors (3.1) | `connectors/` (base manager, listenbrainz, deezer, youtube_music, apple_music, es256), `dna3/sources.py`, `web/connect-apple.html` |
 | Merge / coverage | `source_common.py`, `merge_listening_sources.py` |

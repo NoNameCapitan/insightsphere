@@ -14,6 +14,7 @@ Outputs are written to the `outputs/` folder:
     - recommendation_prompt_generated.md
 """
 
+import os
 import argparse
 import subprocess
 import sys
@@ -22,7 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 EXAMPLES = ROOT / "examples"
-OUTPUTS = ROOT / "outputs"
+OUTPUTS = Path(os.environ.get("MTR_OUTPUTS_DIR") or ROOT / "outputs")
 
 
 def run(cmd):

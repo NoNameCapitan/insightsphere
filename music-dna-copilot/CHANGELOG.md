@@ -1,5 +1,20 @@
 # Changelog
 
+## 3.2.0 — Desktop app
+
+### Added
+- `desktop_app.py`: runs the app in its own window (Edge/Chrome/Chromium/Brave app mode with a
+  separate profile and background networking off), falls back to the default browser plus a
+  small Open/Quit window, stops the server when the window closes, single instance, prefers
+  port 8765 for Spotify.
+- Installed builds keep data in the per-user application-data folder; `MTR_OUTPUTS_DIR` (and
+  `--data-dir`) now relocate `outputs/` for every module. Windowed builds log to `app.log`
+  instead of a missing console.
+- `packaging/build_desktop.py` (PyInstaller, build-time only) + `packaging/ci_check_binary.py`.
+- GitHub Actions workflow: smoke tests, Windows/macOS/Linux builds, a headless check of each
+  packaged binary, and release attachments for `music-dna-v*` tags.
+- `test_desktop_app.py` (13 checks) in the smoke test; `DESKTOP_APP.md`.
+
 ## 3.1.0 — Live connectors
 
 Full notes: `RELEASE_NOTES_3_1.md`.

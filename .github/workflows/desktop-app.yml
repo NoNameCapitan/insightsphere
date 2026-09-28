@@ -1,0 +1,82 @@
+name: Music DNA Copilot — tests and desktop app
+
+on:
+  pull_request:
+    paths:
+      - "music-dna-copilot/**"
+      - ".github/workflows/desktop-app.yml"
+  push:
+    tags:
+      - "music-dna-v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: music-dna-copilot
+
+jobs:
+  tests:
+    name: Smoke tests (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile
+        run: python -m py_compile run_app.py desktop_app.py app.py api/*.py scripts/*.py scripts/mtr_app/*.py scripts/dna3/*.py scripts/connectors/*.py
+      - name: Smoke test (all suites)
+        run: python -u scripts/smoke_test.py
+
+  desktop:
+    name: Desktop app (${{ matrix.label }})
+    needs: tests
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            label: Windows
+          - os: macos-latest
+            label: macOS (Apple Silicon)
+          - os: ubuntu-latest
+            label: Linux
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install build tools (build time only; the app stays stdlib-only)
+        run: python -m pip install pyinstaller pillow
+      - name: Build
+        run: python packaging/build_desktop.py
+      - name: Check the packaged app runs
+        run: python packaging/ci_check_binary.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: music-dna-copilot-${{ matrix.label == 'macOS (Apple Silicon)' && 'macos' || matrix.label == 'Windows' && 'windows' || 'linux' }}
+          path: music-dna-copilot/dist/desktop/*
+          if-no-files-found: error
+
+  release:
+    name: Attach to GitHub release
+    if: startsWith(github.ref, 'refs/tags/music-dna-v')
+    needs: desktop
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          fail_on_unmatched_files: true

@@ -17,12 +17,13 @@ A PersonalStore is rooted at a base directory (default: <repo>/outputs) so tests
 can use a temp directory.
 """
 
+import os
 import json
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_BASE = ROOT / "outputs"
+DEFAULT_BASE = Path(os.environ.get("MTR_OUTPUTS_DIR") or ROOT / "outputs")
 
 PRESET_FIELDS = [
     "mood", "task", "novelty", "genre_families", "genre_subgenres", "genre_microgenres",

@@ -20,6 +20,7 @@ Also provides:
       (High / Medium / Low) used by the UI, merger, and portable export.
 """
 
+import os
 import json
 import re
 import unicodedata
@@ -27,7 +28,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUTS = ROOT / "outputs"
+OUTPUTS = Path(os.environ.get("MTR_OUTPUTS_DIR") or ROOT / "outputs")
 
 SOURCE_TYPES = {
     "demo": "demo",

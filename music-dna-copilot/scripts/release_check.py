@@ -73,6 +73,8 @@ def main():
     check("3.0 web app is included", present("web/index.html") and present("web/assets/app.js") and present("web/assets/dna-viz.js"))
     check("3.0 product layer is included", present("scripts/dna3/api.py") and present("scripts/dna3/capsules.py"))
     check("3.0 starter catalog is included", present("data/starter_catalog_3_0.json"))
+    check("3.2 desktop app launcher + build script are included", present("desktop_app.py")
+          and present("packaging/build_desktop.py") and present("packaging/icon.png"))
     check("3.1 live connectors are included", present("scripts/connectors/base.py") and present("scripts/connectors/apple_music.py")
           and present("web/connect-apple.html") and present("web/assets/connect-apple.js"))
 

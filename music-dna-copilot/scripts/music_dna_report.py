@@ -9,12 +9,13 @@ Designed to be copy-pasted into another AI, a creator workflow, or kept locally.
 Stdlib only.
 """
 
+import os
 import json
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUTS = ROOT / "outputs"
+OUTPUTS = Path(os.environ.get("MTR_OUTPUTS_DIR") or ROOT / "outputs")
 
 
 def _g(profile, key, default=None):

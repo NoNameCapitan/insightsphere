@@ -29,6 +29,7 @@ What works:
 
 import html
 import json
+import os
 import secrets
 import shutil
 import subprocess
@@ -44,7 +45,7 @@ from email.policy import default as email_default_policy
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 EXAMPLES = ROOT / "examples"
-OUTPUTS = ROOT / "outputs"
+OUTPUTS = Path(os.environ.get("MTR_OUTPUTS_DIR") or ROOT / "outputs")
 HOST = "127.0.0.1"
 PORT = 8765  # default; start_app.py may pick another free port
 import os as _os_li

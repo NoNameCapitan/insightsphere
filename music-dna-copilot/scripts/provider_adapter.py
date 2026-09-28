@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Unified provider capability + incremental-sync foundation (v2.3, stdlib only)."""
 from __future__ import annotations
+import os
 import json
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUTS = ROOT / "outputs"
+OUTPUTS = Path(os.environ.get("MTR_OUTPUTS_DIR") or ROOT / "outputs")
 STATE_PATH = OUTPUTS / "provider_sync_state.json"
 
 @dataclass(frozen=True)

@@ -64,7 +64,7 @@ def pkce_pair():
 
 # Tests replace this with a fake; production uses urllib directly.
 urlopen = request.urlopen
-USER_AGENT = "MusicDNACopilot/3.1 (local app; read-only)"
+USER_AGENT = "MusicDNACopilot/3.2 (local app; read-only)"
 
 
 def http_json(url, *, method="GET", params=None, form=None, headers=None, timeout=30):

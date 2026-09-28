@@ -16,6 +16,7 @@ Usage:
         --output outputs/recommendations_generated.json
 """
 
+import os
 import argparse
 import json
 import sys
@@ -25,7 +26,7 @@ from urllib.parse import quote_plus
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CATALOG_PATH = ROOT / "examples" / "sample_candidate_catalog.json"
-DEFAULT_FEEDBACK_PATH = ROOT / "outputs" / "feedback.jsonl"
+DEFAULT_FEEDBACK_PATH = Path(os.environ.get("MTR_OUTPUTS_DIR") or ROOT / "outputs") / "feedback.jsonl"
 
 # ---------------------------------------------------------------------------
 # Feedback-aware scoring (V2.1)

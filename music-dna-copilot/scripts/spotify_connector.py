@@ -55,7 +55,7 @@ from urllib import error, parse, request
 
 SCRIPTS = Path(__file__).resolve().parent
 ROOT = SCRIPTS.parents[0]
-OUTPUTS = ROOT / "outputs"
+OUTPUTS = Path(os.environ.get("MTR_OUTPUTS_DIR") or ROOT / "outputs")
 sys.path.insert(0, str(SCRIPTS))
 
 from env_loader import load_env  # noqa: E402

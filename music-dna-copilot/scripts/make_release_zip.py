@@ -29,7 +29,7 @@ INCLUDE_TOP = [
     "index.html", "app.py", "vercel.json", "pyproject.toml", "VERCEL_DEPLOY.md",
     ".env.example", "requirements.txt", ".gitignore",
     "start_linux.sh", "start_mac.command", "start_windows.bat",
-    "run_app.py", "RUN_APP_WINDOWS.bat", "RUN_APP_MAC.command", "RUN_APP_LINUX.sh", ".claude",
+    "run_app.py", "desktop_app.py", "packaging", "DESKTOP_APP.md", "RUN_APP_WINDOWS.bat", "RUN_APP_MAC.command", "RUN_APP_LINUX.sh", ".claude",
     # docs
     "README.md", "README_FOR_NORMAL_USER.md", "START_HERE.md", "START_FOR_FRIEND.md", "SELF_TEST_PLAN.md",
     "DAILY_USE.md", "RC_CHECKLIST.md", "CONNECTORS.md", "KNOWN_LIMITATIONS.md",

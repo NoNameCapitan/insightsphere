@@ -23,7 +23,7 @@ from pathlib import Path
 from urllib import error, request
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUTS = ROOT / "outputs"
+OUTPUTS = Path(os.environ.get("MTR_OUTPUTS_DIR") or ROOT / "outputs")
 # Optional local Ollama server; both are read from the environment so the keys
 # documented in .env.example actually take effect (defaults keep it zero-config).
 OLLAMA_BASE = os.environ.get("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")

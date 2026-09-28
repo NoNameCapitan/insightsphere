@@ -28,7 +28,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_BASE = ROOT / "outputs"
+DEFAULT_BASE = Path(os.environ.get("MTR_OUTPUTS_DIR") or ROOT / "outputs")
 
 PROVIDER_CHOICES = ("spotify", "apple_music", "youtube_music", "deezer", "tidal", "soundcloud")
 

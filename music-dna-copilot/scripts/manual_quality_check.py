@@ -28,7 +28,7 @@ import local_interface as li
 
 HISTORY = ROOT / "examples" / "sample_listening_history.json"
 CATALOG = ROOT / "examples" / "sample_candidate_catalog.json"
-OUT = ROOT / "outputs" / "manual_quality_check.md"
+OUT = Path(os.environ.get("MTR_OUTPUTS_DIR") or ROOT / "outputs") / "manual_quality_check.md"
 
 
 def gc(**kw):

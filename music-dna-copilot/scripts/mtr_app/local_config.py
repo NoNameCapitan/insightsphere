@@ -15,7 +15,7 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-CONFIG_PATH = ROOT / "outputs" / "local_config.json"
+CONFIG_PATH = Path(os.environ.get("MTR_OUTPUTS_DIR") or ROOT / "outputs") / "local_config.json"
 
 
 def load():

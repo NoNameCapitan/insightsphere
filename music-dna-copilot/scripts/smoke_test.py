@@ -400,6 +400,11 @@ def main():
     last = (r.stdout or "").strip().splitlines()
     check("test_live_connectors.py passes", r.returncode == 0, last[-1] if last else "")
 
+    print("20i. Desktop app launcher")
+    r = run([sys.executable, str(SCRIPTS / "test_desktop_app.py")], timeout=300)
+    last = (r.stdout or "").strip().splitlines()
+    check("test_desktop_app.py passes", r.returncode == 0, last[-1] if last else "")
+
     print("21. Local UI (after isolated subprocess suites)")
     import local_interface as li
     print("21a. Regression: feedback schema compatibility (uses local_interface)")

@@ -49,6 +49,7 @@ Defaults: PROFILE = outputs/local_taste_profile.json,
 output = outputs/music_dna_card.html, lang = en.
 """
 
+import os
 import argparse
 import html
 import json
@@ -57,7 +58,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-OUTPUTS = ROOT / "outputs"
+OUTPUTS = Path(os.environ.get("MTR_OUTPUTS_DIR") or ROOT / "outputs")
 
 CARD_T = {
     "en": {

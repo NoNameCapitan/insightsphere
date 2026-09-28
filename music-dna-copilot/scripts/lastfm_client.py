@@ -28,7 +28,7 @@ API_BASE = "https://ws.audioscrobbler.com/2.0/"
 DEFAULT_TIMEOUT = 10
 
 ROOT = Path(__file__).resolve().parents[1]
-CACHE_DIR = ROOT / "outputs" / "cache"
+CACHE_DIR = Path(os.environ.get("MTR_OUTPUTS_DIR") or ROOT / "outputs") / "cache"
 TAG_CACHE_PATH = CACHE_DIR / "lastfm_tags_cache.json"
 
 TRACK_TAG_CONFIDENCE = 0.7   # track-level tags are the most specific
