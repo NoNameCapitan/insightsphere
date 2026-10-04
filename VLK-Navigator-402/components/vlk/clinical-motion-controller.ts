@@ -57,7 +57,7 @@ export function attachClinicalMotion(root: HTMLElement): () => void {
       .map(({ element, from }) => ({ element, from, to: snapshot(element) }));
     for (const { element, from, to } of destinations) {
       const animation = element.animate([from, to], {
-        duration: 180,
+        duration: 200,
         easing: "cubic-bezier(.2,.7,.2,1)",
       });
       returns.add(animation);

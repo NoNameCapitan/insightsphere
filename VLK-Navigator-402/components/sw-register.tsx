@@ -35,7 +35,7 @@ export function SwRegister() {
           const timer = window.setTimeout(offerUpdate, 0);
           cleanup.push(() => window.clearTimeout(timer));
         }
-        else toast.success("Офлайн-копія готова", { id: "vlk-offline-ready" });
+        else toast.success("Офлайн-копія готова", { id: "vlk-offline-ready", className: "offline-ready-toast" });
       };
       worker.addEventListener("statechange", changed);
       cleanup.push(() => worker.removeEventListener("statechange", changed));

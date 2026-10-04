@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { KalynaMark } from "./kalyna-mark";
 import { useEffect, useId, useRef } from "react";
 import { snakeFrame, snakeGeometry, SNAKE_DURATION } from "./snake-motion";
 
@@ -24,7 +25,7 @@ export function CommandBrand({className="",decorative=false,priority=false,size=
     };
     const finish=()=>{cancelAnimationFrame(frame);frame=0;running=false;delete svg.dataset.snakeRunning;draw(1);};
     const start=()=>{
-      if(running || reduced.matches) return;
+      if(running || reduced.matches || document.querySelector('[data-snake-running]')) return;
       running=true;svg.dataset.snakeRunning='true';
       const began=performance.now();
       const tick=(now:number)=>{
@@ -62,7 +63,7 @@ export function CommandBrand({className="",decorative=false,priority=false,size=
     <path d="M50 3Q52 3 55 5L83 22Q86 24 86 29V65Q86 68 82 71L65 81V89L50 98 35 89V81L18 71Q14 68 14 65V29Q14 25 18 22L45 5Q48 3 50 3Z" fill="#073d35"/>
     <path d="M50 8L81 27V65L62 77V87L50 94 38 87V77L19 65V27Z" fill="#faf6e9" stroke="#faf6e9" strokeWidth="2"/>
     <path d="M50 10L79 28V64L60 76V86L50 92 40 86V76L21 64V28Z" fill="none" stroke={`url(#${id}-gold)`} strokeWidth="1.4"/>
-    <path d="M50 15L52 20H57L53 23 54 28 50 25 46 28 47 23 43 20H48Z" fill={`url(#${id}-gold)`}/>
+    <KalynaMark gold={`url(#${id}-gold)`} />
     <g fill="#073d35"><path d="M34 22H42L43 25H30Z M29 27H44L45 30H26Z M66 22H58L57 25H70Z M71 27H56L55 30H74Z"/></g>
     {[false,true].map(mirror=><g key={String(mirror)} transform={mirror?'translate(100 0) scale(-1 1)':undefined} fill="#075348">
       <path d="M39 79Q23 65 27 38" fill="none" stroke="#075348" strokeWidth="1"/>

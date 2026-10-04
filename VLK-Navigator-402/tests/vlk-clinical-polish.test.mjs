@@ -67,7 +67,7 @@ test("dermatology has surface + two skin layers, at most two texture dots, and a
   assert.match(source, /r="6\.5"/);
 });
 
-test("surgery separates the short handle, broad blade and neck without mixing tools", () => {
+test("surgery separates scalpel handle, blade and neck from the complementary clamp", () => {
   const source = glyph("Surgeon", "function Neurologist");
   for (const cls of ["si-scalpel-handle", "si-scalpel-blade", "si-scalpel-neck", "si-gleam"]) {
     assert.match(source, new RegExp(cls));

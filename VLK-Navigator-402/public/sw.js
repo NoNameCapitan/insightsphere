@@ -2,8 +2,8 @@
 const RELEASE = new URL(self.location.href).searchParams.get("release");
 const CACHE_PREFIX = "vlk-402-release-";
 const CACHE_NAME = CACHE_PREFIX + RELEASE;
-const SHELL = ["/", "/manifest.webmanifest", "/vlk-command-emblem.png", "/vlk-command-header.png"];
-const IMMUTABLE_ASSET = /^\/(?:assets|_next\/static)\/[^?#]+\.(?:js|css|woff2?)$/;
+const SHELL = ["/", "/manifest.webmanifest", "/vlk-command-emblem.png", "/vlk-command-header.png", "/vlk-402-hero-emblem.webp"];
+const IMMUTABLE_ASSET = /^\/(?:assets|_next\/static)\/[^?#]+\.(?:js|css|woff2?|ttf|otf)$/;
 
 self.addEventListener("install", (event) => {
   event.waitUntil((async () => {
@@ -12,7 +12,7 @@ self.addEventListener("install", (event) => {
     if (!response.ok) throw new Error("Offline manifest unavailable");
     const manifest = await response.json();
     if (manifest.version !== RELEASE || !Array.isArray(manifest.assets) || !manifest.assets.length ||
-      !manifest.assets.every((asset) => typeof asset === "string" && IMMUTABLE_ASSET.test(asset) && !asset.includes(".."))) {
+      !manifest.assets.every((asset) => typeof asset === "string" && IMMUTABLE_ASSET.test(asset) && !/[\\%]/.test(asset) && !asset.split("/").some((part) => part === ".." || part === "."))) {
       throw new Error("Offline manifest does not match this release");
     }
     const cache = await caches.open(CACHE_NAME);

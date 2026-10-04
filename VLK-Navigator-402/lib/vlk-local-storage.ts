@@ -1,10 +1,11 @@
+import { ARTICLE_USAGE_KEY, PINNED_ARTICLES_KEY } from "./vlk-article-usage.ts";
 import { SESSION_KEY, LEGACY_SESSION_KEYS } from "./vlk-session.ts";
 import { SEARCH_HISTORY_KEY } from "./vlk-search-history.ts";
 import { WORKSPACE_KEY } from "./vlk-workspace.ts";
 
 type LocalStore = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 export const SESSION_RESET_KEY = "vlk-402-session-reset";
-export const SESSION_DATA_KEYS = [SESSION_KEY, ...LEGACY_SESSION_KEYS, SEARCH_HISTORY_KEY, WORKSPACE_KEY];
+export const SESSION_DATA_KEYS = [SESSION_KEY, ...LEGACY_SESSION_KEYS, SEARCH_HISTORY_KEY, WORKSPACE_KEY, ARTICLE_USAGE_KEY, PINNED_ARTICLES_KEY];
 
 function browserStorage(): LocalStore | undefined {
   try { return typeof localStorage === "undefined" ? undefined : localStorage; }

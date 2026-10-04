@@ -12,7 +12,7 @@ async function filesAt(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   const groups = await Promise.all(entries.map(async (entry) => {
     const name = path.join(directory, entry.name);
-    return entry.isDirectory() ? filesAt(name) : /\.(js|css|woff2?)$/.test(name) ? [name] : [];
+    return entry.isDirectory() ? filesAt(name) : /\.(js|css|woff2?|ttf|otf)$/.test(name) ? [name] : [];
   }));
   return groups.flat().sort();
 }
@@ -22,7 +22,7 @@ if (!files.some((f) => f.endsWith(".js")) || !files.some((f) => f.endsWith(".css
 }
 const hash = createHash("sha256");
 for (const file of files) { hash.update(path.relative(assetRoot, file)); hash.update(await readFile(file)); }
-for (const file of ["sw.js", "vlk-command-emblem.png", "vlk-command-header.png"]) {
+for (const file of ["sw.js", "vlk-command-emblem.png", "vlk-command-header.png", "vlk-402-hero-emblem.webp"]) {
   hash.update(await readFile(path.join(root, "public", file)));
 }
 const manifest = { version: hash.digest("hex"), assets: files.map((file) => prefix + path.relative(assetRoot, file).split(path.sep).join("/")) };

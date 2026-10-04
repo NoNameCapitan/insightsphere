@@ -34,7 +34,7 @@ test("Clinical Motion Atlas має всі 8 specialty icons на спільно�
   assert.match(icons, /focusable="false"/);
 });
 
-test("SVG не використовують декоративні fill і зберігають один SpecialtyIcon API", () => {
+test("SVG залишають CSS-керовані кольори та один SpecialtyIcon API", () => {
   assert.doesNotMatch(icons, /fill="(?!none)/);
   assert.match(page, /<SpecialtyIcon id=\{item\.id\} \/>/);
   assert.match(page, /data-specialty=\{item\.id\}/);
@@ -53,12 +53,12 @@ test("кожна specialty має окремі клінічно осмислен
   ]) assert.match(icons, new RegExp(name), name);
 });
 
-test("усі specialty animation declarations мають 1700–2400 мс і не loop-яться", () => {
+test("усі specialty animation declarations мають 1600–2000 мс і не loop-яться", () => {
   const rules = [...css.matchAll(/animation: (si-[\w-]+) (\d+)ms ([^;]*);/g)];
   assert.ok(rules.length >= 20, "очікуються фазові анімації восьми спеціальностей");
   for (const [rule, , duration, tail] of rules) {
     const ms = Number(duration);
-    assert.ok(ms >= 1700 && ms <= 2400, `тривалість поза 1700–2400 мс: ${rule}`);
+    assert.ok(ms >= 1600 && ms <= 2000, `тривалість поза 1600–2000 мс: ${rule}`);
     assert.doesNotMatch(tail, /infinite/, `нескінченна анімація: ${rule}`);
   }
 });

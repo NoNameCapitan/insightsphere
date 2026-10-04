@@ -7,7 +7,9 @@ const code = await readFile(new URL('../public/sw.js', import.meta.url), 'utf8')
 const release = 'a'.repeat(64);
 const name = `vlk-402-release-${release}`;
 const asset = '/_next/static/chunks/article-87.js';
-function harness({ failAsset = false, version = release } = {}) {
+const fontAssets = ['/_next/static/media/ui.ttf', '/assets/normative.ttf'];
+const defaultAssets = [asset, '/_next/static/chunks/app.css', ...fontAssets];
+function harness({ failAsset = false, version = release, assets = defaultAssets } = {}) {
   const handlers = new Map(); const data = new Map();
   let offline = false; let skipped = 0; let stalled = false; let networkReads = 0;
   const key = (request) => typeof request === 'string' ? request : new URL(request.url).pathname;
@@ -31,7 +33,7 @@ function harness({ failAsset = false, version = release } = {}) {
     networkReads++;
     if (stalled) return new Promise(() => {});
     if (offline) throw new Error('offline');
-    if (request === '/offline-manifest.json') return Response.json({ version, assets: [asset, '/_next/static/chunks/app.css'] });
+    if (request === '/offline-manifest.json') return Response.json({ version, assets });
     return new Response('online');
   };
   const self = { location: { href: `https://app.test/sw.js?release=${release}`, origin: 'https://app.test' }, addEventListener: (kind, fn) => handlers.set(kind, fn), skipWaiting: async () => { skipped++; }, clients: { claim: async () => {} } };
@@ -106,10 +108,36 @@ test('the production manifest includes every generated script, stylesheet and fo
     const entries = await readdir(directory, { withFileTypes: true });
     const groups = await Promise.all(entries.map((entry) => entry.isDirectory()
       ? collect(new URL(`${entry.name}/`, directory), `${prefix}${entry.name}/`)
-      : /\.(js|css|woff2?)$/.test(entry.name) ? [`${prefix}${entry.name}`] : []));
+      : /\.(js|css|woff2?|ttf|otf)$/.test(entry.name) ? [`${prefix}${entry.name}`] : []));
     return groups.flat();
   }
   const manifest = JSON.parse(await readFile(new URL('../dist/client/offline-manifest.json', import.meta.url), 'utf8'));
   assert.deepEqual([...manifest.assets].sort(), (await collect(base)).sort());
   assert.match(manifest.version, /^[a-f0-9]{64}$/);
+});
+
+
+test('bundled TrueType fonts are served from the installed cache without a network request', async () => {
+  const h = harness();
+  await h.dispatch('install');
+  const reads = h.networkReads();
+  h.setOffline();
+  for (const font of fontAssets) {
+    const response = await h.dispatch('fetch', { request: request(font) });
+    assert.ok(response, `service worker must handle ${font}`);
+    assert.equal(await response.text(), `cached:${font}`);
+  }
+  assert.equal(h.networkReads(), reads);
+});
+
+
+test('valid Turbopack filenames containing two dots are cached, while traversal paths are rejected', async () => {
+  const filename = '/_next/static/chunks/valid-hash..js';
+  const h = harness({ assets: [...defaultAssets, filename] });
+  await h.dispatch('install'); h.setOffline();
+  assert.equal(await (await h.dispatch('fetch', { request: request(filename) })).text(), `cached:${filename}`);
+  for (const unsafe of ['/_next/static/../private.js', '/assets/%2e%2e/private.js', '/assets/./alias.js', '/assets/..\\private.js']) {
+    const invalid = harness({ assets: [unsafe] });
+    await assert.rejects(invalid.dispatch('install'), /does not match/);
+  }
 });

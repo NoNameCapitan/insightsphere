@@ -1,0 +1,30 @@
+{
+  "verified_on": "2026-10-02",
+  "scope": "Article/point rows and height/weight rows only; not a complete new legal or clinical edition audit",
+  "official_appendix_url": "https://zakon.rada.gov.ua/laws/show/z1109-08#n2820",
+  "official_docx_url": "https://zakon.rada.gov.ua/laws/file/text/122/f277457n7455.docx",
+  "official_docx_sha256": "4d74c85d03eb5c01828e7c841c24c4fbbb9c6f1b38d143180a7ec316f165d413",
+  "article_point_rows_matched": 75,
+  "unconditional_mark": "НП",
+  "conditional_marks": {
+    "1": "водії - НП",
+    "8": "КРП-НП"
+  },
+  "height_max_cm": {
+    "1": 180,
+    "5": 185,
+    "6": 190,
+    "11": 180
+  },
+  "height_min_cm": {
+    "8": 150
+  },
+  "weight_max_kg": {
+    "1": 90,
+    "5": 90
+  },
+  "weight_min_kg": {},
+  "bounds_inclusive": true,
+  "diving_additional_conditions_url": "https://zakon.rada.gov.ua/laws/show/z1109-08#n536",
+  "aggregation": "Retain and display each source finding separately; no official multi-diagnosis formula or overall fitness decision is claimed."
+}

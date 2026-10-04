@@ -26,6 +26,7 @@ export type DoctorDirectory = Record<SpecialtyId, string>;
 export type SessionState = {
   examineeType: string;
   scheduleGraph: ScheduleGraph;
+  tdvColumn?: number;
   directory: DoctorDirectory;
 };
 
@@ -99,14 +100,16 @@ export function restoreSession(raw: unknown): RestoredSession {
       ? scheduleGraph as ScheduleGraph
       : EMPTY_SESSION.scheduleGraph,
     directory: restoreDirectory(record.directory),
+    ...(Number.isInteger(record.tdvColumn) && Number(record.tdvColumn) >= 1 && Number(record.tdvColumn) <= 12 ? { tdvColumn: Number(record.tdvColumn) } : {}),
   };
 }
 
 export function serializeSession(state: SessionState) {
   return JSON.stringify({
-    version: 4,
+    version: 5,
     examineeType: state.examineeType,
     scheduleGraph: state.scheduleGraph,
+    ...(state.tdvColumn === undefined ? {} : { tdvColumn: state.tdvColumn }),
     directory: state.directory,
   });
 }

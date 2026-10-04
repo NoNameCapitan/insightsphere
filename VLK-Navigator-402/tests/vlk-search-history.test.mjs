@@ -13,6 +13,10 @@ test("recent queries are stored without duplicates and within the limit", () => 
     history = addSearchHistory(history, query);
   }
 
+  // Exercise eviction at the configured limit, including the expanded v33 history.
+  for (let i = 0; i < SEARCH_HISTORY_LIMIT; i++) history = addSearchHistory(history, `запит ${i}`);
+  history = addSearchHistory(history, "зайвий");
+
   assert.equal(history.length, SEARCH_HISTORY_LIMIT);
   assert.equal(history[0], "зайвий", "Останній запит стоїть першим");
   assert.equal(new Set(history).size, history.length, "Дублікатів немає");

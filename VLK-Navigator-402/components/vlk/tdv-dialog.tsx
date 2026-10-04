@@ -3,7 +3,7 @@
 import { TdvContext } from "@/components/vlk/tdv-context";
 import { VlkDialogContent } from "@/components/vlk/dialog-content";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { ExternalLink, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,9 @@ import { TDV_DOCX_URL, TDV_URL } from "@/lib/vlk-links";
 import { ARTICLE_RULES } from "@/lib/vlk-rules";
 import { ARTICLES, type VlkArticle } from "@/lib/vlk-sample-data";
 import { TDV_COLUMNS, TDV_RULES } from "@/lib/vlk-tdv";
+import { getPointTdv } from "@/lib/vlk-point-tdv";
 import { TDV_GENERAL_ROWS } from "@/lib/vlk-tdv-general";
+import { scrollOffsetToReveal, tdvColumnsForView } from "@/lib/vlk-reading-navigation";
 
 type TdvRow = {
   key: string;
@@ -77,27 +79,35 @@ const HEAD_GRID = "border-b-2 border-r border-black";
 const GROUP_GRID = "border-t-2 border-black";
 
 function tdvRowFor(article: string, point: string) {
-  return TDV_RULES[point === "—" ? article : `${article}-${point}`] ?? TDV_RULES[article];
+  return getPointTdv(article, point)?.marks;
 }
 
 /**
  * Повна таблиця додаткових вимог на весь екран.
  *
- * Показує всі рядки Додатка 3 по всіх статтях із вертикальним прокручуванням;
- * рядок відкритої статті підсвічено й прокручено у видиму зону. Нижче — повні
- * назви 12 граф, тому таблицю не треба гортати вбік, щоб зрозуміти колонки.
+ * Показує всі рядки Додатка 3. Якщо призначення обрано, спочатку показує
+ * його графу; інша графа або всі 12 доступні через поле перегляду. Вибраний рядок і графа
+ * підсвічені; повна назва призначення доступна без горизонтального скролу.
  */
 export function TdvDialog({
   article,
   selectedPoint,
+  selectedColumn,
   trigger,
 }: {
   /** Стаття, рядок якої треба підсвітити. Без неї таблиця відкривається повністю. */
   article?: VlkArticle;
   selectedPoint?: string;
+  selectedColumn?: number;
   trigger: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const [viewColumn, setViewColumn] = useState<number | undefined>(selectedColumn);
+  const viewId = useId();
+  const selectedDestination = TDV_COLUMNS.find((column) => column.id === viewColumn);
+  const visibleColumns = tdvColumnsForView(viewColumn);
+  const focusedColumn = visibleColumns.length === 1;
+  const tableRef = useRef<HTMLTableElement>(null);
   const activeRowRef = useRef<HTMLTableRowElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeMarks =
@@ -107,23 +117,38 @@ export function TdvDialog({
   // Прокручуємо до рядка вибраного пункту, а якщо пункт ще не обраний —
   // до першого рядка відкритої статті.
   const scrollKey =
-    articleRows.find((row) => row.point === selectedPoint)?.key ?? articleRows[0]?.key;
+    (article && selectedPoint ? getPointTdv(article.article, selectedPoint)?.sourceRowKey : undefined) ?? articleRows[0]?.key;
 
   useEffect(() => {
     if (!open) return;
     const frame = window.requestAnimationFrame(() => {
       const row = activeRowRef.current;
       const container = scrollRef.current;
-      if (!row || !container) return;
-      // Scroll only the table, never its ancestors or the underlying page.
-      const offset = row.getBoundingClientRect().top - container.getBoundingClientRect().top;
-      container.scrollTop += offset - (container.clientHeight - row.clientHeight) / 2;
+      if (!container) return;
+      // Scroll only this region, never the page or a dialog's ancestors.
+      if (row) {
+        const offset = row.getBoundingClientRect().top - container.getBoundingClientRect().top;
+        container.scrollTop += offset - (container.clientHeight - row.clientHeight) / 2;
+      }
+      const column = tableRef.current?.querySelector<HTMLTableCellElement>('thead [data-context-column="true"]');
+      const firstColumn = tableRef.current?.querySelector<HTMLTableCellElement>("thead th");
+      if (column && firstColumn && !focusedColumn) {
+        const start = column.getBoundingClientRect().left - container.getBoundingClientRect().left + container.scrollLeft;
+        container.scrollLeft = scrollOffsetToReveal({ start, end: start + column.offsetWidth,
+          viewportSize: container.clientWidth, scrollOffset: container.scrollLeft,
+          scrollSize: container.scrollWidth, leadingInset: firstColumn.offsetWidth + 8 });
+      } else {
+        container.scrollLeft = 0;
+      }
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [open, scrollKey]);
+  }, [open, scrollKey, selectedColumn, viewColumn, focusedColumn]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(nextOpen) => {
+      if (nextOpen) setViewColumn(selectedColumn);
+      setOpen(nextOpen);
+    }}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <VlkDialogContent variant="fullscreen" className="table-fullscreen flex flex-col gap-0 overflow-hidden p-0" showCloseButton={false}>
         <DialogHeader className="relative shrink-0 border-b border-[var(--foreground)]/10 p-3 pr-32 text-left">
@@ -153,10 +178,25 @@ export function TdvDialog({
           </div>
         </DialogHeader>
 
-        <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto p-2 sm:p-4 scrollbar-thin" role="region" aria-label="Повна таблиця ТДВ" tabIndex={0}>
-          <table className="tdv-table w-full min-w-[760px] table-fixed border-separate border-spacing-0 border-l border-t border-black text-left">
+        <div className="tdv-view-toolbar">
+          <div className="tdv-view-picker">
+            <label htmlFor={viewId}>Графа для перегляду</label>
+            <select id={viewId} value={viewColumn ?? "all"} onChange={(event) => setViewColumn(event.target.value === "all" ? undefined : Number(event.target.value))}>
+              <option value="all">Усі 12 граф</option>
+              {TDV_COLUMNS.map((column) => <option key={column.id} value={column.id}>Графа {column.id} · {column.label}</option>)}
+            </select>
+            <span>Лише перегляд · призначення огляду: {selectedColumn ? `ТДВ ${selectedColumn}` : "не уточнено"}</span>
+          </div>
+          {selectedDestination ? <details className="tdv-destination">
+            <summary>Призначення · графа {selectedDestination.id}</summary>
+            <p>{selectedDestination.label}</p>
+          </details> : null}
+        </div>
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto p-2 sm:p-4 scrollbar-thin" role="region"
+          aria-label={focusedColumn ? `ТДВ · обрана графа ${selectedDestination?.id}` : "Повна таблиця ТДВ"} tabIndex={0}>
+          <table ref={tableRef} data-focused-column={focusedColumn || undefined} className="tdv-table w-full min-w-[760px] table-fixed border-separate border-spacing-0 border-l border-t border-black text-left">
             <caption className="sr-only">
-              Позначки «НП» за 12 графами Додатка 3 для кожної статті та пункту
+              {focusedColumn ? `Графа ${selectedDestination?.id} Додатка 3. Усі рядки; решта граф доступна у полі «Графа для перегляду».` : "Позначки «НП» за 12 графами Додатка 3 для кожної статті та пункту"}
             </caption>
             <thead className="sticky top-0 z-20">
               <tr className="bg-[var(--surface-sunken)]">
@@ -166,14 +206,15 @@ export function TdvDialog({
                 >
                   Стаття · пункт
                 </th>
-                {TDV_COLUMNS.map((column) => (
+                {visibleColumns.map((column) => (
                   <th
                     key={column.id}
+                          data-context-column={column.id === (viewColumn ?? selectedColumn) || undefined}
                     scope="col"
                     title={column.label}
                     className={`bg-[var(--surface-sunken)] px-2 py-2 text-center text-[11px] font-black text-[var(--accent-ink)] ${HEAD_GRID}`}
                   >
-                    <TdvContext columnId={column.id} />
+                    <TdvContext columnId={column.id}>{focusedColumn ? `Графа ${column.id}` : column.id}</TdvContext>
                   </th>
                 ))}
               </tr>
@@ -182,7 +223,7 @@ export function TdvDialog({
               <tr>
                 <th
                   scope="colgroup"
-                  colSpan={TDV_COLUMNS.length + 1}
+                  colSpan={visibleColumns.length + 1}
                   className={`sticky left-0 bg-[var(--surface-sunken)] px-3 py-2 text-left text-[11px] font-black uppercase tracking-[0.1em] text-[var(--accent-ink)] ${CELL_GRID} ${GROUP_GRID}`}
                 >
                   Загальні вимоги до стану здоров’я · передують статті 1
@@ -210,11 +251,12 @@ export function TdvDialog({
                         </span>
                       ) : null}
                     </th>
-                    {TDV_COLUMNS.map((column) => {
+                    {visibleColumns.map((column) => {
                       const value = row.values[column.id];
                       return (
                         <td
                           key={column.id}
+                          data-context-column={column.id === (viewColumn ?? selectedColumn) || undefined}
                           className={`px-2 py-2 text-center align-middle text-[11px] leading-4 ${CELL_GRID} ${groupBorder} ${value ? "font-bold text-[var(--accent-ink-strong)]" : "text-[var(--ink-muted)]"}`}
                         >
                           {value ?? "—"}
@@ -227,7 +269,7 @@ export function TdvDialog({
               <tr>
                 <th
                   scope="colgroup"
-                  colSpan={TDV_COLUMNS.length + 1}
+                  colSpan={visibleColumns.length + 1}
                   className={`sticky left-0 bg-[var(--surface-sunken)] px-3 py-2 text-left text-[11px] font-black uppercase tracking-[0.1em] text-[var(--accent-ink)] ${CELL_GRID} ${GROUP_GRID}`}
                 >
                   Статті Розкладу хвороб
@@ -238,7 +280,7 @@ export function TdvDialog({
                 // Кожна стаття відокремлена від попередньої потовщеною лінією.
                 const startsArticle = index === 0 || TDV_ROWS[index - 1].article !== row.article;
                 const groupBorder = startsArticle ? GROUP_GRID : "";
-                const active = sameArticle && (selectedPoint ?? "") === row.point;
+                const active = sameArticle && Boolean(activeMarks) && row.key === scrollKey;
                 const background = active ? "bg-[var(--warning-bg)]" : sameArticle ? "bg-[var(--positive-bg)]" : "bg-card";
                 return (
                   <tr
@@ -260,11 +302,12 @@ export function TdvDialog({
                         <span>{pointTitle(row.point)}</span>
                       </span>
                     </th>
-                    {TDV_COLUMNS.map((column) => {
+                    {visibleColumns.map((column) => {
                       const mark = row.marks[column.id];
                       return (
                         <td
                           key={column.id}
+                          data-context-column={column.id === (viewColumn ?? selectedColumn) || undefined}
                           className={`px-2 py-2 text-center text-[11px] font-black ${CELL_GRID} ${groupBorder} ${mark ? "text-[var(--critical-ink)]" : "text-[var(--ink-muted)]"}`}
                         >
                           {mark ? <TdvContext columnId={column.id} mark={mark}>{mark}</TdvContext> : "—"}
@@ -284,14 +327,15 @@ export function TdvDialog({
           </p>
 
           <h3 className="mt-5 text-[11px] font-black uppercase tracking-[0.12em] text-[var(--ink-soft)]">
-            Повні назви граф{selectedPoint ? ` · позначки для ${pointTitleGenitive(selectedPoint)}` : ""}
+            {focusedColumn ? "Призначення обраної графи" : "Повні назви граф"}{selectedPoint ? ` · позначки для ${pointTitleGenitive(selectedPoint)}` : ""}
           </h3>
           <div className="mt-2.5 grid gap-2 lg:grid-cols-2">
-            {TDV_COLUMNS.map((column) => {
+            {visibleColumns.map((column) => {
               const mark = activeMarks?.[column.id];
               return (
                 <div
                   key={column.id}
+                          data-context-column={column.id === (viewColumn ?? selectedColumn) || undefined}
                   className={`flex items-start gap-2 border border-black p-2 ${mark ? "bg-[var(--critical-bg)]" : "bg-card"}`}
                 >
                   <span className="grid size-6 shrink-0 place-items-center border border-black bg-[var(--secondary)] text-[10px] font-black">

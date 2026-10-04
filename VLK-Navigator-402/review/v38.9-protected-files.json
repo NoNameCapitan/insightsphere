@@ -1,0 +1,1534 @@
+[
+  {
+    "base_archive": "VLK-Navigator-402-v38.2-sidebar-reading-space.zip",
+    "protected_unchanged": 150,
+    "files": [
+      {
+        "file": ".openai/hosting.json",
+        "sha256": "1a039f9b45745f4a94a447ce26455bbb036dee8e69f90061be2eeaa203b2b6a0",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/IBMPlexMono-Medium.ttf",
+        "sha256": "a9b4c49bb299e05b5f6c481e7fb5e78943d2793249a0c8874ab574a2d1ea6755",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/IBMPlexMono-Regular.ttf",
+        "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/IBMPlexMono-SemiBold.ttf",
+        "sha256": "d3c38e55c78f5b0f28009fddba4834ec503278936a5986032424c9bd2d23aa46",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/IBMPlexSans-Variable.ttf",
+        "sha256": "3b031aa4216174205bd8471f88a49b91f093169e9e87bd5262242bc5967fe2e3",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/PTSerif-Bold.ttf",
+        "sha256": "038ba7336bd7ea14f12ad155bed51a4345cac5153275d521dec3ba04021c526e",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/PTSerif-BoldItalic.ttf",
+        "sha256": "f003788ba08981eb0988b3557a6f224a53dab49c20e283e8b74d5af3c466f8be",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/PTSerif-Italic.ttf",
+        "sha256": "f57e95ff9dc85691a3b2e193f2028db36f6663939a46c0fc4f286d618b80b7ce",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/PTSerif-Regular.ttf",
+        "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/README.md",
+        "sha256": "c59db94cb2e9391835d107416e7bd2bd7c4db592fb2cd47b02cafc3e28ffbe8f",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/ibmplexmono-OFL.txt",
+        "sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/ibmplexsans-OFL.txt",
+        "sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/ptserif-OFL.txt",
+        "sha256": "ddf311c28ddf5a5ad9747649837346b67bed9d356789c3072bb27dbce49e514d",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/sources.json",
+        "sha256": "fec18297ef3349f8dd00084f0e938487eac953a3efbd3e44fa4634de8476c37b",
+        "unchanged": true
+      },
+      {
+        "file": "lib/diagnosis-aliases.ts",
+        "sha256": "08e54d70e85bd163018fc9a339d16cd48225f3ce10c807d044d4aeb46fc68395",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-1.ts",
+        "sha256": "9e19a211476b9413d1166fcabaed30e7502934b44dba7287cbca9f401f369c13",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-10.ts",
+        "sha256": "60d8beae1fc7f56dfbf3f845d9a09837f29882a8f98b08056e4c18f299ec8ca5",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-11.ts",
+        "sha256": "22852ec472decc30dbef196b143d02b8da040fa07606fb634bd395526a2ba3ec",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-12.ts",
+        "sha256": "5e587f3218b820b431cecbe6f7ac2c6c07c95d5610bda631372c55e6b35f6b37",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-13.ts",
+        "sha256": "383d7a85595fe1dcd8f0448b10524c865b625652d819903faf447e4792f8c578",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-14.ts",
+        "sha256": "4c1dea5b53c8b6c5587ce767fd96d98a666c3c4da6e1b46e2c0d2642ff1adb22",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-15.ts",
+        "sha256": "f5415aea8e06cc5b97bb461863fe1ca213a135d0c33d6eecf422e5bbdca7fbe3",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-16.ts",
+        "sha256": "256211f8b7a3e41297b6a887cc91af041bf8d80a07f8f4322693f9184bbda413",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-17.ts",
+        "sha256": "7668c1c9d04317900e14901fcd0b048dce15c41e9f5c08698dbc9e88833801e2",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-18.ts",
+        "sha256": "33eea93ddece6573474ae02dc06dedf7b28b7539231af19acda7ab84e415f2e2",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-19.ts",
+        "sha256": "52ca61a9a43e885037cbd95b4451664950c83e541263fa7f51bee2b2c0c2bb95",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-2.ts",
+        "sha256": "83613075c3d5967905447d522ee7a0e89e19e0a7845dd93bc607dbf8ad91400e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-20.ts",
+        "sha256": "17cc5420a05fe0bb0b49aefaef10b315a2a2cc9cc897abef4f16475db427644d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-21.ts",
+        "sha256": "f05f95cd843a73754fc1c0962ea36d143193a7edc26c0df0a1508d905637ce93",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-22.ts",
+        "sha256": "eb8936b40a8c79f0c07b9a636f6ea41ef680634f25dca8210578909ec59b80c7",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-23.ts",
+        "sha256": "fc46594db3b2597556a57dfbee73a5bf7bc2091f64488a560d28bed33651f59d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-24.ts",
+        "sha256": "98f648302427f405f700d12eab8290a20892a578709bbee0495ae7a24961605b",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-25.ts",
+        "sha256": "929194e66266dc91d63d844296f25562e194ccb10d39b7b407deb74bacb7b3ca",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-26.ts",
+        "sha256": "d1587f1a728f1be5757736c74c158bcee22283862f8ad1b611ffbb7c166bdb3a",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-27.ts",
+        "sha256": "b44a6997db5c9d545e543ee31e56ce52fb77804bd65bdcb96d871a33fbb0bdd0",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-28.ts",
+        "sha256": "30008f7e6de4644add1c1e64fe4800ef5427c14180d4be46ae874f56792d44d2",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-29.ts",
+        "sha256": "4a4396c7142c48e16cba38ed543af6dceef037a788bfe9491b91cf9f4024a3c0",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-3.ts",
+        "sha256": "7e95a6d47b7137afd1f1e5b7778a49dd16fab5b4cf632be240b8899ad54176ff",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-30.ts",
+        "sha256": "b360c0b7ad83176e5537c6645d92a19f76b4af34bd67f809f3f5348f92503ef4",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-31.ts",
+        "sha256": "d76226dcf775c1a386b883a781d56657d903bcf4c818504f61def86d594e0b68",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-32.ts",
+        "sha256": "23baaf51b261c6a12593e50d83dede49444a931f299b74f7eb5bd6eb4c7669ea",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-33.ts",
+        "sha256": "54bf9fac6d56081df7d059767451960cc33445d18062c6fcd3fa8c2fd0bb334d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-34.ts",
+        "sha256": "e5184baebc8e1f97f2c67955ba343437f1782ecb34f3e6914ab1bdc1e9a16bd5",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-35.ts",
+        "sha256": "a1c85478ddd9bc8b492c7753feb09e9754f3b18fbe1b6f96124281344e579081",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-36.ts",
+        "sha256": "b48d34e3008cc0eafc6578130f4ec799079d7a35e2ef8c061102e58f3e4e0b30",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-37.ts",
+        "sha256": "a46a61697a28672ab9b236d03cb21cdc548c41a37cb46263f84f0cdc24c34fdf",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-38.ts",
+        "sha256": "7d75426da6f842a192cc2fc7bbe2f1d36dd1e4a1537f39d0c8c65bcae6b5524a",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-39.ts",
+        "sha256": "e4ec0b75a1405772b81d3d34dcd97fe07eeb642e39f06a60ae13c2068cae09fc",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-4.ts",
+        "sha256": "f3bf8ad3a5ea00fc957b89c128e741bfeeb84b2da83482d5349539788d0d1d0e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-40.ts",
+        "sha256": "142c9e803f16904d2f616a515a418033fe5c208a5e66d7afffea46b5c224c94d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-41.ts",
+        "sha256": "480a6bbd6fc0fc67ca5dacaff1678af8510486b25c114266f251c11a05dbfbb3",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-42.ts",
+        "sha256": "7498698b5c33385fd5a84bf163925f0b536510f320645ef29bb727aae4a89496",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-43.ts",
+        "sha256": "ecb2c6d620621ab34fc9df3aeb66aa2413bbd21f5bf018d52c6d7832fd26b5a4",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-44.ts",
+        "sha256": "216085e18fb85fb24553295d3f3d5be4ec70ad35fcb03d15e7ae8b32b9106a46",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-45.ts",
+        "sha256": "43e8d1fdd8e689867cc124a3951d3a4794c0fdd4110554d508dff6ea61e4b280",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-46.ts",
+        "sha256": "551f7fcf36afa5f14de896043bbba03f52729f80faf8cdb8de8860a4e54ef522",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-47.ts",
+        "sha256": "69e0a66b72e9522dc02d3862c6d8b6a94c5860aaf4d4f49365e971aa25b08afb",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-48.ts",
+        "sha256": "ed940ecfaf3e1172e35d7ab0b88b34da61007769c1a88c6bf10ee73fa2261e77",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-49.ts",
+        "sha256": "c8dc8c9742e34158ccc796aea30532367749b2b49d388c594c038e84a6341600",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-5.ts",
+        "sha256": "0e0cb2a781b6433f216cd6d46a16c4d5209922073097214d16439d5a4a186304",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-50.ts",
+        "sha256": "03548a038b553731bb5e49b01ae97844d239825298cbb27f80fd1029d908c3b7",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-51.ts",
+        "sha256": "a8a1f6d70d5f049b3babee25f13d728d911985d3695bfad6d4b3cab7418c898b",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-52.ts",
+        "sha256": "06f76382b9ff60194fb908b5f2d7161a957388830904e750b317cf3844d8f489",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-53.ts",
+        "sha256": "f64dd357c492d4e962751bb0b903ac67ba8f6d298604b3731254977bc083e130",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-54.ts",
+        "sha256": "59479d24db9b745bcaea1a0516b2ee0da1cbf3c531b545cca927ad37044a37ff",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-55.ts",
+        "sha256": "b6546f73def2362834a44cb4e8e0f9c4b7f22a6a7b1cfd975ea97ec29430ad92",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-56.ts",
+        "sha256": "909de574d7ecde3ac23cafc726f53ec3129ecead01725f1e8c1ba79bddc2fcb5",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-57.ts",
+        "sha256": "608b2ccf4be41ddd389f359f174e30b22e23aab32f8f609d78798ada4868d38e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-58.ts",
+        "sha256": "2b26b95a34a32bc17acfa2670dac97430e53129904423adf3fb2326cb55773e0",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-59.ts",
+        "sha256": "95455b6dc6839ecbc75d248db5fc5b373ff8cb4280fd89e2877da739e4b8ffa3",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-6.ts",
+        "sha256": "30a3d5cf3092399c754b29cff8aa0ba68e34ead217d8c0919b46c2ca0483c66e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-60.ts",
+        "sha256": "b0e12ba177162a05b622bfa52cafa7d6ac937ea15fb512fa7b72a0f6239fb80c",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-61.ts",
+        "sha256": "9c161006d2a3050fc27efd6f86ae52b723c29a4738d33da0e31c52e1d63a2f86",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-62.ts",
+        "sha256": "0f2dead17fd99788d47f4f0fd28b07ad8524e323d0dc17a77f36176d53a94ce2",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-63.ts",
+        "sha256": "2ff8160205630deb79b3bb8e3b00b11d367e7095af91c5f286dd3529019a997b",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-64.ts",
+        "sha256": "55b30920aef9cfdb79994ab6f568d054b0e9cecc5812d54b37eb9a3f8a2359c6",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-65.ts",
+        "sha256": "723cfa3084d7a485d8e8cbc3e9384c2266196d259395fea6224feedb273f9ab5",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-66.ts",
+        "sha256": "7d580370d07e6ad72eedbefd4c859d17030bb368e4b27cd94c82699d16ddaca1",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-67.ts",
+        "sha256": "d0aa336d59b82561750d4638625f2b1be2fa0c6c3b4558192e3dd648fa42fcdd",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-68.ts",
+        "sha256": "ec51f02442565ac87ff3526236c905b7dd818cc00e9b6269758b8744c2e9cb36",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-69.ts",
+        "sha256": "821462d98affda06499ed46df43cbc534f504f1de61e5c50c27d720857a822ca",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-7.ts",
+        "sha256": "970cd46f027341830a8d706e276d1250909989ede591ba9728b1e32d36f9bf0c",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-70.ts",
+        "sha256": "cd899364c853edfb73da951f43839ca4ad587eb5e4ea88707e97fdaff8ae62d7",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-71.ts",
+        "sha256": "384a263a4c062ac78bfb91af850cf5eb24741f6701ffdb5737eb9262cabeabfd",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-72.ts",
+        "sha256": "cf5b1ef74f34c5dae141f521da4823d963ae1d5ade26edfda314f78b56ac1133",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-73.ts",
+        "sha256": "0d63ff1160d6478aaf64fe23b329f5761839fa35124a780c82f10ac095c4c704",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-74.ts",
+        "sha256": "ad42c41332bfd56c85df8b0507cff07e141d66a706c45b27f093eedc5eed1d10",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-75.ts",
+        "sha256": "8c82da1acd347b33c4c5e39318598994b7432fbed6c2b38c2c0551a435cb92d0",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-76.ts",
+        "sha256": "f0327dfc0b847ffd33c5aa268dd96d9fbc0b2dea42ae7e370ae9ee24b39f3334",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-77.ts",
+        "sha256": "fa6e805ecb487d38cc11eb4278dfa48f009d352be03facec92704d1d928b7d27",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-78.ts",
+        "sha256": "acc2bf170698436b7e08a20c1d497bb7407b27304995ca7f7f649213b3056450",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-79.ts",
+        "sha256": "72cdb88b96d6f1e29af573f4a312d66a8af6aa520a5c6953385a0b96de659ba9",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-8.ts",
+        "sha256": "725171082bd401b48a4b3032d506d691dcea54d51bd4edab283458c1a068e2d3",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-80.ts",
+        "sha256": "1f7816cc034c9498c8c64d9d2a3287a207d1e84223381f6e687387e446384b08",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-81.ts",
+        "sha256": "8c2372bab66a3f5ac3fcfbb93a2efadf2090889d6bec056803a649bee9408d70",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-82.ts",
+        "sha256": "bdf28b0a21a57cbb81902a7568f4a09885f20375aa662a11009b2902a99a360a",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-83.ts",
+        "sha256": "4448eda15409cb26180cf9ae3fa617728ba1ab4fcb849c4f553e87b94974722d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-84.ts",
+        "sha256": "88816dd5db95a5302f70fa83f5d25fd5c564dcac87dc1632814aeb405feb9ecc",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-85.ts",
+        "sha256": "22b9cf3e51f481aa9980a07db3fb356b4868fc63e3656eeb09fed6ac56c0814c",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-86.ts",
+        "sha256": "8c381c0acd8e9c67be6a5ec347edb223e91a43058497f520e36364e2a16439c6",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-87.ts",
+        "sha256": "9d31024739e3583c1e227195443fa21f69c48be7d83f02ca8e8b26a4db90175e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-9.ts",
+        "sha256": "ad90489ee289237553c766e087d3e3560634e965bb6c76caa7a052ee5de8f809",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/index.ts",
+        "sha256": "673db3b34419ed201afc999be17aa54c478901ef5ec93b0ddbe3c2d825968f41",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/types.ts",
+        "sha256": "1ee4061964d15641a7eadfa4f6bd21fdbf629b0add179a8e47bdf22fa53eb09d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/utils.ts",
+        "sha256": "53f3d3d070f0a9082934da25b875f9499855c2b0693868dd28be8c23d8730f68",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-anchors.ts",
+        "sha256": "bbc92500e28074fafd3f1912f85350b9a56b4af8e8e57832b9f5a36071f04e18",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-article-reference-data.ts",
+        "sha256": "7291070a00ad71c1c2d41a0bccea5a37b738ea02b17e8756f7539633641e5a1d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-article-reference-parser.ts",
+        "sha256": "89f55d480dd32caffa8f5d937d6fe1b743256c262b4e4e9ac9ff3337387fe8d5",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-article-relations.ts",
+        "sha256": "022ece61e703e521f138befcb718977ff31e75b0f97bb3a95428a1aa2b74fb5e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-article-usage.ts",
+        "sha256": "cb86c8c3fb1f35a123ea764c05b8d8e4df2bf040b7f36f1a6b22c57070beaeb7",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-category-data.ts",
+        "sha256": "40e105b5e47705dc940f461882bb653a624a1cdfd143a59340605ccdea069092",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-clipboard.ts",
+        "sha256": "452e036014b74606796dea6eddf2ab99ccba59afd28d1533092c10659d91c05c",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-edition-monitor.ts",
+        "sha256": "08020158e12341b86555f6524462c0e5bace953264487a1ea8036cb605e2dd5d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-edition.ts",
+        "sha256": "cc87491be34d449e54568ca2d978270b9d24c944f039491f6ee5bda867da601e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-explanation-sections.ts",
+        "sha256": "0a961798515058d586e4205af2d722be49fc38693d00bd3536796a3e49008c65",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-explanation-tables.ts",
+        "sha256": "98ad8ba9aa42c78d149960262620e9b0c038c1bcb9556d462c6002e8d304d949",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-explanation-view.ts",
+        "sha256": "216129d2489ee3457b469e87a47511cc97d0e8852db436f688c1e3f7c7ed937e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-explanations.ts",
+        "sha256": "c2bc9706f194f327a2324a1c81c4497245c58e23c62666d13545b87596903a73",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-graphs.ts",
+        "sha256": "1f54013d23eda55620981c96526b791d6090689c374bb70598e29b768d106276",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-highlight.ts",
+        "sha256": "7dd8a887dd2a1395a5055dd7df28eddff35c5b706a0d5574ace8d1e9f81e5370",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-links.ts",
+        "sha256": "54903ff0bcc0c2dedb9ce8d8c25e77973078a69c618c0882e89ea4ea1f4a3ca9",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-local-storage.ts",
+        "sha256": "569bac1504c52b108016f3a8be8fc3c47e165c03f4460da7373ec17d57f84656",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-official-articles.ts",
+        "sha256": "6f7c5482e2a2c443b94eb115e8c8a000ea388e8c1eb687efda8ba7bfcbab9d0c",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-outcomes.ts",
+        "sha256": "3788e1c89ce92033bc272f80621478781cab22d815c5e8eb397c1252a199d2ff",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-point-tdv.ts",
+        "sha256": "d9df15d5c723cad7e74ccc1e1874af2925d706fe0e73e007062c80bda92545a4",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-provenance.ts",
+        "sha256": "90c434956d0275ef2b83ca8c3afa7c20b1c10f28ffe1d1496280a36df68da733",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-report.ts",
+        "sha256": "62a9c27d4691e0c6dae4c8c51c70ba720d1910aa2512173a24d7daa0865d6fa3",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-review-context.ts",
+        "sha256": "026d650002dde61dbbd318da52a270e501cecbc30d71355bd9d1d660dc86b58d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-rules.ts",
+        "sha256": "75331bd0628401abdb6e2e326834c756cca05f20a0276a7abf214b4acfc5ef61",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-sample-data.ts",
+        "sha256": "d1da05f2f6d1f778d16d86379430e73fdb46176119b3b6243b9910c9bff38882",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-search-history.ts",
+        "sha256": "401c923ef8c81c395b28a3f399c22b863d9cc9d747e38a5cb4ced503343d96df",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-search.ts",
+        "sha256": "d12b813229a1ee154410f0df86069b496ecc6c27c7ef177bec1c6bf0678d961b",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-selection.ts",
+        "sha256": "2456bf526b7b502f055949b10a53f20f20f7eae9a7b05e0c85f1ac5fcdd70c10",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-session.ts",
+        "sha256": "11cc717d72ee12dcc344ff8aa308de33daa57d6faba8cec3102f7171e921d6cd",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-source-check.ts",
+        "sha256": "73c72b78914cab8d5f1316bd3008801866c6787ce38ed12c10ffc741b630c401",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-tdv-general.ts",
+        "sha256": "030de4f75fcf0cb26fa5c7a7facf1544a35ae2b7d95f22fa4bb0539de10527eb",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-tdv.ts",
+        "sha256": "503b307a385629f46ddb68c1ebaf878b45627007806b1b50420c35701516da9c",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-view-filters.ts",
+        "sha256": "6581caa8cb8556f04703232c136071f21b7b78beb4dd0edc7c0572f090c32f3c",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-workspace.ts",
+        "sha256": "8c236ef55f0b280247352139db1cdf6261fb45e1f4838093c99eacf4fa5f6487",
+        "unchanged": true
+      },
+      {
+        "file": "package-lock.json",
+        "sha256": "ac692319e38ced2a35afe7f312a97dc47053ee62c16255b2209f391afd45f7fd",
+        "unchanged": true
+      },
+      {
+        "file": "package.json",
+        "sha256": "e7367f0abeea35be1c13203e015a6592811e5e858a867f2fb02e58bfc463bac7",
+        "unchanged": true
+      },
+      {
+        "file": "public/favicon.svg",
+        "sha256": "e6d2e59b7b5bbb0342e0fb496dfc262decbfe4426bbb7b047aec8d467d1dc6f7",
+        "unchanged": true
+      },
+      {
+        "file": "public/file.svg",
+        "sha256": "1e0ae4d1a1ddfa36752988647b731e4abf150c414d069ec83c96fb0aaeff0307",
+        "unchanged": true
+      },
+      {
+        "file": "public/globe.svg",
+        "sha256": "d051a8c47936990a9085693d307bb7cea1bc1b6d7ed956bcbaacf674f4ec96b9",
+        "unchanged": true
+      },
+      {
+        "file": "public/sw.js",
+        "sha256": "cb4deddebab3fdf2672caf98a553d6a51fe827bbab467c77b818c4d29a7be998",
+        "unchanged": true
+      },
+      {
+        "file": "public/vlk-402-hero-emblem.webp",
+        "sha256": "cdb5958f9a737e9876751c5b2df00c8555bf372325a1523ecc851b09b1b54106",
+        "unchanged": true
+      },
+      {
+        "file": "public/vlk-command-emblem.png",
+        "sha256": "e7ef0b45a2589b6c6b578b6bcbcaafbe2501ac0900033eeae637e8a477187129",
+        "unchanged": true
+      },
+      {
+        "file": "public/vlk-command-header.png",
+        "sha256": "53f22b8c3492a7aeb04ef81ffef18423af62c8661682bc8eba8a6d15c2a3f1e4",
+        "unchanged": true
+      },
+      {
+        "file": "public/window.svg",
+        "sha256": "decf1cf7bb22b5c99c4857cfcd5718ce5465c4454166317589c83fc73df74b66",
+        "unchanged": true
+      },
+      {
+        "file": "vercel.json",
+        "sha256": "8c0c47b8a55003e78b23d008f6299a6d6f9fa0811fa75ce740e25312e96ea534",
+        "unchanged": true
+      }
+    ]
+  },
+  {
+    "base_archive": "VLK-Navigator-402-v38.8-actions-tdv-fit.zip",
+    "protected_unchanged": 154,
+    "files": [
+      {
+        "file": ".openai/hosting.json",
+        "sha256": "1a039f9b45745f4a94a447ce26455bbb036dee8e69f90061be2eeaa203b2b6a0",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/IBMPlexMono-Medium.ttf",
+        "sha256": "a9b4c49bb299e05b5f6c481e7fb5e78943d2793249a0c8874ab574a2d1ea6755",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/IBMPlexMono-Regular.ttf",
+        "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/IBMPlexMono-SemiBold.ttf",
+        "sha256": "d3c38e55c78f5b0f28009fddba4834ec503278936a5986032424c9bd2d23aa46",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/IBMPlexSans-Variable.ttf",
+        "sha256": "3b031aa4216174205bd8471f88a49b91f093169e9e87bd5262242bc5967fe2e3",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/PTSerif-Bold.ttf",
+        "sha256": "038ba7336bd7ea14f12ad155bed51a4345cac5153275d521dec3ba04021c526e",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/PTSerif-BoldItalic.ttf",
+        "sha256": "f003788ba08981eb0988b3557a6f224a53dab49c20e283e8b74d5af3c466f8be",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/PTSerif-Italic.ttf",
+        "sha256": "f57e95ff9dc85691a3b2e193f2028db36f6663939a46c0fc4f286d618b80b7ce",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/PTSerif-Regular.ttf",
+        "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/README.md",
+        "sha256": "c59db94cb2e9391835d107416e7bd2bd7c4db592fb2cd47b02cafc3e28ffbe8f",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/ibmplexmono-OFL.txt",
+        "sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/ibmplexsans-OFL.txt",
+        "sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/ptserif-OFL.txt",
+        "sha256": "ddf311c28ddf5a5ad9747649837346b67bed9d356789c3072bb27dbce49e514d",
+        "unchanged": true
+      },
+      {
+        "file": "app/fonts/sources.json",
+        "sha256": "fec18297ef3349f8dd00084f0e938487eac953a3efbd3e44fa4634de8476c37b",
+        "unchanged": true
+      },
+      {
+        "file": "lib/diagnosis-aliases.ts",
+        "sha256": "08e54d70e85bd163018fc9a339d16cd48225f3ce10c807d044d4aeb46fc68395",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-1.ts",
+        "sha256": "9e19a211476b9413d1166fcabaed30e7502934b44dba7287cbca9f401f369c13",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-10.ts",
+        "sha256": "60d8beae1fc7f56dfbf3f845d9a09837f29882a8f98b08056e4c18f299ec8ca5",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-11.ts",
+        "sha256": "22852ec472decc30dbef196b143d02b8da040fa07606fb634bd395526a2ba3ec",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-12.ts",
+        "sha256": "5e587f3218b820b431cecbe6f7ac2c6c07c95d5610bda631372c55e6b35f6b37",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-13.ts",
+        "sha256": "383d7a85595fe1dcd8f0448b10524c865b625652d819903faf447e4792f8c578",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-14.ts",
+        "sha256": "4c1dea5b53c8b6c5587ce767fd96d98a666c3c4da6e1b46e2c0d2642ff1adb22",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-15.ts",
+        "sha256": "f5415aea8e06cc5b97bb461863fe1ca213a135d0c33d6eecf422e5bbdca7fbe3",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-16.ts",
+        "sha256": "256211f8b7a3e41297b6a887cc91af041bf8d80a07f8f4322693f9184bbda413",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-17.ts",
+        "sha256": "7668c1c9d04317900e14901fcd0b048dce15c41e9f5c08698dbc9e88833801e2",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-18.ts",
+        "sha256": "33eea93ddece6573474ae02dc06dedf7b28b7539231af19acda7ab84e415f2e2",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-19.ts",
+        "sha256": "52ca61a9a43e885037cbd95b4451664950c83e541263fa7f51bee2b2c0c2bb95",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-2.ts",
+        "sha256": "83613075c3d5967905447d522ee7a0e89e19e0a7845dd93bc607dbf8ad91400e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-20.ts",
+        "sha256": "17cc5420a05fe0bb0b49aefaef10b315a2a2cc9cc897abef4f16475db427644d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-21.ts",
+        "sha256": "f05f95cd843a73754fc1c0962ea36d143193a7edc26c0df0a1508d905637ce93",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-22.ts",
+        "sha256": "eb8936b40a8c79f0c07b9a636f6ea41ef680634f25dca8210578909ec59b80c7",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-23.ts",
+        "sha256": "fc46594db3b2597556a57dfbee73a5bf7bc2091f64488a560d28bed33651f59d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-24.ts",
+        "sha256": "98f648302427f405f700d12eab8290a20892a578709bbee0495ae7a24961605b",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-25.ts",
+        "sha256": "929194e66266dc91d63d844296f25562e194ccb10d39b7b407deb74bacb7b3ca",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-26.ts",
+        "sha256": "d1587f1a728f1be5757736c74c158bcee22283862f8ad1b611ffbb7c166bdb3a",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-27.ts",
+        "sha256": "b44a6997db5c9d545e543ee31e56ce52fb77804bd65bdcb96d871a33fbb0bdd0",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-28.ts",
+        "sha256": "30008f7e6de4644add1c1e64fe4800ef5427c14180d4be46ae874f56792d44d2",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-29.ts",
+        "sha256": "4a4396c7142c48e16cba38ed543af6dceef037a788bfe9491b91cf9f4024a3c0",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-3.ts",
+        "sha256": "7e95a6d47b7137afd1f1e5b7778a49dd16fab5b4cf632be240b8899ad54176ff",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-30.ts",
+        "sha256": "b360c0b7ad83176e5537c6645d92a19f76b4af34bd67f809f3f5348f92503ef4",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-31.ts",
+        "sha256": "d76226dcf775c1a386b883a781d56657d903bcf4c818504f61def86d594e0b68",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-32.ts",
+        "sha256": "23baaf51b261c6a12593e50d83dede49444a931f299b74f7eb5bd6eb4c7669ea",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-33.ts",
+        "sha256": "54bf9fac6d56081df7d059767451960cc33445d18062c6fcd3fa8c2fd0bb334d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-34.ts",
+        "sha256": "e5184baebc8e1f97f2c67955ba343437f1782ecb34f3e6914ab1bdc1e9a16bd5",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-35.ts",
+        "sha256": "a1c85478ddd9bc8b492c7753feb09e9754f3b18fbe1b6f96124281344e579081",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-36.ts",
+        "sha256": "b48d34e3008cc0eafc6578130f4ec799079d7a35e2ef8c061102e58f3e4e0b30",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-37.ts",
+        "sha256": "a46a61697a28672ab9b236d03cb21cdc548c41a37cb46263f84f0cdc24c34fdf",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-38.ts",
+        "sha256": "7d75426da6f842a192cc2fc7bbe2f1d36dd1e4a1537f39d0c8c65bcae6b5524a",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-39.ts",
+        "sha256": "e4ec0b75a1405772b81d3d34dcd97fe07eeb642e39f06a60ae13c2068cae09fc",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-4.ts",
+        "sha256": "f3bf8ad3a5ea00fc957b89c128e741bfeeb84b2da83482d5349539788d0d1d0e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-40.ts",
+        "sha256": "142c9e803f16904d2f616a515a418033fe5c208a5e66d7afffea46b5c224c94d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-41.ts",
+        "sha256": "480a6bbd6fc0fc67ca5dacaff1678af8510486b25c114266f251c11a05dbfbb3",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-42.ts",
+        "sha256": "7498698b5c33385fd5a84bf163925f0b536510f320645ef29bb727aae4a89496",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-43.ts",
+        "sha256": "ecb2c6d620621ab34fc9df3aeb66aa2413bbd21f5bf018d52c6d7832fd26b5a4",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-44.ts",
+        "sha256": "216085e18fb85fb24553295d3f3d5be4ec70ad35fcb03d15e7ae8b32b9106a46",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-45.ts",
+        "sha256": "43e8d1fdd8e689867cc124a3951d3a4794c0fdd4110554d508dff6ea61e4b280",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-46.ts",
+        "sha256": "551f7fcf36afa5f14de896043bbba03f52729f80faf8cdb8de8860a4e54ef522",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-47.ts",
+        "sha256": "69e0a66b72e9522dc02d3862c6d8b6a94c5860aaf4d4f49365e971aa25b08afb",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-48.ts",
+        "sha256": "ed940ecfaf3e1172e35d7ab0b88b34da61007769c1a88c6bf10ee73fa2261e77",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-49.ts",
+        "sha256": "c8dc8c9742e34158ccc796aea30532367749b2b49d388c594c038e84a6341600",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-5.ts",
+        "sha256": "0e0cb2a781b6433f216cd6d46a16c4d5209922073097214d16439d5a4a186304",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-50.ts",
+        "sha256": "03548a038b553731bb5e49b01ae97844d239825298cbb27f80fd1029d908c3b7",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-51.ts",
+        "sha256": "a8a1f6d70d5f049b3babee25f13d728d911985d3695bfad6d4b3cab7418c898b",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-52.ts",
+        "sha256": "06f76382b9ff60194fb908b5f2d7161a957388830904e750b317cf3844d8f489",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-53.ts",
+        "sha256": "f64dd357c492d4e962751bb0b903ac67ba8f6d298604b3731254977bc083e130",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-54.ts",
+        "sha256": "59479d24db9b745bcaea1a0516b2ee0da1cbf3c531b545cca927ad37044a37ff",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-55.ts",
+        "sha256": "b6546f73def2362834a44cb4e8e0f9c4b7f22a6a7b1cfd975ea97ec29430ad92",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-56.ts",
+        "sha256": "909de574d7ecde3ac23cafc726f53ec3129ecead01725f1e8c1ba79bddc2fcb5",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-57.ts",
+        "sha256": "608b2ccf4be41ddd389f359f174e30b22e23aab32f8f609d78798ada4868d38e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-58.ts",
+        "sha256": "2b26b95a34a32bc17acfa2670dac97430e53129904423adf3fb2326cb55773e0",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-59.ts",
+        "sha256": "95455b6dc6839ecbc75d248db5fc5b373ff8cb4280fd89e2877da739e4b8ffa3",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-6.ts",
+        "sha256": "30a3d5cf3092399c754b29cff8aa0ba68e34ead217d8c0919b46c2ca0483c66e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-60.ts",
+        "sha256": "b0e12ba177162a05b622bfa52cafa7d6ac937ea15fb512fa7b72a0f6239fb80c",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-61.ts",
+        "sha256": "9c161006d2a3050fc27efd6f86ae52b723c29a4738d33da0e31c52e1d63a2f86",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-62.ts",
+        "sha256": "0f2dead17fd99788d47f4f0fd28b07ad8524e323d0dc17a77f36176d53a94ce2",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-63.ts",
+        "sha256": "2ff8160205630deb79b3bb8e3b00b11d367e7095af91c5f286dd3529019a997b",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-64.ts",
+        "sha256": "55b30920aef9cfdb79994ab6f568d054b0e9cecc5812d54b37eb9a3f8a2359c6",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-65.ts",
+        "sha256": "723cfa3084d7a485d8e8cbc3e9384c2266196d259395fea6224feedb273f9ab5",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-66.ts",
+        "sha256": "7d580370d07e6ad72eedbefd4c859d17030bb368e4b27cd94c82699d16ddaca1",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-67.ts",
+        "sha256": "d0aa336d59b82561750d4638625f2b1be2fa0c6c3b4558192e3dd648fa42fcdd",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-68.ts",
+        "sha256": "ec51f02442565ac87ff3526236c905b7dd818cc00e9b6269758b8744c2e9cb36",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-69.ts",
+        "sha256": "821462d98affda06499ed46df43cbc534f504f1de61e5c50c27d720857a822ca",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-7.ts",
+        "sha256": "970cd46f027341830a8d706e276d1250909989ede591ba9728b1e32d36f9bf0c",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-70.ts",
+        "sha256": "cd899364c853edfb73da951f43839ca4ad587eb5e4ea88707e97fdaff8ae62d7",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-71.ts",
+        "sha256": "384a263a4c062ac78bfb91af850cf5eb24741f6701ffdb5737eb9262cabeabfd",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-72.ts",
+        "sha256": "cf5b1ef74f34c5dae141f521da4823d963ae1d5ade26edfda314f78b56ac1133",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-73.ts",
+        "sha256": "0d63ff1160d6478aaf64fe23b329f5761839fa35124a780c82f10ac095c4c704",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-74.ts",
+        "sha256": "ad42c41332bfd56c85df8b0507cff07e141d66a706c45b27f093eedc5eed1d10",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-75.ts",
+        "sha256": "8c82da1acd347b33c4c5e39318598994b7432fbed6c2b38c2c0551a435cb92d0",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-76.ts",
+        "sha256": "f0327dfc0b847ffd33c5aa268dd96d9fbc0b2dea42ae7e370ae9ee24b39f3334",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-77.ts",
+        "sha256": "fa6e805ecb487d38cc11eb4278dfa48f009d352be03facec92704d1d928b7d27",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-78.ts",
+        "sha256": "acc2bf170698436b7e08a20c1d497bb7407b27304995ca7f7f649213b3056450",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-79.ts",
+        "sha256": "72cdb88b96d6f1e29af573f4a312d66a8af6aa520a5c6953385a0b96de659ba9",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-8.ts",
+        "sha256": "725171082bd401b48a4b3032d506d691dcea54d51bd4edab283458c1a068e2d3",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-80.ts",
+        "sha256": "1f7816cc034c9498c8c64d9d2a3287a207d1e84223381f6e687387e446384b08",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-81.ts",
+        "sha256": "8c2372bab66a3f5ac3fcfbb93a2efadf2090889d6bec056803a649bee9408d70",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-82.ts",
+        "sha256": "bdf28b0a21a57cbb81902a7568f4a09885f20375aa662a11009b2902a99a360a",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-83.ts",
+        "sha256": "4448eda15409cb26180cf9ae3fa617728ba1ab4fcb849c4f553e87b94974722d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-84.ts",
+        "sha256": "88816dd5db95a5302f70fa83f5d25fd5c564dcac87dc1632814aeb405feb9ecc",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-85.ts",
+        "sha256": "22b9cf3e51f481aa9980a07db3fb356b4868fc63e3656eeb09fed6ac56c0814c",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-86.ts",
+        "sha256": "8c381c0acd8e9c67be6a5ec347edb223e91a43058497f520e36364e2a16439c6",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-87.ts",
+        "sha256": "9d31024739e3583c1e227195443fa21f69c48be7d83f02ca8e8b26a4db90175e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/article-9.ts",
+        "sha256": "ad90489ee289237553c766e087d3e3560634e965bb6c76caa7a052ee5de8f809",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/index.ts",
+        "sha256": "673db3b34419ed201afc999be17aa54c478901ef5ec93b0ddbe3c2d825968f41",
+        "unchanged": true
+      },
+      {
+        "file": "lib/explanations/types.ts",
+        "sha256": "1ee4061964d15641a7eadfa4f6bd21fdbf629b0add179a8e47bdf22fa53eb09d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/utils.ts",
+        "sha256": "53f3d3d070f0a9082934da25b875f9499855c2b0693868dd28be8c23d8730f68",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-anchors.ts",
+        "sha256": "bbc92500e28074fafd3f1912f85350b9a56b4af8e8e57832b9f5a36071f04e18",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-article-reference-data.ts",
+        "sha256": "7291070a00ad71c1c2d41a0bccea5a37b738ea02b17e8756f7539633641e5a1d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-article-reference-parser.ts",
+        "sha256": "89f55d480dd32caffa8f5d937d6fe1b743256c262b4e4e9ac9ff3337387fe8d5",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-article-relations.ts",
+        "sha256": "022ece61e703e521f138befcb718977ff31e75b0f97bb3a95428a1aa2b74fb5e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-article-usage.ts",
+        "sha256": "cb86c8c3fb1f35a123ea764c05b8d8e4df2bf040b7f36f1a6b22c57070beaeb7",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-category-data.ts",
+        "sha256": "40e105b5e47705dc940f461882bb653a624a1cdfd143a59340605ccdea069092",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-clipboard.ts",
+        "sha256": "452e036014b74606796dea6eddf2ab99ccba59afd28d1533092c10659d91c05c",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-context-navigation.ts",
+        "sha256": "3f028bb9c9127abeb846591fb9426b16a5933de0eba886de7a8ceadc20193fbb",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-edition-monitor.ts",
+        "sha256": "08020158e12341b86555f6524462c0e5bace953264487a1ea8036cb605e2dd5d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-edition.ts",
+        "sha256": "cc87491be34d449e54568ca2d978270b9d24c944f039491f6ee5bda867da601e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-explanation-reader.ts",
+        "sha256": "5e96b97f5366bc03f9743ee9d658377c846548598d71f74bb62cd3329294f3b8",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-explanation-sections.ts",
+        "sha256": "0a961798515058d586e4205af2d722be49fc38693d00bd3536796a3e49008c65",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-explanation-tables.ts",
+        "sha256": "98ad8ba9aa42c78d149960262620e9b0c038c1bcb9556d462c6002e8d304d949",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-explanation-view.ts",
+        "sha256": "216129d2489ee3457b469e87a47511cc97d0e8852db436f688c1e3f7c7ed937e",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-explanations.ts",
+        "sha256": "c2bc9706f194f327a2324a1c81c4497245c58e23c62666d13545b87596903a73",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-graphs.ts",
+        "sha256": "1f54013d23eda55620981c96526b791d6090689c374bb70598e29b768d106276",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-highlight.ts",
+        "sha256": "7dd8a887dd2a1395a5055dd7df28eddff35c5b706a0d5574ace8d1e9f81e5370",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-links.ts",
+        "sha256": "54903ff0bcc0c2dedb9ce8d8c25e77973078a69c618c0882e89ea4ea1f4a3ca9",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-local-storage.ts",
+        "sha256": "569bac1504c52b108016f3a8be8fc3c47e165c03f4460da7373ec17d57f84656",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-official-articles.ts",
+        "sha256": "6f7c5482e2a2c443b94eb115e8c8a000ea388e8c1eb687efda8ba7bfcbab9d0c",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-outcomes.ts",
+        "sha256": "3788e1c89ce92033bc272f80621478781cab22d815c5e8eb397c1252a199d2ff",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-point-tdv.ts",
+        "sha256": "d9df15d5c723cad7e74ccc1e1874af2925d706fe0e73e007062c80bda92545a4",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-provenance.ts",
+        "sha256": "90c434956d0275ef2b83ca8c3afa7c20b1c10f28ffe1d1496280a36df68da733",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-reading-navigation.ts",
+        "sha256": "e4216f4e2472e0a6e56fe8f6c6e6c482b5e48ede7488770b1c73ded476f41475",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-report.ts",
+        "sha256": "62a9c27d4691e0c6dae4c8c51c70ba720d1910aa2512173a24d7daa0865d6fa3",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-review-context.ts",
+        "sha256": "026d650002dde61dbbd318da52a270e501cecbc30d71355bd9d1d660dc86b58d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-rules.ts",
+        "sha256": "75331bd0628401abdb6e2e326834c756cca05f20a0276a7abf214b4acfc5ef61",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-sample-data.ts",
+        "sha256": "d1da05f2f6d1f778d16d86379430e73fdb46176119b3b6243b9910c9bff38882",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-search-history.ts",
+        "sha256": "401c923ef8c81c395b28a3f399c22b863d9cc9d747e38a5cb4ced503343d96df",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-search.ts",
+        "sha256": "d12b813229a1ee154410f0df86069b496ecc6c27c7ef177bec1c6bf0678d961b",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-selection.ts",
+        "sha256": "2456bf526b7b502f055949b10a53f20f20f7eae9a7b05e0c85f1ac5fcdd70c10",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-session.ts",
+        "sha256": "11cc717d72ee12dcc344ff8aa308de33daa57d6faba8cec3102f7171e921d6cd",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-source-check.ts",
+        "sha256": "73c72b78914cab8d5f1316bd3008801866c6787ce38ed12c10ffc741b630c401",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-tdv-general.ts",
+        "sha256": "030de4f75fcf0cb26fa5c7a7facf1544a35ae2b7d95f22fa4bb0539de10527eb",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-tdv.ts",
+        "sha256": "503b307a385629f46ddb68c1ebaf878b45627007806b1b50420c35701516da9c",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-view-filters.ts",
+        "sha256": "6581caa8cb8556f04703232c136071f21b7b78beb4dd0edc7c0572f090c32f3c",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-workspace-history.ts",
+        "sha256": "a0c3203ba7b28e86ca542c6540acd2d04a09c1c8a568c090e820a08f4e8f0f4d",
+        "unchanged": true
+      },
+      {
+        "file": "lib/vlk-workspace.ts",
+        "sha256": "8c236ef55f0b280247352139db1cdf6261fb45e1f4838093c99eacf4fa5f6487",
+        "unchanged": true
+      },
+      {
+        "file": "package-lock.json",
+        "sha256": "ac692319e38ced2a35afe7f312a97dc47053ee62c16255b2209f391afd45f7fd",
+        "unchanged": true
+      },
+      {
+        "file": "package.json",
+        "sha256": "e7367f0abeea35be1c13203e015a6592811e5e858a867f2fb02e58bfc463bac7",
+        "unchanged": true
+      },
+      {
+        "file": "public/favicon.svg",
+        "sha256": "e6d2e59b7b5bbb0342e0fb496dfc262decbfe4426bbb7b047aec8d467d1dc6f7",
+        "unchanged": true
+      },
+      {
+        "file": "public/file.svg",
+        "sha256": "1e0ae4d1a1ddfa36752988647b731e4abf150c414d069ec83c96fb0aaeff0307",
+        "unchanged": true
+      },
+      {
+        "file": "public/globe.svg",
+        "sha256": "d051a8c47936990a9085693d307bb7cea1bc1b6d7ed956bcbaacf674f4ec96b9",
+        "unchanged": true
+      },
+      {
+        "file": "public/sw.js",
+        "sha256": "cb4deddebab3fdf2672caf98a553d6a51fe827bbab467c77b818c4d29a7be998",
+        "unchanged": true
+      },
+      {
+        "file": "public/vlk-402-hero-emblem.webp",
+        "sha256": "cdb5958f9a737e9876751c5b2df00c8555bf372325a1523ecc851b09b1b54106",
+        "unchanged": true
+      },
+      {
+        "file": "public/vlk-command-emblem.png",
+        "sha256": "e7ef0b45a2589b6c6b578b6bcbcaafbe2501ac0900033eeae637e8a477187129",
+        "unchanged": true
+      },
+      {
+        "file": "public/vlk-command-header.png",
+        "sha256": "53f22b8c3492a7aeb04ef81ffef18423af62c8661682bc8eba8a6d15c2a3f1e4",
+        "unchanged": true
+      },
+      {
+        "file": "public/window.svg",
+        "sha256": "decf1cf7bb22b5c99c4857cfcd5718ce5465c4454166317589c83fc73df74b66",
+        "unchanged": true
+      },
+      {
+        "file": "vercel.json",
+        "sha256": "8c0c47b8a55003e78b23d008f6299a6d6f9fa0811fa75ce740e25312e96ea534",
+        "unchanged": true
+      }
+    ]
+  }
+]

@@ -1,0 +1,552 @@
+[
+  {
+    "article": "1",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "2",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "3",
+    "contractIndexes": [
+      1
+    ],
+    "education": 1,
+    "serving": 2
+  },
+  {
+    "article": "4",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 2
+  },
+  {
+    "article": "5",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 5
+  },
+  {
+    "article": "6",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "7",
+    "contractIndexes": [
+      2
+    ],
+    "education": 1,
+    "serving": 2
+  },
+  {
+    "article": "8",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 6
+  },
+  {
+    "article": "9",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "10",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "11",
+    "contractIndexes": [
+      0
+    ],
+    "education": 1,
+    "serving": 2
+  },
+  {
+    "article": "12",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "13",
+    "contractIndexes": [],
+    "education": 1,
+    "serving": 3
+  },
+  {
+    "article": "14",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "15",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "16",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "17",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "18",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "19",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "20",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "21",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "22",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "23",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "24",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 2
+  },
+  {
+    "article": "25",
+    "contractIndexes": [
+      18
+    ],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "26",
+    "contractIndexes": [],
+    "education": 2,
+    "serving": 1
+  },
+  {
+    "article": "27",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "28",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "29",
+    "contractIndexes": [],
+    "education": 1,
+    "serving": 0
+  },
+  {
+    "article": "30",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "31",
+    "contractIndexes": [],
+    "education": 1,
+    "serving": 0
+  },
+  {
+    "article": "32",
+    "contractIndexes": [
+      0
+    ],
+    "education": 1,
+    "serving": 0
+  },
+  {
+    "article": "33",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "34",
+    "contractIndexes": [],
+    "education": 1,
+    "serving": 1
+  },
+  {
+    "article": "35",
+    "contractIndexes": [],
+    "education": 1,
+    "serving": 1
+  },
+  {
+    "article": "36",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 2
+  },
+  {
+    "article": "37",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "38",
+    "contractIndexes": [],
+    "education": 1,
+    "serving": 0
+  },
+  {
+    "article": "39",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "40",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "41",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "42",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "43",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "44",
+    "contractIndexes": [
+      1
+    ],
+    "education": 1,
+    "serving": 2
+  },
+  {
+    "article": "45",
+    "contractIndexes": [],
+    "education": 2,
+    "serving": 1
+  },
+  {
+    "article": "46",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "47",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "48",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 2
+  },
+  {
+    "article": "49",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "50",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "51",
+    "contractIndexes": [],
+    "education": 1,
+    "serving": 2
+  },
+  {
+    "article": "52",
+    "contractIndexes": [],
+    "education": 1,
+    "serving": 1
+  },
+  {
+    "article": "53",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "54",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "55",
+    "contractIndexes": [],
+    "education": 2,
+    "serving": 0
+  },
+  {
+    "article": "56",
+    "contractIndexes": [
+      1
+    ],
+    "education": 1,
+    "serving": 1
+  },
+  {
+    "article": "57",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "58",
+    "contractIndexes": [],
+    "education": 1,
+    "serving": 0
+  },
+  {
+    "article": "59",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "60",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "61",
+    "contractIndexes": [],
+    "education": 1,
+    "serving": 2
+  },
+  {
+    "article": "62",
+    "contractIndexes": [],
+    "education": 1,
+    "serving": 4
+  },
+  {
+    "article": "63",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "64",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "65",
+    "contractIndexes": [],
+    "education": 1,
+    "serving": 1
+  },
+  {
+    "article": "66",
+    "contractIndexes": [
+      0,
+      68
+    ],
+    "education": 1,
+    "serving": 3
+  },
+  {
+    "article": "67",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "68",
+    "contractIndexes": [],
+    "education": 1,
+    "serving": 0
+  },
+  {
+    "article": "69",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "70",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "71",
+    "contractIndexes": [],
+    "education": 1,
+    "serving": 0
+  },
+  {
+    "article": "72",
+    "contractIndexes": [
+      0
+    ],
+    "education": 1,
+    "serving": 2
+  },
+  {
+    "article": "73",
+    "contractIndexes": [
+      0
+    ],
+    "education": 1,
+    "serving": 2
+  },
+  {
+    "article": "74",
+    "contractIndexes": [],
+    "education": 1,
+    "serving": 0
+  },
+  {
+    "article": "75",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "76",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 2
+  },
+  {
+    "article": "77",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "78",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "79",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "80",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "81",
+    "contractIndexes": [
+      1,
+      2,
+      7
+    ],
+    "education": 2,
+    "serving": 6
+  },
+  {
+    "article": "82",
+    "contractIndexes": [
+      1,
+      2
+    ],
+    "education": 1,
+    "serving": 1
+  },
+  {
+    "article": "83",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "84",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  },
+  {
+    "article": "85",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "86",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 1
+  },
+  {
+    "article": "87",
+    "contractIndexes": [],
+    "education": 0,
+    "serving": 0
+  }
+]

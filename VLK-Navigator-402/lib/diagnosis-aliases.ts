@@ -6,6 +6,14 @@
  * офіційного переліку кодів МКХ-10. Синоніми не є медичними критеріями і не
  * впливають на нормативний результат — вони лише допомагають знайти статтю.
  */
+/** Whole-token navigation shortcuts; never use substring matching for these. */
+export const DIAGNOSIS_ABBREVIATIONS: Readonly<Record<string, { label: string; articles: readonly string[] }>> = {
+  "ба": { label: "бронхіальна астма", articles: ["47"] },
+  "цд": { label: "цукровий діабет", articles: ["13"] },
+  "аг": { label: "артеріальна гіпертензія", articles: ["39"] },
+  "птср": { label: "посттравматичний стресовий розлад", articles: ["17"] },
+};
+
 export const DIAGNOSIS_ALIASES: Record<string, string[]> = {
   "13": ["цукровий діабет", "діабет", "щитоподібна залоза", "гіпотиреоз", "тиреотоксикоз"],
   "17": ["птср", "посттравматичний стресовий розлад", "тривожний розлад", "окр"],

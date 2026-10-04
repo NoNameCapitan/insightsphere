@@ -9,14 +9,13 @@ import {
   ArrowLeft,
   ArrowRight,
   ChevronLeft,
+  ClipboardList,
   SlidersHorizontal,
   BookOpen,
-  Check,
+  BookMarked,
   ChevronDown,
-  Copy,
   ExternalLink,
   History,
-  Maximize2,
   MoreHorizontal,
   Search,
   RotateCcw,
@@ -61,24 +60,40 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { SwRegister } from "@/components/sw-register";
+import { HeroEmblem } from "@/components/vlk/hero-emblem";
+import { UkraineTrident } from "@/components/vlk/ukraine-trident";
 import { CommandBrand } from "@/components/vlk/command-brand";
 import { SpecialtyIcon } from "@/components/vlk/specialty-icon";
-import { TdvContext } from "@/components/vlk/tdv-context";
+import { PointTdvDetails } from "@/components/vlk/point-tdv-details";
+import { HomeQuickAccess, QuickAccessDialog, PinArticleButton } from "@/components/vlk/quick-access";
+import { RelatedArticles } from "@/components/vlk/related-articles";
+import { ARTICLE_USAGE_KEY, PINNED_ARTICLES_KEY, readArticleUsage, readPinnedArticles, recordArticleOpen, togglePinned, type ArticleUsage } from "@/lib/vlk-article-usage";
 import { EditionTicker } from "@/components/vlk/edition-ticker";
 import { ThemeToggle } from "@/components/vlk/theme-controls";
 import { WorkspaceTabs, type WorkspacePanel } from "@/components/vlk/workspace-tabs";
 import { requestedPointIndex } from "@/lib/vlk-selection";
-import { copyPlainText } from "@/lib/vlk-clipboard";
+import { articleNavigationSpecialty, scrollOffsetToReveal } from "@/lib/vlk-reading-navigation";
+import { createWorkspaceHistory } from "@/lib/vlk-workspace-history";
+import { nextContextControl, revealContextControl, type ContextControlId } from "@/lib/vlk-context-navigation";
 import { SessionResetDialog } from "@/components/vlk/session-reset-dialog";
 import { clearStoredSession, readStored, writeStored, SESSION_RESET_KEY } from "@/lib/vlk-local-storage";
 import { TdvDialog } from "@/components/vlk/tdv-dialog";
+import { SpecialtyCalculators } from "@/components/vlk/specialty-calculators";
+import { CaseDialog } from "@/components/vlk/case-dialog";
+import { addCasePoints, casePointKey, emptyCaseDraft, type CasePoint } from "@/lib/vlk-case";
 import {
   ExplanationDocument,
   FullExplanationDialog,
 } from "@/components/vlk/explanation-document";
 import { Highlighted } from "@/components/vlk/highlighted";
+import { ArticleFilters } from "@/components/vlk/article-filters";
+import { ReviewContextControls, ReviewContextResult } from "@/components/vlk/review-context";
+import { categoryGuidance, contextProblem, resolveReviewContext, type ReviewContext } from "@/lib/vlk-review-context";
+import { PointComparisonDialog } from "@/components/vlk/point-comparison-dialog";
+import { OutcomeBadge } from "@/components/vlk/outcome-badge";
+import { availablePoints, matchesRuleFilters } from "@/lib/vlk-view-filters";
 import { ARTICLE_RULES } from "@/lib/vlk-rules";
-import { graphGuidance, SCHEDULE_GRAPHS, type ScheduleGraph } from "@/lib/vlk-graphs";
+import { graphGuidance, type ScheduleGraph } from "@/lib/vlk-graphs";
 import {
   ARTICLES,
   EDITION,
@@ -88,7 +103,6 @@ import {
   type VlkArticle,
 } from "@/lib/vlk-sample-data";
 import {
-  matchesOutcomeFilter,
   outcomeStyles,
   OUTCOME_FILTERS,
   type OutcomeFilterId,
@@ -98,8 +112,10 @@ import {
   MATCH_TYPE_SHORT,
   POPULAR_QUERIES,
   searchArticles,
+  searchAbbreviationHints,
   snippetAround,
   articleIcdLabel,
+  articleIcdSearchNote,
   parseSearchQuery,
   type SearchHit,
 } from "@/lib/vlk-search";
@@ -126,7 +142,6 @@ import {
   specialtyLabels,
   type DoctorDirectory,
 } from "@/lib/vlk-session";
-import { TDV_COLUMNS, TDV_RULES } from "@/lib/vlk-tdv";
 import {
   EXPLANATION_ARTICLES,
   EXPLANATION_META,
@@ -139,12 +154,9 @@ import {
   articleExplanationParagraphs,
   pointExplanation,
 } from "@/lib/vlk-explanation-view";
-import { buildPointWordingText, buildReferenceText } from "@/lib/vlk-report";
 import {
   explanationUrl as buildExplanationUrl,
   officialRuleUrl,
-  TDV_DOCX_URL,
-  TDV_URL,
 } from "@/lib/vlk-links";
 
 const FOCUS_RING =
@@ -173,14 +185,6 @@ function pointCountLabel(count: number) {
   return `${count} пунктів`;
 }
 
-function fragmentCountLabel(count: number) {
-  const lastTwo = count % 100;
-  const last = count % 10;
-  if (lastTwo >= 11 && lastTwo <= 14) return `${count} фрагментів`;
-  if (last === 1) return `${count} фрагмент`;
-  if (last >= 2 && last <= 4) return `${count} фрагменти`;
-  return `${count} фрагментів`;
-}
 
 /**
  * Єдиний стиль назви спеціальності: повна назва, а справжня абревіатура
@@ -207,13 +211,24 @@ export default function Home() {
   const [specialty, setSpecialty] = useState<SpecialtyId | "">("");
   const [examineeType, setExamineeType] = useState<string>(EXAMINEE_TYPES[0]);
   const [scheduleGraph, setScheduleGraph] = useState<ScheduleGraph>("all");
+  const [tdvColumn, setTdvColumn] = useState<number | undefined>();
+  const reviewContext = useMemo(() => ({ examineeType, scheduleGraph, tdvColumn }), [examineeType, scheduleGraph, tdvColumn]);
+  function changeReviewContext(next: ReviewContext) {
+    setExamineeType(next.examineeType); setScheduleGraph(next.scheduleGraph); setTdvColumn(next.tdvColumn);
+  }
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState("");
   const [selectedRuleIndex, setSelectedRuleIndex] = useState("");
   const [directory, setDirectory] = useState<DoctorDirectory>(EMPTY_DIRECTORY);
   const [resetOpen, setResetOpen] = useState(false);
+  // Temporary only: excluded from every stored session and browser-history snapshot.
+  const [caseDraft, setCaseDraft] = useState(emptyCaseDraft);
+  const [caseOpen, setCaseOpen] = useState(false);
+  const [caseEpoch, setCaseEpoch] = useState(0);
+  const caseReturnRef = useRef<HTMLElement | null>(null);
   const [outcomeFilter, setOutcomeFilter] = useState<OutcomeFilterId>("all");
-  const [copied, setCopied] = useState<"reference" | "point" | "">("");
+  const [pointFilter, setPointFilter] = useState("all");
+  const [searchSpecialty, setSearchSpecialty] = useState<SpecialtyId | "all">("all");
   const [online, setOnline] = useState(true);
   const [hydrated, setHydrated] = useState(false);
   const [explanationResult, setExplanationResult] = useState<{
@@ -221,21 +236,29 @@ export default function Home() {
   }>();
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<WorkspacePanel>("list");
-  const [manualCopy, setManualCopy] = useState<string | null>(null);
-  const copyTriggerRef = useRef<HTMLElement | null>(null);
-  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [directoryOpen, setDirectoryOpen] = useState(false);
   const [activeHit, setActiveHit] = useState(-1);
   const [history, setHistory] = useState<string[]>([]);
   const [lastSpecialty, setLastSpecialty] = useState<SpecialtyId | "">("");
+  const [usage, setUsage] = useState<ArticleUsage>({});
+  const [pinned, setPinned] = useState<string[]>([]);
+  const storageWarningShown = useRef(false);
   const [recent, setRecent] = useState<RecentEntry[]>([]);
   const listRef = useRef<HTMLDivElement>(null);
   const articleContentRef = useRef<HTMLDivElement>(null);
+  const sidebarContextRef = useRef<HTMLDetailsElement>(null);
+  const readingContextRef = useRef<HTMLDetailsElement>(null);
+  function showReviewControl(control: ContextControlId) {
+    const reading = window.matchMedia("(max-width: 1023px)").matches;
+    revealContextControl(reading ? readingContextRef.current : sidebarContextRef.current,
+      reading ? `reading-${control}` : control);
+  }
   const searchRef = useRef<HTMLInputElement>(null);
   const searchBoxRef = useRef<HTMLDivElement>(null);
   const moreTriggerRef = useRef<HTMLButtonElement>(null);
   /** Чи додано запис в історію браузера при переході на робочий екран. */
   const historyPushedRef = useRef(false);
+  const [workspaceHistory] = useState(createWorkspaceHistory);
 
   useEffect(() => {
     const setConnected = () => setOnline(true);
@@ -258,11 +281,14 @@ export default function Home() {
       const restored = restoreSession(stored);
       setExamineeType(restored.examineeType);
       setScheduleGraph(restored.scheduleGraph);
+      setTdvColumn(restored.tdvColumn);
       setDirectory(restored.directory);
       setHistory(readSearchHistory(readStored(SEARCH_HISTORY_KEY)));
       const workspace = readWorkspace(readStored(WORKSPACE_KEY));
       setLastSpecialty(workspace.specialty);
       setRecent(workspace.recent);
+      setUsage(readArticleUsage(readStored(ARTICLE_USAGE_KEY)));
+      setPinned(readPinnedArticles(readStored(PINNED_ARTICLES_KEY)));
       setHydrated(true);
     }, 0);
 
@@ -277,9 +303,9 @@ export default function Home() {
     if (!hydrated) return;
     writeStored(
       SESSION_KEY,
-      serializeSession({ examineeType, scheduleGraph, directory }),
+      serializeSession({ examineeType, scheduleGraph, tdvColumn, directory }),
     );
-  }, [directory, examineeType, hydrated, scheduleGraph]);
+  }, [directory, examineeType, hydrated, scheduleGraph, tdvColumn]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -294,6 +320,24 @@ export default function Home() {
     );
   }, [hydrated, lastSpecialty, recent]);
 
+  useEffect(() => {
+    if (!hydrated) return;
+    const usageSaved = writeStored(ARTICLE_USAGE_KEY, JSON.stringify({ version: 1, items: usage }));
+    if (!usageSaved && !storageWarningShown.current && Object.keys(usage).length) {
+      storageWarningShown.current = true;
+      toast.error('Сховище браузера недоступне. Швидкий доступ зберігатиметься лише до закриття сторінки.');
+    }
+  }, [hydrated, usage]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const pinsSaved = writeStored(PINNED_ARTICLES_KEY, JSON.stringify({ version: 1, articles: pinned }));
+    if (!pinsSaved && !storageWarningShown.current && pinned.length) {
+      storageWarningShown.current = true;
+      toast.error('Сховище браузера недоступне. Швидкий доступ зберігатиметься лише до закриття сторінки.');
+    }
+  }, [hydrated, pinned]);
+
   // Клік поза пошуком закриває випадний список.
   useEffect(() => {
     if (!searchOpen) return;
@@ -307,19 +351,30 @@ export default function Home() {
   // The shortcut works from any workspace panel, without replacing browser Find.
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.code === "KeyK") {
+      // Let dialogs, menus, native selects and IME own their keyboard events.
+      if (event.defaultPrevented || event.isComposing ||
+        document.querySelector('[role="dialog"][data-state="open"], [role="alertdialog"], [role="menu"][data-state="open"], [role="listbox"][data-state="open"]')) return;
+      const target = event.target instanceof HTMLElement ? event.target : null;
+      const editing = target?.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])');
+      if (((event.ctrlKey || event.metaKey) && event.code === "KeyK") ||
+        (event.key === "/" && !editing && !event.ctrlKey && !event.metaKey && !event.altKey)) {
         event.preventDefault();
         searchRef.current?.focus();
         searchRef.current?.select();
         setSearchOpen(true);
+      } else if (event.key === "Escape" && !editing) {
+        if (searchOpen) { event.preventDefault(); setSearchOpen(false); setActiveHit(-1); }
+        else if (query) { event.preventDefault(); setQuery(""); setActiveHit(-1); }
+        else if (outcomeFilter !== "all" || pointFilter !== "all" || searchSpecialty !== "all") {
+          event.preventDefault(); setOutcomeFilter("all"); setPointFilter("all"); setSearchSpecialty("all");
+        }
       }
     };
     window.addEventListener("keydown", handleShortcut);
     return () => {
       window.removeEventListener("keydown", handleShortcut);
-      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
     };
-  }, []);
+  }, [searchOpen, query, outcomeFilter, pointFilter, searchSpecialty]);
 
   useEffect(() => {
     if (searchOpen && activeHit >= 0) {
@@ -335,7 +390,8 @@ export default function Home() {
     setSelectedId("");
     setSelectedRuleIndex("");
     setOutcomeFilter("all");
-    setCopied("");
+    setPointFilter("all");
+    setSearchSpecialty("all");
     setSearchOpen(false);
     setActiveHit(-1);
   }, []);
@@ -344,35 +400,63 @@ export default function Home() {
   // а не виводить із застосунку.
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
-      const state = event.state as { vlk?: string } | null;
-      if (state?.vlk === "dashboard") return;
+      const snapshot = workspaceHistory.restore(event.state);
+      if (snapshot) {
+        historyPushedRef.current = true;
+        setSpecialty(snapshot.specialty);
+        setQuery(snapshot.query);
+        setSelectedId(snapshot.selectedId);
+        setSelectedRuleIndex(snapshot.selectedRuleIndex);
+        setOutcomeFilter(snapshot.outcomeFilter);
+        setPointFilter(snapshot.pointFilter);
+        setSearchSpecialty(snapshot.searchSpecialty);
+        setMobilePanel(snapshot.mobilePanel);
+        setSearchOpen(false);
+        setActiveHit(-1);
+        return;
+      }
       historyPushedRef.current = false;
       resetToHome();
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [resetToHome]);
+  }, [resetToHome, workspaceHistory]);
 
   const resetSessionView = useCallback(() => {
+    workspaceHistory.clear();
+    historyPushedRef.current = false;
     resetToHome();
     setDirectory({ ...EMPTY_DIRECTORY });
     setExamineeType(EXAMINEE_TYPES[0]);
     setScheduleGraph("all");
+    setTdvColumn(undefined);
     setHistory([]);
     setRecent([]);
+    setUsage({});
+    setPinned([]);
     setLastSpecialty("");
     setDirectoryOpen(false);
     setResetOpen(false);
-    setManualCopy(null);
-  }, [resetToHome]);
+    setCaseDraft(emptyCaseDraft());
+    setCaseOpen(false);
+    setCaseEpoch(current => current + 1);
+  }, [resetToHome, workspaceHistory]);
 
   useEffect(() => {
     const reset = (event: StorageEvent) => {
       if (event.key === SESSION_RESET_KEY && event.newValue) resetSessionView();
+      else if (event.key === ARTICLE_USAGE_KEY) setUsage(readArticleUsage(event.newValue));
+      else if (event.key === PINNED_ARTICLES_KEY) setPinned(readPinnedArticles(event.newValue));
     };
     window.addEventListener("storage", reset);
     return () => window.removeEventListener("storage", reset);
   }, [resetSessionView]);
+
+  function openCase(opener: HTMLElement, point?: CasePoint) {
+    caseReturnRef.current = opener;
+    if (point) setCaseDraft(current => ({ ...current, points: addCasePoints(current.points, [point]) }));
+    setCaseOpen(true);
+  }
 
   function finishSession() {
     const cleared = clearStoredSession();
@@ -382,9 +466,11 @@ export default function Home() {
   }
 
   const searchHits = useMemo(
-    () => (query.trim() ? searchArticles(query, directory) : []),
-    [directory, query],
+    () => (query.trim() ? searchArticles(query, directory).filter((hit) =>
+      searchSpecialty === "all" || hit.article.specialties.includes(searchSpecialty)) : []),
+    [directory, query, searchSpecialty],
   );
+  const abbreviationHints = useMemo(() => searchAbbreviationHints(query), [query]);
   const searchResults = useMemo(() => searchHits.map((hit) => hit.article), [searchHits]);
   const requestedSearchPoint = useMemo(() => parseSearchQuery(query).find((term) => term.kind === "point")?.value, [query]);
   const hitsById = useMemo(() => {
@@ -403,22 +489,20 @@ export default function Home() {
   /** Чи є у статті хоча б один пункт із вибраною категорією результату. */
   const articleMatchesFilter = useCallback(
     (article: VlkArticle) =>
-      outcomeFilter === "all" ||
-      matchesOutcomeFilter(
-        (ARTICLE_RULES[article.article] ?? []).map((rule) => rule.outcome),
-        outcomeFilter,
-      ),
-    [outcomeFilter],
+      (ARTICLE_RULES[article.article] ?? []).some((rule) => matchesRuleFilters(rule, pointFilter, outcomeFilter, resolveReviewContext(article.article, rule, reviewContext).outcome)),
+    [outcomeFilter, pointFilter, reviewContext],
   );
+  const hasRuleFilters = outcomeFilter !== "all" || pointFilter !== "all";
+  const filterPoints = useMemo(() => availablePoints(baseArticles.flatMap((article) => ARTICLE_RULES[article.article] ?? [])), [baseArticles]);
 
   // Фільтр нічого не ховає: релевантні статті піднімаються вгору, решта
   // лишається в списку приглушеною.
   const listArticles = useMemo(() => {
-    if (outcomeFilter === "all") return baseArticles;
+    if (!hasRuleFilters) return baseArticles;
     return [...baseArticles].sort(
       (a, b) => Number(articleMatchesFilter(b)) - Number(articleMatchesFilter(a)),
     );
-  }, [articleMatchesFilter, baseArticles, outcomeFilter]);
+  }, [articleMatchesFilter, baseArticles, hasRuleFilters]);
 
   /** Остання спеціальність піднімається першою в сітці вибору. */
   const welcomeSpecialties = useMemo(() => {
@@ -429,8 +513,8 @@ export default function Home() {
   }, [lastSpecialty]);
 
   const filteredCount = useMemo(
-    () => (outcomeFilter === "all" ? 0 : baseArticles.filter(articleMatchesFilter).length),
-    [articleMatchesFilter, baseArticles, outcomeFilter],
+    () => (hasRuleFilters ? baseArticles.filter(articleMatchesFilter).length : 0),
+    [articleMatchesFilter, baseArticles, hasRuleFilters],
   );
   // Вибрана стаття тримається за власним id, а не за поточним списком: набір
   // запиту фільтрує список, але не перемикає відкриту статтю.
@@ -443,10 +527,17 @@ export default function Home() {
   const showDashboard = Boolean(specialty) || Boolean(query.trim());
 
   useEffect(() => {
+    if (!showDashboard) return;
+    workspaceHistory.remember({ specialty, query, selectedId, selectedRuleIndex,
+      outcomeFilter, pointFilter, searchSpecialty, mobilePanel });
+  }, [showDashboard, workspaceHistory, specialty, query, selectedId, selectedRuleIndex,
+    outcomeFilter, pointFilter, searchSpecialty, mobilePanel]);
+
+  useEffect(() => {
     if (!showDashboard || historyPushedRef.current) return;
-    window.history.pushState({ vlk: "dashboard" }, "");
+    window.history.pushState(workspaceHistory.marker, "");
     historyPushedRef.current = true;
-  }, [showDashboard]);
+  }, [showDashboard, workspaceHistory]);
 
   /** Кнопка «назад» у застосунку: віддає крок історії, якщо він наш. */
   const goHome = useCallback(() => {
@@ -540,29 +631,28 @@ export default function Home() {
     [explanation],
   );
   const fullExplanation = articleExplanationParagraphs(explanation);
-  const selectedGraphGuidance = useMemo(
-    () => graphGuidance(fullExplanation, scheduleGraph),
-    [fullExplanation, scheduleGraph],
-  );
+  const categoryNotes = categoryGuidance(selected?.article ?? "", fullExplanation, examineeType);
+  const selectedGraphGuidance = graphGuidance(fullExplanation, scheduleGraph);
   const explanationUrl = buildExplanationUrl(explanationMeta?.anchor, EXPLANATION_SOURCE_URL);
 
   const sourceUrl = selected ? officialRuleUrl(selected.article, selectedRule) : SOURCE_URL;
 
-  const tdvKey =
-    selected && selectedRule
-      ? selectedRule.point === "—"
-        ? selected.article
-        : `${selected.article}-${selectedRule.point}`
-      : "";
-  const tdvRule = tdvKey
-    ? (TDV_RULES[tdvKey] ?? (selected ? TDV_RULES[selected.article] : undefined))
-    : undefined;
-  const tdvMarks = tdvRule ? TDV_COLUMNS.filter((column) => tdvRule[column.id]) : [];
-
-  const referenceText =
-    selected && selectedRule
-      ? buildReferenceText(selected, selectedRule, scheduleGraph, selectedGraphGuidance)
-      : "";
+  function noteArticleOpen(article: VlkArticle) {
+    setUsage(current => recordArticleOpen(current, article.article, selected?.article));
+  }
+  function pinArticle(number: string) { setPinned(current => togglePinned(current, number)); }
+  function clearArticleStatistics() {
+    setUsage({});
+    if (writeStored(ARTICLE_USAGE_KEY, JSON.stringify({ version: 1, items: {} }))) toast.success('Статистику очищено. Закріплені статті збережено.');
+    else toast.error('Статистику прибрано з екрана, але сховище браузера недоступне.');
+  }
+  function openNavigationArticle(article: VlkArticle, preferred?: SpecialtyId) {
+    noteArticleOpen(article);
+    const nextSpecialty = articleNavigationSpecialty(article, specialty || lastSpecialty, preferred);
+    showArticlePanel(); setQuery(''); setSearchOpen(false); setActiveHit(-1);
+    setSpecialty(nextSpecialty); setLastSpecialty(nextSpecialty); setSelectedId(article.id);
+    resetArticleReview(); rememberView(article.article);
+  }
 
   /** Записує відкриту статтю або пункт в останні перегляди. */
   function rememberView(article: string, point = "") {
@@ -571,7 +661,6 @@ export default function Home() {
 
   function resetArticleReview() {
     setSelectedRuleIndex("");
-    setCopied("");
   }
 
   /**
@@ -597,15 +686,17 @@ export default function Home() {
   function chooseHit(hit: SearchHit, pointIndex?: number) {
     const article = hit.article;
     const rules = ARTICLE_RULES[article.article] ?? [];
+    noteArticleOpen(article);
     const resolvedIndex = pointIndex ?? requestedPointIndex(article.article, query);
     showArticlePanel();
     setSelectedId(article.id);
-    setSpecialty(article.specialties[0]);
-    setLastSpecialty(article.specialties[0]);
+    const nextSpecialty = articleNavigationSpecialty(article, specialty || lastSpecialty,
+      searchSpecialty === "all" ? undefined : searchSpecialty);
+    setSpecialty(nextSpecialty);
+    setLastSpecialty(nextSpecialty);
     setHistory((current) => addSearchHistory(current, query));
     setSearchOpen(false);
     setActiveHit(-1);
-    setCopied("");
     setSelectedRuleIndex(resolvedIndex === undefined ? "" : String(resolvedIndex));
     rememberView(article.article, resolvedIndex === undefined ? "" : (rules[resolvedIndex]?.point ?? ""));
   }
@@ -618,8 +709,10 @@ export default function Home() {
   }
 
   function handleSearchKeys(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.nativeEvent.isComposing) return;
     if (event.key === "Escape") {
       event.preventDefault();
+      event.stopPropagation();
       if (searchOpen) setSearchOpen(false);
       else clearQuery({ focus: true });
       return;
@@ -650,9 +743,29 @@ export default function Home() {
 
   function showArticlePanel() {
     setMobilePanel("article");
-    if (window.matchMedia("(max-width: 1279px)").matches) {
+    if (window.matchMedia("(max-width: 1023px)").matches) {
       requestAnimationFrame(() => document.getElementById("vlk-article-heading")?.focus({ preventScroll: true }));
     }
+  }
+
+  /** Return to the current list without losing the query, filters or chosen point. */
+  function showListPanel() {
+    setMobilePanel("list");
+    setSearchOpen(false);
+    setActiveHit(-1);
+    requestAnimationFrame(() => {
+      const list = listRef.current;
+      const row = list?.querySelector<HTMLButtonElement>('[data-article-row][aria-current="true"]')
+        ?? list?.querySelector<HTMLButtonElement>("[data-article-row]");
+      if (!list || !row) {
+        searchRef.current?.focus({ preventScroll: true });
+        return;
+      }
+      row.focus({ preventScroll: true });
+      const top = row.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop;
+      list.scrollTop = scrollOffsetToReveal({ start: top, end: top + row.offsetHeight,
+        viewportSize: list.clientHeight, scrollOffset: list.scrollTop, scrollSize: list.scrollHeight });
+    });
   }
 
   function changeSpecialty(next: SpecialtyId) {
@@ -673,15 +786,15 @@ export default function Home() {
     }
     showArticlePanel();
     if (article.id === selectedId) return;
+    noteArticleOpen(article);
     rememberView(article.article);
     setSelectedId(article.id);
-    if (query.trim()) setSpecialty(article.specialties[0]);
+    if (query.trim()) setSpecialty(articleNavigationSpecialty(article, specialty || lastSpecialty));
     resetArticleReview();
   }
 
   function selectRule(index: string) {
     setSelectedRuleIndex(index);
-    setCopied("");
     if (index !== "" && selected) {
       rememberView(selected.article, articleRules[Number(index)]?.point ?? "");
     }
@@ -691,31 +804,19 @@ export default function Home() {
   function openRecent(entry: RecentEntry) {
     const article = ARTICLES.find((item) => item.article === entry.article);
     if (!article) return;
+    noteArticleOpen(article);
     showArticlePanel();
     setQuery("");
     setSearchOpen(false);
-    setSpecialty(article.specialties[0]);
-    setLastSpecialty(article.specialties[0]);
+    const nextSpecialty = articleNavigationSpecialty(article, specialty || lastSpecialty);
+    setSpecialty(nextSpecialty);
+    setLastSpecialty(nextSpecialty);
     setSelectedId(article.id);
-    setCopied("");
     const index = (ARTICLE_RULES[article.article] ?? []).findIndex(
       (rule) => rule.point === entry.point,
     );
     setSelectedRuleIndex(entry.point && index >= 0 ? String(index) : "");
     rememberView(entry.article, entry.point);
-  }
-
-  async function copyText(text: string, type: "reference" | "point") {
-    copyTriggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-    if (await copyPlainText(text)) {
-      setCopied(type);
-      toast.success("Формулювання пункту скопійовано");
-      copyTimerRef.current = setTimeout(() => setCopied(""), 1600);
-    } else {
-      setCopied("");
-      setManualCopy(text);
-    }
   }
 
   /** Стрілки переміщують фокус компактним списком статей. */
@@ -816,9 +917,9 @@ export default function Home() {
                 onChange={(event) => changeQuery(event.target.value)}
                 onFocus={() => setSearchOpen(true)}
                 onKeyDown={handleSearchKeys}
-                placeholder="Діагноз, МКХ-10, стаття або лікар…"
+                placeholder="Діагноз, МКХ-10 або № статті…"
                 enterKeyHint="search"
-                aria-keyshortcuts="Control+k Meta+k"
+                aria-keyshortcuts="Control+k Meta+k /"
                 autoComplete="off"
                 role="combobox"
                 aria-expanded={searchOpen}
@@ -827,7 +928,7 @@ export default function Home() {
                 aria-activedescendant={searchOpen && activeHit >= 0 ? `vlk-hit-${activeHit}` : undefined}
                 className="h-11 w-full border-[var(--input)] bg-[var(--surface-muted)] pl-9 pr-10 text-sm shadow-none transition-shadow"
               />
-              {!query ? <kbd className="search-shortcut" aria-hidden="true">Ctrl / ⌘ K</kbd> : null}
+              {!query ? <kbd className="search-shortcut" aria-hidden="true">/ · Ctrl / ⌘ K</kbd> : null}
               {query ? (
                 <button
                   type="button"
@@ -847,6 +948,18 @@ export default function Home() {
                 aria-label="Результати пошуку"
                 className="absolute left-0 right-0 top-12 z-50 overflow-hidden rounded-xl border border-[var(--hairline)] bg-card shadow-lg"
               >
+                {query.trim() ? <div className="search-scope">
+                  <label htmlFor="search-specialty">Область пошуку</label>
+                  <select id="search-specialty" value={searchSpecialty} onChange={(event) => {
+                    setSearchSpecialty(event.target.value as SpecialtyId | "all"); setActiveHit(-1);
+                  }}>
+                    <option value="all">Усі спеціальності</option>
+                    {SPECIALTIES.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+                  </select>
+                </div> : null}
+                {abbreviationHints.length ? <p className="search-abbreviation" role="status">
+                  Навігаційне скорочення: {abbreviationHints.join("; ")}. Пункт обирає лікар після читання критеріїв.
+                </p> : null}
                 {query.trim() ? (
                   searchHits.length ? (
                     <>
@@ -887,7 +1000,8 @@ export default function Home() {
                               <div className="flex flex-wrap gap-1 px-3 pb-2 pl-12 pt-1.5">
                                 {hitRules.map((rule, pointIndex) => {
                                   if (requestedSearchPoint && rule.point !== requestedSearchPoint) return null;
-                                  const style = outcomeStyles(rule.outcome);
+                                  const contextual = resolveReviewContext(hit.article.article, rule, reviewContext);
+                                  const style = outcomeStyles(contextual.outcome);
                                   return (
                                     <span
                                       key={`${hit.article.id}-${rule.point}-${pointIndex}`}
@@ -902,7 +1016,7 @@ export default function Home() {
                                         <span className={`size-2 shrink-0 rounded-full ${style.dot}`} aria-hidden />
                                         {rule.point === "—" ? "без поділу" : rule.point.toUpperCase()}
                                         <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-black ${style.badge}`}>
-                                          {style.label}
+                                          {contextual.label ?? style.label}
                                         </span>
                                       </button>
                                     </span>
@@ -941,16 +1055,23 @@ export default function Home() {
                   <div className="p-3">
                     {history.length ? (
                       <>
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
-                          Останні запити
-                        </p>
-                        <div className="mt-1.5 flex flex-wrap gap-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs font-semibold text-[var(--ink-soft)]">Останні пошуки · {history.length}/15</p>
+                          <button type="button" className="filter-reset" onClick={() => {
+                            setHistory([]);
+                            if (writeStored(SEARCH_HISTORY_KEY, "[]")) toast.success("Історію пошуку очищено");
+                            else toast.error("Історію прибрано з екрана, але сховище браузера недоступне.");
+                            searchRef.current?.focus();
+                          }}>Очистити історію</button>
+                        </div>
+                        <p className="text-xs text-[var(--ink-muted)]">Лише на цьому пристрої. Не вводьте персональні дані пацієнтів.</p>
+                        <div className="search-history mt-1.5 flex max-h-48 flex-wrap gap-1 overflow-y-auto">
                           {history.map((item) => (
                             <button
                               key={item}
                               type="button"
                               onClick={() => runQuery(item)}
-                              className={`rounded-full border border-[var(--hairline)] bg-card px-2 py-1 text-[10px] font-semibold text-[var(--accent-ink)] hover:bg-[var(--background)] ${FOCUS_RING}`}
+                              className={`max-w-full break-words rounded-md border border-[var(--hairline)] bg-card px-2 py-1 text-left text-xs font-semibold text-[var(--accent-ink)] hover:bg-[var(--background)] ${FOCUS_RING}`}
                             >
                               {item}
                             </button>
@@ -981,6 +1102,12 @@ export default function Home() {
 
           <div className="header-actions ml-auto flex shrink-0 items-center gap-1.5">
             <ThemeToggle />
+            <Button type="button" variant="ghost" size="sm" className="case-open-action h-10 text-[var(--brand-bar-soft)] hover:bg-white/10 hover:text-white"
+              aria-label={`Відкрити випадок${caseDraft.points.length ? ` · позицій: ${caseDraft.points.length}` : ''}`} aria-haspopup="dialog" title="Випадок · зіставити кілька пунктів за ТДВ"
+              onClick={event => openCase(event.currentTarget)}>
+              <ClipboardList aria-hidden="true" /><span className="hidden sm:inline">Випадок</span>
+              {caseDraft.points.length ? <span className="case-count">{caseDraft.points.length}</span> : null}
+            </Button>
 
             <span
               className={`hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-medium md:flex ${online ? "text-[var(--brand-bar-soft)]" : "bg-[var(--warning-bg)] text-[var(--warning-ink)]"}`}
@@ -1022,6 +1149,7 @@ export default function Home() {
             <TdvDialog
               article={selected}
               selectedPoint={selectedRule?.point}
+                        selectedColumn={tdvColumn}
               trigger={
                 <Button
                   type="button"
@@ -1082,6 +1210,7 @@ export default function Home() {
 
       {showDashboard ? (<>
       <WorkspaceTabs active={mobilePanel} onChange={setMobilePanel} articleCount={listArticles.length} />
+      {specialty ? <div className="therapist-tools-wrap"><SpecialtyCalculators key={`${caseEpoch}-${specialty}`} specialty={specialty} onOpenArticle={number => { const article = ARTICLES.find(item => item.article === number); if (article) openNavigationArticle(article); }} /></div> : null}
       <div className="vlk-workspace mx-auto grid w-full max-w-[1920px] gap-3 p-2 lg:p-3">
         <aside className="command-sidebar flex min-h-[440px] flex-col overflow-hidden rounded-2xl border border-[var(--hairline-strong)] bg-card text-foreground shadow-[var(--shadow-soft)] xl:min-h-0"
           id="vlk-panel-list" role="tabpanel" aria-labelledby="vlk-tab-list" data-mobile-panel="list" data-active={mobilePanel === "list"}>
@@ -1090,42 +1219,62 @@ export default function Home() {
               <h2 className="text-sm font-semibold">{query.trim() ? "Результати пошуку" : "Статті за спеціальністю"}</h2>
               <span className="sidebar-count" role="status" aria-live="polite">{articleCountLabel(listArticles.length)}</span>
             </div>
-            <label htmlFor="specialty-picker" className="sr-only">Спеціальність лікаря</label>
-            <Select value={specialty} onValueChange={(value) => changeSpecialty(value as SpecialtyId)}>
-              <SelectTrigger id="specialty-picker" className="min-h-11 w-full bg-card text-sm"><SelectValue placeholder="Спеціальність лікаря" /></SelectTrigger>
-              <SelectContent>
-                {SPECIALTIES.map((item) => <SelectItem key={item.id} value={item.id} className="min-h-11">
-                  {specialtyName(item)} · {articleCountLabel(ARTICLES.filter((article) => article.specialties.includes(item.id)).length)}
-                </SelectItem>)}
-              </SelectContent>
-            </Select>
-            <div className="mt-2 flex items-center gap-2">
-              <label htmlFor="schedule-graph" className="text-xs font-medium text-muted-foreground">Графа</label>
-              <Select value={scheduleGraph} onValueChange={(value) => setScheduleGraph(value as ScheduleGraph)}>
-                <SelectTrigger id="schedule-graph" className="h-10 min-w-0 flex-1 bg-card text-xs"><SelectValue /></SelectTrigger>
-                <SelectContent>{SCHEDULE_GRAPHS.map((item) => <SelectItem key={item.id} value={item.id}>{item.label}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-            <details className="review-settings mt-2">
-              <summary className="flex min-h-10 cursor-pointer items-center gap-2 rounded-lg px-2 text-xs font-medium text-muted-foreground">
-                <SlidersHorizontal className="size-3.5" />Параметри огляду
-                {outcomeFilter !== "all" ? <span className="ml-auto text-[var(--accent-ink)]">Фільтр увімкнено</span> : <ChevronDown className="ml-auto size-3.5" />}
+            <details className="sidebar-fold" data-sidebar-section="specialty">
+              <summary>
+                <span className="sidebar-fold-copy"><span className="sidebar-fold-label">Спеціальність</span><span className="sidebar-fold-value">{selectedSpecialty?.label ?? "Усі спеціальності"}</span></span>
+                <ChevronDown aria-hidden="true" />
               </summary>
-              <div className="space-y-2 pb-1 pt-2">
-                <label htmlFor="examinee-type" className="block text-xs text-muted-foreground">Категорія оглядуваного</label>
-                <Select value={examineeType} onValueChange={setExamineeType}>
-                  <SelectTrigger id="examinee-type" className="h-10 w-full bg-card text-xs"><SelectValue /></SelectTrigger>
-                  <SelectContent>{EXAMINEE_TYPES.map((type) => <SelectItem key={type} value={type}>{type}</SelectItem>)}</SelectContent>
+              <div className="sidebar-fold-body">
+                <label htmlFor="specialty-picker" className="sr-only">Спеціальність лікаря</label>
+                <Select value={specialty} onValueChange={(value) => changeSpecialty(value as SpecialtyId)}>
+                  <SelectTrigger id="specialty-picker" className="min-h-11 w-full bg-card text-sm"><SelectValue placeholder="Спеціальність лікаря" /></SelectTrigger>
+                  <SelectContent>
+                    {SPECIALTIES.map((item) => <SelectItem key={item.id} value={item.id} className="min-h-11">
+                      {specialtyName(item)} · {articleCountLabel(ARTICLES.filter((article) => article.specialties.includes(item.id)).length)}
+                    </SelectItem>)}
+                  </SelectContent>
                 </Select>
-                <label htmlFor="outcome-filter" className="block text-xs text-muted-foreground">Фільтр за результатом</label>
-                  <Select value={outcomeFilter} onValueChange={(value) => setOutcomeFilter(value as OutcomeFilterId)}>
-                    <SelectTrigger id="outcome-filter" className="h-10 w-full bg-card text-xs"><SelectValue /></SelectTrigger>
-                    <SelectContent>{OUTCOME_FILTERS.map((item) => <SelectItem key={item.id} value={item.id}>{item.label}</SelectItem>)}</SelectContent>
-                  </Select>
-                {outcomeFilter !== "all" ? <p className="text-xs text-muted-foreground">Угорі — {articleCountLabel(filteredCount)} з обраним результатом. Інші статті залишаються доступними.</p> : null}
-                <p className="text-xs leading-5 text-muted-foreground">Графа — контекст перегляду. Дослівний результат пункту не переобчислюється.</p>
               </div>
             </details>
+            <details ref={sidebarContextRef} className="sidebar-fold" data-sidebar-section="context">
+              <summary>
+                <span className="sidebar-fold-copy">
+                  <span className="sidebar-fold-label">Параметри огляду</span>
+                  <span className="sidebar-fold-value">{examineeType}</span>
+                  <span className="sidebar-fold-meta">{scheduleGraph === "all" ? "Графу не обрано" : `Графа ${scheduleGraph}`} · {tdvColumn ? `ТДВ ${tdvColumn}` : "ТДВ не уточнено"}</span>
+                  {contextProblem(reviewContext) ? <span className="sidebar-fold-alert">Потребує уточнення</span> : null}
+                </span>
+                <ChevronDown aria-hidden="true" />
+              </summary>
+              <div className="sidebar-fold-body">
+                <ReviewContextControls context={reviewContext} onChange={changeReviewContext} />
+              </div>
+            </details>
+            <details className="sidebar-fold" data-sidebar-section="filters">
+              <summary>
+                <span className="sidebar-fold-copy">
+                  <span className="sidebar-fold-label">Фільтри пунктів{hasRuleFilters ? " · активні" : ""}</span>
+                  {hasRuleFilters ? <span className="sidebar-fold-value">
+                    {OUTCOME_FILTERS.find((item) => item.id === outcomeFilter)?.label}{pointFilter !== "all" ? ` · ${pointFilter === "—" ? "Без поділу" : `Пункт «${pointFilter}»`}` : ""}
+                  </span> : null}
+                </span>
+                <ChevronDown aria-hidden="true" />
+              </summary>
+              <div className="sidebar-fold-body">
+                <ArticleFilters outcome={outcomeFilter} point={pointFilter} points={filterPoints}
+                  onOutcomeChange={setOutcomeFilter} onPointChange={setPointFilter} showReset={false} />
+
+              </div>
+            </details>
+            {hasRuleFilters ? <div className="filter-summary">
+              <p role="status"><strong>Збіги: {filteredCount} із {baseArticles.length}</strong><span>Решта статей доступна нижче. Фільтр не визначає придатність.</span></p>
+              <button type="button" onClick={() => { setOutcomeFilter("all"); setPointFilter("all"); }} aria-label="Скинути фільтри пунктів">Скинути <X className="size-3.5" aria-hidden="true" /></button>
+            </div> : null}
+            {query.trim() && searchSpecialty !== "all" ? <div className="active-search-scope">
+              <span>Пошук: {SPECIALTIES.find((item) => item.id === searchSpecialty)?.label}</span>
+              <button type="button" onClick={() => { setSearchSpecialty("all"); setActiveHit(-1); }}
+                aria-label="Шукати серед усіх спеціальностей">Усі спеціальності <X aria-hidden="true" className="size-3.5" /></button>
+            </div> : null}
             {query.trim() ? <button type="button" onClick={() => clearQuery({ notify: true })} className="mt-1 flex min-h-10 items-center gap-2 text-xs text-[var(--accent-ink)]"><RotateCcw className="size-3.5" />Скинути пошук</button> : null}
           </div>
 
@@ -1136,13 +1285,14 @@ export default function Home() {
           >
             {listArticles.length ? (
               <ul className="space-y-1" aria-label={query.trim() ? "Знайдені статті" : `Статті · ${selectedSpecialty?.label ?? "усі"}`}>
-                {listArticles.map((article) => {
+                {listArticles.map((article, listIndex) => {
                   const isSelected = selected?.id === article.id;
                   const hit = hitsById.get(article.id);
                   const matches = hit?.matches ?? [];
                   const dimmed = !articleMatchesFilter(article);
                   return (
                     <li key={article.id} className={dimmed ? "article-unmatched" : ""}>
+                      {hasRuleFilters && listIndex === filteredCount && dimmed ? <p className="list-filter-divider">Інші статті · поза фільтром</p> : null}
                       <button
                         type="button"
                         data-article-row
@@ -1209,9 +1359,9 @@ export default function Home() {
           {selected ? (
             <>
               <div className="article-header shrink-0 border-b border-[var(--hairline)] px-4 py-2.5">
-                <div className="flex flex-col gap-2">
-                  <div className="flex min-w-[min(100%,280px)] flex-1 items-start gap-2.5">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-[var(--primary)] text-sm font-black text-white">
+                <div className="article-header-stack flex flex-col gap-2">
+                  <div className="article-heading-row flex min-w-[min(100%,280px)] flex-1 items-start gap-2.5">
+                    <span className="article-number grid size-10 shrink-0 place-items-center rounded-lg bg-[var(--primary)] text-sm font-black text-white">
                       {selected.article}
                     </span>
                     <div className="min-w-0">
@@ -1221,10 +1371,12 @@ export default function Home() {
                       >
                         <button
                           type="button"
-                          onClick={goHome}
-                          className={`rounded px-1 text-[var(--accent-ink)] hover:underline ${FOCUS_RING}`}
+                          onClick={showListPanel}
+                          aria-label={query.trim() ? "Повернутися до результатів пошуку" : "Повернутися до списку статей"}
+                          className={`article-list-return rounded text-[var(--accent-ink)] hover:underline ${FOCUS_RING}`}
                         >
-                          {query.trim() ? "Пошук" : (selectedSpecialty?.label ?? "Спеціальність")}
+                          <ChevronLeft className="size-3.5" aria-hidden="true" />
+                          {query.trim() ? "Результати пошуку" : (selectedSpecialty?.label ?? "Список статей")}
                         </button>
                         <span aria-hidden>/</span>
                         <span className="text-[var(--foreground)]"><Highlighted text={`Стаття ${selected.article}`} query={query} /></span>
@@ -1244,12 +1396,40 @@ export default function Home() {
                       <h2 id="vlk-article-heading" tabIndex={-1} className="mt-1 text-xl font-semibold leading-tight tracking-[-0.02em] outline-none sm:text-[22px]">
                         <Highlighted text={selected.title} query={query} />
                       </h2>
-                      <p className="mt-1 break-words text-xs font-black text-[var(--accent-ink-strong)]">
+                      <p className="article-icd mt-1 break-words text-xs font-black text-[var(--accent-ink-strong)]">
                         МКХ-10: <Highlighted text={articleIcdLabel(selected)} query={query} />
                       </p>
+                      {articleIcdSearchNote(selected) ? <p className="article-icd-note">{articleIcdSearchNote(selected)}</p> : null}
                     </div>
                   </div>
                   <div className="article-toolbar flex flex-wrap items-center gap-1.5">
+                    {explanationMeta?.status !== "absent" && explanationState === "ready" && fullExplanation.length ? (
+                      <FullExplanationDialog key={selected.article}
+                        article={selected.article}
+                        paragraphs={fullExplanation}
+                        query={query}
+                        sourceUrl={explanationUrl}
+                        selectedPoint={selectedRule?.point}
+                        ariaLabel={`Повне офіційне пояснення до статті ${selected.article}`}
+                      />
+                    ) : (
+                      <Button type="button" size="sm" variant="outline" disabled className="h-9 bg-card"
+                        title={explanationMeta?.status === "absent" ? "Окремого пояснення в Додатку 2 немає" : explanationState === "error" ? "Не вдалося завантажити пояснення — скористайтеся посиланням на джерело нижче" : "Завантажуємо пояснення"}>
+                        <BookOpen /> Детальне пояснення
+                      </Button>
+                    )}
+                    <Button asChild size="sm" variant="outline" className="article-source-action h-9">
+                      <a href={sourceUrl} target="_blank" rel="noreferrer" aria-label="Відкрити у №402">
+                        <span className="action-full-label">Відкрити у №402</span><span className="action-short-label" aria-hidden="true">№402</span> <ExternalLink />
+                      </a>
+                    </Button>
+                    <details className="article-tools">
+                      <summary><SlidersHorizontal className="size-4" aria-hidden="true" />Порівняння та інші дії<ChevronDown className="size-3.5" aria-hidden="true" /></summary>
+                      <div className="article-tools-body">
+                        <p className="article-tools-hint">Порівняння пунктів, перехід між статтями та закріплення</p>
+                      <QuickAccessDialog usage={usage} pinned={pinned} specialty={specialty} onOpen={openNavigationArticle} onPin={pinArticle} onClear={clearArticleStatistics}
+                        trigger={<Button type="button" variant="ghost" size="sm" aria-label="Відкрити швидкий доступ"><BookMarked aria-hidden="true" />Мої статті</Button>} />
+                      <PinArticleButton showLabel article={selected.article} pinned={pinned.includes(selected.article)} onToggle={() => pinArticle(selected.article)} />
                     <div className="article-pagination mr-auto flex items-center gap-1">
                       <Button type="button" variant="ghost" size="icon" aria-label="Попередня стаття" title="Попередня стаття"
                         disabled={selectedListIndex <= 0} onClick={() => selectFromList(listArticles[selectedListIndex - 1])}><ChevronLeft /></Button>
@@ -1257,26 +1437,11 @@ export default function Home() {
                       <Button type="button" variant="ghost" size="icon" aria-label="Наступна стаття" title="Наступна стаття"
                         disabled={selectedListIndex < 0 || selectedListIndex >= listArticles.length - 1} onClick={() => selectFromList(listArticles[selectedListIndex + 1])}><ChevronDown className="-rotate-90" /></Button>
                     </div>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      disabled={!selectedRule}
-                      aria-label="Копіювати пункт із поясненнями"
-                      title="Копіювати пункт із поясненнями"
-                      onClick={() => copyText(referenceText, "reference")}
-                      className="h-9 bg-card"
-                    >
-                      {copied === "reference" ? <Check /> : <Copy />}
-                      <span className="hidden sm:inline">
-                        {copied === "reference" ? "Скопійовано" : "Копіювати"}
-                      </span>
-                    </Button>
-                    <Button asChild size="sm" className="h-9 bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)]">
-                      <a href={sourceUrl} target="_blank" rel="noreferrer">
-                        Відкрити у №402 <ExternalLink />
-                      </a>
-                    </Button>
+                    <PointComparisonDialog key={selected.id} article={selected.article} title={selected.title}
+                      included={selected.officialIncluded} rules={articleRules} selectedIndex={selectedRuleIndex}
+                      graph={scheduleGraph} context={reviewContext} query={query} onSelect={(index) => { showArticlePanel(); selectRule(index); }} />
+                      </div>
+                    </details>
                   </div>
                 </div>
               </div>
@@ -1293,6 +1458,17 @@ export default function Home() {
                   size={260}
                   className="pointer-events-none absolute bottom-0 right-0 max-w-[40%] opacity-[0.025]"
                 />
+                <details ref={readingContextRef} className="reading-context lg:hidden">
+                  <summary>Параметри огляду · {examineeType}{scheduleGraph === "all" ? " · графу не обрано" : ` · гр. ${scheduleGraph}`}{contextProblem(reviewContext) ? " · потребує уточнення" : ""}</summary>
+                  <ReviewContextControls context={reviewContext} onChange={changeReviewContext} prefix="reading-" />
+                </details>
+                <p className="review-context-line hidden lg:block" role="status">{examineeType} · {scheduleGraph === "all" ? "графу не обрано" : `графа ${scheduleGraph}`}{tdvColumn ? ` · ТДВ ${tdvColumn}` : " · призначення ТДВ не уточнено"}</p>
+                {categoryNotes.length ? <details className="category-guidance" key={`category-${selected.article}-${examineeType}`}>
+                  <summary>Умови застосування для категорії · {categoryNotes.length} фрагментів</summary>
+                  <p className="context-hint">Дослівні фрагменти Додатка 2. Наявність згадки не підтверджує виконання клінічних умов; пункт обирає лікар.</p>
+                  <ExplanationDocument article={selected.article} paragraphs={fullExplanation} excerpt={categoryNotes} query={query} />
+                  <a className="context-source" href={explanationUrl} target="_blank" rel="noreferrer">Повне офіційне пояснення ↗</a>
+                </details> : null}
                 <div className="point-section-heading flex items-center justify-between">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
                     Пункти статті
@@ -1301,25 +1477,32 @@ export default function Home() {
                     {pointCountLabel(articleRules.length)}
                   </span>
                 </div>
+                <details className="reading-filters lg:hidden">
+                  <summary><SlidersHorizontal className="size-4" aria-hidden="true" />Фільтри пунктів{hasRuleFilters ? " · увімкнено" : ""}</summary>
+                  <ArticleFilters outcome={outcomeFilter} point={pointFilter} points={filterPoints}
+                    onOutcomeChange={setOutcomeFilter} onPointChange={setPointFilter} showReset={false} />
+                </details>
+                {hasRuleFilters ? <div className="filter-summary reading-filter-summary">
+                  <p role="status"><strong>Збігів у статті: {articleRules.filter((rule) => matchesRuleFilters(rule, pointFilter, outcomeFilter, resolveReviewContext(selected.article, rule, reviewContext).outcome)).length} із {articleRules.length}</strong><span>Усі пункти доступні. Фільтр не визначає придатність.</span></p>
+                  <button type="button" onClick={() => { setOutcomeFilter("all"); setPointFilter("all"); }} aria-label="Скинути фільтри пунктів у читанні">Скинути <X className="size-3.5" aria-hidden="true" /></button>
+                </div> : null}
+                {!selectedRule ? <p className="point-start-hint">{articleRules.length === 1 && articleRules[0].point === "—" ? "Відкрийте запис нижче, щоб прочитати умови й застереження." : "Оберіть пункт за підтвердженим станом. Потім відкрийте пояснення до нього."}</p> : null}
 
                 <ul className="mt-2 space-y-2">
                   {articleRules.map((rule, index) => {
                     const active = selectedRuleIndex === String(index);
-                    const style = outcomeStyles(rule.outcome);
-                    // Фільтр не ховає пункти: нерелевантні лише приглушені.
-                    const dimmed =
-                      outcomeFilter !== "all" && !matchesOutcomeFilter([rule.outcome], outcomeFilter);
+                    const contextual = resolveReviewContext(selected.article, rule, reviewContext);
+                    const nextControl = nextContextControl(reviewContext, contextual.scheduleNeedsGraph);
+                    const style = outcomeStyles(contextual.outcome);
+                    // Фільтр позначає збіги, зберігаючи весь нормативний текст читабельним.
+                    const dimmed = !matchesRuleFilters(rule, pointFilter, outcomeFilter, resolveReviewContext(selected.article, rule, reviewContext).outcome);
                     const pointText = pointExplanationFor(rule.point);
-                    const pointTdv =
-                      TDV_RULES[rule.point === "—" ? selected.article : `${selected.article}-${rule.point}`] ??
-                      TDV_RULES[selected.article];
-                    const pointMarks = pointTdv
-                      ? TDV_COLUMNS.filter((column) => pointTdv[column.id])
-                      : [];
+
 
                     return (
-                      <li key={`${rule.point}-${index}`} className={dimmed ? "opacity-45" : ""}>
+                      <li key={`${rule.point}-${index}`} data-filter-match={hasRuleFilters ? !dimmed : undefined}>
                         <div
+                          data-point-tone={style.tone}
                           className={`overflow-hidden rounded-xl border transition ${active ? "command-selected-rule border-[var(--warning-border)]/45 bg-[var(--warning-bg)] shadow-[var(--shadow-soft)]" : "border-[var(--hairline)] bg-card hover:border-[var(--accent-ink)]/25 hover:bg-[var(--surface-muted)]"}`}
                         >
                           <button
@@ -1336,6 +1519,7 @@ export default function Home() {
                               {rule.point === "—" ? "•" : rule.point}
                             </span>
                             <span className="min-w-0 flex-1">
+                              {hasRuleFilters ? <span className="mb-1 block text-xs font-medium text-[var(--ink-soft)]">{dimmed ? "Поза фільтром" : "Збіг із фільтром"}</span> : null}
                               {active ? (
                                 <span className="mb-1 block text-[11px] font-semibold text-[var(--ink-soft)]">
                                   Стан за пунктом · дослівно
@@ -1345,15 +1529,11 @@ export default function Home() {
                                 <Highlighted text={rule.condition} query={query} />
                               </span>
                             </span>
-                            <span
-                              className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-black ${style.badge}`}
-                            >
-                              {style.label}
-                            </span>
+                            <OutcomeBadge outcome={contextual.outcome} label={contextual.label} />
                             {scheduleGraph === "all" ? null : (
                               <span
                                 className="hidden shrink-0 rounded-full border border-[var(--hairline)] bg-card px-2 py-1 text-[10px] font-bold text-[var(--ink-soft)] sm:inline"
-                                title="Обрана графа — контекст перегляду, не автоматичний висновок"
+                                title="Графа Розкладу хвороб за направленням"
                               >
                                 гр. {scheduleGraph}
                               </span>
@@ -1364,104 +1544,26 @@ export default function Home() {
                           </button>
 
                           {active ? (
-                            <div className="border-t border-[var(--hairline)] bg-white/70 px-3 pb-3 pt-2.5">
-                              <ol className="clinical-context" aria-label="Контекст вибраного пункту">
-                                <li><span>Стаття</span><b>{selected.article}</b></li>
-                                <li><span>Пункт</span><b>{rule.point === "—" ? "без поділу" : rule.point}</b></li>
-                                <li><span>Графа</span><b>{scheduleGraph === "all" ? "не обрана" : scheduleGraph}</b></li>
-                              </ol>
-                              <div className={`mt-3 border-l-2 pl-3 ${style.bar}`}>
-                                <p className="text-[11px] font-semibold text-[var(--ink-soft)]">
-                                  Попередній нормативний орієнтир · не рішення ВЛК
-                                </p>
-                                <p className="mt-1 text-sm font-bold leading-5">«{rule.outcome}»</p>
-                                <p className="mt-1 text-[10px] leading-4 text-[var(--ink-soft)]">
-                                  {scheduleGraph === "all"
-                                    ? "Графу не вибрано — звірте її за направленням або обліковою категорією."
-                                    : `Контекст перегляду: графа ${scheduleGraph}. Результат наведено дослівно без автоматичної заміни.`}
-                                </p>
-                                {style.requiresLiteralReading ? (
-                                  <p className="mt-1 text-[10px] leading-4 text-[var(--ink-soft)]">
-                                    У четвертій графі Розкладу хвороб для цього пункту немає готової
-                                    категорії придатності — рішення приймається за поясненнями та
-                                    відповідною графою.
-                                  </p>
-                                ) : null}
+                            <div className="point-detail-surface border-t border-[var(--hairline)] px-3 pb-3 pt-2.5">
+                              <ReviewContextResult article={selected.article} rule={rule} context={reviewContext} />
+                              <div className="mt-3 border-l-2 border-[var(--hairline)] pl-3" data-schedule-result>
+                                <p className="text-xs font-semibold text-[var(--ink-soft)]">Загальний результат Розкладу хвороб · {scheduleGraph === "all" ? "без вибраної графи" : `графа ${scheduleGraph}`} · {contextual.scheduleNeedsGraph ? "потрібне уточнення" : "дослівно"}</p>
+                                {nextControl ? <button type="button" className="context-next-action" onClick={() => showReviewControl(nextControl)}>
+                                  {nextControl === "schedule-graph" ? "Перейти до вибору графи I–III" : "Уточнити призначення ТДВ"} <ArrowRight className="size-4" aria-hidden="true" />
+                                </button> : null}
+                                <p className="mt-1 text-sm leading-6">{contextual.scheduleText || "— (клітинка цієї графи порожня)"}</p>
+                                <p className="context-hint">Читати разом із поясненням, нормою для категорії та ТДВ. Це не постанова ВЛК.</p>
                               </div>
 
-                              <div className="mt-3 border-t border-[var(--hairline)] pt-2.5">
-                                <p className="text-[11px] font-semibold text-[var(--ink-soft)]">
-                                  ТДВ для {pointLabelGenitive(rule.point)}
-                                </p>
-                                <TdvDialog article={selected} selectedPoint={rule.point} trigger={<Button variant="outline" size="sm" className="mt-2 min-h-11">Звірити ТДВ <Maximize2 /></Button>} />
-                                {pointMarks.length ? (
-                                  <div className="mt-1.5 flex flex-wrap gap-1">
-                                    {pointMarks.map((column) => (
-                                      <TdvContext key={column.id} columnId={column.id} mark={pointTdv?.[column.id]}>
-                                        {column.id}: {pointTdv?.[column.id]}
-                                      </TdvContext>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <p className="mt-1 text-[10px] leading-4 text-[var(--ink-soft)]">
-                                    Окремих позначок немає. Це не є автоматичним підтвердженням
-                                    придатності.
-                                  </p>
-                                )}
-                              </div>
+                              <div className="case-point-entry"><Button type="button" variant="outline" className="min-h-11" aria-haspopup="dialog" data-case-add-point
+                                onClick={event => openCase(event.currentTarget, { article: selected.article, point: rule.point })}>
+                                <ClipboardList aria-hidden="true" />{caseDraft.points.some(point => casePointKey(point) === casePointKey({ article: selected.article, point: rule.point })) ? 'У випадку · відкрити' : 'Додати до випадку'}
+                              </Button></div>
+                              <PointTdvDetails article={selected} point={rule.point} selectedColumn={tdvColumn} />
 
-                              {explanationMeta?.status === "absent" ? null : pointText.length ? (
-                                <Accordion type="single" collapsible className="mt-1">
-                                  <AccordionItem
-                                    value="point-explanation"
-                                    className="border-t border-[var(--hairline)]"
-                                  >
-                                    <AccordionTrigger className="py-2 text-[11px] font-semibold text-[var(--accent-ink-strong)] hover:no-underline">
-                                      Повне пояснення до {pointLabelGenitive(rule.point)} ·{" "}
-                                      {fragmentCountLabel(pointText.length)}
-                                    </AccordionTrigger>
-                                    <AccordionContent>
-                                      <div className="max-h-[65vh] space-y-1.5 overflow-y-auto border-t border-[var(--hairline)] py-2 pr-1 scrollbar-thin">
-                                        <ExplanationDocument article={selected.article} paragraphs={explanation?.paragraphs ?? []} excerpt={pointText} query={query} />
-                                      </div>
-                                    </AccordionContent>
-                                  </AccordionItem>
-                                </Accordion>
-                              ) : explanationState === "ready" && explanation ? (
-                                <div className="mt-2 rounded-md border border-[var(--warning-border)]/25 bg-[var(--warning-bg)] p-2.5 text-xs leading-5 text-[var(--warning-ink)]">
-                                  У Додатку 2 немає окремо виділеного розділу для {pointLabelGenitive(rule.point)}.
-                                  Повне пояснення до статті доступне нижче пунктів.
-                                </div>
+                              {explanationState === "ready" && explanation && explanationMeta?.status !== "absent" && !pointText.length ? (
+                                <p className="context-warning mt-3">У Додатку 2 немає окремо виділеного розділу для {pointLabelGenitive(rule.point)}. Кнопка «Пояснення» відкриває повний текст статті.</p>
                               ) : null}
-
-                              <div className="mt-3 flex flex-wrap gap-1.5 border-t border-[var(--hairline)] pt-2.5">
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() =>
-                                    copyText(
-                                      buildPointWordingText(selected, rule, scheduleGraph),
-                                      "point",
-                                    )
-                                  }
-                                  className="h-9 bg-card text-xs"
-                                >
-                                  {copied === "point" ? <Check /> : <Copy />}
-                                  {copied === "point"
-                                    ? "Формулювання скопійовано"
-                                    : "Скопіювати формулювання пункту"}
-                                </Button>
-                                <Button asChild size="sm" variant="outline" className="h-9 bg-card text-xs">
-                                  <a
-                                    href={officialRuleUrl(selected.article, rule)}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                  >
-                                    Відкрити у №402 <ExternalLink />
-                                  </a>
-                                </Button>
-                              </div>
                             </div>
                           ) : null}
                         </div>
@@ -1470,7 +1572,7 @@ export default function Home() {
                   })}
                 </ul>
 
-                <div className="article-reference-grid mt-4 grid items-start gap-3 sm:grid-cols-[minmax(0,1fr)_200px]">
+                <div className="article-reference-grid mt-4">
                   <div className="min-w-0 overflow-hidden rounded-lg border border-[var(--hairline)] bg-[var(--surface-muted)]">
                     <Accordion type="single" collapsible defaultValue="included">
                       <AccordionItem value="included" className="border-none px-3">
@@ -1486,86 +1588,14 @@ export default function Home() {
                     </Accordion>
                   </div>
 
-                  <div
-                    className={`min-w-0 rounded-lg border p-3 ${selectedRule && tdvRule ? "border-[var(--critical-ink)]/18 bg-[var(--critical-bg)]" : "border-[var(--hairline)] bg-card"}`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
-                        ТДВ · Додаток 3
-                      </p>
-                      <TdvDialog
-                        article={selected}
-                        selectedPoint={selectedRule?.point}
-                        trigger={
-                          <button
-                            type="button"
-                            aria-label="Відкрити таблицю додаткових вимог на весь екран"
-                            title="Відкрити таблицю на весь екран"
-                            className={`grid size-7 shrink-0 place-items-center rounded-md border border-[var(--hairline)] bg-card text-[var(--accent-ink)] hover:bg-[var(--surface-sunken)] ${FOCUS_RING}`}
-                          >
-                            <Maximize2 className="size-3.5" />
-                          </button>
-                        }
-                      />
-                    </div>
-                    <p className="mt-1 text-xs font-bold">
-                      {!selectedRule
-                        ? "Оберіть пункт"
-                        : tdvRule
-                          ? `${tdvMarks.length} спец. позначок`
-                          : "Окремих позначок немає"}
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-1 border-t border-[var(--hairline)] pt-2">
-                      <Button asChild variant="outline" size="sm" className="h-8 bg-card text-[10px]">
-                        <a href={TDV_URL} target="_blank" rel="noreferrer">
-                          ТДВ у №402 <ExternalLink />
-                        </a>
-                      </Button>
-                      <Button asChild variant="ghost" size="sm" className="h-8 text-[10px]">
-                        <a href={TDV_DOCX_URL} target="_blank" rel="noreferrer">
-                          DOCX <BookOpen />
-                        </a>
-                      </Button>
-                    </div>
-                  </div>
                 </div>
 
-                <section className="mt-3 flex flex-col gap-3 rounded-xl border border-[var(--accent-ink)]/20 bg-[var(--secondary)] p-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex min-w-0 items-start gap-2.5">
-                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[var(--secondary)] text-[var(--accent-ink-strong)]">
-                      <BookOpen className="size-4" />
-                    </span>
-                    <div className="min-w-0">
-                      <h3 className="text-sm font-bold text-[var(--foreground)]">
-                        Повне офіційне пояснення до статті {selected.article}
-                      </h3>
-                      <p className="mt-0.5 text-xs leading-5 text-[var(--ink-soft)]">
-                        {explanationMeta?.status === "absent"
-                          ? "Окремого пояснення в Додатку 2 немає."
-                          : explanationState === "loading"
-                            ? "Завантажуємо повний дослівний текст…"
-                            : explanationState === "error"
-                              ? "Не вдалося завантажити текст. Відкрийте офіційне джерело."
-                            : `${fragmentCountLabel(fullExplanation.length || explanationMeta?.paragraphs || 0)} дослівного тексту${fullExplanation.length ? " — без скорочення" : ""}.`}
-                      </p>
-                    </div>
+                {explanationMeta?.status === "absent" || explanationState !== "ready" || !fullExplanation.length ? (
+                  <div className="explanation-status mt-3 flex flex-wrap items-center justify-between gap-2 text-sm">
+                    <p>{explanationMeta?.status === "absent" ? "Окремого пояснення в Додатку 2 немає." : explanationState === "error" ? "Не вдалося завантажити пояснення. Відкрийте джерело." : "Завантажуємо повний дослівний текст…"}</p>
+                    <Button asChild variant="ghost" className="min-h-11"><a href={explanationUrl} target="_blank" rel="noreferrer">Джерело <ExternalLink /></a></Button>
                   </div>
-                  <div className="flex shrink-0 flex-wrap gap-2">
-                    {explanationMeta?.status !== "absent" && explanationState === "ready" && fullExplanation.length ? (
-                      <FullExplanationDialog
-                        article={selected.article}
-                        paragraphs={fullExplanation}
-                        query={query}
-                        sourceUrl={explanationUrl}
-                      />
-                    ) : null}
-                    <Button asChild variant="outline" className="min-h-11 bg-card">
-                      <a href={explanationUrl} target="_blank" rel="noreferrer">
-                        Джерело <ExternalLink />
-                      </a>
-                    </Button>
-                  </div>
-                </section>
+                ) : null}
 
                 {scheduleGraph === "all" ? null : (
                   <section className="mt-3 overflow-hidden rounded-lg border border-[var(--hairline)] bg-card">
@@ -1600,8 +1630,7 @@ export default function Home() {
                   </section>
                 )}
 
-
-
+                <RelatedArticles key={`related-${selected.article}`} article={selected.article} paragraphs={fullExplanation} explanationState={explanationState} onOpen={openNavigationArticle} />
               </div>
             </>
           ) : (
@@ -1636,7 +1665,7 @@ export default function Home() {
             <Button
               type="button"
               onClick={() => changeSpecialty(lastSpecialty)}
-              className="h-11 bg-[var(--primary)] px-5 text-sm text-white hover:bg-[var(--primary-hover)]"
+              className="home-resume-action h-11 bg-[var(--primary)] px-5 text-sm text-white hover:bg-[var(--primary-hover)]"
             >
               Продовжити як{" "}
               {SPECIALTIES.find((item) => item.id === lastSpecialty)?.label ?? "лікар"}
@@ -1644,16 +1673,22 @@ export default function Home() {
             </Button>
           ) : null}
 
-          <h2 className="mt-4 max-w-2xl text-2xl font-semibold leading-tight sm:text-[28px]">
-            Робоче місце лікаря ВЛК
-          </h2>
-          <p className="mt-2 max-w-xl text-base leading-6 text-[var(--ink-soft)]">
-            Оберіть спеціальність або знайдіть норму за діагнозом, кодом МКХ-10 чи номером статті.
-          </p>
+          <section className="vlk-brand-hero" aria-labelledby="welcome-title">
+            <div className="vlk-brand-hero-copy">
+              <p className="vlk-brand-eyebrow">Робоче місце лікаря ВЛК</p>
+              <div className="vlk-brand-title"><UkraineTrident /><h2 id="welcome-title">ВЛК <span>402</span></h2></div>
+              <p className="vlk-brand-subtitle">Навігатор військово-лікарської експертизи</p>
+            </div>
+            <div className="vlk-brand-guide">
+              <p>Оберіть спеціальність або знайдіть норму за діагнозом, кодом МКХ-10 чи номером статті.</p>
+              <ol className="start-steps" aria-label="Як почати роботу">
+                <li><span>1</span>Знайдіть статтю</li><li><span>2</span>Оберіть пункт</li><li><span>3</span>Прочитайте пояснення</li>
+              </ol>
+            </div>
+            <div className="vlk-brand-emblem" aria-hidden="true"><HeroEmblem /></div>
+          </section>
 
-
-
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+          <div className="home-search-examples mt-3 flex flex-wrap items-center justify-center gap-2">
             <span className="text-[11px] font-bold text-[var(--ink-soft)]">Спробуйте:</span>
             {POPULAR_QUERIES.slice(0, 4).map((example) => (
               <button
@@ -1668,10 +1703,8 @@ export default function Home() {
           </div>
 
           {recent.length ? (
-            <div className="mt-4 w-full">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-soft)]">
-                Нещодавно переглянуті
-              </p>
+            <details className="home-recent w-full">
+              <summary>Нещодавно переглянуті <span>{recent.length}</span></summary>
               <div className="mt-1.5 flex flex-wrap justify-center gap-1">
                 {recent.map((entry) => {
                   const article = ARTICLES.find((item) => item.article === entry.article);
@@ -1699,7 +1732,7 @@ export default function Home() {
                   );
                 })}
               </div>
-            </div>
+            </details>
           ) : null}
 
           <div className="specialty-grid mt-6 grid w-full grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
@@ -1727,9 +1760,11 @@ export default function Home() {
               })}
           </div>
 
+          <HomeQuickAccess ready={hydrated} usage={usage} pinned={pinned} specialty={lastSpecialty} onOpen={openNavigationArticle} onPin={pinArticle} onClear={clearArticleStatistics} />
+
           <TdvDialog
             trigger={
-              <Button type="button" variant="outline" className="mt-4 h-10 bg-card">
+              <Button type="button" variant="outline" className="home-tdv-action mt-4 h-10 bg-card">
                 <Table2 />
                 Таблиця додаткових вимог (ТДВ)
               </Button>
@@ -1743,13 +1778,9 @@ export default function Home() {
         </div>
       )}
 
-      <Dialog open={manualCopy !== null} onOpenChange={(open) => { if (!open) setManualCopy(null); }}>
-        <VlkDialogContent returnFocusRef={copyTriggerRef} className="sm:max-w-2xl">
-          <DialogHeader className="pr-8"><DialogTitle>Скопіюйте текст</DialogTitle><DialogDescription>Браузер не надав доступ до буфера обміну. Виділіть текст і скопіюйте його звичним способом.</DialogDescription></DialogHeader>
-          <textarea aria-label="Текст для ручного копіювання" readOnly value={manualCopy ?? ""} onFocus={(event) => event.currentTarget.select()} className="min-h-64 w-full rounded-lg border border-input bg-muted p-3 text-sm leading-6" />
-        </VlkDialogContent>
-      </Dialog>
 
+
+      <CaseDialog key={caseEpoch} open={caseOpen} onOpenChange={setCaseOpen} draft={caseDraft} onChange={setCaseDraft} returnFocusRef={caseReturnRef} reviewContext={reviewContext} onReviewContextChange={changeReviewContext} />
       <SessionResetDialog open={resetOpen} onOpenChange={setResetOpen} onConfirm={finishSession} returnFocusRef={moreTriggerRef} />
 
     </main>

@@ -19,15 +19,10 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 /**
- * Clinical Motion Atlas — єдиний набір службових line-art іконок.
- * Полотно 24×24, currentColor, однакова товщина ліній, без заливок.
- *
- * Правила якості (іконка живе на 34–50 px, тому вирішує оптика, а не деталь):
- * силует лишається незмінним; другорядний штрих не тонший за 1.3, інакше він
- * зникає; дві паралельні лінії не ближче ніж 1.6 одиниці, інакше вони
- * зливаються в пляму; кожен гліф оптично центрований у полотні 24×24.
- * Рух задається CSS через локальні класи SVG-частин; сама іконка лишається
- * семантично декоративною, а доступна назва належить кнопці спеціальності.
+ * Clinical Motion Atlas — custom 24×24 glyphs for the existing 36/40px plates.
+ * Graphite contours, green functional details and a restrained translucent wash.
+ * Keep independent shapes readable at the native size and preserve each motion
+ * class. Accessible names belong to the specialty buttons, not these SVGs.
  */
 
 type Props = { id: SpecialtyId; className?: string };
@@ -44,11 +39,11 @@ const COMMON = {
 function Therapist() {
   return (
     <>
-      <path d="M11 2v2M5 2v2" />
-      <path className="si-stethoscope-tube" d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1" />
-      <path className="si-stethoscope-tube" d="M8 15a6 6 0 0 0 12 0v-3" />
-      <circle className="si-chest-piece si-accent" cx="20" cy="10" r="2" />
-      <path className="si-ecg si-accent" strokeWidth="1.35" pathLength="1" d="M2.4 21h2.8l1.1-1.7 1.6 3.4 1.1-1.7h2.7" />
+      <path d="M5.8 2.7v2.2M10.8 2.7v2.2" />
+      <path className="si-stethoscope-tube" d="M5.8 3.8H4.6a1.5 1.5 0 0 0-1.5 1.5v3.6a5.2 5.2 0 0 0 10.4 0V5.3A1.5 1.5 0 0 0 12 3.8h-1.2" />
+      <path className="si-stethoscope-tube" d="M8.3 14.2v1.2a5.5 5.5 0 0 0 11 0v-3.1" />
+      <circle className="si-chest-piece si-accent si-tint" cx="19.3" cy="10" r="2.3" />
+      <path className="si-ecg si-accent" strokeWidth="1.35" pathLength="1" d="M2.4 21h2.4l1-1.6 1.5 3.1 1-1.5h2" />
     </>
   );
 }
@@ -57,12 +52,18 @@ function Surgeon() {
   return (
     <>
       <g className="si-scalpel">
-        <path className="si-scalpel-handle" d="m10.5 13.2 2.2 2.2-5.3 5.3a1.55 1.55 0 0 1-2.2-2.2Z" />
-        <path className="si-scalpel-blade si-accent" d="m10.5 13.2 8.3-9.4c.4-.5 1-.2 1 .4.3 3.4-1.1 6.2-3.5 8.5l-3.6 2.7Z" />
-        <path className="si-scalpel-neck" strokeWidth="1.35" d="m11.4 12.2 2.3 2.3m-6.9 3.4 1.1 1.1m.5-2.7 1.1 1.1" />
-        <path className="si-gleam si-accent" strokeWidth="1.3" pathLength="1" d="M15.2 10.7c1.3-1.3 2.2-2.6 2.6-4.1" />
+        <path className="si-scalpel-handle si-tint" d="m8.2 12.1 2.1 1.2-4.7 7.8a1.25 1.25 0 0 1-2.1-1.3Z" />
+        <path className="si-scalpel-blade si-accent si-tint" d="m8.2 12.1 5.6-9.5c.35-.5.8-.25.8.35 0 4-1.4 7.35-4.3 10.35Z" />
+        <path className="si-scalpel-neck" strokeWidth="1.3" d="m8.7 11.3 2.1 1.2m-5.1 4.6.9.55m.05-2.15.9.55" />
+        <path className="si-gleam si-accent" strokeWidth="1.3" pathLength="1" d="M11.4 9.8c.9-1.5 1.4-2.8 1.7-4.3" />
       </g>
-      <path className="si-incision si-accent" strokeWidth="1.25" pathLength="1" d="M13.6 20.4h5.4" />
+      <g className="si-clamp si-accent" strokeWidth="1.3">
+        <circle cx="16.8" cy="19.9" r="1.65" />
+        <circle cx="21.1" cy="19.9" r="1.65" />
+        <path d="m17.1 18.3 2.8-5V7.2l-.95-2.5M20.8 18.3l-2.9-5V7.2l.95-2.5" />
+        <path d="M17.9 15.8h2" />
+      </g>
+      <path className="si-incision si-accent" strokeWidth="1.3" pathLength="1" d="M8.8 22h3.6" />
     </>
   );
 }
@@ -71,12 +72,13 @@ function Neurologist() {
   return (
     <>
       <path className="si-brain-core" d="M17.6 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.6 1.5M18 5.1a4 4 0 0 1 2.5 5.8M18 18a4 4 0 0 0 2-7.5M20 17.5A4 4 0 1 1 12 18a4 4 0 1 1-8-.5M6 18a4 4 0 0 1-2-7.5M6 5.1a4 4 0 0 0-2.5 5.8" />
-      <path className="si-neural-signal si-accent" strokeWidth="1.35" pathLength="1" d="M12 6.2v5.1m0 0-2.9-2.2m2.9 2.2 2.9-2.2m-2.9 2.2-2.4 3.2m2.4-3.2 2.4 3.2" />
-      <circle className="si-neural-node si-neural-node-core si-accent" cx="12" cy="11.3" r="1.05" strokeWidth="1.35" />
-      <circle className="si-neural-node si-neural-node-a si-accent" cx="9.1" cy="9.1" r=".65" strokeWidth="1.25" />
-      <circle className="si-neural-node si-neural-node-b si-accent" cx="14.9" cy="9.1" r=".65" strokeWidth="1.25" />
-      <circle className="si-neural-node si-neural-node-c si-accent" cx="9.6" cy="14.5" r=".65" strokeWidth="1.25" />
-      <circle className="si-neural-node si-neural-node-d si-accent" cx="14.4" cy="14.5" r=".65" strokeWidth="1.25" />
+      <path className="si-brain-fold" strokeWidth="1.3" d="M5.5 8.2c-.9 1-.8 2.3.1 3m12.8-3c.9 1 .8 2.3-.1 3" />
+      <path className="si-neural-signal si-accent" strokeWidth="1.3" pathLength="1" d="M12 6.2v4.3m-.9.6-2.2-1.7M12.9 11.1l2.2-1.7M11.3 12.7l-2 2.3m3.4-2.3 2 2.3" />
+      <circle className="si-neural-node si-neural-node-core si-accent si-solid" cx="12" cy="11.6" r="1" />
+      <circle className="si-neural-node si-neural-node-a si-accent si-solid" cx="8.4" cy="9" r=".75" />
+      <circle className="si-neural-node si-neural-node-b si-accent si-solid" cx="15.6" cy="9" r=".75" />
+      <circle className="si-neural-node si-neural-node-c si-accent si-solid" cx="8.8" cy="15.5" r=".75" />
+      <circle className="si-neural-node si-neural-node-d si-accent si-solid" cx="15.2" cy="15.5" r=".75" />
     </>
   );
 }
@@ -84,11 +86,11 @@ function Neurologist() {
 function Psychiatrist() {
   return (
     <>
-      <path className="si-psy-brain" d="M10.3 5.6a2.7 2.7 0 0 0-5.1 1 3.7 3.7 0 0 0-1.8 5.6 3.8 3.8 0 0 0 1.7 6.1 2.8 2.8 0 0 0 5.2-1.5Z" />
-      <path className="si-psy-center" strokeWidth="1.35" d="M6.5 8.3c1.1.2 1.9.9 2.3 1.9M6 13.8c1.2-.5 2.2-.2 3 1" />
-      <path className="si-dialog-bubble si-accent" d="M14.8 5.2h5.1a2 2 0 0 1 2 2v5.4a2 2 0 0 1-2 2h-2l-2.7 2.3v-2.3h-.4a2 2 0 0 1-2-2V7.2a2 2 0 0 1 2-2Z" />
-      <path className="si-dialog-one si-accent" pathLength="1" strokeWidth="1.35" d="M15.5 8.5h3.8" />
-      <path className="si-dialog-two si-accent" pathLength="1" strokeWidth="1.35" d="M15.5 11.5h3.8" />
+      <path className="si-psy-brain si-tint" d="M10.4 5.5c0-1.8-1.7-2.8-3.2-2.3-1.2.3-2 1.4-2 2.7C3.6 6.3 2.7 7.7 2.8 9.2c.1 1 .6 1.7 1.3 2.3-1.3.8-1.9 2.4-1.4 3.9.4 1.1 1.2 1.9 2.3 2.1.2 1.7 1.4 2.8 3 2.6 1.5-.1 2.4-1.4 2.4-3Z" />
+      <path className="si-psy-center" strokeWidth="1.3" d="M5.3 7.5c1.6-.3 2.8.5 3 1.9m-1 1.9c-.7.8-.6 1.6.1 2.3m-2.1 1.5c1.4-.5 2.5.1 3 1.2" />
+      <path className="si-dialog-bubble si-accent si-tint" d="M15.2 4.8h4.6a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1.5l-3.1 2.7v-2.7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z" />
+      <path className="si-dialog-one si-accent" pathLength="1" strokeWidth="1.35" d="M15.6 8.2h3.8" />
+      <path className="si-dialog-two si-accent" pathLength="1" strokeWidth="1.35" d="M15.6 11.4h3.8" />
     </>
   );
 }
@@ -96,9 +98,12 @@ function Psychiatrist() {
 function Ophthalmologist() {
   return (
     <>
-      <path className="si-eyelid" d="M2.1 12.3a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.8 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.8 0" />
-      <circle className="si-pupil si-accent" cx="12" cy="12" r="3" />
-      <path className="si-eye-glint si-accent" strokeWidth="1.3" pathLength="1" d="M13.1 10.3 14.2 9.2" />
+      <path className="si-eyelid" d="M2.2 12s3.5-6.1 9.8-6.1 9.8 6.1 9.8 6.1-3.5 6.1-9.8 6.1S2.2 12 2.2 12Z" />
+      <g className="si-pupil si-accent">
+        <circle className="si-tint" cx="12" cy="12" r="3.3" strokeWidth="1.5" />
+        <circle className="si-solid" cx="12" cy="12" r="1.05" />
+      </g>
+      <path className="si-eye-glint si-accent" strokeWidth="1.3" pathLength="1" d="M13.1 10.3 14.1 9.3" />
     </>
   );
 }
@@ -106,10 +111,10 @@ function Ophthalmologist() {
 function Ent() {
   return (
     <>
-      <path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0" />
-      <path className="si-ear-inner si-accent" d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4" />
-      <path className="si-sound-wave-one si-accent" strokeWidth="1.4" d="M20.4 7.1a5 5 0 0 1 0 3.8" />
-      <path className="si-sound-wave-two si-accent" strokeWidth="1.4" d="M22.3 5.5a7.6 7.6 0 0 1 0 7" />
+      <path d="M5.2 8.4a6.1 6.1 0 1 1 12.2 0c0 5.2-5.4 5.4-5.4 9.4a3.35 3.35 0 1 1-6.7 0" />
+      <path className="si-ear-inner si-accent" d="M14 8.3a2.4 2.4 0 0 0-4.8 0v1.2a1.9 1.9 0 1 1 0 3.8" />
+      <path className="si-sound-wave-one si-accent" strokeWidth="1.3" d="M19.5 7a5 5 0 0 1 0 3.8" />
+      <path className="si-sound-wave-two si-accent" strokeWidth="1.3" d="M22 5.4a7.6 7.6 0 0 1 0 7" />
     </>
   );
 }
@@ -117,12 +122,11 @@ function Ent() {
 function Dentist() {
   return (
     <>
-      <g className="si-tooth" transform="translate(0.9 0)">
-        <path d="M11 4.1C8.5 4.1 7.4 2.5 5.2 3.7 2.6 5.1 3.2 8.6 4.2 11.2c.8 2 1 6.8 2.6 8.7.6.8 1.4.5 1.7-.5.7-2.1.8-6 2.5-6s1.8 3.9 2.5 6c.3 1 1.1 1.3 1.7.5 1.6-1.9 1.8-6.7 2.6-8.7.6-1.5.9-2.9.8-4.1" />
-        <path d="M11 4.1c1.6 0 2.5-.8 3.8-.9 2.3-.2 3.7 1.2 3.8 3.9" />
+      <g className="si-tooth">
+        <path className="si-tint" d="M12 4.7c-2.4 0-3.7-2-6.1-.7-2.5 1.4-2.1 4.5-1.1 7.3.8 2.3.7 7.6 2.9 9.1.8.5 1.2-.5 1.4-1.6l.9-3.8c.7-2.4 3.3-2.4 4 0l.9 3.8c.2 1.1.6 2.1 1.4 1.6 2.2-1.5 2.1-6.8 2.9-9.1 1-2.8 1.4-5.9-1.1-7.3-2.4-1.3-3.7.7-6.1.7Z" />
+        <path className="si-enamel-glint si-accent" pathLength="1" strokeWidth="1.35" d="M6.5 6.9c-.5.9-.4 2.1 0 3" />
+        <path className="si-pulp si-accent" strokeWidth="1.3" d="M12 7.5v4.2m0-2.2-1.8-1.4M12 9.5l1.8-1.4" />
       </g>
-      <path className="si-enamel-glint si-accent" pathLength="1" strokeWidth="1.35" d="M7 6.8c-.5.9-.4 2.2 0 3.2" />
-      <path className="si-pulp si-accent" strokeWidth="1.3" d="M11.9 7.5v4.2m0-2.3L10.1 8m1.8 1.4L13.7 8" />
     </>
   );
 }
@@ -131,14 +135,14 @@ function Dermatologist() {
   return (
     <>
       <g className="si-magnifier">
-        <circle cx="10" cy="10" r="6.5" />
-        <path d="m14.7 14.7 6 6" />
+        <circle className="si-tint" cx="10" cy="10" r="6.5" />
+        <path strokeWidth="2.3" d="m15 15 5.7 5.7" />
         <g className="si-skin-sample">
-          <path className="si-skin-surface" strokeWidth="1.35" d="M6.2 7.3c2.5-.6 5.1-.6 7.6 0" />
-          <path className="si-skin-layer-one si-accent" strokeWidth="1.35" d="M6.1 10.1c1.4-.6 2.5.6 3.9 0s2.5.6 3.9 0" />
-          <path className="si-skin-layer-two si-accent" strokeWidth="1.35" d="M6.7 12.9c1.1-.5 2 .5 3.1 0s2 .5 3.1 0" />
-          <circle className="si-skin-detail si-accent" cx="8.2" cy="8.7" r=".5" strokeWidth="1.25" />
-          <circle cx="11.9" cy="8.7" r=".5" strokeWidth="1.25" />
+          <path className="si-skin-surface" strokeWidth="1.3" d="M6.2 6.9c2.5-.6 5.1-.6 7.6 0" />
+          <path className="si-skin-layer-one si-accent" strokeWidth="1.3" d="M6.1 10.5c1.4-.7 2.5.7 3.9 0s2.5.7 3.9 0" />
+          <path className="si-skin-layer-two si-accent" strokeWidth="1.3" d="M6.7 13.4c1.1-.5 2 .5 3.1 0s2 .5 3.1 0" />
+          <circle className="si-skin-detail si-accent si-solid" cx="8.2" cy="8.4" r=".45" />
+          <circle className="si-solid" cx="11.9" cy="8.4" r=".45" />
         </g>
       </g>
     </>

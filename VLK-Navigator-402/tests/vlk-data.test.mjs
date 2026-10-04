@@ -85,7 +85,7 @@ test("every specialty exposes its complete article list", () => {
   const expected = {
     therapist: 39,
     surgeon: 40,
-    neurologist: 21,
+    neurologist: 23,
     psychiatrist: 12,
     ophthalmologist: 14,
     ent: 15,

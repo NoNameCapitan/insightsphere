@@ -10,7 +10,7 @@
  * normalizeIcdCode, getSearchMatchType, scoreSearchResult і searchArticles.
  */
 
-import { DIAGNOSIS_ALIASES } from "./diagnosis-aliases.ts";
+import { DIAGNOSIS_ALIASES, DIAGNOSIS_ABBREVIATIONS } from "./diagnosis-aliases.ts";
 import { ARTICLE_RULES } from "./vlk-rules.ts";
 import { OFFICIAL_ARTICLE_TEXTS } from "./vlk-official-articles.ts";
 import { ARTICLES, SPECIALTIES, type SpecialtyId, type VlkArticle } from "./vlk-sample-data.ts";
@@ -152,7 +152,7 @@ export function parseArticleNumber(value: string): string | null {
  * Кирилиця в кодах зводиться до латиниці.
  */
 export function normalizeIcdCode(value: string): string | null {
-  const token = latinizeCode(normalizeSearchQuery(value)).replace(/\s+/g, "");
+  const token = latinizeCode(normalizeSearchQuery(value)).replace(/\s+/g, "").replace(/^([A-Z]\d{2})\((\d{1,2})\)$/, "$1.$2");
   const match = /^([A-Z])(\d{2})(?:[.,]?(\d{1,2}))?$/.exec(token);
   if (!match) return null;
   const [, letter, whole, fraction] = match;
@@ -225,9 +225,21 @@ export function articleIcdScope(article: Pick<VlkArticle, "article" | "officialI
   return { includedText, excludedText, includedCodes, excludedCodes: [...new Set(excludedCodes)] };
 }
 
+/** Explicit article18 cross-reference narrows search only; it never rewrites the official row. */
+export function articleIcdSearchClarification(article: Pick<VlkArticle, "article" | "officialIncluded">) {
+  const { includedCodes } = articleIcdScope(article);
+  const reference = OFFICIAL_ARTICLE_TEXTS["18"].included.match(/неорганічний енурез F98\(0\) \(включено до статті 86\)/u)?.[0];
+  return article.article === "86" && article.officialIncluded === OFFICIAL_ARTICLE_TEXTS["86"].included &&
+    includedCodes.length === 1 && includedCodes[0] === "F98" && reference
+    ? { code: "F98.0", sourceArticle: "18", sourceText: reference } : undefined;
+}
+export function articleIcdSearchNote(article: Pick<VlkArticle, "article" | "officialIncluded">): string | undefined {
+  const clarification = articleIcdSearchClarification(article);
+  return clarification ? `Пошук за ${clarification.code}: уточнення зі ст. ${clarification.sourceArticle}; у рядку ст. 86 зазначено F98` : undefined;
+}
 export function articleIcdLabel(article: Pick<VlkArticle, "article" | "officialIncluded">): string {
   const { includedCodes, excludedCodes } = articleIcdScope(article);
-  const included = includedCodes.join("; ") || "—";
+  const included = includedCodes.join("; ") || "окремий код у Розкладі не зазначено";
   return excludedCodes.length ? `${included} · виключено: ${excludedCodes.join("; ")}` : included;
 }
 
@@ -273,9 +285,11 @@ function buildIndex(article: VlkArticle): ArticleIndex {
   const title = foldText(article.title);
   const summary = foldText(article.summary);
   const scope = articleIcdScope(article);
+  const clarification = articleIcdSearchClarification(article);
+  const includedSearchCodes = clarification ? [clarification.code] : scope.includedCodes;
   const included = foldText(scope.includedText);
   const specialtyLabels = foldText(
-    article.specialties.map((id) => SPECIALTIES.find((item) => item.id === id)?.label ?? "").join(" "),
+    article.specialties.map((id) => id === "neurologist" ? "Невропатолог невролог" : SPECIALTIES.find((item) => item.id === id)?.label ?? "").join(" "),
   );
   const conditions = foldText(rules.map((rule) => `${rule.condition} ${rule.outcome}`).join(" "));
   const tokens = new Set(
@@ -286,7 +300,7 @@ function buildIndex(article: VlkArticle): ArticleIndex {
 
   const index: ArticleIndex = {
     article,
-    ranges: allowedRanges(parseArticleRanges(scope.includedCodes.join(";")), parseArticleRanges(scope.excludedCodes.join(";"))),
+    ranges: allowedRanges(parseArticleRanges(includedSearchCodes.join(";")), parseArticleRanges(scope.excludedCodes.join(";"))),
     title,
     titleWords: title.split(" ").filter(Boolean),
     summary,
@@ -356,6 +370,7 @@ export function parseSearchQuery(query: string): QueryTerm[] {
     .replace(/(?:^|\s)(?:мкх\s*-?\s*10|icd\s*-?\s*10)\s*:?\s*/gu, " ")
     .replace(/№\s*/g, " ")
     .replace(/([a-zа-яіїєґ]\d{2}),(\d{1,2})/gu, "$1.$2")
+    .replace(/([a-zа-яіїєґ]\d{2})\s*\(\s*(\d{1,2})\s*\)/gu, "$1.$2")
     .replace(/[«»"“”(),;:]/g, " ")
     .replace(/\s*-\s*/g, "-")
     .replace(/(^|\s)(?:(?:стаття|ст)\.?\s*)?(\d{1,2})\s*([абвгґдabvgd])(?=\s|$)/gu, "$1стаття $2 пункт $3")
@@ -445,6 +460,16 @@ export function getSearchMatchType(
   }
 
   const value = term.value;
+
+  // A registered abbreviation must not match unrelated fragments such as «ба».
+  const abbreviationKey = value.replace(/\.$/u, "");
+  const abbreviation = Object.hasOwn(DIAGNOSIS_ABBREVIATIONS, abbreviationKey)
+    ? DIAGNOSIS_ABBREVIATIONS[abbreviationKey] : undefined;
+  if (abbreviation) {
+    return abbreviation.articles.includes(index.article.article)
+      ? { score: SEARCH_WEIGHTS.synonym, match: "synonym", evidence: index.article.officialIncluded }
+      : null;
+  }
 
   const doctors = index.article.specialties
     .map((id) => foldText(directory[id] ?? ""))
@@ -536,6 +561,16 @@ export function searchArticles(
     (a, b) => Number(a.matches.includes("fuzzy")) - Number(b.matches.includes("fuzzy")) ||
       b.score - a.score || Number(a.article.article) - Number(b.article.article),
   );
+}
+
+/** Explain navigation shorthand separately; never insert it into literal text. */
+export function searchAbbreviationHints(query: string): string[] {
+  return [...new Set(parseSearchQuery(query).flatMap((term) => {
+    const key = term.value.replace(/\.$/u, "");
+    const entry = term.kind === "text" && Object.hasOwn(DIAGNOSIS_ABBREVIATIONS, key)
+      ? DIAGNOSIS_ABBREVIATIONS[key] : undefined;
+    return entry ? [`${key.toLocaleUpperCase("uk")} — ${entry.label}`] : [];
+  }))];
 }
 
 export type HighlightPart = { text: string; match: boolean };
