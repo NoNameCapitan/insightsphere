@@ -49,6 +49,19 @@ export function specialtyLabels(article: VlkArticle) {
     .join(", ");
 }
 
+/**
+ * Профільні спеціальності статті, крім уже вибраної. Шлях угорі аркуша не має
+ * повторювати спеціальність, у якій лікар зараз працює; решту він показує, бо
+ * це нова інформація — стаття належить ще й іншим лікарям.
+ */
+export function otherSpecialtyLabels(article: VlkArticle, current: string) {
+  return article.specialties
+    .filter((id) => id !== current)
+    .map((id) => SPECIALTIES.find((item) => item.id === id)?.label)
+    .filter(Boolean)
+    .join(", ");
+}
+
 function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)

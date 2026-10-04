@@ -2401,3 +2401,45 @@ input {
 }
 .article-icd-note { max-width: 90ch; margin-top: 4px; color: var(--ink-soft); font-size: 12px; line-height: 1.5; }
 .case-context-action { min-height: 44px; white-space: normal; height: auto; text-align: left; font-size: 13px; }
+
+/* ---------- v38.14: усунені накладання, дублі й малі цілі дотику ---------- */
+
+/* Підказка клавіатури замість повтору кількості статей, яка вже є в шапці реєстру. */
+.sidebar-hint { display: flex; align-items: center; gap: 4px; }
+.sidebar-hint kbd {
+  padding: 0 5px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 3px;
+  font: 10px/18px var(--font-code), monospace;
+  color: var(--ink-soft);
+  background: var(--surface);
+}
+
+/* Згортання довідкових блоків — повноцінна ціль дотику, як і решта перемикачів. */
+@media (pointer: coarse) {
+  .context-help > summary { min-height: 44px; align-content: center; }
+  /* На дотику підказка клавіатури зайва: висота віддається переліку статей. */
+  .sidebar-hint { display: none; }
+}
+
+/* Повідомлення про офлайн-копію нічого не вирішує і зникає саме, тому воно не
+   перехоплює дотик по картці спеціальності чи рядку статті під ним: натискання
+   проходить наскрізь до вмісту. */
+[data-sonner-toast][data-styled="true"].offline-ready-toast { pointer-events: none; }
+
+/* «Випадок» росте разом із доданими пунктами: порожнє вікно не тримає повної висоти екрана. */
+.case-dialog[data-vlk-dialog] { height: fit-content !important; }
+
+/* Приклади запитів: на вузькому екрані рядок переносився так, що останній
+   чип опинявся сам по собі в центрі. Лівий край вирівнює його з сіткою карток. */
+@media (max-width: 560px) {
+  .home-search-examples { justify-content: flex-start; width: 100%; }
+}
+
+/* На дуже широкому моніторі аркуш розтягував рядки пунктів на всю ширину: текст
+   стану лишався ліворуч, а позначка результату відлітала на 900 px праворуч.
+   Вміст аркуша тримає спільне поле читання, сітка й палітра не змінюються. */
+@media (min-width: 1600px) {
+  .article-header > *,
+  .article-content > * { max-width: 1180px; margin-inline: auto; }
+}

@@ -136,6 +136,7 @@ import {
   EMPTY_DIRECTORY,
   EXAMINEE_TYPES,
   LEGACY_SESSION_KEYS,
+  otherSpecialtyLabels,
   restoreSession,
   serializeSession,
   SESSION_KEY,
@@ -174,6 +175,17 @@ function articleCountLabel(count: number) {
           ? "статті"
           : "статей";
   return `${count} ${word}`;
+}
+
+/**
+ * У вузькому рядку реєстру повне формулювання «окремий код у Розкладі не
+ * зазначено» обрізалося посеред речення й читалося як зіпсований код. Рядок
+ * показує короткий підпис, а повне формулювання лишається у підказці рядка
+ * і в шапці статті, де для нього є місце.
+ */
+function articleIcdListLabel(article: VlkArticle) {
+  const label = articleIcdLabel(article);
+  return label.startsWith("окремий код") ? "без окремого коду" : label;
 }
 
 function pointCountLabel(count: number) {
@@ -769,13 +781,18 @@ export default function Home() {
   }
 
   function changeSpecialty(next: SpecialtyId) {
-    showArticlePanel();
     const first = ARTICLES.find((article) => article.specialties.includes(next));
     setSpecialty(next);
     setLastSpecialty(next);
     setQuery("");
     if (first) setSelectedId(first.id);
     resetArticleReview();
+    // Картка спеціальності обіцяє перелік статей, тому на вузькому екрані
+    // відкриваємо саме реєстр: аркуш лишається готовим на сусідній вкладці.
+    // На широкому екрані видно обидві панелі, і фокус не забирається з
+    // елемента, яким лікар щойно скористався.
+    if (window.matchMedia("(max-width: 1023px)").matches) showListPanel();
+    else setMobilePanel("list");
   }
 
   function selectFromList(article: VlkArticle) {
@@ -1311,7 +1328,7 @@ export default function Home() {
                             <Highlighted text={article.title} query={query} />
                           </span>
                           <span className="mt-0.5 block truncate text-xs leading-4 text-[var(--ink-soft)]" title={articleIcdLabel(article)}>
-                            <Highlighted text={articleIcdLabel(article)} query={query} />
+                            <Highlighted text={articleIcdListLabel(article)} query={query} />
                           </span>
                           {matches.length ? (
                             <span className="mt-1 flex flex-wrap gap-1">
@@ -1350,8 +1367,11 @@ export default function Home() {
             )}
           </div>
 
-          <div className="shrink-0 border-t border-[var(--hairline)] px-2.5 py-1.5 text-xs text-[var(--ink-soft)]" title={`Корпус: редакція ${EDITION}. Стрілки ↑↓ — навігація статтями.`}>
-            {articleCountLabel(listArticles.length)}
+          {/* Кількість статей уже стоїть у шапці реєстру, тому підвал несе підказку
+              клавіатури. На дотику вона не потрібна — там підвал прибирається
+              і вся висота лишається переліку. */}
+          <div className="sidebar-hint shrink-0 border-t border-[var(--hairline)] px-2.5 py-1.5 text-xs text-[var(--ink-soft)]" title={`Корпус: редакція ${EDITION}.`}>
+            <kbd>↑</kbd> <kbd>↓</kbd> — статті · <kbd>Enter</kbd> — відкрити
           </div>
         </aside>
 
@@ -1386,12 +1406,14 @@ export default function Home() {
                             <span className="text-[var(--foreground)]">{pointLabel(selectedRule.point)}</span>
                           </>
                         ) : null}
-                        {specialtyLabels(selected) === (selectedSpecialty?.label ?? "") ? null : (
+                        {(specialty ? otherSpecialtyLabels(selected, specialty) : specialtyLabels(selected)) ? (
                           <span className="specialty-caption font-medium text-[var(--ink-soft)]">
                             <span aria-hidden className="mr-1 text-[var(--hairline-strong)]">·</span>
-                            {specialtyLabels(selected)}
+                            {specialty
+                              ? `також ${otherSpecialtyLabels(selected, specialty)}`
+                              : specialtyLabels(selected)}
                           </span>
-                        )}
+                        ) : null}
                       </nav>
                       <h2 id="vlk-article-heading" tabIndex={-1} className="mt-1 text-xl font-semibold leading-tight tracking-[-0.02em] outline-none sm:text-[22px]">
                         <Highlighted text={selected.title} query={query} />
