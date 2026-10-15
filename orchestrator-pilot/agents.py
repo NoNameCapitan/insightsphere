@@ -13,6 +13,8 @@ from providers import discover, run_claude, run_ollama, ProviderError
 from quality import Quality, engine_hash
 from workloop import WorkLoop, task_memory
 from outcomes import Outcomes
+import listing as listing_mode
+from listing import Listings, ListingFormatError
 
 FIELDS = ["title", "summary", "status_evidence", "deadline_display", "fit_reason",
           "next_action", "caution", "budget.text", "budget.evidence"]
@@ -57,6 +59,9 @@ ROLES = {"analyst": "Сопоставь возможности с целью, о
          "reviewer": "Проверь результат draft и исходные материалы. Укажи конкретные ошибки или неопределённости."}
 MAX_RUNS_PER_TASK = 4
 MAX_INPUT_BYTES = 32_000
+# Provider messages that mean "the model answered, but not in the required shape".
+FORMAT_FAILURES = {"Локальная модель не вернула ожидаемый JSON", "Claude Code не вернул ответ по схеме",
+                   "Claude Code не вернул ожидаемый JSON; исходные материалы сохранены"}
 
 
 def shape(obj, keys):
@@ -132,6 +137,7 @@ class AgentService:
         self.quality = Quality(store)
         self.workloop = WorkLoop(store, self.quality)
         self.outcomes = Outcomes(store)
+        self.listings = Listings(store)
         self.discovery = discovery
         self.runners = runners or {"ollama": run_ollama, "claude_code": run_claude}
         self.lock = threading.Lock()
@@ -278,10 +284,11 @@ class AgentService:
             if run["status"] != "running":
                 return
             runner = self.runners[run["provider"]]
+            prompt, system, schema = mode_functions(run["input"])
             if run["provider"] == "ollama":
-                result, usage = runner(run["model"], prompt_for(run["input"]), system_for(run["input"]), SCHEMA, cancel)
+                result, usage = runner(run["model"], prompt(run["input"]), system(run["input"]), schema, cancel)
             else:
-                result, usage = runner(prompt_for(run["input"]), system_for(run["input"]), cancel)
+                result, usage = runner(prompt(run["input"]), system(run["input"]), cancel)
             usage["elapsed_seconds"] = round(time.monotonic()-started, 2)
             self.finish(run_id, result, usage)
         except Exception as e:
@@ -289,14 +296,26 @@ class AgentService:
                 usage.update(e.usage)
             usage["elapsed_seconds"] = round(time.monotonic()-started, 2)
             # Internal/provider raw errors can contain private response text. Only our messages are exposed.
-            error = str(e) if isinstance(e, ProviderError) else "Ответ не прошёл проверку формата или оснований; исходные данные сохранены"
+            if isinstance(e, ListingFormatError):
+                error = "Формат відповіді: " + str(e)
+            else:
+                error = str(e) if isinstance(e, ProviderError) else "Ответ не прошёл проверку формата или оснований; исходные данные сохранены"
+            format_failure = isinstance(e, ListingFormatError) or error in FORMAT_FAILURES
             with self.store.transaction() as db:
                 db.execute("UPDATE agent_runs SET usage=?,updated_at=? WHERE id=?", (dump(usage), now(), run_id))
                 changed = db.execute("UPDATE agent_runs SET status='failed',updated_at=?,error=? WHERE id=? AND status='running'",
                                      (now(), error, run_id)).rowcount
                 if changed:
                     run = self.get(run_id)
-                    self.store.event(db, run["task_id"], "controller", "agent_failed", {"run_id": run_id, "reason": error})
+                    self.store.event(db, run["task_id"], "controller", "agent_failed", {"run_id": run_id, "reason": error,
+                                                                                         "format_failure": format_failure})
+            if changed and format_failure and run["input"].get("mode") == "listing" and run["provider"] == "ollama" \
+                    and run["input"].get("kind") == "main":
+                # Local calls have no API charge: one automatic format fix is pre-allowed and counted.
+                try:
+                    self.start_listing(run["input"]["listing_id"], "ollama", run["model"], kind="format_fix", fix_of=run_id)
+                except (ValueError, KeyError):
+                    pass
         finally:
             with self.lock:
                 self.cancellations.pop(run_id, None)
@@ -307,7 +326,8 @@ class AgentService:
         expected = "waiting_manual" if manual else "running"
         if run["status"] != expected or (manual and run["provider"] != "chatgpt"):
             raise ValueError("Этот запуск уже завершён или не ожидает импорт")
-        result = validate_result(raw, run["input"])
+        listing_run = run["input"].get("mode") == "listing"
+        result = listing_mode.validate_reply(raw, run["input"]) if listing_run else validate_result(raw, run["input"])
         with self.store.transaction() as db:
             task = db.execute("SELECT revision,status FROM tasks WHERE id=?", (run["task_id"],)).fetchone()
             status = "completed" if task["revision"] == run["input"]["task_revision"] else "stale"
@@ -317,6 +337,8 @@ class AgentService:
                                  (status, dump(result), dump(usage or {"billing": "manual_chatgpt_unknown"}), now(), run_id, expected)).rowcount
             if not changed:
                 raise ValueError("Состояние запуска изменилось; ответ не применён")
+            if listing_run and status == "completed":
+                self.listings.note_received(db, run["input"]["listing_id"], run["input"]["listing_version"])
             self.store.event(db, run["task_id"], run["role"], "agent_result_saved",
                              {"run_id": run_id, "status": status, "checks": ["schema", "known_sources", "quotes_match_saved_fields"],
                               "external_truth_verified": False})
@@ -363,9 +385,90 @@ class AgentService:
         for worker in workers:
             worker.join()  # every production runner is bounded and observes cancellation
 
+    def start_listing(self, listing_id, provider, model="", kind="main", fix_of=None):
+        """One bounded call for the current listing version: main, a format fix, or an explicit repeat."""
+        if provider not in {"ollama", "claude_code", "chatgpt"}:
+            raise ValueError("Оберіть виконавця: Ollama, Claude Code або ChatGPT")
+        if kind not in {"main", "format_fix"}:
+            raise ValueError("Невідомий тип виклику")
+        if not isinstance(model, str) or len(model) > 200:
+            raise ValueError("Некоректна назва моделі")
+        listing = self.listings.get(listing_id)
+        fix_error = ""
+        if kind == "format_fix":
+            source = self.get(fix_of) if fix_of else None
+            if (not source or source["input"].get("listing_id") != listing_id or source["status"] != "failed"
+                    or source["input"].get("listing_version") != listing["version"]):
+                raise ValueError("Виправляти можна лише невдалу відповідь поточної версії")
+            fix_error = source["error"][:600]
+            provider, model = source["provider"], source["model"]
+        if provider == "ollama":
+            models = [m["name"] for m in next(p for p in self.inventory()["providers"] if p["id"] == "ollama").get("models", [])]
+            if not model:
+                raise ProviderError("Оберіть встановлену локальну модель. Найменша автоматично не обирається")
+            if model not in models:
+                raise ProviderError("Обрану локальну модель не знайдено")
+        snapshot = self.listings.snapshot(listing, kind, fix_error)
+        size = listing_mode.context_bytes(snapshot)
+        if size > listing_mode.MAX_INPUT_BYTES:
+            raise ValueError(f"Запит {size} байт перевищує ліміт {listing_mode.MAX_INPUT_BYTES}. Текст не обрізано: скоротіть його")
+        run_id = uuid.uuid4().hex
+        status = "waiting_manual" if provider == "chatgpt" else "running"
+        with self.lock, self.store.transaction() as db:
+            if self.closing:
+                raise ValueError("Приложение завершает работу")
+            current = db.execute("SELECT version FROM listings WHERE id=?", (listing_id,)).fetchone()
+            if current["version"] != listing["version"]:
+                raise ValueError("Текст оголошення змінився; оновіть картку")
+            calls = self.listings.calls(db, listing)
+            if any(c["status"] in ("running", "waiting_manual") for c in calls):
+                raise ValueError("Для цього оголошення вже є активний виклик. Дочекайтеся або зупиніть його")
+            if len(calls) >= listing_mode.MAX_CALLS_PER_VERSION:
+                raise ValueError(f"Ліміт: {listing_mode.MAX_CALLS_PER_VERSION} виклики на версію тексту")
+            if kind == "format_fix" and any(json.loads(c["input"]).get("kind") == "format_fix" for c in calls):
+                raise ValueError("Виправлення формату вже використано для цієї версії")
+            if status == "running" and db.execute("SELECT 1 FROM agent_runs WHERE status='running'").fetchone():
+                raise ValueError("Один агент уже работает. Дождитесь результата или остановите его")
+            db.execute("INSERT INTO agent_runs(id,task_id,role,provider,model,status,created_at,updated_at,input) VALUES(?,?,?,?,?,?,?,?,?)",
+                       (run_id, listing["task_id"], "analyst", provider, model if provider == "ollama" else "", status, now(), now(), dump(snapshot)))
+            db.execute("INSERT INTO settings VALUES('preferred_executor',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                       (dump({"provider": provider, "model": model if provider == "ollama" else ""}),))
+            self.store.event(db, listing["task_id"], "analyst", "agent_started",
+                             {"run_id": run_id, "provider": provider, "mode": "listing", "kind": kind,
+                              "input_sha256": hashlib.sha256(dump(snapshot).encode()).hexdigest(),
+                              "context_bytes": size, "timeout_seconds": 120, "automatic_paid_fallback": False})
+        self.listings.note_requested(listing_id)
+        if status == "running":
+            self._spawn(run_id)
+        return self.get(run_id)
+
+    def preferred_executor(self):
+        with self.store.connect() as db:
+            row = db.execute("SELECT value FROM settings WHERE key='preferred_executor'").fetchone()
+        return json.loads(row[0]) if row else {"provider": "", "model": ""}
+
+    def _spawn(self, run_id):
+        cancel = threading.Event()
+        with self.lock:
+            if self.closing:
+                with self.store.transaction() as db:
+                    db.execute("UPDATE agent_runs SET status='cancelled',updated_at=? WHERE id=?", (now(), run_id))
+                return
+            self.cancellations[run_id] = cancel
+            worker = threading.Thread(target=self._work, args=(run_id, cancel), daemon=False)
+            self.workers.add(worker)
+            worker.start()
+
     def manual_prompt(self, run_id):
         run = self.get(run_id)
-        return ("# Запрос для ChatGPT\n\n" + system_for(run["input"]) + "\n\n" + prompt_for(run["input"])
+        prompt, system, _ = mode_functions(run["input"])
+        return ("# Запрос для ChatGPT\n\n" + system(run["input"]) + "\n\n" + prompt(run["input"])
                 + "\n\nСохрани результат отдельным JSON-файлом со структурой "
                 + '{"run_id":"' + run_id + '","result":{...ответ по схеме...}}. '
                 + "Файл возвращается в исходную задачу кнопкой «Импорт ответа».\n")
+
+
+def mode_functions(snapshot):
+    if snapshot.get("mode") == "listing":
+        return listing_mode.prompt_for, listing_mode.system_for, listing_mode.SCHEMA
+    return prompt_for, system_for, SCHEMA

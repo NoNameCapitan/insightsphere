@@ -19,7 +19,7 @@ async function action(fn) {
   finally { busy=false; document.querySelectorAll('button[data-busy-disabled]').forEach(b=>{b.disabled=false;delete b.dataset.busyDisabled;}); }
 }
 function setView(view) {
-  ['tasks','context','tools','quality','workloop','outcomes'].forEach(v=>{$('#'+v+'-view').hidden=v!==view;document.querySelector(`[data-view="${v}"]`).classList.toggle('active',v===view);});
+  ['listings','tasks','context','tools','quality','workloop','outcomes'].forEach(v=>{$('#'+v+'-view').hidden=v!==view;document.querySelector(`[data-view="${v}"]`).classList.toggle('active',v===view);});
 }
 async function refresh() {
   state=await api('/api/state'); $('#version').textContent=state.version;
@@ -111,4 +111,8 @@ $('#materials-file').onchange=e=>action(async()=>{const f=e.target.files[0];try{
 $('#agent-file').onchange=e=>action(async()=>{const f=e.target.files[0];try{if(!f)return;if(f.size>2000000)throw new Error('Файл должен быть не больше 2 МБ');const data=JSON.parse(await f.text());await api('/api/agents/'+importingRun+'/import',data);await showTask(selected);message('Ответ сохранён. Исходные материалы не изменялись.');}finally{e.target.value='';}});
 $('#detect-providers').onclick=()=>action(refreshProviders);
 setInterval(async()=>{if(busy||!selected)return;const id=selected;try{const task=await api('/api/tasks/'+id);if(selected===id&&JSON.stringify(task.agent_runs)!==runsSignature)renderRuns(task.agent_runs);}catch(_){/* Keep the last saved state visible; explicit actions show connection errors. */}},2000);
-action(async()=>{await refresh();if(state.tasks.length)await showTask(state.tasks[0].id);});
+function setExperimental(on){$('#experimental-nav').hidden=!on;$('#experimental-toggle').checked=on;try{localStorage.setItem('experimental',on?'1':'0');}catch(_){}if(!on&&['tasks','quality','workloop','outcomes'].some(v=>!$('#'+v+'-view').hidden))setView('listings');}
+$('#experimental-toggle').onchange=e=>setExperimental(e.target.checked);
+try{setExperimental(localStorage.getItem('experimental')==='1');}catch(_){setExperimental(false);}
+document.querySelector('[data-view="listings"]').addEventListener('click',()=>action(refreshListings));
+action(async()=>{await refresh();await refreshListings();});

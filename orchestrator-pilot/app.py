@@ -11,7 +11,7 @@ from platform_support import lock_file
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
-from core import Store, ROOT, VERSION, dump, assess, rank_items, render_report
+from core import Store, ROOT, VERSION, dump, assess, rank_items, render_report, restore_database
 from datetime import datetime
 from agents import AgentService
 from providers import discover
@@ -60,7 +60,7 @@ def make_server(store, port=8765, agents=None):
                 if path == "/":
                     page=(ROOT / "static/index.html").read_text().replace("__TOKEN__",token)
                     return self.respond(page,content_type="text/html; charset=utf-8")
-                if path in {"/app.js","/quality.js","/workloop.js","/outcomes.js","/style.css"}:
+                if path in {"/app.js","/listing.js","/quality.js","/workloop.js","/outcomes.js","/style.css"}:
                     kind="text/javascript" if path.endswith("js") else "text/css"
                     return self.respond((ROOT / "static" / path[1:]).read_text(),content_type=f"{kind}; charset=utf-8")
                 if path == "/api/demo-report":
@@ -69,12 +69,22 @@ def make_server(store, port=8765, agents=None):
                     items=rank_items([assess(item,at=at) for item in data["items"]])
                     report="ИСТОРИЧЕСКОЕ ДЕМО · 25.09.2026. Не актуальная подборка; для отклика проверьте источники заново.\n\n"+render_report("Пример отбора заказов",items,at.isoformat())
                     return self.respond({"as_of":at.isoformat(),"historical":True,"report":report})
+                if path == "/api/listings":
+                    return self.respond({"listings":agents.listings.summaries(),"preferred":agents.preferred_executor()})
+                if path == "/api/pilot.csv":
+                    return self.respond(agents.listings.pilot_csv(),content_type="text/csv; charset=utf-8",download="real-pilot.csv")
+                if path.startswith("/api/listings/"):
+                    parts=path.strip("/").split("/")
+                    if len(parts)==3:
+                        return self.respond(agents.listings.card(parts[2]))
+                    if len(parts)==4 and parts[3]=="card.md":
+                        return self.respond(agents.listings.markdown(parts[2]),content_type="text/markdown; charset=utf-8",download="decision-card.md")
                 if path == "/api/state":
-                    return self.respond({"version":VERSION,"profile":store.profile(),"tasks":store.tasks(),
+                    return self.respond({"version":VERSION,"schema_version":store.schema_version(),"profile":store.profile(),"tasks":[t for t in store.tasks() if not agents.listings.by_task(t["id"])],
                                          "role_configs":agents.quality.state()["configs"],"active_config":agents.quality.config(),
                                          "capabilities":json.loads((ROOT / "data/capabilities.json").read_text())})
                 if path == "/api/export":
-                    return self.respond({**store.export(),"quality":agents.quality.export(),"workloop":agents.workloop.state(),"outcomes":agents.outcomes.state()},download="orchestrator-context.json")
+                    return self.respond({**store.export(),"listings":agents.listings.export(),"quality":agents.quality.export(),"workloop":agents.workloop.state(),"outcomes":agents.outcomes.state()},download="orchestrator-context.json")
                 if path == "/api/outcomes":
                     return self.respond(agents.outcomes.state())
                 if path == "/api/pain-catalog":
@@ -134,6 +144,8 @@ def make_server(store, port=8765, agents=None):
                 if path=="/api/tasks":
                     task=store.create_task(payload.get("objective"),payload.get("max_steps",8))
                     return self.respond(store.run(task["id"]),201)
+                if path=="/api/listings":
+                    return self.respond(agents.listings.create(payload.get("url"),payload.get("text"),payload.get("objective","")),201)
                 if path=="/api/profile":
                     return self.respond(store.update_notes(payload.get("notes")))
                 if path=="/api/workloop/projects":
@@ -177,6 +189,23 @@ def make_server(store, port=8765, agents=None):
                         return self.respond(agents.start(**agents.quality.run_request(experiment_id,payload.get("case_id"),payload.get("side"))),201)
                     if action=="grade":
                         return self.respond(agents.quality.grade(experiment_id,payload.get("case_id"),payload.get("side"),payload.get("repetition"),payload.get("run_id"),payload.get("checks"),payload.get("assessor"),payload.get("evidence")))
+                if len(parts)==4 and parts[:2]==["api","listings"]:
+                    listing_id,action=parts[2:]
+                    service=agents.listings
+                    if action=="text":
+                        return self.respond(service.update_text(listing_id,payload.get("text")))
+                    if action=="source-checked":
+                        return self.respond(service.mark_source_checked(listing_id,payload.get("version")))
+                    if action=="confirm":
+                        return self.respond(service.confirm(listing_id,payload.get("group"),payload.get("value"),payload.get("version"),service.card(listing_id)["analysis"]))
+                    if action=="analyze":
+                        return self.respond(agents.start_listing(listing_id,payload.get("provider",""),payload.get("model","")),201)
+                    if action=="fix":
+                        return self.respond(agents.start_listing(listing_id,"ollama",kind="format_fix",fix_of=payload.get("run_id")),201)
+                    if action=="decide":
+                        return self.respond(service.decide(listing_id,payload.get("action"),payload.get("active_minutes"),payload.get("outside_minutes"),payload.get("note","")))
+                    if action=="outcome":
+                        return self.respond(service.record_outcome(listing_id,payload.get("outcome")))
                 if len(parts)==4 and parts[:2]==["api","agents"]:
                     run_id, action = parts[2:]
                     if action == "cancel":
@@ -227,8 +256,19 @@ if __name__=="__main__":
     parser.add_argument("--port",type=int,default=8765)
     parser.add_argument("--data",type=Path,default=default_data_path())
     parser.add_argument("--open",action="store_true")
+    parser.add_argument("--restore",type=Path,help="Відновити базу з резервної копії (програма має бути зупинена)")
     args=parser.parse_args()
+    if args.restore:
+        lock=lock_file(args.data.with_suffix(".instance-lock"))
+        try:
+            replaced=restore_database(args.restore,args.data)
+        finally:
+            lock.close()
+        print(f"Базу відновлено з {args.restore}."+(f" Попередню базу збережено: {replaced}" if replaced else ""))
+        raise SystemExit(0)
     store=Store(args.data)
+    if getattr(store,"last_backup",None):
+        print(f"Перед оновленням схеми створено резервну копію: {store.last_backup}",flush=True)
     try:
         server=make_server(store,args.port)
     except OSError as e:

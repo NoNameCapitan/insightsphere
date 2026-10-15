@@ -41,7 +41,7 @@ class ReviewFixTests(unittest.TestCase):
             with patch('quality.ROOT',dest):
                 before=engine_hash()
                 p=dest/'outcomes.py';p.write_text(p.read_text()+'\nUNKNOWN_NEW_FLAG = 123\n')
-                p=dest/'core.py';p.write_text(p.read_text().replace('VERSION = "0.6.1"','VERSION = "999"')+'\n# harmless comment\n')
+                p=dest/'core.py';p.write_text(p.read_text().replace('VERSION = "0.7.0"','VERSION = "999"')+'\n# harmless comment\n')
                 self.assertEqual(engine_hash(),before)
                 p=dest/'providers.py';p.write_text(p.read_text().replace('MAX_OUTPUT = 2_000_000','MAX_OUTPUT = 1_000_000'))
                 self.assertNotEqual(engine_hash(),before)

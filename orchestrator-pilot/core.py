@@ -5,6 +5,7 @@ import copy
 import hashlib
 import json
 import math
+import shutil
 import sqlite3
 import uuid
 from contextlib import contextmanager
@@ -13,10 +14,27 @@ from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-VERSION = "0.6.1"
+VERSION = "0.7.0"
 ROOT = Path(__file__).resolve().parent
 STEPS = ["План", "Проверка материалов", "Оценка соответствия", "Отчёт"]
 TERMINAL = {"completed", "budget_exhausted", "cancelled"}
+SCHEMA_VERSION = 1  # 0 = database created by 0.6.1 or earlier
+MIGRATIONS = {
+    1: """
+        CREATE TABLE IF NOT EXISTS listings (
+            id TEXT PRIMARY KEY, task_id TEXT NOT NULL UNIQUE, url TEXT NOT NULL,
+            dedupe_key TEXT NOT NULL, text TEXT NOT NULL, text_sha256 TEXT NOT NULL,
+            version INTEGER NOT NULL, imported_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+            source_checked_at TEXT NOT NULL DEFAULT '', source_reviewer TEXT NOT NULL DEFAULT '',
+            confirmed TEXT NOT NULL DEFAULT '{}', corrections TEXT NOT NULL DEFAULT '[]',
+            timeline TEXT NOT NULL DEFAULT '{}', decision TEXT NOT NULL DEFAULT '{}',
+            outcome TEXT NOT NULL DEFAULT '{}');
+        CREATE INDEX IF NOT EXISTS listings_dedupe ON listings(dedupe_key);
+        CREATE TABLE IF NOT EXISTS listing_texts (
+            listing_id TEXT NOT NULL, version INTEGER NOT NULL, text TEXT NOT NULL,
+            text_sha256 TEXT NOT NULL, imported_at TEXT NOT NULL, PRIMARY KEY(listing_id, version));
+    """,
+}
 
 
 def now():
@@ -151,6 +169,7 @@ def assess(item, at=None):
     if not item["fit_reason"]:
         issues.append("Нет обоснования оценки соответствия")
     out["issues"] = hard + issues
+    out["blocking"] = hard
     out["decision"] = "excluded" if hard else "needs_review" if issues else "candidate"
     out["eligibility_note"] = ("Доступность отклика для аккаунта не проверена"
                                if item["eligibility"] == "unknown" else "Ограничения участия указаны в материалах")
@@ -199,6 +218,28 @@ class Store:
                 if key not in current and key in profile:
                     current[key] = profile[key]
             db.execute("UPDATE settings SET value=? WHERE key='profile'", (dump(current),))
+        self.migrate()
+
+    def schema_version(self):
+        with self.connect() as db:
+            return db.execute("PRAGMA user_version").fetchone()[0]
+
+    def migrate(self):
+        """Apply numbered migrations; an existing database is copied and verified first."""
+        current = self.schema_version()
+        if current > SCHEMA_VERSION:
+            raise RuntimeError("База створена новішою версією програми; оновіть програму")
+        if current == SCHEMA_VERSION:
+            return None
+        with self.connect() as db:
+            has_data = db.execute("SELECT COUNT(*) FROM tasks").fetchone()[0] > 0
+        backup = backup_database(self.path, f"v{current}") if has_data else None
+        for version in range(current + 1, SCHEMA_VERSION + 1):
+            with self.connect() as db:
+                db.executescript(MIGRATIONS[version])
+                db.execute(f"PRAGMA user_version = {version}")
+        self.last_backup = backup
+        return backup
 
     def connect(self):
         db = sqlite3.connect(self.path, timeout=15, factory=ClosingConnection)
@@ -359,6 +400,55 @@ class Store:
         return {"schema_version":1,"exported_at":now(),"profile":self.profile(),"agent_inputs":inputs,
                 "tasks":[self.task(t["id"]) for t in self.tasks()],
                 "notice":"Экспорт контекста; не содержит подключения к ChatGPT или API-ключей"}
+
+
+def table_counts(path):
+    with sqlite3.connect(path) as db:
+        names = [r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")]
+        result = {name: db.execute(f'SELECT COUNT(*) FROM "{name}"').fetchone()[0] for name in names}
+    db.close()
+    return result
+
+
+def backup_database(path, label="manual"):
+    """Consistent SQLite copy (backup API), verified by integrity check and row counts."""
+    path = Path(path)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    target = path.with_name(f"{path.stem}.backup-{label}-{stamp}.sqlite3")
+    source = sqlite3.connect(path, timeout=15)
+    copy_db = sqlite3.connect(target)
+    try:
+        source.backup(copy_db)
+    finally:
+        copy_db.close()
+        source.close()
+    check = sqlite3.connect(target)
+    try:
+        ok = check.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+    finally:
+        check.close()
+    if not ok or table_counts(target) != table_counts(path):
+        target.unlink(missing_ok=True)
+        raise RuntimeError("Резервна копія бази не пройшла перевірку; зміни схеми не виконано")
+    return target
+
+
+def restore_database(backup, path):
+    """Replace the database with a verified backup; the replaced file is kept alongside."""
+    backup, path = Path(backup), Path(path)
+    check = sqlite3.connect(backup)
+    try:
+        if check.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+            raise RuntimeError("Резервна копія пошкоджена")
+    finally:
+        check.close()
+    replaced = None
+    if path.exists():
+        replaced = backup_database(path, "before-restore")
+    for suffix in ("-wal", "-shm"):
+        Path(str(path) + suffix).unlink(missing_ok=True)
+    shutil.copyfile(backup, path)
+    return replaced
 
 
 def rank_items(items):
