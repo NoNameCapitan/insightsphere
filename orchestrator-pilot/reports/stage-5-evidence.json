@@ -1,0 +1,50 @@
+{
+  "version": "0.4.0",
+  "generated_at": "2026-09-25T13:07:26.121503+00:00",
+  "environment": {
+    "os": "Linux",
+    "architecture": "x86_64",
+    "user_mac_access": false
+  },
+  "technical_tests": {
+    "command": "python3 -m unittest -q test_core test_agents test_quality",
+    "passed": 67,
+    "failed": 0,
+    "skipped": 0,
+    "real_model_generations": 0,
+    "paid_model_calls": 0
+  },
+  "javascript_syntax": {
+    "files": [
+      "static/app.js",
+      "static/quality.js"
+    ],
+    "passed": true
+  },
+  "quality_workflow": {
+    "http_manual_comparison": true,
+    "promotion_and_rollback_with_fixtures": true,
+    "frozen_versions_and_inputs": true,
+    "per_criterion_regression_gate": true,
+    "operator_scoring_required": true,
+    "real_measured_gain": null,
+    "real_promotions": 0
+  },
+  "independent_review": {
+    "performed": true,
+    "findings_fixed": [
+      "sample inflation through administrative metadata",
+      "regression hidden by aggregate pass count",
+      "empty evaluations reported as operator-reviewed"
+    ],
+    "scope": "limited code audit"
+  },
+  "not_verified": [
+    "real Mac",
+    "visual Safari interface",
+    "real model performance",
+    "8 of 10 user tasks",
+    "time savings",
+    "autonomous improvement"
+  ]
+}

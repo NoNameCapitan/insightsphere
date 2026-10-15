@@ -1,0 +1,13 @@
+{
+  "version": "0.4.1",
+  "tests_passed": 72,
+  "test_environment": "Linux",
+  "native_windows_tested": false,
+  "windows_cli_claude_enabled": false,
+  "windows_modes": [
+    "chatgpt_manual",
+    "ollama_worker"
+  ],
+  "windows_lock_test": "mock msvcrt API",
+  "worker_tests": "real subprocess IO, cancellation, timeout, output cap on Linux"
+}

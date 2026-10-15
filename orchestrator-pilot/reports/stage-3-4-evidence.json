@@ -1,0 +1,48 @@
+{
+  "version": "0.3.0",
+  "report_generated_at": "2026-09-25T10:42:51.199704+00:00",
+  "environment": {
+    "os": "Linux",
+    "architecture": "x86_64",
+    "actual_user_mac_access": false,
+    "ollama_present": false,
+    "claude_code_present": false
+  },
+  "technical_tests": {
+    "command": "python3 -m unittest -q test_core test_agents",
+    "passed": 49,
+    "failed": 0,
+    "skipped": 0,
+    "real_model_generations": 0,
+    "real_paid_provider_calls": 0
+  },
+  "javascript_syntax": {
+    "command": "node --check static/app.js",
+    "passed": true
+  },
+  "protocols": {
+    "ollama": "actual HTTP to isolated fixture, using a real worker subprocess",
+    "claude_code": "mock CLI envelopes and argument/environment validation",
+    "chatgpt_handoff": "HTTP request export, matching run_id import, persisted result; fixture answers",
+    "team": "two sequential fixture calls; reviewer linked by parent_run_id"
+  },
+  "independent_review": {
+    "performed": true,
+    "critical_findings_addressed": true,
+    "scope": "limited code audit, not a comprehensive security certification"
+  },
+  "not_verified": [
+    "physical Mac",
+    "Safari/visual interface",
+    "real Ollama generation",
+    "real Claude Code generation",
+    "model semantic quality",
+    "8 of 10 user tasks",
+    "time or cost superiority over one agent"
+  ],
+  "self_improvement": {
+    "protocol_prepared": true,
+    "autonomous_promotion_enabled": false,
+    "measured_quality_gain": null
+  }
+}

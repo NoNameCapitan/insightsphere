@@ -1,0 +1,44 @@
+{
+  "version": "0.5.0",
+  "date": "2026-09-28",
+  "environment": {
+    "os": "Linux",
+    "python": "3.12.14"
+  },
+  "tests": {
+    "command": "python3 -m unittest -q test_core test_agents test_quality test_platform test_workloop",
+    "passed": 88,
+    "failed": 0,
+    "duration_seconds": 9.823,
+    "javascript_syntax": [
+      "static/app.js",
+      "static/quality.js",
+      "static/workloop.js"
+    ]
+  },
+  "review_fixes": [
+    "per_material_holdout",
+    "transitive_memory_provenance",
+    "all_projects_filter",
+    "reject_stale_feedback",
+    "capture_historical_terminal_runs"
+  ],
+  "implemented": [
+    "project_scoped_owner_approved_lessons",
+    "immutable_feedback_snapshots",
+    "inactive_instruction_candidates",
+    "frozen_experiment_memory",
+    "packet_bound_plan_checkpoints",
+    "one_time_revision_checked_plan_decisions",
+    "context_export"
+  ],
+  "actual_model_generations": false,
+  "native_mac_verified": false,
+  "native_windows_verified": false,
+  "visual_browser_verified": false,
+  "quality_gain_measured": false,
+  "client_outreach_performed": false,
+  "payments_connected": false,
+  "real_revenue_measured": false,
+  "note": "Synthetic model fixtures and temporary databases verify mechanisms, not measured self-improvement or commercial autonomy."
+}

@@ -1,0 +1,246 @@
+{
+  "run_at": "2026-09-25T10:01:05.375636+00:00",
+  "status": "completed",
+  "counts": {
+    "candidate": 1,
+    "needs_review": 3,
+    "excluded": 1
+  },
+  "steps_used": 4,
+  "events": [
+    {
+      "action": "created",
+      "at": "2026-09-25T10:01:05.338271+00:00",
+      "detail": {
+        "max_steps": 8,
+        "workflow": "opportunity_research"
+      },
+      "id": 1,
+      "role": "planner",
+      "task_id": "717d3f4840524407a1c8cec3689dd5ec"
+    },
+    {
+      "action": "plan_ready",
+      "at": "2026-09-25T10:01:05.339187+00:00",
+      "detail": {
+        "research": "ChatGPT or another explicitly configured provider",
+        "steps": [
+          "План",
+          "Проверка материалов",
+          "Оценка соответствия",
+          "Отчёт"
+        ]
+      },
+      "id": 2,
+      "role": "planner",
+      "task_id": "717d3f4840524407a1c8cec3689dd5ec"
+    },
+    {
+      "action": "materials_imported",
+      "at": "2026-09-25T10:01:05.341962+00:00",
+      "detail": {
+        "count": 5,
+        "duplicates_removed": 0,
+        "imported_snapshot": [
+          {
+            "budget": {
+              "basis": "client",
+              "evidence": "Указано в разделе оплаты заказчика, до списка ставок.",
+              "text": "Ориентир $5–10 за небольшую задачу; стартовый месячный бюджет до $100–200"
+            },
+            "caution": "Невысокий бюджет и ожидание длительного сотрудничества. Объём регулярной загрузки нужно согласовать.",
+            "checked_at": "2026-09-25T09:52:50.564706+00:00",
+            "deadline": "2026-10-01",
+            "deadline_display": "1 октября, 10:51 по странице; год 2026 выведен из текущего контекста, часовой пояс не указан",
+            "dedupe_key": "https://freelancehunt.com/ua/project/pomichnik-dlya-doopratsyuvannya-erp-sistemi/1653792.html",
+            "eligibility": "unknown",
+            "fit_gate": "match",
+            "fit_reason": "Опыт работы с Claude Code из контекста разговоров соответствует инструменту заказчика. Реальную сложность кода нужно проверить на одной небольшой задаче.",
+            "next_action": "Запросить пример задачи и её фиксированную стоимость; оценить работу до принятия обязательств.",
+            "ratings": {
+              "fit": 4.5,
+              "portfolio": 3,
+              "scope": 4.5
+            },
+            "reviewer": "ChatGPT: прочитана первичная страница 25.09.2026",
+            "seen_before": false,
+            "source_kind": "primary",
+            "source_opened": true,
+            "status": "open",
+            "status_evidence": "На первичной странице указан приём заявок до 1 октября; есть форма отклика.",
+            "summary": "Заказчик ищет помощь с исправлениями и небольшими изменениями существующей ERP. Большой коммерческий опыт не обязателен; требуется работа с Claude Code и понимание кода.",
+            "title": "Небольшие доработки ERP с Claude Code",
+            "url": "https://freelancehunt.com/ua/project/pomichnik-dlya-doopratsyuvannya-erp-sistemi/1653792.html"
+          },
+          {
+            "budget": {
+              "basis": "unknown",
+              "evidence": "В прочитанном описании заказчика суммы нет.",
+              "text": "Не указан"
+            },
+            "caution": "Стоимость распознавания и модели пока неизвестна. Приватность рабочих аудиозаписей требует согласования.",
+            "checked_at": "2026-09-25T09:52:50.564724+00:00",
+            "deadline": "2026-10-08",
+            "deadline_display": "8 октября, 19:05 по странице; год 2026 выведен из текущего контекста, часовой пояс не указан",
+            "dedupe_key": "https://freelancehunt.com/ua/project/potribno-stvoriti-instrument/1655171.html",
+            "eligibility": "unknown",
+            "fit_gate": "needs_confirmation",
+            "fit_reason": "Практичная задача по автоматизации с понятным демонстрационным результатом. Опыт Telegram-интеграций и обработки аудио в текущем профиле не подтверждён.",
+            "next_action": "Уточнить объём аудио, языки, требования к данным и бюджет; предложить отдельно оплачиваемый ограниченный пилот.",
+            "ratings": {
+              "fit": 4,
+              "portfolio": 4,
+              "scope": 4
+            },
+            "reviewer": "ChatGPT: прочитана первичная страница 25.09.2026",
+            "seen_before": false,
+            "source_kind": "primary",
+            "source_opened": true,
+            "status": "open",
+            "status_evidence": "Первичная страница указывает срок приёма заявок 8 октября.",
+            "summary": "Нужен инструмент, превращающий голосовые сообщения отдела продаж в структурированные итоги. Подключение задач к таск-трекеру рассматривается как дальнейшее развитие.",
+            "title": "Бот для структурирования голосовых сообщений",
+            "url": "https://freelancehunt.com/ua/project/potribno-stvoriti-instrument/1655171.html"
+          },
+          {
+            "budget": {
+              "basis": "unknown",
+              "evidence": "Суммы в откликах исполнителей не приняты за бюджет заказчика.",
+              "text": "Не указан"
+            },
+            "caution": "Одного обещания разработать сервис недостаточно: заказчик требует показать существующий результат.",
+            "checked_at": "2026-09-25T09:52:50.564727+00:00",
+            "deadline": "2026-10-02",
+            "deadline_display": "2 октября, 16:19 по странице; год 2026 выведен из текущего контекста, часовой пояс не указан",
+            "dedupe_key": "https://freelancehunt.com/ua/project/shukaemo-gotove-ai-rishennya-dlya-biznesu-kontent-zavod/1654044.html",
+            "eligibility": "unknown",
+            "fit_gate": "needs_confirmation",
+            "fit_reason": "Может подойти для демонстрации собственного продукта. Наличие у пользователя подходящего готового AI-сервиса в рамках этой проверки не подтверждено.",
+            "next_action": "Выбрать реально работающий прототип и подготовить короткое демо с честным перечнем функций; уточнить бюджет адаптации.",
+            "ratings": {
+              "fit": 3,
+              "portfolio": 5,
+              "scope": 4
+            },
+            "reviewer": "ChatGPT: прочитана первичная страница 25.09.2026",
+            "seen_before": false,
+            "source_kind": "primary",
+            "source_opened": true,
+            "status": "open",
+            "status_evidence": "В информации первичной страницы указан приём заявок до 2 октября.",
+            "summary": "Заказчик рассматривает уже работающие AI-сервисы и прототипы для бизнеса с возможностью дальнейшей адаптации.",
+            "title": "Демонстрация готового AI-решения для бизнеса",
+            "url": "https://freelancehunt.com/ua/project/shukaemo-gotove-ai-rishennya-dlya-biznesu-kontent-zavod/1654044.html"
+          },
+          {
+            "budget": {
+              "basis": "client",
+              "evidence": "Сумма в заголовке проекта перед основным описанием.",
+              "text": "10 000 UAH — бюджет, показанный заказчиком"
+            },
+            "caution": "Высокий риск недооценить объём. Текущий локальный прототип не является готовым решением этого заказа.",
+            "checked_at": "2026-09-25T09:52:50.564728+00:00",
+            "deadline": "2026-10-08",
+            "deadline_display": "8 октября, 21:51 по странице; год 2026 выведен из текущего контекста, часовой пояс не указан",
+            "dedupe_key": "https://freelancehunt.com/ua/project/rozrobka-ai-agentiv-kastomnogo-dashboard-dlya/1655201.html",
+            "eligibility": "unknown",
+            "fit_gate": "needs_confirmation",
+            "fit_reason": "Тематика совпадает с создаваемым оркестратором, но требования существенно шире текущего прототипа.",
+            "next_action": "Предложить только ограниченную первую задачу после согласования бюджета и критериев; не обещать весь комплекс за указанную сумму.",
+            "ratings": {
+              "fit": 3,
+              "portfolio": 5,
+              "scope": 1
+            },
+            "reviewer": "ChatGPT: прочитана первичная страница 25.09.2026",
+            "seen_before": false,
+            "source_kind": "primary",
+            "source_opened": true,
+            "status": "open",
+            "status_evidence": "Первичная страница содержит будущий срок приёма заявок 8 октября.",
+            "summary": "Нужен MVP с несколькими AI-исполнителями, историей задач и общей панелью. Заказчик ожидает помощи с архитектурой и допускает дальнейшее сотрудничество.",
+            "title": "AI-агенты и общая панель задач для бизнеса",
+            "url": "https://freelancehunt.com/ua/project/rozrobka-ai-agentiv-kastomnogo-dashboard-dlya/1655201.html"
+          },
+          {
+            "budget": {
+              "basis": "client",
+              "evidence": "Сумма в заголовке основного объявления.",
+              "text": "2 000 UAH — бюджет заказчика"
+            },
+            "caution": "Интересная тема сама по себе не подтверждает требуемую квалификацию.",
+            "checked_at": "2026-09-25T09:52:50.564729+00:00",
+            "deadline": "2026-10-03",
+            "deadline_display": "3 октября, 10:28 по странице; год 2026 выведен из текущего контекста, часовой пояс не указан",
+            "dedupe_key": "https://freelancehunt.com/ua/project/konsultatsiya-yak-dovesti-llm-bota-prodazhu/1654142.html",
+            "eligibility": "unknown",
+            "fit_gate": "mismatch",
+            "fit_reason": "В доступном профиле нет подтверждённого production-кейса с метриками. Для стартовой подборки такой заказ исключён.",
+            "next_action": "Вернуться к этому типу заказов после получения подходящего собственного кейса; не приписывать себе чужой опыт.",
+            "ratings": {
+              "fit": 1,
+              "portfolio": 2,
+              "scope": 1
+            },
+            "reviewer": "ChatGPT: прочитана первичная страница 25.09.2026",
+            "seen_before": false,
+            "source_kind": "primary",
+            "source_opened": true,
+            "status": "open",
+            "status_evidence": "На странице указан приём заявок до 3 октября.",
+            "summary": "Требуется консультация специалиста, уже запускавшего LLM-бота в production с измеренными показателями качества.",
+            "title": "Консультация по production-надёжности LLM-бота",
+            "url": "https://freelancehunt.com/ua/project/konsultatsiya-yak-dovesti-llm-bota-prodazhu/1654142.html"
+          }
+        ],
+        "origin": "supplied_evidence_not_a_live_local_search",
+        "sha256": "16bd353d5a9400566424b5f079faa1fef8ce36c66a83f0748455e3bc39fd02c6"
+      },
+      "id": 3,
+      "role": "research_host",
+      "task_id": "717d3f4840524407a1c8cec3689dd5ec"
+    },
+    {
+      "action": "structure_checked",
+      "at": "2026-09-25T10:01:05.361062+00:00",
+      "detail": {
+        "count": 5,
+        "semantic_verification": "not_performed_by_local_core"
+      },
+      "id": 4,
+      "role": "rule_checker",
+      "task_id": "717d3f4840524407a1c8cec3689dd5ec"
+    },
+    {
+      "action": "ranked",
+      "at": "2026-09-25T10:01:05.367365+00:00",
+      "detail": {
+        "meaning": "subjective_fit_not_probability_of_earning",
+        "weights": {
+          "fit": 0.5,
+          "portfolio": 0.2,
+          "scope": 0.3
+        }
+      },
+      "id": 5,
+      "role": "ranker",
+      "task_id": "717d3f4840524407a1c8cec3689dd5ec"
+    },
+    {
+      "action": "report_created",
+      "at": "2026-09-25T10:01:05.368666+00:00",
+      "detail": {
+        "materials": 5,
+        "paid_api_calls": 0,
+        "report_status": "supplied_source_review_with_local_structural_checks"
+      },
+      "id": 6,
+      "role": "reporter",
+      "task_id": "717d3f4840524407a1c8cec3689dd5ec"
+    }
+  ],
+  "baseline_measured": false,
+  "time_saving_measured": false,
+  "paid_api_calls_local": 0,
+  "browser_visual_check": false
+}

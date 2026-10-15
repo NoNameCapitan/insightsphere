@@ -1,0 +1,23 @@
+{
+  "version": "0.6.1",
+  "date": "2026-09-28",
+  "tests_passed": 106,
+  "test_seconds": 40.421,
+  "environment": "Linux",
+  "actual_model_runs": false,
+  "ollama_cli_found": false,
+  "claude_cli_found": false,
+  "native_mac_windows_verified": false,
+  "browser_clipboard_verified": false,
+  "new_features_frozen": true,
+  "focus": "owner_freelance_opportunity_selection",
+  "review_source": "Orchestrator-Pilot-разбор.pdf",
+  "changes": [
+    "close_sqlite_connections",
+    "timezone_absence_handling",
+    "semantic_experiment_hash",
+    "one_fenced_json",
+    "copy_paste_manual_handoff",
+    "historical_demo"
+  ]
+}

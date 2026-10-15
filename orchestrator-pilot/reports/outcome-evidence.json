@@ -1,0 +1,34 @@
+{
+  "version": "0.6.0",
+  "date": "2026-09-28",
+  "tests_passed": 100,
+  "new_tests": 12,
+  "seconds": 10.907,
+  "environment": "Linux / Python 3.12",
+  "javascript_syntax_checked": [
+    "static/app.js",
+    "static/quality.js",
+    "static/workloop.js",
+    "static/outcomes.js"
+  ],
+  "verified": [
+    "brief_revision_concurrency",
+    "stale_acceptance_rejected",
+    "all_criteria_require_evidence",
+    "unknown_cost_propagation",
+    "failed_attempt_costs",
+    "duplicate_guard",
+    "project_isolation",
+    "persistent_state",
+    "http_flow_and_export",
+    "csrf_tokens"
+  ],
+  "actual_model_runs": false,
+  "customer_interviews": 0,
+  "commercial_pilots": 0,
+  "competitive_benchmark_completed": false,
+  "native_mac_windows_verified": false,
+  "visual_browser_verified": false,
+  "measured_quality_or_cost_improvement": false,
+  "payments_connected": false
+}

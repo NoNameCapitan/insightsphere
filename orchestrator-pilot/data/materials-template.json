@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "items": [
+    {
+      "title": "Название возможности",
+      "url": "https://example.com/opportunity",
+      "summary": "Краткое описание из источника",
+      "source_kind": "unknown",
+      "source_opened": false,
+      "checked_at": "",
+      "status": "unknown",
+      "reviewer": "",
+      "status_evidence": "",
+      "deadline": "",
+      "deadline_display": "",
+      "eligibility": "unknown",
+      "budget": {
+        "text": "Не указан",
+        "basis": "unknown",
+        "evidence": ""
+      },
+      "fit_gate": "needs_confirmation",
+      "ratings": {
+        "fit": 0,
+        "scope": 0,
+        "portfolio": 0
+      },
+      "fit_reason": "",
+      "next_action": "Уточнить условия",
+      "caution": "Заполните только подтверждённые сведения"
+    }
+  ]
+}
