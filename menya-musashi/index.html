@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d100f">
+<meta name="robots" content="noindex,nofollow">
+<title>Menya Musashi Kyiv — рамен з характером · концепція</title>
+<meta name="description" content="Неофіційна дизайн-концепція сайту Menya Musashi Kyiv: японська атмосфера, справжні фотографії страв і меню дев’яти київських закладів.">
+<meta property="og:title" content="Menya Musashi Kyiv — рамен з характером">
+<meta property="og:description" content="Дизайн-концепція сайту: японська атмосфера, справжні фото страв і зручне меню дев’яти закладів.">
+<meta property="og:image" content="assets/og-cover.jpg">
+<link rel="icon" href="assets/logo.png">
+<link rel="preload" href="assets/torii-ink.webp" as="image">
+<link rel="stylesheet" href="site.css">
+<script src="data.js" defer></script>
+<script src="hires.js" defer></script>
+<script src="app.js" defer></script>
+<script src="edition.js" defer></script>
+<script src="ink.js" defer></script>
+<script src="luxe.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#menu">Перейти до меню</a>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="demo"><span class="demo-dot" aria-hidden="true"></span>Неофіційна концепція <span>· дизайн-пропозиція оновлення сайту</span><a href="proposal.html">Для команди Musashi →</a></div>
+
+<header class="site-header">
+  <a href="#" class="brand" aria-label="Menya Musashi — на головну"><img class="brand-logo" src="assets/logo.png" alt="" width="64" height="64"><span>MENYA<b>MUSASHI</b></span></a>
+  <nav aria-label="Основна навігація">
+    <a href="#signature">Підписні</a><a href="#menu">Меню</a><a href="#story">Кухня</a><a href="#bar">Бар</a><a href="#locations">Заклади</a>
+    <button id="motion" aria-pressed="false" title="Увімкнути або вимкнути анімацію">Рух увімкнено <span>◉</span></button>
+  </nav>
+  <a class="btn btn-primary header-order official" href="https://menya-musashi19.choiceqr.com/uk" target="_blank" rel="noopener"><span>Замовити</span><i aria-hidden="true">→</i></a>
+</header>
+
+<main>
+<section class="kyiv-hero" id="cover" aria-labelledby="hero-title">
+  <div class="ink-scene" aria-hidden="true">
+    <img class="ink-gate" src="assets/torii-ink.webp" alt="" width="1536" height="1024" fetchpriority="high">
+    <div class="gate-food"><img src="assets/kyiv-table.webp" alt="" width="1848" height="697"></div>
+    <div class="ink-ronin"><img src="assets/ronin-ink.webp" alt="" width="1024" height="1536"></div>
+    <div class="scene-mist"></div><div class="ink-speed"></div>
+    <div class="scene-curtain curtain-a"></div><div class="scene-curtain curtain-b"></div>
+  </div>
+  <div class="hero-shade" aria-hidden="true"></div>
+  <span class="hero-vertical" lang="ja" aria-hidden="true">麺屋武蔵</span>
+
+  <div class="scene-tools">
+    <span id="scene-label">01 / Світ Musashi</span>
+    <button id="gate-toggle" class="gate-seal" aria-pressed="false">
+      <svg class="seal-ring" viewBox="0 0 120 120" aria-hidden="true"><defs><path id="seal-circle" d="M60,60 m-47,0 a47,47 0 1,1 94,0 a47,47 0 1,1 -94,0"/></defs><text><textPath href="#seal-circle">ВІДКРИТИ ВОРОТА · 門 · ENTER THE GATE · 門 ·</textPath></text></svg>
+      <span class="seal-core" lang="ja" aria-hidden="true">門</span>
+      <span class="gate-label">Відкрити ворота</span>
+    </button>
+  </div>
+
+  <div class="hero-main">
+    <p class="eyebrow hero-eyebrow"><span class="dot" aria-hidden="true"></span>Рамен-хаус · Київ · 9 адрес</p>
+    <h1 id="hero-title"><span class="line"><span>Смак</span></span> <span class="line"><em>з характером.</em></span></h1>
+    <p class="hero-summary">Рамен, ґьодза та вечори, які хочеться повторити. Обери свій Musashi — решта справа смаку.</p>
+    <div class="hero-controls">
+      <label class="hero-venue-select"><span>Твій заклад</span><select id="venue-top" data-venue-picker aria-label="Обрати заклад на головній"></select></label>
+      <a class="btn btn-primary" href="#menu"><span>Відкрити меню</span><i aria-hidden="true">↓</i></a>
+    </div>
+    <a class="hero-location-link" href="#locations">Адреси й години роботи</a>
+  </div>
+
+  <div class="hero-bottom">
+    <div class="hero-feature" id="cover-feature" role="region" aria-label="Страви Musashi" aria-roledescription="карусель">
+      <button class="hero-pick" id="hero-food" aria-label="Відкрити рамен з куркою Абурі">
+        <span class="pick-photo"><img id="hero-food-image" src="assets/extra-161.webp" alt="Рамен з куркою Абурі" width="519" height="390"></span>
+        <span class="pick-info"><small id="feature-category">Рамен</small><strong id="hero-dish-name">Рамен з куркою Абурі</strong><span id="hero-price">Від 299 ₴</span></span>
+        <span class="pick-arrow" aria-hidden="true">→</span>
+      </button>
+      <div class="feature-foot">
+        <span id="hero-venue" class="feature-venue">вул. Костянтинівська, 19</span>
+        <span class="feature-calligraphy" hidden aria-hidden="true">麺</span>
+        <div class="course-controls" role="group" aria-label="Обрати страву"><button data-course="0" aria-pressed="true">Рамен</button><button data-course="1" aria-pressed="false">Ґьодза</button><button data-course="2" aria-pressed="false">Лимонад</button><button id="next-course" aria-label="Наступна страва">→</button></div>
+      </div>
+    </div>
+    <a class="kitchen-peek" href="#story"><small>02 / Ритуал смаку</small><span>До аніме-кухні <b>→</b></span></a>
+    <span class="scroll-cue" aria-hidden="true"><i></i>Гортай</span>
+  </div>
+</section>
+
+<div class="quick-menu" aria-label="Швидкий перехід до меню">
+  <button data-menu-route="food">Кухня</button><button data-menu-route="bar">Бар і напої</button><button data-menu-route="lunch">Ланчі L / XL</button><button id="pour-shortcut" hidden>Налий настрій</button>
+  <a href="#locations">9 закладів у Києві <span>→</span></a>
+</div>
+
+<div class="marquee" aria-hidden="true"><div class="marquee-track">
+  <span>Рамен</span><b lang="ja">麺</b><span>Ґьодза</span><b lang="ja">味</b><span>Цукемен</span><b lang="ja">火</b><span>Бао</span><b lang="ja">爽</b><span>Саке &amp; матча</span><b lang="ja">酒</b><span>Ізакая-вечори</span><b lang="ja">道</b>
+  <span>Рамен</span><b lang="ja">麺</b><span>Ґьодза</span><b lang="ja">味</b><span>Цукемен</span><b lang="ja">火</b><span>Бао</span><b lang="ja">爽</b><span>Саке &amp; матча</span><b lang="ja">酒</b><span>Ізакая-вечори</span><b lang="ja">道</b>
+</div></div>
+
+<section class="signature" id="signature" aria-labelledby="signature-title">
+  <div class="section-intro reveal">
+    <p class="eyebrow"><span class="idx">01</span>Підписні страви</p>
+    <h2 id="signature-title">Те, по що <em>повертаються.</em></h2>
+    <p class="section-lede">Добірка з меню обраного закладу — справжні фото, актуальні ціни знімка й склад одним дотиком.</p>
+  </div>
+  <div class="signature-grid" id="signature-grid"></div>
+</section>
+
+<section id="menu" class="menu-section" aria-labelledby="menu-title">
+  <div class="section-heading reveal">
+    <div><p class="eyebrow"><span class="idx">02</span>Меню</p><h2 id="menu-title">Меню <em>твого</em> Musashi</h2></div>
+    <button class="favorites-toggle" id="favorites-toggle" aria-pressed="false"><span aria-hidden="true">♡</span> Обране <b id="favorites-count">0</b></button>
+  </div>
+  <div class="menu-tools">
+    <label class="venue-control"><span>Заклад</span><select id="venue" data-venue-picker aria-label="Обрати заклад"></select></label>
+    <label class="search-control"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Знайти страву або інгредієнт" aria-label="Пошук у всіх розділах меню"></label>
+  </div>
+  <div id="venue-note" class="venue-note"></div>
+  <div class="menu-nav"><div id="section-tabs" class="section-tabs" role="tablist" aria-label="Вид меню"></div><div id="categories" class="categories" aria-label="Категорії страв"></div></div>
+  <div class="catalog-top"><p id="catalog-note" role="status" aria-live="polite"></p><button id="clear-search" class="text-link" hidden>Скинути пошук ×</button><button id="surprise" class="text-link">✦ Обери мені страву</button></div>
+  <div id="catalog" class="catalog"></div>
+  <p class="data-note">Знімок відкритих меню від 06.11.2026. Остаточну наявність і ціну підтверджує офіційний сервіс. Фото: Menya Musashi.</p>
+</section>
+
+<section class="ethos" aria-labelledby="ethos-title">
+  <span class="ethos-kanji" lang="ja" aria-hidden="true">武蔵</span>
+  <div class="ethos-inner">
+    <p class="eyebrow reveal"><span class="idx">03</span>Шлях Musashi</p>
+    <h2 id="ethos-title" class="reveal">Японський характер. <em>Київський ритм.</em></h2>
+    <div class="stats" id="stats">
+      <div class="stat reveal"><b data-stat="venues">9</b><span>закладів у Києві — від Подолу до Оболоні</span></div>
+      <div class="stat reveal"><b data-stat="dishes">290+</b><span>страв і напоїв у меню мережі</span></div>
+      <div class="stat reveal"><b data-stat="open">10:00</b><span>найраніше відкриття — щодня, без вихідних</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="cooking-section" id="story" aria-labelledby="story-title" data-step="noodles">
+  <div class="cooking-art">
+    <span class="kitchen-kanji" lang="ja" aria-hidden="true">料理</span>
+    <div class="chef-sprite main-chef" role="img" aria-label="Аніме-кухар підіймає локшину паличками над гарячою каструлею"></div>
+    <figure class="cooking-bowl" aria-hidden="true"><img id="cooking-bowl-image" src="assets/extra-161.webp" alt="" loading="lazy"><figcaption id="cooking-bowl-caption">Рамен твого закладу</figcaption></figure>
+    <div class="kitchen-steam" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="kitchen-heat" aria-hidden="true"></div>
+    <span class="kitchen-tag">Кулінарне аніме</span>
+    <button class="cooking-pause" id="cooking-pause" aria-pressed="false">Пауза</button>
+  </div>
+  <div class="cooking-copy">
+    <p class="eyebrow"><span class="idx">04</span>Ритуал приготування</p>
+    <h2 id="story-title">Уся увага — <em>смаку.</em></h2>
+    <p class="cooking-intro">Поки ти обираєш, наш аніме-кухар дістає палички. Зазирни в кожен етап — або одразу до своєї миски.</p>
+    <div class="cooking-steps" role="group" aria-label="Етап кулінарної сцени"><button data-cooking="broth" aria-pressed="false"><small>一</small>Бульйон</button><button data-cooking="noodles" aria-pressed="true"><small>二</small>Локшина</button><button data-cooking="serve" aria-pressed="false"><small>三</small>Твоя миска</button></div>
+    <div class="cooking-caption" aria-live="polite"><h3 id="cooking-caption-title">Локшина, за якою тягнуться.</h3><p id="cooking-caption-text">Підіймаємо палички — і починається найапетитніша частина історії.</p></div>
+    <div class="cooking-actions"><button class="btn btn-primary" id="chef-pick"><span>Показати мені рамен</span><i aria-hidden="true">→</i></button><button class="replay-cooking" id="replay-story" aria-label="Повторити кулінарну анімацію">↺ Ще раз</button></div>
+    <small class="concept-art-note">Авторська аніме-сцена для концепції. У меню — справжні фото страв.</small>
+  </div>
+</section>
+
+<section class="pour-section" id="pour" aria-labelledby="pour-title" hidden>
+  <div class="pour-copy">
+    <p class="eyebrow"><span class="idx">05</span>Твій рух — наш смак</p>
+    <h2 id="pour-title">Додай<br><em>яскравості.</em></h2>
+    <p>Манго, маракуйя та трохи твоєї магії.<br>Утримуй кнопку — наповни келих.</p>
+    <div class="pour-actions"><button id="pour-hold" class="pour-hold" aria-label="Наповнити келих. Утримуй або натисни для повної анімації"><span class="pour-ring" aria-hidden="true"></span><span id="pour-button-label">Утримуй<br>і наливай</span></button><div><output id="pour-status" aria-live="polite">Келих чекає</output><button id="pour-reset" class="text-link">Ще раз ↺</button></div></div>
+    <button id="pour-dish" class="text-link">Дивитися напій →</button>
+    <small class="pour-note">Візуалізація на основі фото напою. Замовлення — через офіційне меню.</small>
+  </div>
+  <div class="pour-visual" aria-hidden="true"><span class="pour-kanji" lang="ja">爽</span><div class="pour-rays"></div><div class="pour-glass"><div class="glass-empty"></div><div class="glass-full"></div><div class="pour-stream"></div><div class="glass-splash"></div></div><div class="pour-floor"></div><span class="pour-caption" id="pour-caption"></span></div>
+</section>
+
+<section class="bar-section" id="bar" aria-labelledby="bar-title">
+  <div class="bar-inner">
+    <div class="bar-copy reveal">
+      <p class="eyebrow"><span class="idx">06</span>Коктейлі та безалкогольні напої</p>
+      <h2 id="bar-title">Що <em>питимеш?</em></h2>
+      <p>Цитрусова свіжість, яскраві коктейлі та напої для неспішних розмов.</p>
+      <div class="bar-tabs" role="group" aria-label="Обрати тип напоїв"><button data-bar="alcohol" aria-pressed="true">Коктейлі</button><button data-bar="soft" aria-pressed="false">Без алкоголю</button></div>
+      <button class="bar-menu-link" id="bar-menu">Усе барне меню <span>→</span></button>
+      <small id="bar-venue">вул. Костянтинівська, 19</small>
+    </div>
+    <div class="bar-selection" id="bar-selection" aria-live="polite" aria-atomic="true"></div>
+  </div>
+  <div class="bar-baseline"><span lang="ja" aria-hidden="true">乾杯</span><p>За зустрічі, які хочеться повторити.</p><span>MENYA MUSASHI / BAR</span></div>
+</section>
+
+<section id="locations" class="locations" aria-labelledby="locations-title">
+  <div class="section-heading reveal">
+    <div><p class="eyebrow"><span class="idx">07</span>Заклади</p><h2 id="locations-title">Твій Musashi <em>поруч.</em></h2></div>
+    <p class="section-aside">Адреси, графіки та меню кожного закладу — в одному місці.</p>
+  </div>
+  <div id="location-list"></div>
+</section>
+
+<section class="finale" aria-labelledby="finale-title">
+  <span class="finale-kanji" lang="ja" aria-hidden="true">一</span>
+  <p class="eyebrow">Вечеря чекає</p>
+  <h2 id="finale-title">Одна миска.<br><em>Безліч причин повернутися.</em></h2>
+  <div class="finale-actions"><a class="btn btn-primary official" href="https://menya-musashi19.choiceqr.com/uk" target="_blank" rel="noopener"><span>Замовити в закладі</span><i aria-hidden="true">→</i></a><a class="btn btn-ghost" href="#menu"><span>Переглянути меню</span><i aria-hidden="true">↑</i></a></div>
+</section>
+</main>
+
+<footer>
+  <div class="footer-top">
+    <a href="#" class="brand"><img class="brand-logo" src="assets/logo.png" alt="" width="64" height="64"><span>MENYA<b>MUSASHI</b></span></a>
+    <nav aria-label="Навігація у футері"><a href="#signature">Підписні</a><a href="#menu">Меню</a><a href="#bar">Бар</a><a href="#locations">Заклади</a><a href="proposal.html">Пропозиція для ресторану →</a></nav>
+  </div>
+  <p class="footer-word" aria-hidden="true">MUSASHI</p>
+  <div class="footer-bottom"><p>Концепція Івана Жаркова для Menya Musashi Kyiv. Неофіційне демонстраційне оформлення. Замовлення — в офіційному сервісі.</p><p>Фото та логотип належать правовласникам · 2026</p></div>
+</footer>
+
+<div class="mobile-order"><a href="#menu">Меню ↑</a><a class="official" href="https://menya-musashi19.choiceqr.com/uk" target="_blank" rel="noopener">Замовити у закладі →</a></div>
+<div id="save-status" class="save-status" role="status" aria-live="polite"></div>
+<dialog id="dish-dialog" aria-labelledby="dish-title"><button class="close" aria-label="Закрити картку страви">×</button><div id="dish-content"></div></dialog>
+</body>
+</html>
