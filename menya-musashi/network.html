@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d100f">
+<meta name="robots" content="noindex,nofollow">
+<title>Musashi Network Studio — персональний сайт кожної філії</title>
+<meta name="description" content="Network Studio: одна кодова база — дев’ять персональних сайтів філій Menya Musashi Kyiv. Прев’ю, конфігуратор, QR, віджет і схема інтеграції.">
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/studio.css">
+<script defer src="js/vendor/gsap.min.js"></script>
+<script defer src="js/vendor/ScrollTrigger.min.js"></script>
+<script defer src="js/vendor/qrcode.js"></script>
+<script defer src="js/data.js"></script>
+<script defer src="js/hires.js"></script>
+<script defer src="js/branches.js"></script>
+<script defer src="js/embed.js"></script>
+<script defer src="js/studio.js"></script>
+</head>
+<body class="studio-page">
+<div class="grain" aria-hidden="true"></div>
+<div class="demo"><span class="demo-dot" aria-hidden="true"></span>Network Studio · для команди інтеграції Menya Musashi Kyiv <span>· неофіційна концепція</span><a href="index.html">Відкрити сайт філії →</a></div>
+
+<header class="site-header">
+  <a href="index.html" class="brand" aria-label="Menya Musashi — сайт"><img class="brand-logo" src="assets/logo.png" alt="" width="64" height="64"><span>MUSASHI<b>STUDIO</b></span></a>
+  <nav aria-label="Розділи студії"><a href="#studio">Конфігуратор</a><a href="#fleet">Філії</a><a href="#architecture">Інтеграція</a><a href="#widget">Віджет</a><a href="#rollout">Запуск</a></nav>
+  <a class="btn btn-primary header-order" href="proposal.html"><span>Пропозиція</span><i aria-hidden="true">→</i></a>
+</header>
+
+<main>
+<section class="s-hero">
+  <div class="s-hero-copy">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Musashi Network Studio</p>
+    <h1><span class="ln"><span>Одна система.</span></span><span class="ln"><em>Дев’ять сайтів.</em></span></h1>
+    <p class="s-lede">Кожна філія отримує власний персональний сайт: свою адресу, меню й ціни, фірмову страву, колір, заголовок, статус «відкрито зараз» і пряме замовлення в Choice. Нова філія — це один рядок конфігурації, а не новий проєкт.</p>
+    <div class="s-kpis">
+      <div><b data-count="9">9</b><span>філій на одній кодовій базі</span></div>
+      <div><b data-count="1380">1380</b><span>позицій меню з окремими цінами</span></div>
+      <div><b>~1</b><span>день на запуск нової філії</span></div>
+      <div><b>0</b><span>змін у процесі замовлення Choice</span></div>
+    </div>
+  </div>
+  <div class="s-hero-wall" aria-hidden="true" id="hero-wall"></div>
+</section>
+
+<!-- STUDIO -->
+<section class="studio" id="studio" aria-labelledby="studio-title">
+  <div class="s-head"><p class="eyebrow"><span class="idx">01</span>Живий конфігуратор</p><h2 id="studio-title">Налаштуйте сайт філії — <em>за секунди.</em></h2><p class="s-sub">Зміни застосовуються до справжнього сайту в прев’ю. Готову версію можна передати посиланням, QR-кодом або JSON-конфігом для розробника.</p></div>
+  <div class="studio-grid">
+    <aside class="panel" aria-label="Налаштування філії">
+      <div class="field"><span class="label">Філія</span><div class="branch-list" id="branch-list" role="radiogroup" aria-label="Обрати філію"></div></div>
+      <div class="field"><span class="label">Акцентний колір</span><div class="swatches" id="swatches" role="radiogroup" aria-label="Акцентний колір"></div></div>
+      <label class="field"><span class="label">Фірмова страва на першому екрані</span><select id="dish-select"></select></label>
+      <div class="field two"><label><span class="label">Заголовок · рядок 1</span><input id="h1a" maxlength="24"></label><label><span class="label">Рядок 2 (курсив)</span><input id="h1b" maxlength="34"></label></div>
+      <div class="field actions"><button class="chip" id="reset" type="button">↺ Скинути до профілю філії</button></div>
+    </aside>
+
+    <div class="preview">
+      <div class="preview-bar">
+        <div class="device-toggle" role="group" aria-label="Пристрій"><button data-device="desktop" aria-pressed="true">Десктоп</button><button data-device="mobile" aria-pressed="false">Телефон</button></div>
+        <span class="url-pill"><i aria-hidden="true">🔒</i><span id="url-pill">musashi.kyiv/podil</span></span>
+        <a class="chip" id="open-live" href="index.html" target="_blank" rel="noopener">Відкрити ↗</a>
+      </div>
+      <div class="frame-wrap" id="frame-wrap"><div class="frame-scale" id="frame-scale"><iframe id="preview" title="Прев’ю сайту філії" src="index.html?venue=19&amp;embed=1" loading="eager"></iframe></div></div>
+    </div>
+
+    <aside class="panel output" aria-label="Результат">
+      <div class="field"><span class="label">Посилання на сайт філії</span><div class="copy-row"><input id="share-link" readonly><button class="chip" data-copy="#share-link" type="button">Копіювати</button></div></div>
+      <div class="field qr-field"><span class="label">QR для столиків і вітрини</span><div class="qr" id="qr"></div><button class="chip" id="qr-download" type="button">Завантажити SVG</button></div>
+      <div class="field"><span class="label">Конфіг філії (JSON)</span><pre class="code" id="json-out"></pre><div class="copy-row"><button class="chip" data-copy="#json-out" type="button">Копіювати JSON</button><button class="chip" id="json-download" type="button">Завантажити</button></div></div>
+    </aside>
+  </div>
+</section>
+
+<!-- FLEET -->
+<section class="fleet" id="fleet" aria-labelledby="fleet-title">
+  <div class="s-head"><p class="eyebrow"><span class="idx">02</span>Мережа</p><h2 id="fleet-title">Дев’ять філій — <em>дев’ять облич.</em></h2><p class="s-sub">Кожна картка — окремий сайт із власною адресою. Статус «відкрито» рахується наживо за київським часом.</p></div>
+  <div class="fleet-grid" id="fleet-grid"></div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="arch" id="architecture" aria-labelledby="arch-title">
+  <div class="s-head"><p class="eyebrow"><span class="idx">03</span>Інтеграція</p><h2 id="arch-title">Як дані потрапляють <em>на кожен сайт.</em></h2></div>
+  <figure class="arch-diagram">
+    <svg viewBox="0 0 1200 460" role="img" aria-label="Схема: Choice та POS передають меню в синхронізацію, з неї генеруються JSON-фіди філій, далі CDN роздає дев’ять сайтів, віджет і QR-коди">
+      <defs><linearGradient id="flow" x1="0" x2="1"><stop offset="0" stop-color="#ff6a00" stop-opacity="0"/><stop offset=".5" stop-color="#ff6a00"/><stop offset="1" stop-color="#ff6a00" stop-opacity="0"/></linearGradient></defs>
+      <g class="a-links">
+        <path id="l1" d="M220 130 C 300 130, 300 230, 380 230"/><path id="l2" d="M220 330 C 300 330, 300 230, 380 230"/>
+        <path id="l3" d="M600 230 L 690 230"/>
+        <path id="l4" d="M900 230 C 960 230, 960 90, 1010 90"/><path id="l5" d="M900 230 L 1010 230"/><path id="l6" d="M900 230 C 960 230, 960 370, 1010 370"/>
+      </g>
+      <g class="a-dots"><circle r="4"><animateMotion dur="2.6s" repeatCount="indefinite"><mpath href="#l1"/></animateMotion></circle><circle r="4"><animateMotion dur="2.6s" begin="1.1s" repeatCount="indefinite"><mpath href="#l2"/></animateMotion></circle><circle r="4"><animateMotion dur="1.4s" repeatCount="indefinite"><mpath href="#l3"/></animateMotion></circle><circle r="4"><animateMotion dur="2.2s" repeatCount="indefinite"><mpath href="#l4"/></animateMotion></circle><circle r="4"><animateMotion dur="1.8s" begin=".4s" repeatCount="indefinite"><mpath href="#l5"/></animateMotion></circle><circle r="4"><animateMotion dur="2.2s" begin=".8s" repeatCount="indefinite"><mpath href="#l6"/></animateMotion></circle></g>
+      <g class="a-node"><rect x="20" y="80" width="200" height="100" rx="18"/><text x="120" y="122">Choice</text><text x="120" y="148" class="s">меню · ціни · фото</text></g>
+      <g class="a-node"><rect x="20" y="280" width="200" height="100" rx="18"/><text x="120" y="322">POS / стоп-лист</text><text x="120" y="348" class="s">наявність · години</text></g>
+      <g class="a-node hot"><rect x="380" y="170" width="220" height="120" rx="20"/><text x="490" y="218">Синхронізація</text><text x="490" y="246" class="s">щогодини / за подією</text><text x="490" y="268" class="s">перевірка цін і фото</text></g>
+      <g class="a-node"><rect x="690" y="170" width="210" height="120" rx="20"/><text x="795" y="218">JSON-фіди філій</text><text x="795" y="246" class="s">9 × branch.json</text><text x="795" y="268" class="s">+ branches.js</text></g>
+      <g class="a-node out"><rect x="1010" y="50" width="170" height="80" rx="16"/><text x="1095" y="86">9 сайтів</text><text x="1095" y="110" class="s">musashi.kyiv/філія</text></g>
+      <g class="a-node out"><rect x="1010" y="190" width="170" height="80" rx="16"/><text x="1095" y="226">Віджет</text><text x="1095" y="250" class="s">партнери · Google</text></g>
+      <g class="a-node out"><rect x="1010" y="330" width="170" height="80" rx="16"/><text x="1095" y="366">QR у залі</text><text x="1095" y="390" class="s">столики · вітрини</text></g>
+    </svg>
+  </figure>
+  <div class="arch-cards">
+    <article><small>Етап A · зараз</small><h3>Статичний сайт + Choice</h3><p>Сайт уже працює на знімку меню. Замовлення та оплата — у вашому Choice. Ризик для операцій — нульовий.</p></article>
+    <article><small>Етап B · пілот</small><h3>Автосинхронізація</h3><p>Регулярний експорт меню з Choice/POS перетворюється на фіди філій. Ціни, фото та стоп-лист оновлюються без ручної роботи.</p></article>
+    <article><small>Етап C · масштаб</small><h3>Мережа й партнери</h3><p>Нова філія — рядок у конфігу. Віджет для партнерів, QR у залах, сезонні меню й акції — централізовано для всієї мережі.</p></article>
+  </div>
+  <div class="contract">
+    <div><p class="eyebrow">Контракт даних філії</p><p class="s-sub">Мінімум, який потрібен від мережі, щоб запустити нову філію. Формат простий для будь-якої POS-інтеграції.</p></div>
+    <pre class="code" id="contract"></pre>
+  </div>
+</section>
+
+<!-- WIDGET -->
+<section class="widget-sec" id="widget" aria-labelledby="widget-title">
+  <div class="s-head"><p class="eyebrow"><span class="idx">04</span>Віджет для партнерів</p><h2 id="widget-title">Меню філії — <em>на будь-якому сайті.</em></h2><p class="s-sub">Два рядки коду — і на сайті ТРЦ, готелю чи партнера з’являється картка філії з живим статусом, фірмовими стравами й кнопкою замовлення. Стилі ізольовані Shadow DOM.</p></div>
+  <div class="widget-grid">
+    <div class="widget-demo"><div data-musashi-widget data-venue="19" id="widget-live"></div></div>
+    <div><pre class="code" id="widget-code"></pre><div class="copy-row"><button class="chip" data-copy="#widget-code" type="button">Копіювати код</button></div><div class="widget-venues" id="widget-venues"></div></div>
+  </div>
+</section>
+
+<!-- ROLLOUT -->
+<section class="rollout" id="rollout" aria-labelledby="rollout-title">
+  <div class="s-head"><p class="eyebrow"><span class="idx">05</span>План запуску</p><h2 id="rollout-title">Від пілоту до мережі — <em>шість тижнів.</em></h2></div>
+  <ol class="timeline">
+    <li><small>Тиждень 1</small><h3>Пілот: одна філія</h3><p>Погодження дизайну, оригінали фото, домен, аналітика переходів у Choice.</p></li>
+    <li><small>Тиждень 2–3</small><h3>Синхронізація даних</h3><p>Експорт Choice/POS → фіди філій. Перевірка цін і стоп-листа з командою.</p></li>
+    <li><small>Тиждень 4–5</small><h3>Розгортання мережі</h3><p>Решта філій через конфіг, QR-набори для залів, віджет для партнерів.</p></li>
+    <li><small>Тиждень 6</small><h3>Звіт і масштаб</h3><p>Перші цифри: відкриття меню, вибір філії, переходи до замовлення. Рішення про наступні кроки.</p></li>
+  </ol>
+  <div class="finale-actions s-cta"><a class="btn btn-primary" href="proposal.html"><span>Пропозиція й пакети</span><i aria-hidden="true">→</i></a><a class="btn btn-ghost" href="index.html"><span>Сайт філії</span><i aria-hidden="true">↗</i></a></div>
+</section>
+</main>
+
+<footer><div class="footer-bottom"><p>Musashi Network Studio — концепція Івана Жаркова для Menya Musashi Kyiv. Неофіційна дизайн-пропозиція; дані — знімок меню від 06.11.2026.</p><p>Фото та логотип належать правовласникам · 2026</p></div></footer>
+<div id="toast" class="save-status" role="status" aria-live="polite"></div>
+</body>
+</html>

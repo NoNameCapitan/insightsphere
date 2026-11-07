@@ -40,12 +40,13 @@ for(const select of document.querySelectorAll('[data-venue-picker]')){select.inn
 function updateVenue(key) {
   venue=venues.find(v=>v.key===key)||venues[0];
   try{localStorage.setItem('musashi-venue',venue.key);}catch{}
+  try{const u=new URL(location.href);if(u.protocol.startsWith('http')||u.protocol==='file:'){if(u.searchParams.get('venue')!==venue.key){u.searchParams.set('venue',venue.key);history.replaceState(null,'',u);}}}catch{}
   for(const select of document.querySelectorAll('[data-venue-picker]'))select.value=venue.key;
   section=Math.max(0,sectionIndex());category='0';query='';favoritesOnly=false;$('#search').value='';
   document.querySelectorAll('.official').forEach(a=>a.href=venue.url);
   $('#venue-note').textContent=`${venue.hours} щодня · Ціни й асортимент цього закладу`;
   const aburi=rows().find(r=>r.item.name==='Рамен з куркою Абурі');
-  if(aburi)$('#hero-price').textContent=aburi.item.price;
+  if(aburi&&$('#hero-price'))$('#hero-price').textContent=aburi.item.price;
   renderTabs();renderCategories();renderCatalog();updateSavedUI();
   document.dispatchEvent(new CustomEvent('musashi:venue'));
 }
@@ -118,6 +119,6 @@ const motionPreference=matchMedia('(prefers-reduced-motion: reduce)');let motion
 try{motionOff=localStorage.getItem('musashi-motion')==='off';}catch{}
 function setMotion(){const off=motionOff||motionPreference.matches;document.body.classList.toggle('no-motion',off);$('#motion').setAttribute('aria-pressed',String(off));$('#motion').disabled=motionPreference.matches;$('#motion').title=motionPreference.matches?'Системне налаштування зменшення руху':'Увімкнути або вимкнути анімацію';$('#motion').innerHTML=off?'Рух вимкнено <span>○</span>':'Рух увімкнено <span>◉</span>';document.dispatchEvent(new CustomEvent('musashi:motion'));}
 $('#motion').addEventListener('click',()=>{motionOff=!motionOff;setMotion();try{localStorage.setItem('musashi-motion',motionOff?'off':'on');}catch{}});setMotion();motionPreference.addEventListener('change',setMotion);
-let rememberedVenue=venue.key;try{rememberedVenue=localStorage.getItem('musashi-venue')||venue.key;}catch{}
+let rememberedVenue=venue.key;try{rememberedVenue=new URLSearchParams(location.search).get('venue')||localStorage.getItem('musashi-venue')||venue.key;const bl=(window.MUSASHI_BRANCHES||{}).list||{};const pathSlug=(location.pathname.split('/').filter(Boolean).pop()||'').replace(/\.html$/,'');if(!new URLSearchParams(location.search).get('venue')&&Object.values(bl).some(b=>b.slug===pathSlug))rememberedVenue=pathSlug;const bySlug=Object.keys(bl).find(k=>bl[k].slug===rememberedVenue);if(bySlug)rememberedVenue=bySlug;}catch{}
 updateVenue(rememberedVenue);
 window.MusashiUI={selectSection,getVenue:()=>venue,openDish:showDish,rows,randomFood:()=>{const candidates=rows().filter(r=>r.sectionTitle.startsWith('ОСНОВНЕ')&&r.item.image&&!/ДОДАТ|СОУС/.test(r.categoryTitle));const row=candidates[Math.floor(Math.random()*candidates.length)];if(row)showDish(row.si,row.ci,row.ii);}};

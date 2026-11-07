@@ -4,13 +4,13 @@
    champagne hairlines; Cormorant display + Golos UI + Shippori Mincho kanji.
    ========================================================================== */
 
-@font-face{font-family:Golos;src:url('assets/golos-cyrillic.woff2') format('woff2');font-weight:100 900;font-display:swap;unicode-range:U+0400-052F,U+2DE0-2DFF,U+A640-A69F}
-@font-face{font-family:Golos;src:url('assets/golos-latin.woff2') format('woff2');font-weight:100 900;font-display:swap}
-@font-face{font-family:Cormorant;src:url('assets/cormorant-normal-cyrillic.woff2') format('woff2');font-weight:300 700;font-style:normal;font-display:swap;unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
-@font-face{font-family:Cormorant;src:url('assets/cormorant-normal-latin.woff2') format('woff2');font-weight:300 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:Cormorant;src:url('assets/cormorant-italic-cyrillic.woff2') format('woff2');font-weight:300 700;font-style:italic;font-display:swap;unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
-@font-face{font-family:Cormorant;src:url('assets/cormorant-italic-latin.woff2') format('woff2');font-weight:300 700;font-style:italic;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:'Shippori Mincho';src:url('assets/shippori-kanji.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:Golos;src:url('../assets/golos-cyrillic.woff2') format('woff2');font-weight:100 900;font-display:swap;unicode-range:U+0400-052F,U+2DE0-2DFF,U+A640-A69F}
+@font-face{font-family:Golos;src:url('../assets/golos-latin.woff2') format('woff2');font-weight:100 900;font-display:swap}
+@font-face{font-family:Cormorant;src:url('../assets/cormorant-normal-cyrillic.woff2') format('woff2');font-weight:300 700;font-style:normal;font-display:swap;unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:Cormorant;src:url('../assets/cormorant-normal-latin.woff2') format('woff2');font-weight:300 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Cormorant;src:url('../assets/cormorant-italic-cyrillic.woff2') format('woff2');font-weight:300 700;font-style:italic;font-display:swap;unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:Cormorant;src:url('../assets/cormorant-italic-latin.woff2') format('woff2');font-weight:300 700;font-style:italic;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Shippori Mincho';src:url('../assets/shippori-kanji.woff2') format('woff2');font-weight:600;font-display:swap}
 
 :root{
   --ink:#0d100f;--ink-2:#131716;--ink-3:#1a1f1d;--ink-4:#232927;
@@ -310,7 +310,7 @@ select option{background:var(--ink-3);color:var(--paper)}
 .js .stat.reveal:nth-child(2){transition-delay:.12s}.js .stat.reveal:nth-child(3){transition-delay:.24s}
 
 /* --- Cooking anime ------------------------------------------------------ */
-.chef-sprite{background-image:url('assets/chef-cooking-sprite.webp');background-size:400% 200%;background-position:0 0;background-repeat:no-repeat;aspect-ratio:3/4;animation:cookNoodles 3.6s steps(1,end) infinite;animation-play-state:paused}
+.chef-sprite{background-image:url('../assets/chef-cooking-sprite.webp');background-size:400% 200%;background-position:0 0;background-repeat:no-repeat;aspect-ratio:3/4;animation:cookNoodles 3.6s steps(1,end) infinite;animation-play-state:paused}
 .cooking-section{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,6vw,110px);align-items:center;max-width:var(--maxw);margin:auto;padding:clamp(80px,10vw,150px) var(--gutter);overflow:clip}
 .cooking-art{position:relative;min-height:560px;display:flex;align-items:end;justify-content:center;isolation:isolate;border-radius:28px;background:radial-gradient(ellipse at 50% 80%,rgba(255,138,61,.16),transparent 60%),radial-gradient(ellipse at 30% 20%,rgba(31,107,83,.3),transparent 60%),var(--ink-2);border:1px solid var(--line)}
 .main-chef{position:relative;z-index:2;width:400px;max-width:86%;margin-bottom:28px;filter:contrast(1.1) saturate(.75) drop-shadow(0 24px 24px rgba(0,0,0,.45));transition:opacity .3s,transform .5s var(--ease)}
@@ -370,7 +370,7 @@ select option{background:var(--ink-3);color:var(--paper)}
 .pour-note{display:block;margin-top:26px;max-width:320px;font-size:10px;line-height:1.6;color:#4a2a0e}
 .pour-visual{position:relative;min-height:680px;isolation:isolate;overflow:hidden}
 .pour-glass{position:absolute;width:460px;max-width:95%;height:613px;bottom:20px;left:50%;transform:translateX(-50%);z-index:2}
-.glass-empty,.glass-full{position:absolute;inset:0;background-image:url('assets/lemonade-pour.webp');background-size:200% 100%;background-repeat:no-repeat;-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 768 1024'%3E%3Cpath fill='white' d='M274 284 Q274 268 315 259 C327 211 364 178 410 178 C468 178 509 211 530 267 Q540 273 537 300 L524 840 Q522 910 410 918 Q291 914 284 850 Z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 768 1024'%3E%3Cpath fill='white' d='M274 284 Q274 268 315 259 C327 211 364 178 410 178 C468 178 509 211 530 267 Q540 273 537 300 L524 840 Q522 910 410 918 Q291 914 284 850 Z'/%3E%3C/svg%3E");-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.glass-empty,.glass-full{position:absolute;inset:0;background-image:url('../assets/lemonade-pour.webp');background-size:200% 100%;background-repeat:no-repeat;-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 768 1024'%3E%3Cpath fill='white' d='M274 284 Q274 268 315 259 C327 211 364 178 410 178 C468 178 509 211 530 267 Q540 273 537 300 L524 840 Q522 910 410 918 Q291 914 284 850 Z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 768 1024'%3E%3Cpath fill='white' d='M274 284 Q274 268 315 259 C327 211 364 178 410 178 C468 178 509 211 530 267 Q540 273 537 300 L524 840 Q522 910 410 918 Q291 914 284 850 Z'/%3E%3C/svg%3E");-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 .glass-empty{background-position:94.5% 0;opacity:.92}
 .glass-full{background-position:0 0;clip-path:inset(calc(89% - var(--fill,0)*62%) 0 0);opacity:clamp(0,calc(var(--fill,0)*20),1);will-change:clip-path}
 .pour-floor{position:absolute;bottom:60px;left:22%;width:56%;height:40px;border-radius:50%;background:rgba(60,20,0,.3);filter:blur(10px)}
