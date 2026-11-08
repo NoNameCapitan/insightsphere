@@ -1,0 +1,51 @@
+{
+  "rewrites": [
+    {
+      "source": "/podil",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/lypky",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/torisho",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/holosiiv",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/bazhana",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/obolon",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/lavina",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/vynohradar",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/beresteiskyi",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+MENYA MUSASHI — NETWORK EDITION
+
+1. Розпакуйте архів повністю.
+2. index.html — сайт філії (Chrome / Safari / Edge). Інша філія: index.html?venue=torisho
+3. network.html — Network Studio для команди інтеграції: конфігуратор, усі філії, QR, віджет, схема.
+4. proposal.html або Menya-Musashi-Network-Proposal.pdf — пропозиція для керівника.
+5. docs/SALES-KIT.md — сценарій демо на 10–12 хвилин (тільки для вас).
+
+ДЛЯ ПРЕЗЕНТАЦІЇ найкраще залити папку на Netlify/Vercel (перетягнути в браузер) — тоді працюють адреси /podil, /torisho тощо і QR-коди ведуть на справжній сайт.
+Перед відправкою: впишіть контакти в proposal.html, перевірте ціни пакетів.
