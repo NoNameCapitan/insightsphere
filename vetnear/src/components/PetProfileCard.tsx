@@ -51,10 +51,10 @@ export function PetProfileCard({ pet, active }: { pet: PetProfile; active?: bool
       </div>
 
       <div className="mt-4 flex items-center gap-3 rounded-2xl bg-canvas px-3 py-2.5">
-        <ReminderIcon className="h-9 w-9 shrink-0" />
+        <span className="icon3d h-10 w-10"><ReminderIcon className="h-7 w-7" /></span>
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-medium text-ink/45">Наступна подія</p>
-          <p className="truncate text-sm font-semibold text-ink">{event ? `${event.label} · ${formatDate(event.date)}` : "Додайте вакцинацію або нагадування"}</p>
+          <p className="truncate text-sm font-semibold text-ink">{event ? `${event.label} · ${formatDate(event.date)}` : "Запланованих подій немає"}</p>
         </div>
       </div>
 

@@ -74,7 +74,7 @@ export function AmbientBackground() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(560px circle at var(--amb-x) var(--amb-y), rgb(14 116 102 / 0.07), transparent 70%)",
+            "radial-gradient(560px circle at var(--amb-x) var(--amb-y), rgb(11 107 98 / 0.07), transparent 70%)",
         }}
       />
       {/* Soft warm counter-glow, anchored bottom-right for gentle depth. */}
@@ -82,7 +82,7 @@ export function AmbientBackground() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(680px circle at 85% 90%, rgb(217 164 65 / 0.05), transparent 70%)",
+            "radial-gradient(680px circle at 85% 90%, rgb(242 164 126 / 0.07), transparent 70%)",
         }}
       />
     </div>

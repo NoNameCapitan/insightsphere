@@ -4,7 +4,8 @@ import type { Config } from "tailwindcss";
  * Design reminder — Care Field Notes: calm local guidance with a clear,
  * safety-first emergency signal. These are presentation tokens only; routes,
  * data and product logic are intentionally unchanged.
- * Palette: trustworthy teal "animal-medical" base + one unmistakable emergency rose.
+ * Palette (v1.23): warm ivory canvas, deep/fresh teal + mint signature, one
+ * apricot accent, and an emergency red that is never used decoratively.
  * The rings/pulse motif is the product signature (search radius made visible).
  */
 const config: Config = {
@@ -12,61 +13,46 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#152320", // warm near-black ink
-        canvas: "#F7F9F6", // pearl mineral base
+        ink: "#15292B", // warm deep ink
+        canvas: "#FBF8F3", // warm ivory base (not hospital white)
         surface: "#FFFFFF",
-        // Warm pet-care accent — used for emotion (aura, care details, tints),
-        // never for urgent actions (rose stays reserved for emergency).
+        // Apricot — the single warm accent. Emotion only (aura, care details),
+        // never for urgent actions (red stays reserved for emergency).
         peach: {
-          DEFAULT: "#E3A487",
-          50: "#FCF4EE",
-          100: "#F8E5D9",
-          200: "#EFD0BE",
-          700: "#A65F45",
+          DEFAULT: "#F2A47E",
+          50: "#FEF6F0",
+          100: "#FBE8DB",
+          200: "#F6D2BD",
+          700: "#A8573A",
         },
         brand: {
-          DEFAULT: "#126E66", // warmer refined teal
-          50: "#EEF8F4",
-          100: "#DCEFE8",
-          200: "#B9DDD2",
-          300: "#83C7B8",
-          400: "#48A998",
-          500: "#126E66",
-          600: "#0F625B",
-          700: "#0B5752",
-          800: "#08433F",
-          900: "#06322F",
+          DEFAULT: "#0B6B62", // deep teal: buttons, links, accents (AA on white)
+          50: "#EEF9F5", // mint wash
+          100: "#DDF3EB",
+          200: "#BCE7D9", // mint
+          300: "#86D3BF",
+          400: "#14A08C", // fresh teal: icons and active states, not body text
+          500: "#0B6B62",
+          600: "#095E56",
+          700: "#07524B",
+          800: "#053F3A",
+          900: "#042F2B",
         },
         emergency: {
-          DEFAULT: "#C94F57", // reserved strictly for emergency
+          DEFAULT: "#D2474F", // reserved strictly for emergency
           50: "#FFF3F3",
           100: "#FDE0E2",
-          600: "#B23F48",
-          700: "#8F3038",
+          600: "#B93A43",
+          700: "#942F37",
         },
         amber: {
-          DEFAULT: "#D97706", // "open now" / caution
+          DEFAULT: "#B26A12", // caution / alert text; tints come from opacity
         },
       },
       fontFamily: {
-        // No external font CDN dependency: a curated, distinctive system stack.
-        display: [
-          "'Onest'",
-          "'SF Pro Display'",
-          "'Segoe UI'",
-          "Roboto",
-          "system-ui",
-          "sans-serif",
-        ],
-        sans: [
-          "system-ui",
-          "-apple-system",
-          "'Segoe UI'",
-          "Roboto",
-          "Helvetica",
-          "Arial",
-          "sans-serif",
-        ],
+        // Self-hosted variable fonts (@fontsource), both with full Cyrillic.
+        display: ["'Manrope Variable'", "'Segoe UI'", "Roboto", "system-ui", "sans-serif"],
+        sans: ["'Inter Variable'", "system-ui", "-apple-system", "'Segoe UI'", "Roboto", "Arial", "sans-serif"],
       },
       borderRadius: {
         xl: "0.875rem",
@@ -74,8 +60,8 @@ const config: Config = {
         "3xl": "1.5rem",
       },
       boxShadow: {
-        card: "0 1px 2px rgba(15,42,46,0.04), 0 12px 28px -22px rgba(15,42,46,0.2)",
-        pop: "0 24px 56px -32px rgba(15,42,46,0.3)",
+        card: "0 1px 2px rgba(11,80,72,0.04), 0 14px 30px -22px rgba(11,80,72,0.22)",
+        pop: "0 26px 58px -32px rgba(11,80,72,0.32)",
       },
       keyframes: {
         ping2: {

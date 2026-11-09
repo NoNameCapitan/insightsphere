@@ -70,13 +70,16 @@ export function HomeHero() {
     <section ref={sectionRef} className="hero-3d relative overflow-hidden">
       <HeroAura />
 
-      <div className="mx-auto w-full max-w-5xl px-4 pb-12 pt-10 sm:pt-14">
+      <div className="mx-auto w-full max-w-5xl px-4 pb-10 pt-8 sm:pt-14">
         {/* Above the fold: message left, pet-care cockpit right (stacked on mobile). */}
-        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="grid items-center gap-6 sm:gap-10 lg:grid-cols-[minmax(0,1fr)_420px]">
           <div className="text-center lg:text-left">
             <p className="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-surface/70 px-3 py-1 text-xs font-semibold text-brand-700 backdrop-blur">
               <LocationIcon className="h-5 w-5" /> Київ · pet-сервіси поруч
             </p>
+
+            {/* Mobile: only the 3D object, small — the full cockpit shows from sm up. */}
+            <GeneratedVisual src="/visuals/c-home-hero.webp" className="mx-auto mt-4 h-36 w-32 sm:hidden" motion="bob" glow shadow priority sizes="130px" />
 
             <h1 className="mx-auto mt-5 max-w-xl text-4xl font-extrabold leading-[1.08] sm:text-5xl lg:mx-0">
               Надійна допомога для вашого улюбленця поруч
@@ -112,13 +115,13 @@ export function HomeHero() {
             </div>
           </div>
 
-          <div className="mx-auto w-full max-w-[380px] pb-6 pt-16 lg:pb-4 lg:pt-20">
+          <div className="mx-auto hidden w-full max-w-[380px] pb-6 pt-16 sm:block lg:pb-4 lg:pt-20">
             <PetCareCockpit />
           </div>
         </div>
 
         {/* Care paths — needs first, categories second. */}
-        <div className="mt-16">
+        <div className="mt-10 sm:mt-16">
           <h2 className="text-center font-display text-xl font-bold text-ink">
             Що потрібно вашому улюбленцю?
           </h2>

@@ -100,7 +100,7 @@ export function ServiceCategoryCard({
 
   if (href) {
     return (
-      <Tilt3D className={className} bodyClassName="rounded-3xl" max={7}>
+      <Tilt3D className={className} bodyClassName="rounded-3xl" max={5}>
       <Link
         href={href}
         className={classes}
@@ -114,7 +114,7 @@ export function ServiceCategoryCard({
   }
 
   return (
-    <Tilt3D className={className} bodyClassName="rounded-3xl" max={7}>
+    <Tilt3D className={className} bodyClassName="rounded-3xl" max={5}>
     <button
       type="button"
       className={classes}

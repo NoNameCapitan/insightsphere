@@ -1,6 +1,6 @@
 {
   "name": "vetnear",
-  "version": "1.22.0",
+  "version": "1.23.0",
   "private": true,
   "description": "VetNear — mobile-first local discovery of nearby veterinary clinics, pet stores, pharmacies, grooming and shelters.",
   "scripts": {
@@ -17,6 +17,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/manrope": "^5.3.0",
     "@supabase/supabase-js": "^2.110.0",
     "leaflet": "1.9.4",
     "next": "16.3.4",

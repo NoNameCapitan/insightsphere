@@ -14,8 +14,11 @@ import { PetProfileIcon } from "@/components/icons/ServiceIcons";
 /** Compact active-pet picker used on discovery surfaces. */
 export function ActivePetSelector({
   onChange,
+  hideWhenEmpty = false,
 }: {
   onChange?: (pet: PetProfile | null) => void;
+  /** Render nothing (instead of an "add a pet" prompt) when there are no pets. */
+  hideWhenEmpty?: boolean;
 }) {
   const [pets, setPets] = useState<PetProfile[]>([]);
   const [activeId, setActive] = useState<string | null>(null);
@@ -26,6 +29,7 @@ export function ActivePetSelector({
   }, []);
 
   if (pets.length === 0) {
+    if (hideWhenEmpty) return null;
     return (
       <Link
         href="/my-pets/new"

@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import "@fontsource-variable/manrope";
+import "@fontsource-variable/inter";
 import "./globals.css";
 import { t } from "@/lib/i18n";
 import { SITE, websiteJsonLd } from "@/lib/seo";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { JsonLd } from "@/components/JsonLd";
+import { TabBar } from "@/components/TabBar";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 
 export const metadata: Metadata = {
@@ -47,7 +50,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#126E66",
+  themeColor: "#0B6B62",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -65,13 +68,15 @@ function Header() {
           </span>
           {t.brand}
         </Link>
-        <div className="nav-scroll flex min-w-0 items-center gap-0.5 overflow-x-auto pr-4 text-[13px] sm:pr-0 sm:text-sm">
+        <div className="hidden min-w-0 items-center gap-0.5 text-sm sm:flex">
           <Link className="whitespace-nowrap rounded-full bg-emergency-50 px-2 py-1.5 sm:px-2.5 font-semibold text-emergency-700 transition-colors hover:bg-emergency-100" href="/help">Терміново</Link>
           <Link className="whitespace-nowrap rounded-lg px-2 py-1.5 sm:px-2.5 transition-colors hover:bg-brand-50 hover:text-brand-700" href="/nearby">Поруч</Link>
           <Link className="whitespace-nowrap rounded-lg px-2 py-1.5 sm:px-2.5 transition-colors hover:bg-brand-50 hover:text-brand-700" href="/my-pets">Мої тварини</Link>
           <Link className="whitespace-nowrap rounded-lg px-2 py-1.5 sm:px-2.5 transition-colors hover:bg-brand-50 hover:text-brand-700" href="/kyiv-updates">Актуальне</Link>
           <Link className="whitespace-nowrap rounded-lg px-2 py-1.5 sm:px-2.5 transition-colors hover:bg-brand-50 hover:text-brand-700" href="/for-partners">Партнерам</Link>
         </div>
+        {/* Mobile: the tab bar carries navigation; the header keeps one calm link. */}
+        <Link className="whitespace-nowrap rounded-lg px-2 py-1.5 text-[13px] font-medium text-ink/60 hover:text-brand-700 sm:hidden" href="/kyiv-updates">Актуальне</Link>
       </nav>
     </header>
   );
@@ -151,6 +156,7 @@ export default function RootLayout({
         <Header />
         <main id="main">{children}</main>
         <Footer />
+        <TabBar />
         <ServiceWorkerRegister />
       </body>
     </html>

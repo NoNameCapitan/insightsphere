@@ -43,9 +43,9 @@ function userIcon(): L.DivIcon {
     _userIcon = L.divIcon({
       className: "vetnear-user",
       html: `<div style="position:relative;width:20px;height:20px;">
-          <span style="position:absolute;inset:0;border-radius:50%;background:#0E7C66;opacity:.25;
+          <span style="position:absolute;inset:0;border-radius:50%;background:#0B6B62;opacity:.25;
             animation:vnpulse 2s infinite ease-out;"></span>
-          <span style="position:absolute;inset:5px;border-radius:50%;background:#0E7C66;border:2px solid #fff;"></span>
+          <span style="position:absolute;inset:5px;border-radius:50%;background:#0B6B62;border:2px solid #fff;"></span>
         </div>
         <style>@keyframes vnpulse{0%{transform:scale(1);opacity:.4}100%{transform:scale(2.4);opacity:0}}</style>`,
       iconSize: [20, 20],
@@ -154,7 +154,7 @@ function Routing({
     <Polyline
       positions={line}
       pathOptions={{
-        color: "#0E7C66",
+        color: "#0B6B62",
         weight: 5,
         opacity: 0.85,
         dashArray: routed ? undefined : "8 10",

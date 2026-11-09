@@ -18,6 +18,7 @@ import { track } from "@/lib/analytics";
 import { DEFAULT_FILTERS, getRecommendedPlaces } from "@/lib/geo/ranking";
 import { t } from "@/lib/i18n";
 import { availabilityDuringAlert } from "@/lib/safety/placeAvailability";
+import Link from "next/link";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import { getActivePet } from "@/lib/pets/store";
 import { getPlaces, hydratePublishedPlaces } from "@/lib/store";
@@ -32,8 +33,19 @@ import type {
 
 const MapView = dynamic(() => import("@/components/MapView"), {
   ssr: false,
-  loading: () => <div className="h-full w-full animate-pulse bg-brand-50" />,
+  loading: () => <div className="skeleton h-full w-full" />,
 });
+
+/** One-tap category chips; everything else stays behind "Фільтри". */
+const QUICK_CATEGORIES: { id: FilterState["category"]; label: string }[] = [
+  { id: "all", label: "Усі" },
+  { id: "veterinary_clinic", label: "Ветклініки" },
+  { id: "vet_pharmacy", label: "Ветаптеки" },
+  { id: "pet_store", label: "Зоомагазини" },
+  { id: "grooming", label: "Грумінг" },
+  { id: "pet_boarding", label: "Перетримка" },
+  { id: "shelter", label: "Притулки" },
+];
 
 const VALID_RADII: RadiusMeters[] = [1000, 2000, 3000, 5000, 10000];
 
@@ -99,8 +111,7 @@ export function NearbyClient() {
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold text-ink">Місця поруч</h1>
-          <p className="mt-1 text-sm text-ink/55">Відстань, статус і прямі дії без зайвих кроків.</p>
-        </div>
+                  </div>
         <div className="flex rounded-xl bg-ink/[0.04] p-1">
           <button
             onClick={() => setView("list")}
@@ -112,11 +123,10 @@ export function NearbyClient() {
           >Карта</button>
         </div>
       </div>
-      <div className="mb-4 overflow-hidden rounded-3xl border border-brand-100/80 bg-gradient-to-b from-white/90 to-brand-50/40 px-3 py-3">
-        <div aria-hidden className="relative mx-auto aspect-[1500/768] w-full max-w-[560px]">
-          <GeneratedVisual src="/visuals/g-nearby-map.webp" className="absolute inset-0" motion="none" shine priority sizes="(max-width: 640px) 92vw, 560px" />
-          <span className="map-beacon left-[12%] top-[76%] -translate-x-1/2 -translate-y-1/2" />
-        </div>
+      {/* The map artwork is a desktop-only flourish; on phones results come first. */}
+      <div aria-hidden className="relative mx-auto mb-4 hidden aspect-[1500/768] w-full max-w-[420px] sm:block">
+        <GeneratedVisual src="/visuals/g-nearby-map.webp" className="absolute inset-0" motion="none" shine sizes="420px" />
+        <span className="map-beacon left-[12%] top-[76%] -translate-x-1/2 -translate-y-1/2" />
       </div>
       {emergencyMode && (
         <div className="mb-4 flex items-start gap-3 rounded-2xl border border-emergency/15 bg-emergency-50 px-4 py-3 text-emergency-700">
@@ -129,24 +139,44 @@ export function NearbyClient() {
         </div>
       )}
 
-      <div className="mb-3">
-        <NearestShelterButton
-          alert={safety.alert}
-          onAlertStatus={safety.acceptAlert}
-          onRefresh={safety.refreshAlert}
-        />
-        <div className="mt-3">
+      {/* Safety layer: first on screen during an alert, a quiet row at the
+          bottom otherwise (see below). The logic itself is unchanged. */}
+      {safety.active && (
+        <div className="mb-4">
+          <NearestShelterButton
+            alert={safety.alert}
+            onAlertStatus={safety.acceptAlert}
+            onRefresh={safety.refreshAlert}
+          />
           <SafetyControls safety={safety} onOpenMap={() => setView("map")} />
         </div>
-      </div>
+      )}
 
       <div className="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_180px]">
         <RadiusSelector value={filters.radius} onChange={(r) => update({ radius: r })} />
         <FiltersBar filters={filters} onChange={update} onReset={() => setFilters(DEFAULT_FILTERS)} />
       </div>
 
-      <div className="mt-2.5">
-        <ActivePetSelector onChange={setPet} />
+      <div className="nav-scroll -mx-4 mt-3 flex gap-1.5 overflow-x-auto px-4 pb-1" role="group" aria-label="Категорія">
+        {QUICK_CATEGORIES.map((c) => (
+          <button
+            key={c.id}
+            type="button"
+            aria-pressed={filters.category === c.id}
+            onClick={() => update({ category: c.id })}
+            className={`shrink-0 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors ${
+              filters.category === c.id
+                ? "border-brand bg-brand text-white"
+                : "border-brand-100 bg-surface text-ink/65 hover:border-brand-300 hover:text-brand-700"
+            }`}
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-2.5 empty:hidden">
+        <ActivePetSelector onChange={setPet} hideWhenEmpty />
       </div>
 
       <div className="my-3 flex items-center justify-between">
@@ -193,6 +223,21 @@ export function NearbyClient() {
           <GeneratedVisual src="/visuals/j-empty-state.webp" className="mx-auto mb-3 h-52 w-full max-w-[320px] sm:h-60" motion="bob" glow shine shadow sizes="320px" />
           {emergencyMode ? (
             <p className="text-ink/60">{EMERGENCY_EMPTY_STATE}</p>
+          ) : filters.category === "shelter" ? (
+            <>
+              <p className="font-display text-lg font-bold text-ink">
+                Перевірених притулків у базі поки немає
+              </p>
+              <p className="mx-auto mt-1 max-w-sm text-sm text-ink/60">
+                Ми додаємо притулок лише після перевірки контактів, тому не показуємо
+                непідтверджені адреси. Ось що можна зробити зараз:
+              </p>
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                <Link href="/city/kyiv/shelters" className="btn btn-brand py-2 text-sm">Притулки Києва</Link>
+                <Link href="/lost-found" className="btn btn-ghost py-2 text-sm">Знайшли тварину?</Link>
+                <Link href="/add-place" className="btn btn-ghost py-2 text-sm">Додати притулок</Link>
+              </div>
+            </>
           ) : (
             <>
               <p className="font-display font-bold text-ink">
@@ -220,6 +265,10 @@ export function NearbyClient() {
           )}
         </div>
       ) : (
+        <>
+        <p className="mb-2.5 text-xs text-ink/45">
+          Перед візитом зателефонуйте — графік і наявність можуть змінюватися.
+        </p>
         <ul className="space-y-3">
           {result.places.map((p) => (
             <li key={p.id}>
@@ -234,6 +283,19 @@ export function NearbyClient() {
             </li>
           ))}
         </ul>
+        </>
+      )}
+
+      {/* Calm mode: the shelter action is one quiet row, out of the way. */}
+      {!safety.active && (
+        <div className="mt-5">
+          <NearestShelterButton
+            alert={safety.alert}
+            onAlertStatus={safety.acceptAlert}
+            onRefresh={safety.refreshAlert}
+          />
+          <SafetyControls safety={safety} onOpenMap={() => setView("map")} />
+        </div>
       )}
 
       <Disclaimer text={t.disclaimer} className="mt-4" />

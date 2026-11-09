@@ -1,12 +1,11 @@
 import Image from "next/image";
+import Link from "next/link";
 import { DatasetSummary } from "@/components/DatasetSummary";
 import { EmergencyReadinessRail } from "@/components/EmergencyReadinessRail";
 import { FounderNote } from "@/components/FounderNote";
 import { HomeHero } from "@/components/HomeHero";
 import { HomeUpdatesStrip } from "@/components/HomeUpdatesStrip";
-import { SocialImpact } from "@/components/SocialImpact";
 import { RevealGroup } from "@/components/RevealGroup";
-import { Tilt3D } from "@/components/Tilt3D";
 
 // The home page is statically rendered. WebSite JSON-LD is emitted once in the
 // root layout. Structure (top → bottom): help-first hero (headline, CTAs, trust
@@ -17,8 +16,8 @@ import { Tilt3D } from "@/components/Tilt3D";
 const TRUST_CARDS: { icon: string; text: string }[] = [
   { icon: "location", text: "Без реєстрації" },
   { icon: "phone", text: "Дзвінок і маршрут одразу" },
-  { icon: "verified", text: "Чіткий статус перевірки даних для кожного закладу" },
-  { icon: "shield", text: "У фокусі потреба улюбленця, не реклама закладів" },
+  { icon: "verified", text: "Статус перевірки в кожного закладу" },
+  { icon: "shield", text: "Потреба улюбленця, не реклама" },
 ];
 
 export default function HomePage() {
@@ -30,23 +29,18 @@ export default function HomePage() {
 
       <HomeUpdatesStrip />
 
-      {/* Warm trust cards + one calm safety line. */}
+      {/* Trust, stated once and compactly: one strip instead of four cards. */}
       <section className="container-px mx-auto max-w-3xl pt-10">
-        <RevealGroup className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-          {TRUST_CARDS.map((c, i) => (
-            <Tilt3D key={c.text} bodyClassName="rounded-2xl" max={8}>
-              <div className="tilt-surface flex h-full flex-col items-start gap-2.5 rounded-2xl border border-brand-100 bg-surface p-3.5 shadow-card">
-                <span className="icon-tile tilt-pop h-14 w-14 !rounded-2xl" style={{ ["--i" as string]: i }}>
-                  <Image src={`/visuals/parts/icon-${c.icon}.webp`} alt="" width={96} height={96} sizes="56px" />
-                </span>
-                <p className="text-xs font-semibold leading-snug text-ink/80">{c.text}</p>
-              </div>
-            </Tilt3D>
+        <RevealGroup className="grid grid-cols-2 gap-x-4 gap-y-4 rounded-3xl border border-brand-100 bg-surface p-4 shadow-card sm:grid-cols-4 sm:p-5">
+          {TRUST_CARDS.map((c) => (
+            <div key={c.text} className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-2.5">
+              <span className="icon3d h-11 w-11">
+                <Image src={`/visuals/parts/icon-${c.icon}.webp`} alt="" width={96} height={96} sizes="44px" />
+              </span>
+              <p className="text-xs font-semibold leading-snug text-ink/75">{c.text}</p>
+            </div>
           ))}
         </RevealGroup>
-        <p className="mt-3 text-center text-xs text-ink/45">
-          VetNear не ставить діагноз і не замінює ветеринара.
-        </p>
       </section>
 
       {/* Honest dataset provenance, stated in full: how many places are verified
@@ -89,7 +83,11 @@ export default function HomePage() {
         </details>
       </section>
 
-      <SocialImpact compact className="pb-2 pt-10" />
+      {/* The full social-impact commitment lives on /for-partners. */}
+      <p className="container-px mx-auto max-w-3xl pb-2 pt-8 text-center text-xs leading-5 text-ink/50">
+        10% доходу від платних партнерських планів VetNear спрямує на реабілітацію постраждалих від війни.{" "}
+        <Link href="/for-partners" className="font-semibold text-brand hover:underline">Докладніше</Link>
+      </p>
     </>
   );
 }

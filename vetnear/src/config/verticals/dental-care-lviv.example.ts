@@ -45,7 +45,7 @@ export const DENTAL_CARE_LVIV: VerticalConfig<DentalCategory, LvivDistrict> = {
       id: "dental_clinic",
       label: "Стоматологія",
       emoji: "🦷",
-      color: "#0E7C66",
+      color: "#0B6B62",
       seoSlug: "dentist-near-me",
       schemaType: "Dentist",
     },

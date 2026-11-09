@@ -71,15 +71,8 @@ export function PlaceCard({
       }`}
     >
       <div className="flex items-start gap-3">
-        <span
-          aria-hidden
-          className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl border ${
-            isEmergency
-              ? "border-emergency/15 bg-emergency-50"
-              : "border-brand-100 bg-brand-50"
-          }`}
-        >
-          <ServiceIcon category={place.category} className="h-8 w-8" />
+        <span aria-hidden className={`icon3d h-12 w-12 ${isEmergency ? "icon3d--warm" : ""}`}>
+          <ServiceIcon category={place.category} className="h-9 w-9" />
         </span>
 
         <div className="min-w-0 flex-1">
@@ -93,13 +86,14 @@ export function PlaceCard({
             </Link>
             <div className="flex shrink-0 items-center gap-1.5">
               {place.distanceMeters != null && (
-                <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700">{formatDistance(place.distanceMeters)}</span>
+                <span className="rounded-full bg-brand px-2.5 py-1 text-xs font-bold tabular-nums text-white">{formatDistance(place.distanceMeters)}</span>
               )}
               <FavoritePlaceButton placeId={place.id} compact />
             </div>
           </div>
 
           <p className="mt-0.5 text-sm text-ink/55">{meta}</p>
+          {place.address && <p className="mt-0.5 truncate text-xs text-ink/45">{place.address}</p>}
 
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             {alertAvailability === "closed" && (
@@ -132,8 +126,8 @@ export function PlaceCard({
             )}
             <TrustBadges badges={badges} />
             {suitsPet && (
-              <span className="rounded-full bg-brand px-2 py-0.5 text-[11px] font-medium text-white">
-                Підходить для вашого улюбленця
+              <span className="rounded-full border border-brand-200 bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-700">
+                Підходить вашому улюбленцю
               </span>
             )}
           </div>
@@ -178,11 +172,7 @@ export function PlaceCard({
         </div>
       </div>
 
-      <p className="mt-3 border-t border-brand-100/70 pt-2 text-[11px] text-ink/45">
-        Перед візитом зателефонуйте — графік і наявність можуть змінюватися.
-      </p>
-
-      <div className="mt-3 grid grid-cols-2 gap-2.5">
+      <div className="mt-4 grid grid-cols-2 gap-2.5">
         <a
           href={`tel:${place.phone}`}
           onClick={() => {

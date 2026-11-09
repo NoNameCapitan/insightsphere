@@ -12,7 +12,7 @@ export function Tilt3D({
   children,
   className = "",
   bodyClassName = "",
-  max = 9,
+  max = 6,
   glare = true,
 }: {
   children: ReactNode;

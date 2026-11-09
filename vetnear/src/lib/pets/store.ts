@@ -125,3 +125,35 @@ export function toggleReminder(petId: string, reminderId: string) {
     ),
   });
 }
+
+// ── Backup (v1.23) ────────────────────────────────────────────────────────────
+// Records live only in this browser, so the owner needs a way to keep a copy
+// and to move it to another device.
+
+const BACKUP_FORMAT = "vetnear-pets-backup";
+
+export function exportPetsBackup(): string {
+  return JSON.stringify({ format: BACKUP_FORMAT, version: 1, exportedAt: nowIso(), pets: getPets() }, null, 2);
+}
+
+/** Merges a backup into the stored pets (same id → replaced). Returns the count. */
+export function importPetsBackup(raw: string): number {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("Файл пошкоджений або це не копія VetNear.");
+  }
+  const data = parsed as { format?: string; pets?: unknown };
+  if (data?.format !== BACKUP_FORMAT || !Array.isArray(data.pets)) {
+    throw new Error("Це не файл резервної копії VetNear.");
+  }
+  const incoming = (data.pets as PetProfile[]).filter(
+    (pet) => pet && typeof pet.id === "string" && typeof pet.name === "string" && typeof pet.animalType === "string",
+  );
+  if (incoming.length === 0) throw new Error("У файлі немає медкарток.");
+  const ids = new Set(incoming.map((pet) => pet.id));
+  writeJSON(KEY, [...incoming, ...getPets().filter((pet) => !ids.has(pet.id))]);
+  if (!getActivePetId()) setActivePetId(incoming[0].id);
+  return incoming.length;
+}

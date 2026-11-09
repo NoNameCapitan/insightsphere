@@ -39,7 +39,7 @@ export const PET_CARE_KYIV: VerticalConfig<PlaceCategory, KyivDistrict> = {
       id: "veterinary_clinic",
       label: "Ветклініка",
       emoji: "🏥",
-      color: "#0E7C66",
+      color: "#0B6B62",
       seoSlug: "vet-clinic-near-me",
       schemaType: "VeterinaryCare",
     },

@@ -7,12 +7,12 @@ import type { Place } from "@/lib/types";
 // Computed once at module load (not during render) to satisfy purity rules.
 const STALE_BEFORE_MS = Date.now() - 180 * 24 * 60 * 60 * 1000;
 
-// Provenance chips carry an icon + color code (green = verified, amber =
-// pending/demo, gray = unverified) so data transparency reads as a feature.
+// Provenance chips carry an icon + color code (teal = verified, amber = demo,
+// neutral gray = awaiting review / unverified — honesty, not an error) so data transparency reads as a feature.
 const TONE: Record<string, string> = {
   demo: "border-amber/30 bg-amber/10 text-amber",
   unverified: "border-ink/10 bg-ink/5 text-ink/60",
-  review: "border-amber/30 bg-amber/10 text-amber",
+  review: "border-ink/10 bg-ink/[0.04] text-ink/60",
   verified: "border-brand-200 bg-brand-50 text-brand-700",
 };
 
