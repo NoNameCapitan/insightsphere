@@ -8,7 +8,8 @@ export type VisualMotion = "float" | "drift" | "tilt" | "bob" | "sway" | "none";
 /**
  * Decorative generated artwork with a layered motion system:
  *  - reveal:   one-shot entrance (fade + rise + de-blur) when scrolled into view
- *  - motion:   idle loop (float / drift / bob / sway) or pointer tilt
+ *  - motion:   idle loop (float / drift / bob / sway) or pointer tilt with a
+ *              slow 3D orbit, so the object also turns on touch screens
  *  - glow:     breathing mint aura behind the object
  *  - shine:    glossy light sweep clipped to the artwork's own silhouette
  *  - shadow:   contact shadow that breathes with the float loop
@@ -107,8 +108,8 @@ export function GeneratedVisual({
     const rect = ref.current.getBoundingClientRect();
     const x = (event.clientX - rect.left) / rect.width - 0.5;
     const y = (event.clientY - rect.top) / rect.height - 0.5;
-    ref.current.style.setProperty("--visual-rx", `${(y * -10).toFixed(2)}deg`);
-    ref.current.style.setProperty("--visual-ry", `${(x * 12).toFixed(2)}deg`);
+    ref.current.style.setProperty("--visual-rx", `${(y * -16).toFixed(2)}deg`);
+    ref.current.style.setProperty("--visual-ry", `${(x * 20).toFixed(2)}deg`);
     ref.current.style.setProperty("--visual-gx", `${((x + 0.5) * 100).toFixed(1)}%`);
     ref.current.style.setProperty("--visual-gy", `${((y + 0.5) * 100).toFixed(1)}%`);
   };
@@ -139,16 +140,18 @@ export function GeneratedVisual({
       {shadow && <span aria-hidden className="generated-visual__shadow" />}
       <div className="generated-visual__stage">
         <div className="generated-visual__motion">
-          <Image
-            src={src}
-            alt={alt}
-            fill
-            priority={priority}
-            sizes={sizes}
-            quality={92}
-            className="generated-visual__image"
-          />
-          {shine && <span aria-hidden className="generated-visual__shine" />}
+          <div className="generated-visual__orbit">
+            <Image
+              src={src}
+              alt={alt}
+              fill
+              priority={priority}
+              sizes={sizes}
+              quality={92}
+              className="generated-visual__image"
+            />
+            {shine && <span aria-hidden className="generated-visual__shine" />}
+          </div>
         </div>
       </div>
     </div>

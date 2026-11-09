@@ -9,6 +9,8 @@ export const SITE = {
     "https://vetnear.example.com",
   locale: "uk_UA",
   twitter: "@vetnear",
+  /** Public contact for privacy / data requests. Set before launch. */
+  contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || "",
 };
 
 const SCHEMA_TYPES: Record<PlaceCategory, string> = categoryMap(

@@ -34,12 +34,14 @@ export const metadata: Metadata = {
     title: `${SITE.name} — ${t.tagline}`,
     description: t.hero.subtitle,
     url: SITE.url,
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: `${SITE.name} — ${t.tagline}` }],
   },
   twitter: {
     card: "summary_large_image",
     title: `${SITE.name} — ${t.tagline}`,
     description: t.hero.subtitle,
     site: SITE.twitter,
+    images: ["/og.png"],
   },
   robots: { index: true, follow: true },
 };
@@ -75,29 +77,62 @@ function Header() {
   );
 }
 
+const FOOTER_GROUPS: { title: string; links: [string, string][] }[] = [
+  {
+    title: "Знайти поруч",
+    links: [
+      ["/vet-clinic-near-me", "Ветклініки"],
+      ["/vet-pharmacy-near-me", "Ветаптеки"],
+      ["/pet-store-near-me", "Зоомагазини"],
+      ["/grooming-near-me", "Грумінг"],
+      ["/pet-map-kyiv", "Карта Києва"],
+    ],
+  },
+  {
+    title: "Коли терміново",
+    links: [
+      ["/help", "Потрібна допомога"],
+      ["/emergency-vet-near-me", "Термінова ситуація"],
+      ["/lost-found", "Загублені / знайдені"],
+      ["/kyiv-updates", "Оновлення Києва"],
+      ["/city/kyiv/shelters", "Притулки Києва"],
+    ],
+  },
+  {
+    title: "VetNear",
+    links: [
+      ["/my-pets", "Мої тварини"],
+      ["/add-place", "Додати заклад"],
+      ["/for-partners", "Партнерам"],
+      ["/privacy", "Конфіденційність"],
+      ["/terms", "Умови користування"],
+    ],
+  },
+];
+
 function Footer() {
   return (
     <footer className="mt-16 border-t border-brand-100 bg-surface">
       <div className="container-px py-8 text-sm text-ink/60">
-        <p className="font-semibold text-ink/80">{t.footer.madeWith}</p>
-        <p className="mt-2">{t.disclaimerShort}</p>
-        <p className="mt-4 text-xs">© {new Date().getFullYear()} {SITE.name}. {t.footer.rights}</p>
-        <nav className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-          <Link className="link-quiet hover:text-brand" href="/pet-services-near-me">Послуги поруч</Link>
-          <Link className="link-quiet hover:text-brand" href="/pet-map-kyiv">Карта Києва</Link>
-          <Link className="link-quiet hover:text-brand" href="/vet-clinic-near-me">Ветклініки</Link>
-          <Link className="link-quiet hover:text-brand" href="/emergency-vet-near-me">Термінова ситуація</Link>
-          <Link className="link-quiet hover:text-brand" href="/pet-store-near-me">Зоомагазини</Link>
-          <Link className="link-quiet hover:text-brand" href="/vet-pharmacy-near-me">Ветаптеки</Link>
-          <Link className="link-quiet hover:text-brand" href="/grooming-near-me">Грумінг</Link>
-          <Link className="link-quiet hover:text-brand" href="/products-nearby">Товари поруч</Link>
-          <Link className="link-quiet hover:text-brand" href="/lost-found">Загублені/знайдені</Link>
-          <Link className="link-quiet hover:text-brand" href="/kyiv-updates">Оновлення Києва</Link>
-          <Link className="link-quiet hover:text-brand" href="/pet-scan">Скан улюбленця</Link>
-          <Link className="link-quiet hover:text-brand" href="/city/kyiv/pet-services">Київ: послуги</Link>
-          <Link className="link-quiet hover:text-brand" href="/city/kyiv/shelters">Київ: притулки</Link>
-          <Link className="link-quiet hover:text-brand" href="/for-partners">Партнерам</Link>
+        <nav aria-label="Розділи сайту" className="grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-3">
+          {FOOTER_GROUPS.map((g) => (
+            <div key={g.title}>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink/45">{g.title}</p>
+              <ul className="mt-2 space-y-1.5">
+                {g.links.map(([href, label]) => (
+                  <li key={href}>
+                    <Link className="link-quiet hover:text-brand" href={href}>{label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </nav>
+        <div className="mt-8 border-t border-brand-100/70 pt-5">
+          <p className="font-semibold text-ink/80">{t.footer.madeWith}</p>
+          <p className="mt-2">{t.disclaimerShort}</p>
+          <p className="mt-4 text-xs">© {new Date().getFullYear()} {SITE.name}. {t.footer.rights}</p>
+        </div>
       </div>
     </footer>
   );

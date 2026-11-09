@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { RevealGroup } from "@/components/RevealGroup";
 import { KYIV_INFO_ITEMS, KYIV_UPDATES_AS_OF, type KyivInfoKind } from "@/lib/data/kyivUpdates";
 
 const KIND_LABEL: Record<KyivInfoKind, string> = {
@@ -33,7 +34,7 @@ export function HomeUpdatesStrip() {
         </Link>
       </div>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
+      <RevealGroup className="mt-4 grid gap-3 md:grid-cols-3">
         {featured.map((item) => (
           <article key={item.id} className="rounded-2xl border border-brand-100 bg-surface p-4 shadow-card">
             <div className="flex flex-wrap items-center gap-2 text-[11px]">
@@ -44,7 +45,7 @@ export function HomeUpdatesStrip() {
             <p className="mt-2 line-clamp-3 text-sm leading-5 text-ink/65">{item.summary}</p>
           </article>
         ))}
-      </div>
+      </RevealGroup>
       <p className="mt-3 text-xs leading-5 text-ink/50">
         Короткі перевірені підказки без розсилок: події, вакцинації, безпека та міські сервіси. Перед поїздкою звіряйте умови в першоджерелі.
       </p>

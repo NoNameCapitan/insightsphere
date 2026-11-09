@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type PointerEventHandler } from "react";
+import { Tilt3D } from "@/components/Tilt3D";
 import { ServiceIcon } from "@/components/icons/ServiceIcons";
 import type { PlaceCategory } from "@/lib/types";
 
@@ -38,7 +39,9 @@ type ServiceCategoryCardProps = {
  * inline SVG and a contextual micro-animation (heartbeat, bag bounce, capsule
  * tilt, scissor snip, cozy rock, emergency pulse — see globals.css). Desktop
  * animates on hover/focus-visible; touch devices get a single run on tap via
- * the `service-card--tap` class. prefers-reduced-motion disables all movement.
+ * the `service-card--tap` class. The whole card tilts in 3D under the pointer
+ * with the icon lifted off the surface. prefers-reduced-motion disables all
+ * movement.
  */
 export function ServiceCategoryCard({
   category,
@@ -74,8 +77,7 @@ export function ServiceCategoryCard({
     "card service-card",
     `service-card--${CARD_VARIANT[category] ?? "generic"}`,
     tapping ? "service-card--tap" : "",
-    "flex flex-col items-center gap-2 p-4 text-center transition active:scale-[0.98]",
-    className,
+    "flex h-full w-full flex-col items-center gap-2 p-4 text-center transition active:scale-[0.98]",
   ]
     .filter(Boolean)
     .join(" ");
@@ -98,6 +100,7 @@ export function ServiceCategoryCard({
 
   if (href) {
     return (
+      <Tilt3D className={className} bodyClassName="rounded-3xl" max={7}>
       <Link
         href={href}
         className={classes}
@@ -106,10 +109,12 @@ export function ServiceCategoryCard({
       >
         {content}
       </Link>
+      </Tilt3D>
     );
   }
 
   return (
+    <Tilt3D className={className} bodyClassName="rounded-3xl" max={7}>
     <button
       type="button"
       className={classes}
@@ -119,5 +124,6 @@ export function ServiceCategoryCard({
     >
       {content}
     </button>
+    </Tilt3D>
   );
 }

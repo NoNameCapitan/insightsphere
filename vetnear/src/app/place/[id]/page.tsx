@@ -13,8 +13,7 @@ import { GeneratedVisual } from "@/components/GeneratedVisual";
 import { EMERGENCY_DATA_WARNING, isEmergencyPlace } from "@/lib/data/verification";
 import { PLACES } from "@/lib/data/places";
 import { isVerifiedPlace } from "@/lib/data/provenance";
-import { INVENTORY, PRODUCTS } from "@/lib/data/products";
-import { AVAILABILITY_LABELS, CATEGORY_LABELS, ANIMAL_LABELS } from "@/lib/labels";
+import { CATEGORY_LABELS, ANIMAL_LABELS } from "@/lib/labels";
 import { placeJsonLd, SITE } from "@/lib/seo";
 import { computeBadges } from "@/lib/trust";
 import type { PlaceWithDistance } from "@/lib/types";
@@ -76,11 +75,6 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ i
   const place: PlaceWithDistance = { ...base, distanceMeters: null };
   const isEmergency = place.emergencyAvailable || place.isOpen24_7;
   const badges = computeBadges(place);
-
-  const isStore = place.category === "pet_store" || place.category === "vet_pharmacy";
-  const stockHere = isStore
-    ? INVENTORY.filter((i) => i.placeId === place.id).slice(0, 6)
-    : [];
 
   return (
     <article className="container-px mx-auto max-w-3xl py-6 pb-24 sm:pb-6">
@@ -162,34 +156,6 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ i
           ))}
         </div>
       </section>
-
-      {/* 6. Products preview (store/pharmacy) */}
-      {isStore && (
-        <section className="mt-6">
-          <h2 className="mb-2 font-display text-lg font-bold text-ink">Орієнтовна наявність товарів</h2>
-          {stockHere.length === 0 ? (
-            <p className="text-sm text-ink/50">Каталог зʼявиться найближчим часом.</p>
-          ) : (
-            <ul className="divide-y divide-brand-100/70 rounded-2xl border border-brand-100">
-              {stockHere.map((inv) => {
-                const prod = PRODUCTS.find((p) => p.id === inv.productId);
-                return (
-                  <li key={inv.id} className="flex items-center justify-between px-4 py-2 text-sm">
-                    <span className="text-ink/80">{prod?.title ?? inv.productId}</span>
-                    <span className="text-ink/60">
-                      {inv.price} ₴ · {AVAILABILITY_LABELS[inv.availability]}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-          <p className="mt-2 text-xs text-ink/40">
-            Наявність орієнтовна — телефонуйте, щоб підтвердити.{" "}
-            <Link href="/products-nearby" className="text-brand hover:underline">Усі товари поруч →</Link>
-          </p>
-        </section>
-      )}
 
       {/* 7. Contacts */}
       <section className="mt-6">

@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
 import { EmergencyCtaIcon, LocationIcon } from "@/components/icons/ServiceIcons";
 import { PetCareCockpit } from "@/components/PetCareCockpit";
 import { GeneratedVisual } from "@/components/GeneratedVisual";
 import { HeroMotionLayer } from "@/components/HeroMotionLayer";
-import { IconShowcase } from "@/components/IconShowcase";
+import { RevealGroup } from "@/components/RevealGroup";
 import { ServiceCategoryCard } from "@/components/ServiceCategoryCard";
+import { usePointerVars } from "@/hooks/usePointerVars";
 import { PLACES } from "@/lib/data/places";
 import { isSearchablePublicPlace } from "@/lib/data/provenance";
 import { hasPhoneConfirmedEmergency, SAFE_EMERGENCY_CTA_HREF } from "@/lib/data/verification";
@@ -61,8 +63,11 @@ function HeroAura() {
 }
 
 export function HomeHero() {
+  const sectionRef = useRef<HTMLElement>(null);
+  usePointerVars(sectionRef);
+
   return (
-    <section className="relative overflow-hidden">
+    <section ref={sectionRef} className="hero-3d relative overflow-hidden">
       <HeroAura />
 
       <div className="mx-auto w-full max-w-5xl px-4 pb-12 pt-10 sm:pt-14">
@@ -104,18 +109,6 @@ export function HomeHero() {
                 Без реєстрації · База Києва: {TOTAL} {placesWord(TOTAL)},{" "}
                 {VERIFIED} перевірено · Не замінює ветеринара
               </p>
-
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
-                <Link
-                  href="/add-place"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-surface/70 px-3 py-1.5 text-xs font-medium text-ink/55 transition hover:border-brand-300 hover:text-brand-700"
-                >
-                  Додати свій заклад
-                </Link>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-surface/70 px-3 py-1.5 text-xs font-medium text-ink/55">
-                  Дані з датою останньої перевірки
-                </span>
-              </div>
             </div>
           </div>
 
@@ -129,7 +122,7 @@ export function HomeHero() {
           <h2 className="text-center font-display text-xl font-bold text-ink">
             Що потрібно вашому улюбленцю?
           </h2>
-          <div className="care-grid mt-5 grid grid-cols-2 gap-3 sm:grid-cols-6">
+          <RevealGroup className="care-grid mt-5 grid grid-cols-2 gap-3 sm:grid-cols-6">
             {CARE_VISIBLE.map((c) => (
               <ServiceCategoryCard
                 key={c.category}
@@ -139,14 +132,7 @@ export function HomeHero() {
                 href={`/nearby?category=${c.category}`}
               />
             ))}
-          </div>
-          <div className="mx-auto mt-10 max-w-3xl rounded-[2rem] border border-brand-100/80 bg-white/70 p-4 shadow-card backdrop-blur-sm sm:p-6">
-            <div className="mb-4 flex flex-col items-center justify-between gap-1 text-center sm:flex-row sm:text-left">
-              <p className="font-display text-base font-bold text-ink">Усе для турботи — в одній системі</p>
-              <p className="text-xs text-ink/50">Щоденний догляд і термінові ситуації</p>
-            </div>
-            <IconShowcase />
-          </div>
+          </RevealGroup>
         </div>
       </div>
     </section>

@@ -1,45 +1,20 @@
 "use client";
 
-import { useRef, type PointerEvent as ReactPointerEvent } from "react";
 import { LocationIcon, PhoneIcon, RouteIcon, ServiceIcon, VerifiedIcon } from "@/components/icons/ServiceIcons";
 import { GeneratedVisual } from "@/components/GeneratedVisual";
 
 // Calm product preview: a compact mobile card that demonstrates the main
-// decision path without decorative mascot behaviour or competing motion.
+// decision path. It tilts in 3D towards the pointer (--mx/--my are set on
+// the hero section) with its content floating on separate depth planes.
 
 export function PetCareCockpit() {
-  const stageRef = useRef<HTMLDivElement>(null);
-
-  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    const stage = stageRef.current;
-    if (!stage || event.pointerType === "touch") return;
-    const rect = stage.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width - 0.5;
-    const y = (event.clientY - rect.top) / rect.height - 0.5;
-    stage.style.setProperty("--cockpit-ry", `${x * 3.5}deg`);
-    stage.style.setProperty("--cockpit-rx", `${y * -2.5}deg`);
-  };
-
-  const resetTilt = () => {
-    const stage = stageRef.current;
-    if (!stage) return;
-    stage.style.setProperty("--cockpit-ry", "0deg");
-    stage.style.setProperty("--cockpit-rx", "0deg");
-  };
-
   return (
-    <div
-      ref={stageRef}
-      aria-hidden
-      className="cockpit mx-auto w-full max-w-[340px] select-none"
-      onPointerMove={handlePointerMove}
-      onPointerLeave={resetTilt}
-    >
+    <div aria-hidden className="cockpit mx-auto w-full max-w-[340px] select-none">
       <span className="cockpit__aura" />
 
       {/* Phone-like card */}
       <div className="cockpit__device relative rounded-[32px] border border-brand-100 bg-surface p-4 shadow-pop">
-        <GeneratedVisual src="/visuals/c-home-hero.webp" className="mx-auto -mt-24 mb-1 h-52 w-48 sm:-mt-28 sm:h-60 sm:w-56" motion="bob" glow shine shadow priority sizes="(max-width: 640px) 200px, 240px" />
+        <GeneratedVisual src="/visuals/c-home-hero.webp" className="cockpit__hero mx-auto -mt-24 mb-1 h-52 w-48 sm:-mt-28 sm:h-60 sm:w-56" motion="bob" glow shine shadow priority sizes="(max-width: 640px) 200px, 240px" />
         {/* Search context — the homepage stays focused on nearby help. */}
         <div className="flex items-center gap-3">
           <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-brand-100 bg-brand-50">
@@ -59,7 +34,7 @@ export function PetCareCockpit() {
         </div>
 
         {/* Best nearby result */}
-        <div className="mt-3 rounded-2xl border border-brand-100 bg-surface p-3 shadow-card">
+        <div className="cockpit__result mt-3 rounded-2xl border border-brand-100 bg-surface p-3 shadow-card">
           <div className="flex items-start gap-2.5">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-brand-100 bg-brand-50">
               <ServiceIcon category="veterinary_clinic" className="h-7 w-7" />
@@ -85,9 +60,7 @@ export function PetCareCockpit() {
           </div>
         </div>
 
-        <p className="mt-2.5 text-center text-[10px] font-medium text-ink/35">
-          Дані з датою останньої перевірки
-        </p>
+        <span className="cockpit__glare" />
       </div>
     </div>
   );
