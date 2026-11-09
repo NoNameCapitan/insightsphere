@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useId, type ReactNode } from "react";
 import type { PlaceCategory } from "@/lib/types";
 
@@ -110,11 +111,8 @@ export function FilterIcon(props: IconProps) {
   return <SoftIcon {...props}>{(id) => <>{[14, 24, 34].map((y, index) => <g key={y}><rect x="8" y={y - 2} width="32" height="4" rx="2" fill={`url(#${id}-mint)`} stroke="#0B6B62" strokeWidth="1.2" /><circle cx={[18, 31, 22][index]} cy={y} r="5" fill={`url(#${id}-teal)`} stroke="#fff" strokeWidth="1.5" /></g>)}</>}</SoftIcon>;
 }
 
-export function PetProfileIcon(props: IconProps) {
-  return <SoftIcon {...props}>{(id) => <>
-    <path d="M8.5 25c0-7.5 4.5-13 10.5-13s10.5 5.5 10.5 13-4.5 13-10.5 13S8.5 32.5 8.5 25Z" fill={`url(#${id}-mint)`} stroke="#0B6B62" strokeWidth="1.5" /><path d="m10.5 19-1.2-9 7.4 4.3M27.5 18l3.2-8 5.8 6.5" fill={`url(#${id}-sand)`} stroke="#805C3F" strokeWidth="1.5" strokeLinejoin="round" /><circle cx="16" cy="24" r="1.2" fill="#0B6B62" /><circle cx="22" cy="24" r="1.2" fill="#0B6B62" /><path d="M16.8 29c1.5 1.4 3 1.4 4.5 0" stroke="#0B6B62" strokeWidth="1.4" strokeLinecap="round" />
-    <circle cx="33.5" cy="28" r="7.5" fill={`url(#${id}-teal)`} stroke="#fff" strokeWidth="1.5" /><path d="M30.4 29c1.4 1.8 4.8 1.8 6.2 0M31.2 25.7h.1M35.8 25.7h.1" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" />
-  </>}</SoftIcon>;
+export function PetProfileIcon({ className }: IconProps) {
+  return <TileIcon name="pet" className={className} />;
 }
 
 export function TrainingIcon(props: IconProps) {
@@ -128,13 +126,48 @@ export function EmergencyCtaIcon({ className }: IconProps) {
   return <svg viewBox="0 0 24 24" className={className} aria-hidden focusable="false"><circle cx="12" cy="12" r="9" fill="currentColor" opacity=".12" /><path d="M12 7.8v8.4M7.8 12h8.4" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /></svg>;
 }
 
+/**
+ * Clay icon tiles (public/visuals/icons): the object sits on its own ivory
+ * surface with a natural shadow. Inside an `.icon3d` holder the tile fills
+ * the holder; elsewhere it takes the size from `className`.
+ */
+export type TileIconName =
+  | "clinic" | "pharmacy" | "store" | "grooming" | "boarding" | "shelter" | "emergency"
+  | "bomb-shelter" | "alert" | "location" | "phone" | "route" | "shield" | "verified"
+  | "vaccine" | "treatment" | "visit" | "weight" | "document" | "reminder" | "microchip" | "pet";
+
+export function TileIcon({ name, className }: IconProps & { name: TileIconName }) {
+  return (
+    <Image
+      src={`/visuals/icons/${name}.webp`}
+      alt=""
+      aria-hidden
+      width={144}
+      height={144}
+      sizes="80px"
+      className={`icon-raster ${className ?? ""}`}
+    />
+  );
+}
+
+const CATEGORY_TILES: Partial<Record<PlaceCategory, TileIconName>> = {
+  veterinary_clinic: "clinic", emergency_vet: "emergency", pet_store: "store",
+  vet_pharmacy: "pharmacy", grooming: "grooming", pet_boarding: "boarding", shelter: "shelter",
+};
+
+// Categories without a clay tile yet keep the vector fallback.
 const ICONS: Partial<Record<PlaceCategory, (props: IconProps) => React.JSX.Element>> = {
-  veterinary_clinic: ClinicIcon, emergency_vet: EmergencyIcon, pet_store: StoreIcon,
-  vet_pharmacy: PharmacyIcon, grooming: GroomingIcon, pet_boarding: HotelIcon,
-  shelter: ShelterIcon, dog_training: TrainingIcon, pet_friendly_place: FriendlyIcon,
+  dog_training: TrainingIcon, pet_friendly_place: FriendlyIcon,
 };
 
 export function ServiceIcon({ category, className }: IconProps & { category: PlaceCategory }) {
+  const tile = CATEGORY_TILES[category];
+  if (tile) return <TileIcon name={tile} className={className} />;
   const Icon = ICONS[category] ?? PawIcon;
   return <Icon className={className} />;
+}
+
+/** Air-raid shelter (safety layer) — not the animal-shelter category. */
+export function BombShelterIcon({ className }: IconProps) {
+  return <TileIcon name="bomb-shelter" className={className} />;
 }

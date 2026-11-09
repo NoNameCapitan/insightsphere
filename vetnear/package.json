@@ -1,6 +1,6 @@
 {
   "name": "vetnear",
-  "version": "1.23.0",
+  "version": "1.24.0",
   "private": true,
   "description": "VetNear — mobile-first local discovery of nearby veterinary clinics, pet stores, pharmacies, grooming and shelters.",
   "scripts": {

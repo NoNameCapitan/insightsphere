@@ -1,10 +1,10 @@
-import Image from "next/image";
 import Link from "next/link";
 import { DatasetSummary } from "@/components/DatasetSummary";
 import { EmergencyReadinessRail } from "@/components/EmergencyReadinessRail";
 import { FounderNote } from "@/components/FounderNote";
 import { HomeHero } from "@/components/HomeHero";
 import { HomeUpdatesStrip } from "@/components/HomeUpdatesStrip";
+import { TileIcon, type TileIconName } from "@/components/icons/ServiceIcons";
 import { RevealGroup } from "@/components/RevealGroup";
 
 // The home page is statically rendered. WebSite JSON-LD is emitted once in the
@@ -13,7 +13,7 @@ import { RevealGroup } from "@/components/RevealGroup";
 // trust cards + compact safety line, a collapsed "Докладніше про VetNear" block (full SEO/safety prose
 // stays in the DOM) and the compact social-impact card.
 
-const TRUST_CARDS: { icon: string; text: string }[] = [
+const TRUST_CARDS: { icon: TileIconName; text: string }[] = [
   { icon: "location", text: "Без реєстрації" },
   { icon: "phone", text: "Дзвінок і маршрут одразу" },
   { icon: "verified", text: "Статус перевірки в кожного закладу" },
@@ -35,7 +35,7 @@ export default function HomePage() {
           {TRUST_CARDS.map((c) => (
             <div key={c.text} className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-2.5">
               <span className="icon3d h-11 w-11">
-                <Image src={`/visuals/parts/icon-${c.icon}.webp`} alt="" width={96} height={96} sizes="44px" />
+                <TileIcon name={c.icon} />
               </span>
               <p className="text-xs font-semibold leading-snug text-ink/75">{c.text}</p>
             </div>

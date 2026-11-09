@@ -47,3 +47,14 @@
 ## I–J. Motion and navigation
 - Smaller tilt angles, no bounce on icon hover, skeleton placeholders.
 - Mobile bottom tab bar: Головна / Поруч / Терміново / Мої тварини.
+
+## v1.24 — clay icon set
+- 22 clay icon tiles in `public/visuals/icons/`: 12 cut from the supplied
+  sheet (store, shelter, air-raid shelter, alert, vaccine, treatment, visit,
+  weight, document, reminder, microchip, pet) and the 10 existing icons
+  re-composed onto the same ivory surface so the set reads as one family.
+- Category icons, medical-record icons, the trust strip, the readiness rail
+  and the shelter button now use the tiles (`TileIcon`). Dog-training and
+  pet-friendly categories and small button glyphs keep the vector icons.
+- The tiles keep their ivory background instead of a cut-out: the sheet is
+  cream-on-cream, so a clean transparent cut was not achievable.

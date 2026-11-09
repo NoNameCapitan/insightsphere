@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef } from "react";
-import { EmergencyIcon, PetProfileIcon, ShelterIcon, VerifiedIcon } from "@/components/icons/ServiceIcons";
+import { TileIcon } from "@/components/icons/ServiceIcons";
 
 type Scenario = {
   title: string;
@@ -20,7 +20,7 @@ const SCENARIOS: Scenario[] = [
     action: "Знайти допомогу",
     href: "/help",
     tone: "emergency",
-    icon: <EmergencyIcon />,
+    icon: <TileIcon name="emergency" />,
   },
   {
     title: "Повітряна тривога",
@@ -28,7 +28,7 @@ const SCENARIOS: Scenario[] = [
     action: "Відкрити карту",
     href: "/nearby",
     tone: "shelter",
-    icon: <ShelterIcon />,
+    icon: <TileIcon name="alert" />,
   },
   {
     title: "Знайшли тварину",
@@ -36,7 +36,7 @@ const SCENARIOS: Scenario[] = [
     action: "Що робити",
     href: "/lost-found",
     tone: "found",
-    icon: <PetProfileIcon />,
+    icon: <TileIcon name="pet" />,
   },
   {
     title: "Укус або ризик сказу",
@@ -44,7 +44,7 @@ const SCENARIOS: Scenario[] = [
     action: "Переглянути інструкцію",
     href: "/kyiv-updates",
     tone: "health",
-    icon: <VerifiedIcon />,
+    icon: <TileIcon name="shield" />,
   },
 ];
 
@@ -78,7 +78,7 @@ export function EmergencyReadinessRail() {
         {SCENARIOS.map((scenario) => (
           <Link key={scenario.title} href={scenario.href} className={`readiness-card readiness-card--${scenario.tone}`}>
             <span className="readiness-card__glow" aria-hidden />
-            <span className="readiness-card__icon">{scenario.icon}</span>
+            <span className="readiness-card__icon icon3d">{scenario.icon}</span>
             <span className="relative z-10 mt-auto block">
               <strong className="block font-display text-lg leading-tight text-ink">{scenario.title}</strong>
               <span className="mt-2 block text-sm leading-5 text-ink/65">{scenario.description}</span>

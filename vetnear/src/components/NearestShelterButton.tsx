@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { hasFreshActiveAlert, hasFreshAlertStatus, OFFICIAL_SHELTER_MAP } from "@/lib/safety/client";
 import { resolveNearestShelterRoute, ShelterRouteError, type ShelterRoutePhase } from "@/lib/safety/nearestShelter";
 import type { KyivAlertStatus } from "@/lib/safety/types";
-import { ShelterIcon } from "@/components/icons/ServiceIcons";
+import { BombShelterIcon } from "@/components/icons/ServiceIcons";
 
 const PHASE_TEXT: Record<ShelterRoutePhase, string> = {
   checking: "Перевіряємо тривогу…", locating: "Визначаємо місце…", searching: "Шукаємо укриття…",
@@ -67,7 +67,7 @@ export function NearestShelterButton({ alert, onAlertStatus, onRefresh }: {
           aria-describedby="nearest-shelter-hint"
           className="inline-flex items-center gap-2 rounded-xl px-2 py-1 text-xs font-semibold text-ink/45 disabled:cursor-not-allowed"
         >
-          <ShelterIcon className="h-7 w-7" /> Укриття
+          <BombShelterIcon className="h-7 w-7" /> Укриття
         </button>
         <p id="nearest-shelter-hint" role="status" aria-live="polite" className="min-w-0 flex-1 truncate text-[11px] text-ink/50">{hint}</p>
         {onRefresh && alert?.state === "unavailable" && (
@@ -89,7 +89,7 @@ export function NearestShelterButton({ alert, onAlertStatus, onRefresh }: {
           onClick={() => { void navigate(); }}
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emergency px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emergency-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emergency disabled:cursor-not-allowed disabled:bg-ink/10 disabled:text-ink/45 motion-reduce:transition-none"
         >
-          <ShelterIcon className="h-7 w-7" />
+          <BombShelterIcon className="h-7 w-7" />
           Укриття
         </button>
         <p id="nearest-shelter-hint" role="status" aria-live="polite" className="min-w-0 flex-1 text-xs text-ink/65">
