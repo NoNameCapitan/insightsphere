@@ -58,16 +58,16 @@ const FIELD_MASK = [
 ].join(",");
 
 const DISTRICTS = {
-  podil: { label: "Поділ", latitude: 50.4662, longitude: 30.5152 },
-  pechersk: { label: "Печерськ", latitude: 50.4253, longitude: 30.5403 },
-  obolon: { label: "Оболонь", latitude: 50.5151, longitude: 30.4983 },
-  pozniaky: { label: "Позняки", latitude: 50.4022, longitude: 30.6294 },
-  osokorky: { label: "Осокорки", latitude: 50.3972, longitude: 30.6103 },
-  troieshchyna: { label: "Троєщина", latitude: 50.5122, longitude: 30.6013 },
-  holosiiv: { label: "Голосіїв", latitude: 50.3782, longitude: 30.5103 },
-  solomianka: { label: "Соломʼянка", latitude: 50.4302, longitude: 30.4603 },
-  nyvky: { label: "Нивки", latitude: 50.4582, longitude: 30.4183 },
-  sviatoshyn: { label: "Святошин", latitude: 50.4582, longitude: 30.3553 },
+  holosiivskyi: { label: "Голосіївський район", latitude: 50.3324, longitude: 30.5547 },
+  darnytskyi: { label: "Дарницький район", latitude: 50.4018, longitude: 30.6952 },
+  desnianskyi: { label: "Деснянський район", latitude: 50.5225, longitude: 30.6838 },
+  dniprovskyi: { label: "Дніпровський район", latitude: 50.4606, longitude: 30.6269 },
+  obolonskyi: { label: "Оболонський район", latitude: 50.5397, longitude: 30.4322 },
+  pecherskyi: { label: "Печерський район", latitude: 50.4272, longitude: 30.5483 },
+  podilskyi: { label: "Подільський район", latitude: 50.4945, longitude: 30.4401 },
+  sviatoshynskyi: { label: "Святошинський район", latitude: 50.4723, longitude: 30.3279 },
+  solomianskyi: { label: "Соломʼянський район", latitude: 50.4239, longitude: 30.452 },
+  shevchenkivskyi: { label: "Шевченківський район", latitude: 50.4634, longitude: 30.4608 },
 };
 
 const CATEGORY_CONFIG = {
@@ -199,16 +199,16 @@ function domainOf(url) {
 function nearestDistrict(location, address = "") {
   const addressLower = address.toLowerCase();
   const aliases = [
-    ["podil", ["поділ", "подоль", "podil"]],
-    ["pechersk", ["печер", "pechersk"]],
-    ["obolon", ["оболон", "obolon"]],
-    ["pozniaky", ["позня", "pozniaky"]],
-    ["osokorky", ["осокорк", "osokorky"]],
-    ["troieshchyna", ["троєщ", "троещ", "troiesh"]],
-    ["holosiiv", ["голосі", "голосе", "holosi"]],
-    ["solomianka", ["солом", "solom"]],
-    ["nyvky", ["нивк", "nyvky"]],
-    ["sviatoshyn", ["святош", "sviatosh"]],
+    ["holosiivskyi", ["голосі", "голосе", "теремк", "holosi"]],
+    ["darnytskyi", ["дарниц", "позня", "осокорк", "харківськ", "darnyts"]],
+    ["desnianskyi", ["деснян", "троєщ", "троещ", "лісов", "desnian"]],
+    ["dniprovskyi", ["дніпровськ", "березняк", "русанів", "воскресен", "dniprovs"]],
+    ["obolonskyi", ["оболон", "obolon"]],
+    ["pecherskyi", ["печер", "pechersk"]],
+    ["podilskyi", ["поділ", "подоль", "виноградар", "podil"]],
+    ["sviatoshynskyi", ["святош", "борщагів", "sviatosh"]],
+    ["solomianskyi", ["солом", "solom"]],
+    ["shevchenkivskyi", ["шевченк", "нивк", "лукʼян", "лук'ян", "shevchenk"]],
   ];
   for (const [district, needles] of aliases) {
     if (needles.some((needle) => addressLower.includes(needle))) return district;
@@ -481,7 +481,7 @@ function buildSampleCandidates() {
     name: "SAMPLE Vet Clinic — replace with real Google import",
     category: "veterinary_clinic",
     address: "Київ, Україна",
-    district: "pechersk",
+    district: "pecherskyi",
     phone: null,
     website: null,
     googleMapsUri: null,
@@ -522,7 +522,7 @@ Usage:
 Options:
   --categories=veterinary_clinic,pet_store,vet_pharmacy,grooming,pet_boarding,shelter,animal_volunteer_help,pet_friendly_place
                 (default: all safe categories — emergency_vet is excluded)
-  --districts=pechersk,obolon,pozniaky,holosiiv,solomianka   (default: all)
+  --districts=pecherskyi,obolonskyi,darnytskyi,holosiivskyi,solomianskyi   (default: all)
   --exclude-emergency=true    (default true — skip emergency_vet, flag 24/7 as needs_phone_confirmation)
   --radius=3500
   --limit=100
@@ -535,8 +535,8 @@ Options:
   --sample      write one sample candidate for UI testing only
 
 Examples:
-  npm run import:google-places -- --categories=veterinary_clinic,pet_store,vet_pharmacy,grooming,pet_boarding,shelter --districts=pechersk,obolon,pozniaky,holosiiv,solomianka --limit=100 --exclude-emergency=true
-  npm run import:google-places -- --categories=pet_store,vet_pharmacy,grooming --districts=podil,nyvky,sviatoshyn --limit=80 --exclude-emergency=true
+  npm run import:google-places -- --categories=veterinary_clinic,pet_store,vet_pharmacy,grooming,pet_boarding,shelter --districts=pecherskyi,obolonskyi,darnytskyi,holosiivskyi,solomianskyi --limit=100 --exclude-emergency=true
+  npm run import:google-places -- --categories=pet_store,vet_pharmacy,grooming --districts=podilskyi,shevchenkivskyi,sviatoshynskyi --limit=80 --exclude-emergency=true
 `);
 }
 

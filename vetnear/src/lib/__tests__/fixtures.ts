@@ -17,7 +17,7 @@ export function makePlace(overrides: Partial<Place> = {}): Place {
     category: "veterinary_clinic",
     description: "Test clinic",
     address: "вул. Тестова, 1",
-    district: "pechersk",
+    district: "pecherskyi",
     latitude: KYIV_CENTER.latitude,
     longitude: KYIV_CENTER.longitude,
     phone: "+380441234567",

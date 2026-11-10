@@ -16,7 +16,7 @@ function submission(over: Partial<PartnerSubmission> = {}): PartnerSubmission {
     category: "veterinary_clinic",
     description: "Клініка для котів і собак.",
     address: "вул. Тестова, 1",
-    district: "podil",
+    district: "podilskyi",
     latitude: 50.46,
     longitude: 30.51,
     phone: "+380441234567",

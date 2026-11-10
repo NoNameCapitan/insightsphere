@@ -1,10 +1,11 @@
 "use client";
 
+import { DistrictMap3D } from "@/components/DistrictMap3D";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Disclaimer } from "@/components/JsonLd";
 import { ShareRow } from "@/components/ShareRow";
-import { ALL_ANIMALS, ALL_DISTRICTS, ANIMAL_LABELS, DISTRICT_LABELS } from "@/lib/labels";
+import { ALL_ANIMALS, ALL_DISTRICTS, ANIMAL_LABELS, DISTRICT_LABELS, districtLabel } from "@/lib/labels";
 import { createCard, getCards, type LostFoundCard } from "@/lib/lostfound/store";
 import { SITE } from "@/lib/seo";
 import { lostFoundShareText } from "@/lib/share";
@@ -16,7 +17,7 @@ export default function LostFoundPage() {
   const [mode, setMode] = useState<"lost" | "found">("lost");
   const [petName, setPetName] = useState("");
   const [animalType, setAnimalType] = useState<AnimalType>("dog");
-  const [district, setDistrict] = useState<KyivDistrict>("podil");
+  const [district, setDistrict] = useState<KyivDistrict>("shevchenkivskyi");
   const [contact, setContact] = useState("");
   const [note, setNote] = useState("");
   const [err, setErr] = useState<string | null>(null);
@@ -98,6 +99,7 @@ export default function LostFoundPage() {
               {ALL_DISTRICTS.map((d) => <option key={d} value={d}>{DISTRICT_LABELS[d]}</option>)}
             </select>
           </div>
+          <DistrictMap3D allowAll={false} value={district} onChange={(value) => { if (value !== "all") setDistrict(value); }} />
           <input className={field} placeholder="Контактний телефон +380…" value={contact} onChange={(e) => setContact(e.target.value)} />
           <textarea className={field} rows={2} placeholder="Деталі (необовʼязково)" value={note} onChange={(e) => setNote(e.target.value)} />
           {err && <p className="text-sm text-emergency">{err}</p>}
@@ -116,13 +118,13 @@ export default function LostFoundPage() {
               <p className="font-display font-bold text-ink">
                 {c.mode === "lost" ? "❗ Загубився" : "🟢 Знайдено"}: {c.petName}
               </p>
-              <span className="text-xs text-ink/50">{ANIMAL_LABELS[c.animalType]} · {DISTRICT_LABELS[c.district]}</span>
+              <span className="text-xs text-ink/50">{ANIMAL_LABELS[c.animalType]} · {districtLabel(c.district)}</span>
             </div>
             {c.note && <p className="mt-1 text-sm text-ink/70">{c.note}</p>}
             <p className="mt-1 text-sm text-ink/70">📞 {c.contact}</p>
             <div className="mt-3">
               <ShareRow
-                text={lostFoundShareText(c.mode, c.petName, DISTRICT_LABELS[c.district])}
+                text={lostFoundShareText(c.mode, c.petName, districtLabel(c.district))}
                 url={`${SITE.url}/lost-found`}
               />
             </div>

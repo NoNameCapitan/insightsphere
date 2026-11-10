@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Landing } from "@/components/Landing";
 import { PLACES } from "@/lib/data/places";
-import { ALL_DISTRICTS, DISTRICT_LABELS } from "@/lib/labels";
+import { ALL_DISTRICTS, DISTRICT_LABELS, normalizeDistrict } from "@/lib/labels";
 import type { KyivDistrict } from "@/lib/types";
 
 // Rendered on demand (still full SSR HTML + JSON-LD). Keeps the build's
@@ -19,20 +19,25 @@ export async function generateMetadata({ params }: { params: Promise<{ district:
   const label = DISTRICT_LABELS[district];
   return {
     title: `Послуги для тварин — ${label}, Київ`,
-    description: `Ветклініки, зоомагазини, аптеки, грумінг та інші послуги для тварин у районі ${label} (Київ).`,
+    description: `Ветклініки, зоомагазини, аптеки, грумінг та інші послуги для тварин: ${label}, Київ.`,
     alternates: { canonical: `/city/kyiv/district/${district}` },
   };
 }
 
 export default async function DistrictPage({ params }: { params: Promise<{ district: string }> }) {
   const { district } = await params;
-  if (!isDistrict(district)) notFound();
+  if (!isDistrict(district)) {
+    // Pre-v1.25 neighbourhood slugs move to the official district's page.
+    const official = normalizeDistrict(district);
+    if (official) permanentRedirect(`/city/kyiv/district/${official}`);
+    notFound();
+  }
   const label = DISTRICT_LABELS[district];
   const places = PLACES.filter((p) => p.district === district).slice(0, 30);
   return (
     <Landing
       h1={`Послуги для тварин — ${label}`}
-      intro={`Заклади для тварин у районі ${label} (Київ): клініки, магазини, аптеки, грумінг та сервіси. Натисніть, щоб відсортувати найближчі.`}
+      intro={`${label}, Київ: клініки, магазини, аптеки, грумінг та сервіси для тварин. Натисніть, щоб відсортувати найближчі.`}
       places={places}
       path={`/city/kyiv/district/${district}`}
       ctaHref={`/nearby?district=${district}`}

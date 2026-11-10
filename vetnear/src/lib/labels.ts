@@ -84,9 +84,35 @@ export const ALL_CATEGORIES = Object.keys(CATEGORY_LABELS) as PlaceCategory[];
 export const ALL_ANIMALS = Object.keys(ANIMAL_LABELS) as AnimalType[];
 export const ALL_DISTRICTS = Object.keys(DISTRICT_LABELS) as KyivDistrict[];
 
+/**
+ * Before v1.25 the app used a mix of neighbourhoods instead of the official
+ * districts. Old links and data saved in a browser may still carry those
+ * slugs, so they are mapped to the district the neighbourhood belongs to.
+ */
+const LEGACY_DISTRICTS: Record<string, KyivDistrict> = {
+  pozniaky: "darnytskyi",
+  osokorky: "darnytskyi",
+  obolon: "obolonskyi",
+  podil: "podilskyi",
+  troieshchyna: "desnianskyi",
+  holosiiv: "holosiivskyi",
+  solomianka: "solomianskyi",
+  pechersk: "pecherskyi",
+  nyvky: "shevchenkivskyi",
+  sviatoshyn: "sviatoshynskyi",
+};
+
+/** Returns a valid district for a current or legacy slug, otherwise null. */
+export function normalizeDistrict(value: string | null | undefined): KyivDistrict | null {
+  if (!value) return null;
+  if ((ALL_DISTRICTS as string[]).includes(value)) return value as KyivDistrict;
+  return LEGACY_DISTRICTS[value] ?? null;
+}
+
 export function categoryLabel(c: PlaceCategory): string {
   return CATEGORY_LABELS[c] ?? c;
 }
-export function districtLabel(d: KyivDistrict): string {
-  return DISTRICT_LABELS[d] ?? d;
+export function districtLabel(d: KyivDistrict | string): string {
+  const key = normalizeDistrict(d);
+  return key ? DISTRICT_LABELS[key] : d;
 }

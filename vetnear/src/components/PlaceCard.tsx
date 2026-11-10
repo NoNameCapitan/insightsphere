@@ -9,7 +9,7 @@ import { track } from "@/lib/analytics";
 import { reportLead } from "@/lib/leads/report";
 import { shouldLabelAsPromoted } from "@/lib/places/tier";
 import { formatDistance, getOpenNowStatus } from "@/lib/distance";
-import { CATEGORY_LABELS, DISTRICT_LABELS } from "@/lib/labels";
+import { CATEGORY_LABELS, districtLabel } from "@/lib/labels";
 import { googleMapsRoute } from "@/lib/maps";
 import { EXTERNAL_LINK_PROPS, safeUrl } from "@/lib/security/url";
 import { computeBadges } from "@/lib/trust";
@@ -56,7 +56,7 @@ export function PlaceCard({
   );
   const meta = [
     CATEGORY_LABELS[place.category],
-    place.district ? DISTRICT_LABELS[place.district] : null,
+    place.district ? districtLabel(place.district) : null,
   ]
     .filter(Boolean)
     .join(" · ");

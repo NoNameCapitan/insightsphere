@@ -1,4 +1,6 @@
-// Generator for synthetic Kyiv place data (Module 14). Run: node scripts/gen-data.mjs
+// LEGACY generator for synthetic demo data (Module 14). It still uses the old
+// neighbourhood slugs, which are no longer valid KyivDistrict values (v1.25) —
+// do not run it against the real dataset.
 import { writeFileSync } from "node:fs";
 
 const CENTROIDS = {

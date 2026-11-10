@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { DistrictMap3D } from "@/components/DistrictMap3D";
 import { FilterIcon } from "@/components/icons/ServiceIcons";
 
 import {
@@ -120,6 +121,11 @@ export function FiltersBar({
             <option key={s.key} value={s.key}>{s.label}</option>
           ))}
         </select>
+      </div>
+
+      <div className="rounded-2xl border border-brand-100 bg-canvas/60 px-2 pb-3 pt-2">
+        <p className="px-2 pt-1 text-xs font-semibold text-ink/55">Район на карті</p>
+        {open && <DistrictMap3D value={filters.district} onChange={(district) => onChange({ district })} />}
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

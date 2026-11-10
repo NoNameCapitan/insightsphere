@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DatasetSummary } from "@/components/DatasetSummary";
 import { EmergencyReadinessRail } from "@/components/EmergencyReadinessRail";
 import { FounderNote } from "@/components/FounderNote";
+import { HomeDistricts } from "@/components/HomeDistricts";
 import { HomeHero } from "@/components/HomeHero";
 import { HomeUpdatesStrip } from "@/components/HomeUpdatesStrip";
 import { TileIcon, type TileIconName } from "@/components/icons/ServiceIcons";
@@ -26,6 +27,8 @@ export default function HomePage() {
       <HomeHero />
 
       <EmergencyReadinessRail />
+
+      <HomeDistricts />
 
       <HomeUpdatesStrip />
 

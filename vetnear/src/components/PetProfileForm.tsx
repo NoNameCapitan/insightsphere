@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
-import { ALL_ANIMALS, ALL_DISTRICTS, ANIMAL_LABELS, DISTRICT_LABELS } from "@/lib/labels";
+import { ALL_ANIMALS, ALL_DISTRICTS, ANIMAL_LABELS, DISTRICT_LABELS, normalizeDistrict } from "@/lib/labels";
 import { PLACES } from "@/lib/data/places";
 import { createPet, deletePet, updatePet } from "@/lib/pets/store";
 import { PetProfileIcon } from "@/components/icons/ServiceIcons";
@@ -29,7 +29,7 @@ export function PetProfileForm({ existing }: { existing?: PetProfile }) {
   const [microchipNumber, setMicrochip] = useState(existing?.microchipNumber ?? "");
   const [allergies, setAllergies] = useState(existing?.allergies ?? "");
   const [notes, setNotes] = useState(existing?.importantNotes ?? "");
-  const [preferredDistrict, setPreferredDistrict] = useState<KyivDistrict | "">(existing?.preferredDistrict ?? "");
+  const [preferredDistrict, setPreferredDistrict] = useState<KyivDistrict | "">(normalizeDistrict(existing?.preferredDistrict) ?? "");
   const [favoriteClinicId, setFavoriteClinicId] = useState(existing?.favoriteClinicId ?? "");
   const [emergencyNote, setEmergencyNote] = useState(existing?.emergencyNote ?? "");
   const [error, setError] = useState<string | null>(null);

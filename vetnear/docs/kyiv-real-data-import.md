@@ -16,7 +16,7 @@ All rows must be **manually verified** before import (see
 |---|---|---|
 | `name` | yes | Official business name |
 | `category` | yes | One of: `veterinary_clinic, emergency_vet, pet_store, vet_pharmacy, grooming, shelter, animal_volunteer_help, pet_boarding, dog_walking, dog_training, pet_friendly_place, other_pet_service` |
-| `district` | yes | Kyiv district slug (e.g. `pozniaky`, `pechersk`) |
+| `district` | yes | Kyiv district slug (e.g. `darnytskyi`, `pecherskyi`) |
 | `address` | yes | Street address |
 | `lat`, `lng` | **yes for map** | Decimal degrees. **No coordinates ⇒ the place is `needs_geocoding` and cannot appear on the map** (see coordinate-safety rules). |
 | `phone` | yes | E.164 preferred (`+380...`) |
@@ -95,13 +95,13 @@ publishing pipeline.
 # Default safe categories, several districts, emergency excluded:
 npm run import:google-places -- \
   --categories=veterinary_clinic,pet_store,vet_pharmacy,grooming,pet_boarding,shelter \
-  --districts=pechersk,obolon,pozniaky,holosiiv,solomianka \
+  --districts=pecherskyi,obolonskyi,darnytskyi,holosiivskyi,solomianskyi \
   --limit=100 --exclude-emergency=true
 
 # Narrower run:
 npm run import:google-places -- \
   --categories=pet_store,vet_pharmacy,grooming \
-  --districts=podil,nyvky,sviatoshyn \
+  --districts=podilskyi,shevchenkivskyi,sviatoshynskyi \
   --limit=80 --exclude-emergency=true
 
 # No API key needed for these (build-safe):

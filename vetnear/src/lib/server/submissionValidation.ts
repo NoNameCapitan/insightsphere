@@ -15,8 +15,8 @@ const CATEGORIES = [
   "dog_walking", "dog_training", "other_pet_service",
 ] as const;
 const DISTRICTS = [
-  "pozniaky", "osokorky", "obolon", "podil", "troieshchyna",
-  "holosiiv", "solomianka", "pechersk", "nyvky", "sviatoshyn",
+  "holosiivskyi", "darnytskyi", "desnianskyi", "dniprovskyi", "obolonskyi",
+  "pecherskyi", "podilskyi", "sviatoshynskyi", "solomianskyi", "shevchenkivskyi",
 ] as const;
 const REPORT_REASONS = [
   "wrong_phone", "wrong_address", "wrong_hours", "closed_permanently", "duplicate", "other",

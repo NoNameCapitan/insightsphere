@@ -11,17 +11,18 @@ export interface Coordinates {
   longitude: number;
 }
 
+// The ten official districts of Kyiv.
 export type KyivDistrict =
-  | "pozniaky"
-  | "osokorky"
-  | "obolon"
-  | "podil"
-  | "troieshchyna"
-  | "holosiiv"
-  | "solomianka"
-  | "pechersk"
-  | "nyvky"
-  | "sviatoshyn";
+  | "holosiivskyi"
+  | "darnytskyi"
+  | "desnianskyi"
+  | "dniprovskyi"
+  | "obolonskyi"
+  | "pecherskyi"
+  | "podilskyi"
+  | "sviatoshynskyi"
+  | "solomianskyi"
+  | "shevchenkivskyi";
 
 // ── Animals ──────────────────────────────────────────────────────────────────
 export type AnimalType =

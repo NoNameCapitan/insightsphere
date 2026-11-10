@@ -1,5 +1,6 @@
 "use client";
 
+import { DistrictMap3D } from "@/components/DistrictMap3D";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { track } from "@/lib/analytics";
@@ -19,7 +20,7 @@ export default function AddPlacePage() {
   const [category, setCategory] = useState<PlaceCategory>("veterinary_clinic");
   const [description, setDescription] = useState("");
   const [address, setAddress] = useState("");
-  const [district, setDistrict] = useState<KyivDistrict>("podil");
+  const [district, setDistrict] = useState<KyivDistrict>("shevchenkivskyi");
   const [mapLink, setMapLink] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
@@ -147,6 +148,7 @@ export default function AddPlacePage() {
               <div><label className={labelCls} htmlFor="category">Категорія</label><select id="category" className={field} value={category} onChange={(event) => setCategory(event.target.value as PlaceCategory)}>{ALL_CATEGORIES.filter((item) => item !== "emergency_vet").map((item) => <option key={item} value={item}>{CATEGORY_LABELS[item]}</option>)}</select></div>
               <div><label className={labelCls} htmlFor="district">Район</label><select id="district" className={field} value={district} onChange={(event) => setDistrict(event.target.value as KyivDistrict)}>{ALL_DISTRICTS.map((item) => <option key={item} value={item}>{DISTRICT_LABELS[item]}</option>)}</select></div>
             </div>
+            <DistrictMap3D allowAll={false} value={district} onChange={(value) => { if (value !== "all") setDistrict(value); }} />
             {isFreeSocial && <p className="rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-700">Для притулків і зоозахисних організацій розміщення безкоштовне.</p>}
             <div><label className={labelCls} htmlFor="address">Адреса *</label><input id="address" className={field} value={address} onChange={(event) => setAddress(event.target.value)} /></div>
             <div><label className={labelCls} htmlFor="phone">Телефон *</label><input id="phone" className={field} value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+380…" inputMode="tel" /></div>

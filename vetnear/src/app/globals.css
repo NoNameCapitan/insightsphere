@@ -2188,6 +2188,195 @@ body {
   100% { background-position: -100% 0; }
 }
 
+/* ---------------------------------------------------------------------------
+   v1.25 — 3D district map of Kyiv (DistrictMap3D.tsx).
+   The board is one tilted plane; each district is an extruded piece that
+   lifts on hover/focus/selection. A flat hit layer keeps pointer targets
+   stable while pieces move.
+--------------------------------------------------------------------------- */
+.district-map {
+  --dm-rx: 0deg;
+  --dm-rz: 0deg;
+  width: 100%;
+  max-width: 420px;
+  margin-inline: auto;
+}
+.district-map__stage {
+  position: relative;
+  perspective: 900px;
+  perspective-origin: 50% 20%;
+}
+.district-map__plane {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: -2%;
+  transform-style: preserve-3d;
+  transform-origin: 50% 62%;
+  transform: rotateX(calc(50deg + var(--dm-rx))) rotateZ(calc(-5deg + var(--dm-rz)));
+  transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.district-map__plane svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.district-map__ground {
+  transform: translateZ(-22px) translateY(3%);
+  fill: rgb(11 80 72 / 0.3);
+  filter: blur(7px);
+}
+.district-map__piece {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  /* Purely visual: only the flat hit layer below receives the pointer. */
+  pointer-events: none;
+  transition:
+    transform 380ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 260ms ease;
+}
+.district-map__top path {
+  fill: var(--c);
+  stroke: rgb(255 255 255 / 0.9);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  transition: stroke-width 200ms ease;
+}
+.district-map__side {
+  transform: translateZ(-5px);
+}
+.district-map__side--low {
+  transform: translateZ(-10px);
+}
+.district-map__side path {
+  fill: color-mix(in srgb, var(--c) 62%, #0b3f3a);
+  stroke: color-mix(in srgb, var(--c) 62%, #0b3f3a);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+.district-map[data-has-active] .district-map__piece:not([data-active]):not([data-selected]) {
+  filter: saturate(0.78) brightness(1.03);
+}
+.district-map__piece[data-selected] {
+  transform: translateZ(9px);
+}
+.district-map__piece[data-active] {
+  transform: translateZ(18px);
+  filter: saturate(1.15) brightness(1.03);
+}
+.district-map__piece[data-active] .district-map__top path,
+.district-map__piece[data-selected] .district-map__top path {
+  stroke: #fff;
+  stroke-width: 2.6;
+}
+.district-map__plane .district-map__hit {
+  transform: translateZ(0.1px);
+}
+.district-map__hit path {
+  fill: transparent;
+  pointer-events: auto;
+  cursor: pointer;
+  outline: none;
+}
+.district-map__hit path:focus-visible {
+  stroke: #0b6b62;
+  stroke-width: 3;
+  stroke-dasharray: 5 4;
+}
+.district-map__tag {
+  position: absolute;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  border-radius: 9999px;
+  background: #fff;
+  padding: 5px 10px 5px 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1;
+  color: #15292b;
+  box-shadow:
+    0 10px 20px -8px rgb(11 80 72 / 0.45),
+    0 0 0 1px rgb(11 107 98 / 0.08);
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  /* undo the board's tilt so the tag faces the viewer, then float above it */
+  transform: translate3d(-50%, -100%, 44px) rotateZ(calc(5deg - var(--dm-rz))) rotateX(calc(-50deg - var(--dm-rx)));
+  animation: districtTagIn 240ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+@keyframes districtTagIn {
+  from { opacity: 0; transform: translate3d(-50%, -100%, 26px) rotateZ(calc(5deg - var(--dm-rz))) rotateX(calc(-50deg - var(--dm-rx))) scale(0.9); }
+}
+.district-map__tag-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: var(--c);
+  box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.7), 0 0 0 1px rgb(21 41 43 / 0.08);
+}
+.district-map__tag-count {
+  border-radius: 9999px;
+  background: rgb(11 107 98 / 0.1);
+  padding: 2px 6px;
+  font-size: 11px;
+  color: #07524b;
+}
+.district-map__status {
+  display: flex;
+  min-height: 22px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: rgb(21 41 43 / 0.6);
+}
+.district-map__status strong {
+  color: #15292b;
+}
+.district-map__legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+.district-map__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9999px;
+  border: 1px solid rgb(11 107 98 / 0.14);
+  background: #fff;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgb(21 41 43 / 0.7);
+}
+.district-map__chip:hover {
+  border-color: rgb(11 107 98 / 0.4);
+  color: #15292b;
+}
+.district-map__chip[aria-pressed="true"] {
+  border-color: #0b6b62;
+  background: #0b6b62;
+  color: #fff;
+}
+.district-map__credit {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 10px;
+  color: rgb(21 41 43 / 0.35);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .generated-visual__image,
   .generated-visual__stage,
@@ -2205,6 +2394,9 @@ body {
   .tilt3d .tilt-pop,
   .tilt3d .service-card__icon,
   .reveal-group > *,
+  .district-map__plane,
+  .district-map__piece,
+  .district-map__tag,
   .skeleton,
   .icon-tile,
   .icon-tile img,

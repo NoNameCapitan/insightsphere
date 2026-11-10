@@ -19,7 +19,7 @@ import { DEFAULT_FILTERS, getRecommendedPlaces } from "@/lib/geo/ranking";
 import { t } from "@/lib/i18n";
 import { availabilityDuringAlert } from "@/lib/safety/placeAvailability";
 import Link from "next/link";
-import { CATEGORY_LABELS } from "@/lib/labels";
+import { CATEGORY_LABELS, normalizeDistrict } from "@/lib/labels";
 import { getActivePet } from "@/lib/pets/store";
 import { getPlaces, hydratePublishedPlaces } from "@/lib/store";
 import type {
@@ -58,7 +58,8 @@ function seedFilters(params: URLSearchParams): FilterState {
   if (category) f.category = category;
   const animal = params.get("animal") as AnimalType | null;
   if (animal) f.animal = animal;
-  const district = params.get("district") as FilterState["district"] | null;
+  // Old links may still carry pre-v1.25 neighbourhood slugs.
+  const district = normalizeDistrict(params.get("district"));
   if (district) f.district = district;
   const radius = Number(params.get("radius")) as RadiusMeters;
   if (VALID_RADII.includes(radius)) f.radius = radius;

@@ -8,7 +8,7 @@ import {
 const validBody = {
   name: "Ветклініка Тест",
   category: "veterinary_clinic",
-  district: "obolon",
+  district: "obolonskyi",
   address: "вул. Тестова, 1",
   phone: "+380441234567",
   description: "Опис",

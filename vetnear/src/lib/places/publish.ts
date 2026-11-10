@@ -10,6 +10,7 @@
 //     provenance `partner_submitted`, not verification.
 import { isWithinCityBounds } from "@/config/vertical";
 import { VERTICAL } from "@/config/verticals/pet-care-kyiv";
+import { normalizeDistrict } from "@/lib/labels";
 import type {
   KyivDistrict,
   PartnerSubmission,
@@ -78,7 +79,9 @@ export function submissionToPlace(
   if (!submission.name?.trim()) return { ok: false, reason: "missing_name" };
   if (!submission.address?.trim()) return { ok: false, reason: "missing_address" };
   if (!submission.phone?.trim()) return { ok: false, reason: "missing_phone" };
-  if (!submission.district) return { ok: false, reason: "missing_district" };
+  // Submissions stored before v1.25 may carry a neighbourhood slug.
+  const district = normalizeDistrict(submission.district);
+  if (!district) return { ok: false, reason: "missing_district" };
 
   const now = opts.now ?? new Date();
   const iso = now.toISOString();
@@ -94,7 +97,7 @@ export function submissionToPlace(
       submission.description?.trim() ||
       `${submission.name.trim()} — заклад для тварин у Києві. Дані надані представником закладу.`,
     address: submission.address.trim(),
-    district: submission.district as KyivDistrict,
+    district,
     latitude: coordsOk ? (submission.latitude as number) : 0,
     longitude: coordsOk ? (submission.longitude as number) : 0,
     phone: submission.phone.trim(),
