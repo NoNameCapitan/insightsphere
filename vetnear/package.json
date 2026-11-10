@@ -13,6 +13,8 @@
     "predeploy": "npm run verify",
     "check:alarm": "node --env-file-if-exists=.env.local scripts/check-ukraine-alarm.mjs",
     "import:google-places": "node scripts/import-google-places.mjs",
+    "build:places": "node scripts/build-verified-places.mjs",
+    "check:places": "node scripts/build-verified-places.mjs --check",
     "test": "vitest run",
     "test:watch": "vitest"
   },

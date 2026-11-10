@@ -9,7 +9,7 @@
 //  - No "emergency_vet" category -> public emergency results stay honestly empty.
 //  - verifiedBy is an honest method label, NOT a person claiming phone calls.
 //  - Coordinates are approximate (street/district level) — flagged in NOTES.
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 
 const VERIFIED_AT = "2026-06-29";
 const MAVET_VERIFIED_AT = "2026-09-07";
@@ -179,6 +179,13 @@ const DESC = {
   pet_boarding: (n) => `${n} — готель і денний догляд для тварин, догляд та грумінг. Деталі за телефоном.`,
 };
 
+// A-Vet (Оболонь) was re-checked on 2026-11-06 against the provider's current
+// website and an independent directory. The 24/7 inpatient unit is recorded as
+// stated by those sources; it is still NOT phone-confirmed, so
+// emergencyAvailable stays false and the card carries a warning.
+const AVET_REVIEWED_AT = "2026-11-06";
+const HOURS_24_7 = [0, 1, 2, 3, 4, 5, 6].map((day) => ({ day, open: "00:00", close: "23:59" }));
+
 const places = RAW.map(([name, category, district, address, phone, website, lat, lng], i) => {
   const c = CAT[category];
   const isMavet = name === "MAVET Clinic & Groom";
@@ -198,7 +205,9 @@ const places = RAW.map(([name, category, district, address, phone, website, lat,
     category,
     description: isMunicipal
       ? `${name} — офіційна клініка КП «Київська міська лікарня ветеринарної медицини». За жовтої загрози прийом триває, за червоної клініка зачиняється.`
-      : DESC[category](name),
+      : isAvet
+        ? "Цілодобове стаціонарне відділення для собак і котів на Оболоні. Офіційний сайт заявляє нічного лікаря, невідкладний прийом, автономне живлення, операційну та стаціонар; перед виїздом зателефонуйте."
+        : DESC[category](name),
     address,
     district,
     latitude: lat,
@@ -206,14 +215,16 @@ const places = RAW.map(([name, category, district, address, phone, website, lat,
     phone,
     ...(website ? { website } : {}),
     ...(SOCIALS[name] ? { socialLinks: SOCIALS[name] } : {}),
-    workingHours: isMunicipal ? HOURS.clinic.map((hours) => ({ ...hours, close: "19:00" })) : c.hours,
-    isOpen24_7: false,
+    workingHours: isMunicipal ? HOURS.clinic.map((hours) => ({ ...hours, close: "19:00" })) : isAvet ? HOURS_24_7 : c.hours,
+    isOpen24_7: isAvet,
     services: isMavet
       ? ["Терапія", "Вакцинація", "Хірургія", "УЗД", "Лабораторія", "Стоматологія", "Стаціонар", "Чіпування", "Документи", "Грумінг"]
       : isMunicipal
         ? ["Терапія", "Хірургія", "Вакцинація", "Стоматологія", "УЗД", "Лабораторія"]
+      : isAvet
+        ? [...c.services, "Невідкладний прийом", "Кисневі бокси"]
       : c.services,
-    animalTypes: isMavet ? ["dog", "cat"] : c.animals,
+    animalTypes: isMavet || isAvet ? ["dog", "cat"] : c.animals,
     tags: isMavet ? ["Ветклініка", "Грумінг", "Стаціонар"] : isMunicipal ? ["Комунальна клініка", "Вакцинація", "Call-first під час тривоги"] : c.services.slice(0, 3),
     ...flags,
     verified: !isAvet,
@@ -221,20 +232,25 @@ const places = RAW.map(([name, category, district, address, phone, website, lat,
     status: "approved",
     rating: isMunicipal ? 0 : Number((4.5 + ((i * 7) % 5) / 10).toFixed(1)), // municipal cards do not invent ratings
     createdAt: `${recordDate}T09:00:00.000Z`,
-    updatedAt: `${recordDate}T09:00:00.000Z`,
+    updatedAt: `${isAvet ? AVET_REVIEWED_AT : recordDate}T09:00:00.000Z`,
     // Provenance
     dataSource: isAvet ? "manual_unverified" : "manual_verified",
     verificationStatus: isAvet ? "source_checked" : "verified",
-    lastVerifiedAt: recordDate,
-    verifiedBy: isAvet ? "VetNear team (official provider website checked; not phone-confirmed)" : isMunicipal ? "VetNear team (official Kyiv public source)" : isMavet ? "VetNear team (official public website checked; not phone-confirmed)" : VERIFIED_BY,
+    lastVerifiedAt: isAvet ? AVET_REVIEWED_AT : recordDate,
+    verifiedBy: isAvet ? "VetNear team (official provider website and an independent directory checked; not phone-confirmed)" : isMunicipal ? "VetNear team (official Kyiv public source)" : isMavet ? "VetNear team (official public website checked; not phone-confirmed)" : VERIFIED_BY,
     sourceLabel: isAvet ? "Офіційний сайт А-Вет" : isMunicipal ? "КМДА — режим роботи комунальних ветклінік" : isMavet ? "Офіційний сайт MAVET" : SOURCE_LABEL,
     ...(isMavet ? {
       dataWarning: "Графік 09:00–21:00 підтверджено офіційним сайтом. Фраза «24/7 на зв’язку» не означає цілодобовий прийом; перед терміновим візитом зателефонуйте.",
       emergencyNotes: "Офіційний сайт просить телефонувати у термінових випадках, але не заявляє цілодобовий прийом. Зоомагазин позначено як «незабаром» і не опубліковано окремою точкою.",
     } : {}),
     ...(isAvet ? {
-      dataWarning: "Офіційний сайт заявляє 24/7, лікаря на місці та автономне живлення, але нічний прийом і роботу під час червоної загрози ще не підтверджено дзвінком.",
-      emergencyNotes: "Кандидат на 24/7. До телефонної перевірки не показувати як підтверджену екстрену клініку.",
+      dataWarning: "Режим 24/7, нічний лікар і автономне живлення підтверджені актуальним сайтом закладу та незалежним каталогом, але правила прийому під час червоної загрози ще не підтверджено дзвінком.",
+      emergencyNotes: "Зателефонуйте дорогою. Нічний прийом заявлений на Івасюка, 8, корп. 8; амбулаторія на Івасюка, 4 працює 09:00–21:00.",
+      nightDoctorOnSite: true,
+      emergencyIntakeMode: "call_first",
+      autonomousPower: true,
+      oxygenBoxCount: 6,
+      nightDiagnostics: ["Лабораторія", "Рентген", "УЗД"],
     } : {}),
     ...(isMunicipal ? {
       alertPolicy: "municipal_severity_based",
@@ -254,14 +270,18 @@ const candidates = RAW_CANDIDATES.map(([name, category, district, address, phone
     emergencyAvailable: false, appointmentRequired: false, deliveryAvailable: false, pickupAvailable: false,
     ...c.flags,
   };
+  // The A-Vet pharmacy shares the clinic's 2026-11-06 source check (see above).
+  const isAvetPharmacy = name === "Ветаптека А-Вет (Оболонь)";
   // Dambo grooms dogs only (stated on their site).
-  const animals = name.startsWith("Dambo") ? ["dog"] : c.animals;
+  const animals = name.startsWith("Dambo") ? ["dog"] : isAvetPharmacy ? ["dog", "cat"] : c.animals;
   return {
     id: slug,
     slug,
     name,
     category,
-    description: DESC[category](name),
+    description: isAvetPharmacy
+      ? "Ветаптека при цілодобовому стаціонарному відділенні А-Вет: препарати та засоби догляду для собак і котів. Наявність конкретного препарату уточнюйте телефоном."
+      : DESC[category](name),
     address,
     district,
     latitude: lat,
@@ -269,7 +289,7 @@ const candidates = RAW_CANDIDATES.map(([name, category, district, address, phone
     phone,
     ...(website ? { website } : {}),
     workingHours: c.hours,
-    isOpen24_7: false,
+    isOpen24_7: isAvetPharmacy,
     services: c.services,
     animalTypes: animals,
     tags: c.services.slice(0, 3),
@@ -280,15 +300,18 @@ const candidates = RAW_CANDIDATES.map(([name, category, district, address, phone
     status: "approved", // discoverable, but shown with the "На перевірці" badge
     rating: Number((4.3 + ((i * 3) % 5) / 10).toFixed(1)),
     createdAt: `${CANDIDATES_ADDED_AT}T09:00:00.000Z`,
-    updatedAt: `${CANDIDATES_ADDED_AT}T09:00:00.000Z`,
+    updatedAt: `${isAvetPharmacy ? AVET_REVIEWED_AT : CANDIDATES_ADDED_AT}T09:00:00.000Z`,
     // Provenance — honest: unverified, needs review, with the source it came from.
     dataSource: "manual_unverified",
-    verificationStatus: "needs_review",
-    lastVerifiedAt: null,
-    verifiedBy: null,
-    sourceLabel: "Публічні джерела (потребує перевірки)",
-    sourceUrl,
-    dataWarning: CANDIDATE_VERIFY_HINT,
+    verificationStatus: isAvetPharmacy ? "source_checked" : "needs_review",
+    lastVerifiedAt: isAvetPharmacy ? AVET_REVIEWED_AT : null,
+    verifiedBy: isAvetPharmacy ? "VetNear team (official provider website checked; stock not phone-confirmed)" : null,
+    sourceLabel: isAvetPharmacy ? "Офіційна сторінка ветаптеки А-Вет" : "Публічні джерела (потребує перевірки)",
+    sourceUrl: isAvetPharmacy ? "https://avet.kiev.ua/vet-apteka-obolon/" : sourceUrl,
+    dataWarning: isAvetPharmacy
+      ? "Офіційний сайт заявляє роботу ветаптеки разом із клінікою 24/7. Перед поїздкою уточніть наявність препарату телефоном."
+      : CANDIDATE_VERIFY_HINT,
+    ...(isAvetPharmacy ? { autonomousPower: true } : {}),
   };
 });
 
@@ -303,6 +326,17 @@ const banner =
   `// emergencyAvailable=false for all (not phone-confirmed).\n` +
   `// Provenance + caveats: docs/DATASET_NOTES.md. Do not edit by hand.\n`;
 const out = `${banner}import type { Place } from "@/lib/types";\n\nexport const PLACES: Place[] = ${JSON.stringify(all, null, 2)};\n`;
+// `--check` verifies that the committed dataset is exactly what this script
+// produces, without writing. Hand edits to places.ts make it fail — put the
+// change in this script instead, so the next run cannot silently undo it.
+if (process.argv.includes("--check")) {
+  if (readFileSync("src/lib/data/places.ts", "utf8") !== out) {
+    console.error("src/lib/data/places.ts is out of sync with scripts/build-verified-places.mjs.");
+    process.exit(1);
+  }
+  console.log("places.ts is in sync with the build script.");
+  process.exit(0);
+}
 writeFileSync("src/lib/data/places.ts", out);
 console.log(`Wrote ${verifiedCount} verified + ${sourceCheckedCount} source_checked + ${needsReviewCount} needs_review places. Categories:`,
   Object.entries(all.reduce((m, p) => ((m[p.category] = (m[p.category] || 0) + 1), m), {})).map(([k, v]) => `${k}:${v}`).join(", "));
