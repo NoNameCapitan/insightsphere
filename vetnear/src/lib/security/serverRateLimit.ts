@@ -74,12 +74,19 @@ export function createServerRateLimiter(opts: ServerRateLimitOptions) {
  * protects total spend, just less granular).
  */
 export function clientKeyFromRequest(req: Request): string {
-  const xff = req.headers.get("x-forwarded-for");
-  if (xff) {
-    const first = xff.split(",")[0]?.trim();
-    if (first) return first;
+  // Prefer headers the platform sets itself and a client cannot forge:
+  // Vercel overwrites `x-vercel-forwarded-for` / `x-real-ip` at the edge.
+  // A raw `x-forwarded-for` first hop is client-controlled on self-hosted
+  // setups, so it is the LAST resort. Keys are normalised and length-capped
+  // so a forged header cannot bloat the bucket map.
+  const candidates = [
+    req.headers.get("x-vercel-forwarded-for")?.split(",")[0],
+    req.headers.get("x-real-ip"),
+    req.headers.get("x-forwarded-for")?.split(",")[0],
+  ];
+  for (const raw of candidates) {
+    const value = raw?.trim().toLowerCase();
+    if (value && /^[0-9a-f:.]{3,45}$/.test(value)) return value;
   }
-  const real = req.headers.get("x-real-ip");
-  if (real) return real.trim();
   return "anonymous";
 }

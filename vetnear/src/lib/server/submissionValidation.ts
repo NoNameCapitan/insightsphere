@@ -30,8 +30,22 @@ export interface ValidationResult<T> {
   value?: T;
 }
 
+// Strip control characters (incl. NUL, which Postgres rejects) before capping.
 const str = (v: unknown, cap: number): string =>
-  typeof v === "string" ? v.trim().slice(0, cap) : "";
+  typeof v === "string" ? v.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "").trim().slice(0, cap) : "";
+
+/** Public website/map links must be plain http(s), not tel:/mailto:. */
+function isHttpUrl(v: string): boolean {
+  if (!isSafeUrl(v)) return false;
+  try {
+    const u = new URL(v);
+    return (u.protocol === "https:" || u.protocol === "http:") && !u.username && !u.password;
+  } catch {
+    return false;
+  }
+}
+const ANIMALS = ["cat", "dog", "bird", "rodent", "reptile", "exotic", "other"];
+const PLACE_ID_RE = /^[A-Za-z0-9][A-Za-z0-9_-]{0,119}$/;
 
 /** Validate + sanitize a public partner-submission payload.
  *  Returns a server-shaped PartnerSubmission (without id/timestamps). */
@@ -66,12 +80,12 @@ export function sanitizeSubmissionInput(
   const email = str(b.email, MAX.generic);
   if (email && !isValidEmail(email)) errors.push("invalid email");
   const website = str(b.website, MAX.generic);
-  if (website && !isSafeUrl(website)) errors.push("unsafe website url");
+  if (website && !isHttpUrl(website)) errors.push("unsafe website url");
   const mapLink = str(b.mapLink, MAX.generic);
-  if (mapLink && !isSafeUrl(mapLink)) errors.push("unsafe map link");
+  if (mapLink && !isHttpUrl(mapLink)) errors.push("unsafe map link");
 
-  const latitude = typeof b.latitude === "number" && Number.isFinite(b.latitude) ? b.latitude : undefined;
-  const longitude = typeof b.longitude === "number" && Number.isFinite(b.longitude) ? b.longitude : undefined;
+  const latitude = typeof b.latitude === "number" && Number.isFinite(b.latitude) && Math.abs(b.latitude) <= 90 ? b.latitude : undefined;
+  const longitude = typeof b.longitude === "number" && Number.isFinite(b.longitude) && Math.abs(b.longitude) <= 180 ? b.longitude : undefined;
   const hasCoords = latitude !== undefined && longitude !== undefined;
 
   if (errors.length) return { ok: false, errors };
@@ -91,7 +105,7 @@ export function sanitizeSubmissionInput(
     ...(website ? { website } : {}),
     ...(mapLink ? { mapLink } : {}),
     services: asStrArr(b.services),
-    animalTypes: asStrArr(b.animalTypes) as PartnerSubmission["animalTypes"],
+    animalTypes: asStrArr(b.animalTypes).filter((a) => ANIMALS.includes(a)) as PartnerSubmission["animalTypes"],
     tags: asStrArr(b.tags, 10),
     notes: str(b.notes, MAX.notes) || undefined,
     contactPerson: str(b.contactPerson, MAX.generic) || undefined,
@@ -121,6 +135,7 @@ export function sanitizeReportInput(
   const reason = str(b.reason, 40);
   const message = str(b.message, MAX.message);
   if (!placeId) errors.push("placeId is required");
+  else if (!PLACE_ID_RE.test(placeId)) errors.push("invalid placeId");
   if (!(REPORT_REASONS as readonly string[]).includes(reason)) errors.push("invalid reason");
   if (errors.length) return { ok: false, errors };
   return {

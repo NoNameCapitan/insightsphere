@@ -6,7 +6,10 @@ localStorage залишається offline-копією — без бекенд
 
 ## 1. Створити проєкт Supabase
 1. https://supabase.com → New project (регіон EU).
-2. SQL Editor → вставити вміст `supabase/migrations/001_init.sql` → Run.
+2. SQL Editor → послідовно виконати:
+   - `supabase/migrations/001_init.sql`;
+   - `supabase/migrations/002_publishing_leads_moderators.sql`;
+   - `supabase/migrations/003_security_hardening.sql`.
    Це створює `partner_submissions`, `moderation_events`, `place_reports`
    з увімкненим RLS **без публічних політик** — таблиці доступні лише
    service-ролі (тобто лише нашим API-роутам).
@@ -53,7 +56,24 @@ localStorage залишається offline-копією — без бекенд
 
 ## 6. Перевірка
 ```bash
-npm run verify   # lint + tsc + 109 тестів + build
+npm run verify   # lint + tsc + unit/security tests + production build
+```
+
+Після міграції `003` виконайте post-check спочатку на staging. Потрібні
+`psql` і прямий PostgreSQL URL користувача, який може виконати
+`SET ROLE service_role`:
+
+```bash
+# значення не виводиться і не передається в аргументах процесу psql
+DB_URL='postgresql://…' npm run db:postcheck
+```
+
+Перевірка читає каталоги PostgreSQL та створює тестові записи тільки всередині
+транзакцій із `ROLLBACK`. Вона зупиняється при порушенні RLS, привілеїв,
+CHECK-обмежень, UTC-дедуплікації або append-only аудиту. Очищення старих лідів
+навмисно не запускається.
+
+```bash
 # локально:
 curl -X POST localhost:3000/api/submissions -H 'Content-Type: application/json' \
   -d '{"name":"Тест","category":"veterinary_clinic","district":"obolonskyi","address":"вул. Тестова, 1","phone":"+380441234567","services":[],"animalTypes":["cat"],"tags":[],"emergencyAvailable":true}'

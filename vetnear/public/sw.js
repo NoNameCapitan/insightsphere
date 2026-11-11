@@ -28,13 +28,18 @@ self.addEventListener("fetch", (event) => {
   // Never persist API responses: stale alerts must not enable shelter navigation.
   // This also keeps location-bearing shelter requests out of the offline cache.
   if (url.pathname === "/api" || url.pathname.startsWith("/api/")) return;
+  // Internal tools are never stored in the offline cache (shared devices).
+  if (/^\/(admin|partner)(\/|$)/.test(url.pathname)) return;
 
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(request, copy)).catch(() => {});
+          // Only successful same-origin responses: never persist error pages.
+          if (res.ok && res.type === "basic") {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(request, copy)).catch(() => {});
+          }
           return res;
         })
         .catch(() => caches.match(request).then((r) => r || caches.match("/")))
@@ -47,8 +52,10 @@ self.addEventListener("fetch", (event) => {
       (cached) =>
         cached ||
         fetch(request).then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(request, copy)).catch(() => {});
+          if (res.ok && res.type === "basic") {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(request, copy)).catch(() => {});
+          }
           return res;
         })
     )

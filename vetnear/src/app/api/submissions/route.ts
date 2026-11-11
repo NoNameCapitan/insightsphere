@@ -1,4 +1,6 @@
+import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
+import { readJsonBody } from "@/lib/server/requestBody";
 import { getSupabaseAdmin } from "@/lib/server/supabase";
 import { sanitizeSubmissionInput } from "@/lib/server/submissionValidation";
 import {
@@ -28,11 +30,11 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  const parsedBody = await readJsonBody(req);
+  if (!parsedBody.ok) {
+    return NextResponse.json({ error: parsedBody.error }, { status: parsedBody.status });
   }
+  body = parsedBody.value;
 
   const parsed = sanitizeSubmissionInput(body);
   if (!parsed.ok || !parsed.value) {
@@ -40,7 +42,7 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const now = new Date().toISOString();
-  const id = `sub_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+  const id = `sub_${Date.now().toString(36)}_${randomBytes(6).toString("hex")}`;
   const submission = { ...parsed.value, id, createdAt: now, updatedAt: now };
 
   const { error } = await db.from("partner_submissions").insert({

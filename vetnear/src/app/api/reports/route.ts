@@ -1,4 +1,6 @@
+import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
+import { readJsonBody } from "@/lib/server/requestBody";
 import { getSupabaseAdmin } from "@/lib/server/supabase";
 import { sanitizeReportInput } from "@/lib/server/submissionValidation";
 import {
@@ -24,18 +26,18 @@ export async function POST(req: Request): Promise<Response> {
   if (!db) return NextResponse.json({ ok: false, backend: "disabled" }, { status: 503 });
 
   let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  const parsedBody = await readJsonBody(req);
+  if (!parsedBody.ok) {
+    return NextResponse.json({ error: parsedBody.error }, { status: parsedBody.status });
   }
+  body = parsedBody.value;
 
   const parsed = sanitizeReportInput(body);
   if (!parsed.ok || !parsed.value) {
     return NextResponse.json({ error: "Validation failed", details: parsed.errors }, { status: 422 });
   }
 
-  const id = `rep_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+  const id = `rep_${Date.now().toString(36)}_${randomBytes(6).toString("hex")}`;
   const { error } = await db.from("place_reports").insert({
     id,
     place_id: parsed.value.placeId,

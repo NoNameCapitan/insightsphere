@@ -10,6 +10,7 @@ import "server-only";
 import { createHash, timingSafeEqual } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/server/supabase";
+import { clientKeyFromRequest } from "@/lib/security/serverRateLimit";
 
 export type ModeratorRole = "moderator" | "admin";
 
@@ -27,10 +28,31 @@ export function hashToken(token: string): string {
 }
 
 function constantTimeEquals(a: string, b: string): boolean {
-  const ba = Buffer.from(a);
-  const bb = Buffer.from(b);
-  if (ba.length !== bb.length) return false;
+  // Compare fixed-length digests so neither content nor LENGTH of the secret
+  // leaks through timing.
+  const ba = createHash("sha256").update(a).digest();
+  const bb = createHash("sha256").update(b).digest();
   return timingSafeEqual(ba, bb);
+}
+
+// -- Brute-force protection (v1.26) --
+// After MAX_FAILURES bad tokens from one client within the window, every
+// attempt from that client is refused until the window expires.
+const MAX_FAILURES = 10;
+const FAILURE_WINDOW_MS = 10 * 60_000;
+const failures = new Map<string, { count: number; resetAt: number }>();
+
+function isLockedOut(key: string, now = Date.now()): boolean {
+  const f = failures.get(key);
+  if (!f) return false;
+  if (f.resetAt <= now) { failures.delete(key); return false; }
+  return f.count >= MAX_FAILURES;
+}
+function recordFailure(key: string, now = Date.now()): void {
+  if (failures.size > 5000) failures.clear(); // hard cap
+  const f = failures.get(key);
+  if (!f || f.resetAt <= now) failures.set(key, { count: 1, resetAt: now + FAILURE_WINDOW_MS });
+  else f.count += 1;
 }
 
 function readToken(req: Request): string {
@@ -53,7 +75,9 @@ export async function authenticateModerator(
   db: SupabaseClient | null = getSupabaseAdmin(),
 ): Promise<ModeratorIdentity | null> {
   const token = readToken(req);
-  if (!token) return null;
+  if (!token || token.length > 512) return null;
+  const clientKey = clientKeyFromRequest(req);
+  if (isLockedOut(clientKey)) return null;
 
   if (db) {
     const digest = hashToken(token);
@@ -81,7 +105,8 @@ export async function authenticateModerator(
   }
 
   const legacy = process.env.ADMIN_TOKEN;
-  if (legacy && constantTimeEquals(token, legacy)) {
+  // A short bootstrap secret is guessable: ignore it entirely (fail closed).
+  if (legacy && legacy.length >= 24 && constantTimeEquals(token, legacy)) {
     return {
       actorId: "legacy_admin_token",
       role: "admin",
@@ -90,6 +115,7 @@ export async function authenticateModerator(
     };
   }
 
+  recordFailure(clientKey);
   return null;
 }
 

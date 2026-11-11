@@ -52,7 +52,12 @@ create index if not exists place_lead_events_created_idx
 
 -- Coarse de-duplication: at most one row per place+type+session per day.
 create unique index if not exists place_lead_events_dedupe_idx
-  on place_lead_events (place_id, event_type, session_hash, (created_at::date))
+  on place_lead_events (
+    place_id,
+    event_type,
+    session_hash,
+    (((created_at at time zone 'UTC')::date))
+  )
   where session_hash is not null;
 
 -- ── Moderator tokens (replaces the single shared ADMIN_TOKEN) ───────────────

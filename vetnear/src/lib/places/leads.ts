@@ -6,7 +6,7 @@
 // hash is salted AND day-bucketed, so the same visitor produces a different
 // digest tomorrow. That is enough for "don't count the same tap five times"
 // and deliberately not enough for cross-day tracking.
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import type { LeadEventInput, LeadEventType, LeadSummary } from "@/lib/types";
 
 export const LEAD_EVENT_TYPES: LeadEventType[] = [
@@ -72,7 +72,7 @@ export function sessionHash(
 }
 
 export function leadEventId(now: Date = new Date()): string {
-  return `lead_${now.getTime().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+  return `lead_${now.getTime().toString(36)}_${randomBytes(6).toString("hex")}`;
 }
 
 interface RawLeadRow {

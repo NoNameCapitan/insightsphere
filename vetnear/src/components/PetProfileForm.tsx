@@ -46,6 +46,7 @@ export function PetProfileForm({ existing }: { existing?: PetProfile }) {
 
   const readPhoto = (file?: File) => {
     if (!file) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) { setError("Підтримуються лише JPG, PNG або WebP."); return; }
     if (file.size > 2_000_000) { setError("Фото має бути менше 2 МБ."); return; }
     const reader = new FileReader();
     reader.onload = () => setPhotoUrl(String(reader.result ?? ""));

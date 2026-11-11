@@ -54,7 +54,7 @@ VetNear is built around four launch-critical principles:
    звідти. Другий приклад вертикалі (стоматологія, Львів) типізується й
    тестується, щоб абстракція не з'їхала. Деталі:
    [`docs/VERTICAL_ADAPTATION.md`](docs/VERTICAL_ADAPTATION.md).
-5. **Залежності оновлено.** `next@16.3.4`, `postcss@8.5.28`, override
+5. **Залежності оновлено.** `next@16.4.6`, `postcss@8.5.28`, override
    `nanoid@^5`. `npm audit --omit=dev` → **0 vulnerabilities** (було 4 high
    у `sharp`/libvips плюс низка advisories самого Next 16.2.9).
 
@@ -208,7 +208,7 @@ Deployment must run `npm run verify`, not `npm run build` alone.
   `UKRAINE_ALARM_API_TOKEN`. Without it, the app shows an honest “status unavailable”
   fallback with a link to the official alert map. Shelter data uses Kyiv's official
   ArcGIS open-data endpoint; `KYIV_SHELTERS_ARCGIS_URL` is only an optional override.
-- **Security:** on `next@16.3.4` (v1.9), `npm audit --omit=dev` reports **0 vulnerabilities**. This claim was stale for `16.2.9`, which carried both `sharp`/libvips and Next-level advisories — re-run the audit after any dependency change instead of trusting this line.
+- **Security:** on `next@16.4.6` (v1.26.1), `npm audit --omit=dev` reports **0 vulnerabilities**. Re-run the audit after every dependency change instead of treating this line as permanent evidence.
 
 ### Deploy to Vercel (step by step)
 
@@ -350,7 +350,7 @@ russo-Ukrainian war. Important boundaries:
 - Assistant + triage explanations call **Claude** server-side when `ANTHROPIC_API_KEY` is set; without the key they run safe rule-based fallbacks. Neither ever diagnoses, prescribes, or gives dosages; **urgency levels are always deterministic** (rules in `src/lib/triage/engine.ts`, LLM cannot override them).
 - Bookings, QR profiles, subscriptions, product sync are **architecture + placeholders**, not live features. **Pet Scan is a pilot/demo concept**, not real vision.
 - OSRM public routing may rate-limit; the map falls back to a straight line and the external "route" link always works.
-- ~~`npm audit --omit=dev` reports 4 high-severity advisories in `sharp`/libvips.~~ **Resolved in v1.9.** The audit was also *understating* the issue: `next@16.2.9` itself carried advisories (middleware/proxy bypass, SSRF in rewrites and Server Actions, cache confusion), not just the transitive `sharp` ones. Dependencies were bumped to `next@16.3.4` / `postcss@8.5.28` with a `nanoid@^5` override; `npm audit --omit=dev` now reports **0 vulnerabilities**, with lint, types, 175 tests and the production build all green.
+- ~~`npm audit --omit=dev` reports 4 high-severity advisories in `sharp`/libvips.~~ **Resolved and re-hardened in v1.26.1.** Dependencies are now pinned to `next@16.4.6` / `postcss@8.5.28` with a `nanoid@^5` override; `npm audit --omit=dev` reports **0 vulnerabilities**. Current verification counts live in the latest release notes rather than this historical section.
 
 ## Production roadmap
 

@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { clientKeyFromRequest, createServerRateLimiter } from "@/lib/security/serverRateLimit";
 import { KYIV_SHELTERS_DATASET_URL, loadShelterFeatures, normalizeShelterFeatures } from "@/lib/safety/shelters";
 
 export const dynamic = "force-dynamic";
+
+// Each call fans out to up to 10 upstream ArcGIS pages: bound it per client so
+// this endpoint cannot be used to hammer the city GIS server (v1.26).
+const limit = createServerRateLimiter({ limit: 20, windowMs: 60_000 });
 
 const DEFAULT_ARCGIS_URL =
   "https://gisserver.kyivcity.gov.ua/mayno/rest/services/KYIV_API/%D0%9A%D0%B8%D1%97%D0%B2_%D0%A6%D0%B8%D1%84%D1%80%D0%BE%D0%B2%D0%B8%D0%B9/MapServer/0/query";
@@ -14,6 +19,13 @@ function coordinate(value: string | null): number | null {
 }
 
 export async function GET(request: NextRequest) {
+  const rl = limit(clientKeyFromRequest(request));
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Забагато запитів. Спробуйте за хвилину." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec), "Cache-Control": "no-store" } },
+    );
+  }
   const latitude = coordinate(request.nextUrl.searchParams.get("lat"));
   const longitude = coordinate(request.nextUrl.searchParams.get("lng"));
   if (
@@ -24,7 +36,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Потрібні коректні координати в межах Києва." }, { status: 400 });
   }
 
-  const source = process.env.KYIV_SHELTERS_ARCGIS_URL?.trim() || DEFAULT_ARCGIS_URL;
+  // Env override is accepted only over HTTPS (misconfiguration must not downgrade
+  // a safety data source to plaintext or to a non-web scheme).
+  const override = process.env.KYIV_SHELTERS_ARCGIS_URL?.trim();
+  const source = override && /^https:\/\//i.test(override) ? override : DEFAULT_ARCGIS_URL;
   const params = new URLSearchParams({
     f: "json",
     where: "actual=1 AND working_time LIKE '%Цілодобово%'",

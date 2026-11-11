@@ -1,6 +1,6 @@
 {
   "name": "vetnear",
-  "version": "1.25.0",
+  "version": "1.26.2",
   "private": true,
   "description": "VetNear — mobile-first local discovery of nearby veterinary clinics, pet stores, pharmacies, grooming and shelters.",
   "scripts": {
@@ -12,6 +12,7 @@
     "verify": "npm run lint && npx tsc --noEmit && npm run test && npm run build",
     "predeploy": "npm run verify",
     "check:alarm": "node --env-file-if-exists=.env.local scripts/check-ukraine-alarm.mjs",
+    "db:postcheck": "node --env-file-if-exists=.env.local scripts/run-db-postcheck.mjs",
     "import:google-places": "node scripts/import-google-places.mjs",
     "build:places": "node scripts/build-verified-places.mjs",
     "check:places": "node scripts/build-verified-places.mjs --check",
@@ -23,7 +24,7 @@
     "@fontsource-variable/manrope": "^5.3.0",
     "@supabase/supabase-js": "^2.110.0",
     "leaflet": "1.9.4",
-    "next": "16.3.4",
+    "next": "16.4.6",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-leaflet": "4.2.1",
@@ -36,7 +37,7 @@
     "@types/react-dom": "18.3.0",
     "autoprefixer": "10.4.20",
     "eslint": "9.39.4",
-    "eslint-config-next": "16.3.4",
+    "eslint-config-next": "16.4.6",
     "jsdom": "^26.1.0",
     "postcss": "8.5.28",
     "tailwindcss": "3.4.14",

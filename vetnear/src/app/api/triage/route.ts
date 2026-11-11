@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBody } from "@/lib/server/requestBody";
 import {
   FALLBACK_ADVICE,
   LEVEL_META,
@@ -18,6 +19,13 @@ const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
 
 const limit = createServerRateLimiter({ limit: 10, windowMs: 60_000 });
+
+const INTENTS = ["emergency", "vaccination", "food", "medicine", "grooming", "general"] as const;
+const URGENCIES = ["low", "medium", "high", "critical"] as const;
+const DURATIONS = ["hours", "day", "days", "week"] as const;
+const EATING = ["yes", "reduced", "no"] as const;
+const SYMPTOMS = ["bleeding", "trauma", "vomiting", "weakness", "breathing", "none"] as const;
+const ANIMALS = ["cat", "dog", "bird", "rodent", "reptile", "exotic", "other"] as const;
 
 interface TriageRequestBody {
   answers?: QuestionnaireAnswers;
@@ -48,6 +56,7 @@ async function askClaudeForExplanation(
   try {
     const res = await fetch(ANTHROPIC_URL, {
       method: "POST",
+      signal: AbortSignal.timeout(15_000), // never hang a function on the LLM
       headers: {
         "content-type": "application/json",
         "x-api-key": apiKey,
@@ -99,21 +108,30 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   let body: TriageRequestBody;
-  try {
-    body = (await req.json()) as TriageRequestBody;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  const parsedBody = await readJsonBody(req);
+  if (!parsedBody.ok) {
+    return NextResponse.json({ error: parsedBody.error }, { status: parsedBody.status });
   }
+  body = (parsedBody.value && typeof parsedBody.value === "object" ? parsedBody.value : {}) as TriageRequestBody;
 
+  // Strict allowlists: these values feed the deterministic engine AND are
+  // forwarded to the LLM, so arbitrary objects/strings must never pass through.
+  const raw = (body && typeof body === "object" && body.answers && typeof body.answers === "object"
+    ? body.answers
+    : {}) as Record<string, unknown>;
+  const pick = <T extends string>(v: unknown, allowed: readonly T[]): T | null =>
+    typeof v === "string" && (allowed as readonly string[]).includes(v) ? (v as T) : null;
   const answers: QuestionnaireAnswers = {
-    intent: body.answers?.intent ?? "general",
-    urgency: body.answers?.urgency ?? null,
-    duration: body.answers?.duration ?? null,
-    eating: body.answers?.eating ?? null,
-    symptoms: Array.isArray(body.answers?.symptoms) ? body.answers.symptoms.slice(0, 10) : [],
+    intent: pick(raw.intent, INTENTS) ?? "general",
+    urgency: pick(raw.urgency, URGENCIES),
+    duration: pick(raw.duration, DURATIONS),
+    eating: pick(raw.eating, EATING),
+    symptoms: Array.isArray(raw.symptoms)
+      ? [...new Set(raw.symptoms.map((s) => pick(s, SYMPTOMS)).filter((s): s is (typeof SYMPTOMS)[number] => s !== null))]
+      : [],
   };
-  const freeText = typeof body.freeText === "string" ? body.freeText.slice(0, 1000) : "";
-  const animalType = typeof body.animalType === "string" ? body.animalType : "";
+  const freeText = typeof body?.freeText === "string" ? body.freeText.slice(0, 1000) : "";
+  const animalType = pick(body?.animalType, ANIMALS) ?? "";
 
   // 1) Детерміноване рішення — ЄДИНЕ джерело рівня.
   const triage = resolveTriage(answers, freeText);

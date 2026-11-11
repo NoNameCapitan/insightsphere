@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonBody } from "@/lib/server/requestBody";
 import { VERTICAL } from "@/config/verticals/pet-care-kyiv";
 import { authenticateModerator, requireRole } from "@/lib/server/moderatorAuth";
 import { getSupabaseAdmin } from "@/lib/server/supabase";
@@ -27,13 +28,13 @@ export async function POST(req: Request): Promise<Response> {
   if (!db) return NextResponse.json({ error: "Backend disabled" }, { status: 503 });
 
   let body: { placeId?: unknown; tier?: unknown; promotedDays?: unknown };
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  const parsedBody = await readJsonBody(req);
+  if (!parsedBody.ok) {
+    return NextResponse.json({ error: parsedBody.error }, { status: parsedBody.status });
   }
+  body = (parsedBody.value && typeof parsedBody.value === "object" ? parsedBody.value : {}) as { placeId?: unknown; tier?: unknown; promotedDays?: unknown };
 
-  const placeId = typeof body.placeId === "string" ? body.placeId.trim() : "";
+  const placeId = typeof body.placeId === "string" ? body.placeId.trim().slice(0, 120) : "";
   const tier = body.tier as PlaceTier;
   if (!placeId || !TIERS.includes(tier)) {
     return NextResponse.json(
@@ -45,7 +46,7 @@ export async function POST(req: Request): Promise<Response> {
   let promotedUntil: string | null = null;
   if (tier === "promoted") {
     const days = Number(body.promotedDays);
-    if (!Number.isFinite(days) || days <= 0 || days > MAX_PROMOTION_DAYS) {
+    if (!Number.isInteger(days) || days <= 0 || days > MAX_PROMOTION_DAYS) {
       return NextResponse.json(
         { error: `promotedDays must be 1..${MAX_PROMOTION_DAYS}` },
         { status: 422 },

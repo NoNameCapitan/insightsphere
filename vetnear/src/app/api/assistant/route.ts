@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
+import { readJsonBody } from "@/lib/server/requestBody";
 import {
   ASSISTANT_SYSTEM_PROMPT,
   mockProvider,
   routeSuggestion,
   type AssistantReply,
 } from "@/lib/assistant";
-import { ALL_CATEGORIES, CATEGORY_LABELS } from "@/lib/labels";
+import { ALL_ANIMALS, ALL_CATEGORIES, ALL_DISTRICTS, CATEGORY_LABELS } from "@/lib/labels";
 import type { PetProfile } from "@/lib/types";
 import {
   clientKeyFromRequest,
@@ -37,12 +38,18 @@ function sanitizePet(raw: unknown): PetProfile | null {
   if (!raw || typeof raw !== "object") return null;
   const p = raw as Record<string, unknown>;
   if (typeof p.name !== "string" || typeof p.animalType !== "string") return null;
+  // These values are interpolated into the SYSTEM prompt: allowlist enums and
+  // strip newlines/control chars so a crafted profile cannot inject instructions.
+  if (!(ALL_ANIMALS as string[]).includes(p.animalType)) return null;
+  const clean = (v: string) => v.replace(/[\u0000-\u001F\u007F<>{}`]/g, " ").replace(/\s+/g, " ").trim().slice(0, 60);
+  const district = typeof p.preferredDistrict === "string" && (ALL_DISTRICTS as string[]).includes(p.preferredDistrict) ? p.preferredDistrict : undefined;
+  if (!clean(p.name)) return null;
   return {
     id: typeof p.id === "string" ? p.id : "tmp",
-    name: p.name.slice(0, 60),
+    name: clean(p.name),
     animalType: p.animalType as PetProfile["animalType"],
-    breed: typeof p.breed === "string" ? p.breed.slice(0, 60) : undefined,
-    preferredDistrict: typeof p.preferredDistrict === "string" ? (p.preferredDistrict as PetProfile["preferredDistrict"]) : undefined,
+    breed: typeof p.breed === "string" ? clean(p.breed) || undefined : undefined,
+    preferredDistrict: district as PetProfile["preferredDistrict"],
     createdAt: "",
     updatedAt: "",
   };
@@ -70,6 +77,7 @@ async function askClaude(apiKey: string, question: string, pet: PetProfile | nul
   try {
     const res = await fetch(ANTHROPIC_URL, {
       method: "POST",
+      signal: AbortSignal.timeout(15_000), // never hang a function on the LLM
       headers: {
         "content-type": "application/json",
         "x-api-key": apiKey,
@@ -114,11 +122,11 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  const parsedBody = await readJsonBody(req);
+  if (!parsedBody.ok) {
+    return NextResponse.json({ error: parsedBody.error }, { status: parsedBody.status });
   }
+  body = parsedBody.value;
   const { question: rawQuestion, pet: rawPet } = (body ?? {}) as { question?: unknown; pet?: unknown };
   const question = typeof rawQuestion === "string" ? rawQuestion.trim().slice(0, 1000) : "";
   if (!question) return NextResponse.json({ error: "Empty question" }, { status: 400 });

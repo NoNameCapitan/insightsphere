@@ -3,6 +3,13 @@
 This document describes the security posture of the MVP and the model the
 production system is being built toward (Module 12).
 
+## v1.26 hardening (latest)
+
+See `docs/RELEASE_NOTES_V1_26.md` for the full list: Next.js 16.4.6, spoof-resistant
+rate-limit key, admin-token brute-force lockout, bounded JSON bodies (16 KB, JSON only),
+LLM prompt-injection allowlists + timeouts, strict CSP allowlist, no-store/noindex on
+internal tools, DB migration `003_security_hardening.sql`, `.env.example`.
+
 ## Roles & permissions
 
 Roles: `guest`, `user`, `partner`, `moderator`, `admin` (`src/lib/types`).

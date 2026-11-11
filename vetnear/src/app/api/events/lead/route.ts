@@ -1,4 +1,6 @@
+import { createHash, randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
+import { readJsonBody } from "@/lib/server/requestBody";
 import {
   leadEventId,
   parseLeadEvent,
@@ -20,8 +22,11 @@ const limiter = createServerRateLimiter({ limit: 40, windowMs: 60_000 });
  *  value, which is still fine: it only weakens de-duplication, never privacy. */
 const SALT =
   process.env.LEAD_HASH_SALT ??
-  process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 24) ??
-  "vetnear-local-salt";
+  // NOTE: never slice the key itself: the first chars of a JWT are its public,
+  // constant header, which made the "salt" guessable and the IP hash reversible.
+  (process.env.SUPABASE_SERVICE_ROLE_KEY
+    ? createHash("sha256").update(`lead-salt:${process.env.SUPABASE_SERVICE_ROLE_KEY}`).digest("hex")
+    : randomBytes(16).toString("hex"));
 
 /**
  * POST /api/events/lead — record an outbound intent action on a place.
@@ -41,11 +46,11 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  const parsedBody = await readJsonBody(req);
+  if (!parsedBody.ok) {
+    return NextResponse.json({ error: parsedBody.error }, { status: parsedBody.status });
   }
+  body = parsedBody.value;
 
   const parsed = parseLeadEvent(body);
   if (!parsed.ok) {

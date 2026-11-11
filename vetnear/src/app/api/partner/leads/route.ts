@@ -25,7 +25,7 @@ export async function GET(req: Request): Promise<Response> {
 
   const url = new URL(req.url);
   const placeId = url.searchParams.get("placeId")?.trim() ?? "";
-  if (!placeId) {
+  if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,119}$/.test(placeId)) {
     return NextResponse.json({ error: "placeId is required" }, { status: 422 });
   }
 

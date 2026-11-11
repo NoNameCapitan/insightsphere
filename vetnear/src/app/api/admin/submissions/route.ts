@@ -1,4 +1,6 @@
+import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
+import { readJsonBody } from "@/lib/server/requestBody";
 import { submissionToPlace } from "@/lib/places/publish";
 import { authenticateModerator } from "@/lib/server/moderatorAuth";
 import { getSupabaseAdmin } from "@/lib/server/supabase";
@@ -22,7 +24,10 @@ export async function GET(req: Request): Promise<Response> {
     .select("id,status,data,created_at,updated_at")
     .order("created_at", { ascending: false })
     .limit(200);
-  if (status) q = q.eq("status", status);
+  if (status) {
+    if (!isModerationStatus(status)) return NextResponse.json({ error: "invalid status" }, { status: 422 });
+    q = q.eq("status", status);
+  }
 
   const { data, error } = await q;
   if (error) {
@@ -42,12 +47,12 @@ export async function POST(req: Request): Promise<Response> {
   if (!db) return NextResponse.json({ error: "Backend disabled" }, { status: 503 });
 
   let body: { id?: unknown; status?: unknown; reason?: unknown };
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  const parsedBody = await readJsonBody(req);
+  if (!parsedBody.ok) {
+    return NextResponse.json({ error: parsedBody.error }, { status: parsedBody.status });
   }
-  const id = typeof body.id === "string" ? body.id : "";
+  body = (parsedBody.value && typeof parsedBody.value === "object" ? parsedBody.value : {}) as { id?: unknown; status?: unknown; reason?: unknown };
+  const id = typeof body.id === "string" ? body.id.trim().slice(0, 120) : "";
   if (!id || !isModerationStatus(body.status)) {
     return NextResponse.json({ error: "id and valid status are required" }, { status: 422 });
   }
@@ -76,14 +81,15 @@ export async function POST(req: Request): Promise<Response> {
     : body.status === "rejected" ? "rejected"
     : body.status === "suspended" ? "suspended"
     : "requested_changes";
-  await db.from("moderation_events").insert({
-    id: `mod_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+  const { error: auditErr } = await db.from("moderation_events").insert({
+    id: `mod_${Date.now().toString(36)}_${randomBytes(6).toString("hex")}`,
     submission_id: id,
     action,
     reason: reason ?? null,
     actor_role: identity.role,
     actor_id: identity.actorId,
   });
+  if (auditErr) console.error("[api/admin/submissions] audit insert failed:", auditErr.message);
 
   // ── Publish / unpublish the public listing ────────────────────────────────
   // This is the step that was missing until v1.9: approval used to stop at the
@@ -116,7 +122,10 @@ export async function POST(req: Request): Promise<Response> {
         published = { ok: true };
       }
     }
-  } else if (body.status === "rejected" || body.status === "suspended") {
+  } else {
+    // ANY non-approved status (incl. changes_requested / pending_review) must
+    // take the listing out of the public feed. Previously only rejected/
+    // suspended did, so a place sent back for changes stayed public.
     // Withdrawing approval must remove the listing from the public feed.
     const { error: unpubErr } = await db
       .from("published_places")
