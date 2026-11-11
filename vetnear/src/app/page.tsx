@@ -6,6 +6,7 @@ import { HomeDistricts } from "@/components/HomeDistricts";
 import { HomeHero } from "@/components/HomeHero";
 import { HomeUpdatesStrip } from "@/components/HomeUpdatesStrip";
 import { TileIcon, type TileIconName } from "@/components/icons/ServiceIcons";
+import { TaglineReveal } from "@/components/motion/TaglineReveal";
 import { RevealGroup } from "@/components/RevealGroup";
 
 // The home page is statically rendered. WebSite JSON-LD is emitted once in the
@@ -27,6 +28,11 @@ export default function HomePage() {
       <HomeHero />
 
       <EmergencyReadinessRail />
+
+      {/* One statement, revealed word by word as it scrolls into view. */}
+      <section data-no-reveal className="container-px mx-auto max-w-3xl pt-16 sm:pt-24">
+        <TaglineReveal text="Коли улюбленцю зле, важить кожна хвилина. VetNear показує найближчу перевірену допомогу, телефон і маршрут. Без реєстрації та зайвих кроків." />
+      </section>
 
       <HomeDistricts />
 

@@ -1,12 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import "@fontsource-variable/manrope";
-import "@fontsource-variable/inter";
 import "./globals.css";
 import { t } from "@/lib/i18n";
 import { SITE, websiteJsonLd } from "@/lib/seo";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { JsonLd } from "@/components/JsonLd";
+import { HeaderNav } from "@/components/HeaderNav";
+import { MotionRuntime } from "@/components/motion/MotionRuntime";
 import { TabBar } from "@/components/TabBar";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 
@@ -58,9 +59,9 @@ export const viewport: Viewport = {
 
 function Header() {
   return (
-    <header className="sticky top-0 z-30 border-b border-brand-100/70 bg-canvas/80 backdrop-blur">
-      <nav className="container-px flex h-14 items-center justify-between gap-2">
-        <Link href="/" className="flex shrink-0 items-center gap-2 font-display text-lg font-extrabold">
+    <header className="site-header">
+      <nav className="site-header__bar" aria-label="Головна навігація">
+        <Link href="/" className="flex shrink-0 items-center gap-2 font-display text-lg font-bold">
           <span aria-hidden className="relative grid h-7 w-7 place-items-center">
             <span className="absolute inset-0 rounded-full bg-brand/15" />
             <span className="absolute inset-0 rounded-full bg-brand/30 animate-ping2" />
@@ -68,15 +69,9 @@ function Header() {
           </span>
           {t.brand}
         </Link>
-        <div className="hidden min-w-0 items-center gap-0.5 text-sm sm:flex">
-          <Link className="whitespace-nowrap rounded-full bg-emergency-50 px-2 py-1.5 sm:px-2.5 font-semibold text-emergency-700 transition-colors hover:bg-emergency-100" href="/help">Терміново</Link>
-          <Link className="whitespace-nowrap rounded-lg px-2 py-1.5 sm:px-2.5 transition-colors hover:bg-brand-50 hover:text-brand-700" href="/nearby">Поруч</Link>
-          <Link className="whitespace-nowrap rounded-lg px-2 py-1.5 sm:px-2.5 transition-colors hover:bg-brand-50 hover:text-brand-700" href="/my-pets">Мої тварини</Link>
-          <Link className="whitespace-nowrap rounded-lg px-2 py-1.5 sm:px-2.5 transition-colors hover:bg-brand-50 hover:text-brand-700" href="/kyiv-updates">Актуальне</Link>
-          <Link className="whitespace-nowrap rounded-lg px-2 py-1.5 sm:px-2.5 transition-colors hover:bg-brand-50 hover:text-brand-700" href="/for-partners">Партнерам</Link>
-        </div>
+        <HeaderNav />
         {/* Mobile: the tab bar carries navigation; the header keeps one calm link. */}
-        <Link className="whitespace-nowrap rounded-lg px-2 py-1.5 text-[13px] font-medium text-ink/60 hover:text-brand-700 sm:hidden" href="/kyiv-updates">Актуальне</Link>
+        <Link className="site-nav__link sm:hidden" href="/kyiv-updates">Актуальне</Link>
       </nav>
     </header>
   );
@@ -117,8 +112,9 @@ const FOOTER_GROUPS: { title: string; links: [string, string][] }[] = [
 
 function Footer() {
   return (
-    <footer className="mt-16 border-t border-brand-100 bg-surface">
-      <div className="container-px py-8 text-sm text-ink/60">
+    <footer className="site-footer mt-16 border-t border-brand-100 bg-surface">
+      <p aria-hidden className="site-footer__mark">{SITE.name}</p>
+      <div className="container-px relative py-8 text-sm text-ink/60">
         <nav aria-label="Розділи сайту" className="grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-3">
           {FOOTER_GROUPS.map((g) => (
             <div key={g.title}>
@@ -152,6 +148,8 @@ export default function RootLayout({
     <html lang="uk">
       <body>
         <JsonLd data={websiteJsonLd()} />
+        <a href="#main" className="skip-link">Перейти до вмісту</a>
+        <MotionRuntime />
         <AmbientBackground />
         <Header />
         <main id="main">{children}</main>

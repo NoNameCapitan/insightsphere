@@ -6,6 +6,8 @@ import { EmergencyCtaIcon, LocationIcon } from "@/components/icons/ServiceIcons"
 import { PetCareCockpit } from "@/components/PetCareCockpit";
 import { GeneratedVisual } from "@/components/GeneratedVisual";
 import { HeroMotionLayer } from "@/components/HeroMotionLayer";
+import { HeroOrbit } from "@/components/HeroOrbit";
+import { CountUp } from "@/components/motion/CountUp";
 import { RevealGroup } from "@/components/RevealGroup";
 import { ServiceCategoryCard } from "@/components/ServiceCategoryCard";
 import { usePointerVars } from "@/hooks/usePointerVars";
@@ -33,6 +35,8 @@ const PUBLIC_COUNT = PUBLIC.reduce<Partial<Record<PlaceCategory, number>>>((m, p
   return m;
 }, {});
 const CARE_VISIBLE = CARE_PATHS.filter((c) => (PUBLIC_COUNT[c.category] ?? 0) > 0);
+
+const HEADLINE = ["Надійна", "допомога", "для", "вашого", "улюбленця", "поруч"];
 
 /** Ukrainian plural form for "місце" (1 місце / 2 місця / 5 місць). */
 function placesWord(n: number): string {
@@ -78,11 +82,24 @@ export function HomeHero() {
               <LocationIcon className="h-5 w-5" /> Київ · pet-сервіси поруч
             </p>
 
-            {/* Mobile: only the 3D object, small — the full cockpit shows from sm up. */}
-            <GeneratedVisual src="/visuals/c-home-hero.webp" className="mx-auto mt-4 h-36 w-32 sm:hidden" motion="bob" glow shadow priority sizes="130px" />
+            {/* Mobile: the orbit scene alone — the full cockpit shows from sm up. */}
+            <HeroOrbit className="mx-auto mt-6 h-44 w-40 sm:hidden" priority />
 
-            <h1 className="mx-auto mt-5 max-w-xl text-4xl font-extrabold leading-[1.08] sm:text-5xl lg:mx-0">
-              Надійна допомога для вашого улюбленця поруч
+            <h1 className="hero-title mx-auto mt-5 max-w-xl text-4xl font-bold leading-[1.08] sm:text-5xl lg:mx-0">
+              {HEADLINE.map((word, i) => (
+                <span key={word} className="hero-title__word" style={{ ["--i" as string]: i }}>
+                  {i === HEADLINE.length - 1 ? (
+                    <span className="hero-title__accent">
+                      {word}
+                      <svg aria-hidden viewBox="0 0 120 12" preserveAspectRatio="none" className="hero-title__stroke">
+                        <path d="M2 8.5C22 3.5 44 2.5 62 5.2c18 2.7 38 3.2 56-1.2" />
+                      </svg>
+                    </span>
+                  ) : (
+                    word
+                  )}{" "}
+                </span>
+              ))}
             </h1>
 
             <p className="mx-auto mt-4 max-w-md text-base text-ink/65 lg:mx-0">
@@ -91,8 +108,11 @@ export function HomeHero() {
             </p>
 
             <div className="mx-auto mt-8 flex max-w-md flex-col lg:mx-0">
-              <Link href="/help" className="btn btn-brand py-4 text-lg">
+              <Link href="/help" className="btn btn-brand hero-cta py-4 text-lg">
                 Знайти допомогу поруч
+                <svg aria-hidden viewBox="0 0 20 20" className="hero-cta__arrow h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 10h12M11 5l5 5-5 5" />
+                </svg>
               </Link>
 
               {/* Safety-critical CTA: rose color and outline set it apart —
@@ -107,11 +127,22 @@ export function HomeHero() {
                 Термінова ситуація
               </Link>
 
-              {/* Honest trust microcopy, stated once. */}
-              <p className="mt-4 text-xs text-ink/45">
-                Без реєстрації · База Києва: {TOTAL} {placesWord(TOTAL)},{" "}
-                {VERIFIED} перевірено · Не замінює ветеринара
-              </p>
+              {/* Honest dataset numbers, counted up once. */}
+              <dl className="hero-stats mt-6">
+                <div>
+                  <dt>{placesWord(TOTAL)} у базі</dt>
+                  <dd><CountUp value={TOTAL} /></dd>
+                </div>
+                <div>
+                  <dt>перевірено</dt>
+                  <dd><CountUp value={VERIFIED} /></dd>
+                </div>
+                <div>
+                  <dt>районів Києва</dt>
+                  <dd><CountUp value={10} duration={900} /></dd>
+                </div>
+              </dl>
+              <p className="mt-3 text-xs text-ink/45">Без реєстрації · Не замінює ветеринара</p>
             </div>
           </div>
 

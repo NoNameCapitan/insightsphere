@@ -50,9 +50,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        // Self-hosted variable fonts (@fontsource), both with full Cyrillic.
-        display: ["'Manrope Variable'", "'Segoe UI'", "Roboto", "system-ui", "sans-serif"],
-        sans: ["'Inter Variable'", "system-ui", "-apple-system", "'Segoe UI'", "Roboto", "Arial", "sans-serif"],
+        // One self-hosted variable typeface (@fontsource) with full Cyrillic.
+        display: ["'Manrope Variable'", "system-ui", "-apple-system", "'Segoe UI'", "sans-serif"],
+        sans: ["'Manrope Variable'", "system-ui", "-apple-system", "'Segoe UI'", "sans-serif"],
       },
       borderRadius: {
         xl: "0.875rem",

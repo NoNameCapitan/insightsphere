@@ -1,7 +1,7 @@
 "use client";
 
 import { LocationIcon, PhoneIcon, RouteIcon, ServiceIcon, VerifiedIcon } from "@/components/icons/ServiceIcons";
-import { GeneratedVisual } from "@/components/GeneratedVisual";
+import { HeroOrbit } from "@/components/HeroOrbit";
 
 // Calm product preview: a compact mobile card that demonstrates the main
 // decision path. It tilts in 3D towards the pointer (--mx/--my are set on
@@ -14,7 +14,7 @@ export function PetCareCockpit() {
 
       {/* Phone-like card */}
       <div className="cockpit__device relative rounded-[32px] border border-brand-100 bg-surface p-4 shadow-pop">
-        <GeneratedVisual src="/visuals/c-home-hero.webp" className="cockpit__hero mx-auto -mt-24 mb-1 h-52 w-48 sm:-mt-28 sm:h-60 sm:w-56" motion="bob" glow shine shadow priority sizes="(max-width: 640px) 200px, 240px" />
+        <HeroOrbit className="cockpit__hero mx-auto -mt-24 mb-1 h-52 w-48 sm:-mt-28 sm:h-60 sm:w-56" priority />
         {/* Search context — the homepage stays focused on nearby help. */}
         <div className="flex items-center gap-3">
           <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-brand-100 bg-brand-50">
