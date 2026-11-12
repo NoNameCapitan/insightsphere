@@ -62,6 +62,10 @@ export async function POST(req: Request): Promise<Response> {
       promoted_until: promotedUntil,
       subscription_status: subscriptionStatus,
       billing_provider: billingProvider,
+      // A hand-set tier is not a paid period: the prepaid markers are cleared,
+      // so the expiry job never acts on (or revives) a stale date.
+      prepaid_until: null,
+      billing_plan_code: null,
       tier_changed_at: now,
       updated_at: now,
     })
@@ -82,6 +86,7 @@ export async function POST(req: Request): Promise<Response> {
     billing_provider: billingProvider,
     actor_id: identity.actorId,
     note,
+    reason: "admin",
     created_at: now,
   });
   if (historyError) console.error("[api/admin/places/tier] history insert failed:", historyError.message);

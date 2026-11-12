@@ -59,6 +59,6 @@ describe("billing foundation", () => {
   it("says plainly on the partner page that online payment is not connected yet", () => {
     const page = read("src/app/for-partners/page.tsx");
     expect(page).toContain("рахунок виставляємо вручну");
-    expect(page).toContain("Жоден тариф не дає статус 24/7");
+    expect(page).toContain("Жоден тариф не дає позначку 24/7");
   });
 });

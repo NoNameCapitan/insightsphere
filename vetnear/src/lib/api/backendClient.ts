@@ -139,3 +139,51 @@ export async function fetchPartnerInterest(): Promise<PartnerInterestItem[]> {
   const res = await adminFetch<{ items: PartnerInterestItem[] }>("/api/admin/partner-interest");
   return res.items;
 }
+
+export async function setPartnerInterestStatus(id: string, status: string): Promise<void> {
+  await adminFetch<{ ok: boolean }>("/api/admin/partner-interest", { method: "PATCH", body: JSON.stringify({ id, status }) });
+}
+
+// ── Prepaid billing (v1.32) ────────────────────────────────────────────────
+export interface BillingPlaceState {
+  id: string;
+  tier: string;
+  subscription_status: string;
+  billing_plan_code: string | null;
+  prepaid_until: string | null;
+  promoted_until: string | null;
+  last_payment_at: string | null;
+}
+export interface BillingOverview {
+  days: number;
+  expiring: BillingPlaceState[];
+  place: BillingPlaceState | null;
+  events: { id: string; from_tier: string | null; to_tier: string; reason: string; note: string | null; created_at: string }[];
+  payments: { id: string; plan_code: string; amount_uah: number; provider_payment_id: string | null; period_end: string; created_at: string }[];
+}
+
+export async function fetchBillingOverview(placeId: string, days = 7): Promise<BillingOverview> {
+  return adminFetch<BillingOverview>(`/api/admin/billing/overview?placeId=${encodeURIComponent(placeId)}&days=${days}`);
+}
+
+export async function activatePrepaidPlan(input: {
+  placeId: string;
+  planCode: string;
+  amountUah: string;
+  paymentRef?: string;
+  note?: string;
+}): Promise<{ ok: true; duplicate: boolean; periodEnd: string }> {
+  const res = await fetch("/api/admin/billing/activate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-admin-token": getAdminToken() },
+    body: JSON.stringify(input),
+  });
+  if (res.status === 401) throw new Error("unauthorized");
+  const body = (await res.json().catch(() => ({}))) as { message?: string; duplicate?: boolean; periodEnd?: string };
+  if (!res.ok) throw new Error(body.message ? `msg:${body.message}` : `activate -> ${res.status}`);
+  return { ok: true, duplicate: Boolean(body.duplicate), periodEnd: String(body.periodEnd ?? "") };
+}
+
+export async function expirePrepaidPlans(): Promise<{ expired: number }> {
+  return adminFetch<{ expired: number }>("/api/admin/billing/expire", { method: "POST", body: "{}" });
+}

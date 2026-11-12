@@ -7,8 +7,9 @@
 // plainly rather than inventing a chart.
 import Link from "next/link";
 import { useState } from "react";
+import { AdminBillingPanel } from "@/components/admin/AdminBillingPanel";
 import { DemoAdminBanner } from "@/components/DemoBanner";
-import { fetchLeadSummary, fetchPartnerInterest, setPlaceTier, type PartnerInterestItem } from "@/lib/api/backendClient";
+import { fetchLeadSummary, fetchPartnerInterest, setPartnerInterestStatus, setPlaceTier, type PartnerInterestItem } from "@/lib/api/backendClient";
 import { BILLABLE_LEAD_TYPES } from "@/lib/places/leads";
 import { TIER_LABELS } from "@/lib/places/tier";
 import type { LeadEventType, LeadSummary, PlaceTier } from "@/lib/types";
@@ -23,6 +24,7 @@ const TYPE_LABELS: Record<LeadEventType, string> = {
 };
 
 const TIERS: PlaceTier[] = ["free", "verified", "promoted"];
+const INTEREST_STATUS: Record<string, string> = { new: "новий", contacted: "звʼязались", won: "підключено", lost: "відмова" };
 
 export default function AdminLeadsPage() {
   const [placeId, setPlaceId] = useState("");
@@ -182,8 +184,9 @@ export default function AdminLeadsPage() {
       )}
 
       <section className="mt-4 rounded-2xl border border-brand-100 p-4">
-        <h2 className="font-display text-lg font-bold text-ink">Комерційний тариф</h2>
+        <h2 className="font-display text-lg font-bold text-ink">Тариф вручну (без оплати)</h2>
         <p className="mt-1 text-sm text-ink/60">
+          Щоб зняти тариф або виправити помилку. Оплачений період вмикайте блоком «Передоплата» нижче.{" "}
           Промо дає невелике підняття в списку, завжди позначається міткою «Промо»
           і не діє в термінових запитах.
         </p>
@@ -221,9 +224,11 @@ export default function AdminLeadsPage() {
         {tierMsg && <p className="mt-2 text-sm text-brand">{tierMsg}</p>}
       </section>
 
+      <AdminBillingPanel placeId={placeId} />
+
       <section className="mt-4 rounded-2xl border border-brand-100 p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-display text-lg font-bold text-ink">Запити на платні тарифи</h2>
+          <h2 className="font-display text-lg font-bold text-ink">Запити на платні тарифи{interest ? ` · нових: ${interest.filter((i) => i.status === "new").length}` : ""}</h2>
           <button onClick={() => { void loadInterest(); }} className="btn btn-ghost py-2 text-sm">Завантажити</button>
         </div>
         <p className="mt-1 text-sm text-ink/60">
@@ -240,7 +245,18 @@ export default function AdminLeadsPage() {
                   <a href={`tel:${item.phone}`} className="text-brand hover:underline">{item.phone}</a> ·{" "}
                   <a href={`mailto:${item.email}`} className="text-brand hover:underline">{item.email}</a>
                 </p>
-                <p className="text-xs text-ink/45">{new Date(item.created_at).toLocaleString("uk-UA")}</p>
+                <p className="text-xs text-ink/45">{new Date(item.created_at).toLocaleString("uk-UA")} · статус: {INTEREST_STATUS[item.status] ?? item.status}</p>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {(["contacted", "won", "lost"] as const).filter((st) => st !== item.status).map((st) => (
+                    <button
+                      key={st}
+                      onClick={() => { void setPartnerInterestStatus(item.id, st).then(loadInterest).catch(() => setInterestError("Не вдалося змінити статус.")); }}
+                      className="rounded-full border border-brand-100 px-2.5 py-1 text-xs font-medium text-ink/65 hover:border-brand-300 hover:text-brand-700"
+                    >
+                      {INTEREST_STATUS[st]}
+                    </button>
+                  ))}
+                </div>
               </li>
             ))}
           </ul>

@@ -20,22 +20,31 @@ const VALUE = [
 const PLANS = [
   {
     name: "Базовий",
+    tagline: "Базовий лістинг безкоштовний",
     price: "Безкоштовно",
-    note: "Доступно зараз",
-    features: ["Профіль у пошуку й на карті", "Телефон, сайт і маршрут", "Модерація контактів", "Повідомлення про неточності"],
+    note: "Після модерації",
+    features: ["Профіль у пошуку й на карті", "Телефон, сайт і маршрут", "Статус перевірки даних", "Повідомлення про неточності"],
   },
   {
     name: "Verified",
+    tagline: "Verified — перевірений профіль",
     price: "449 ₴ / місяць",
-    note: "Підключаємо вручну після модерації",
+    note: "Передоплата: 1, 3, 6 або 12 місяців",
     features: ["Усе з базового плану", "Розширений профіль", "Фото, послуги й ціни", "Базова аналітика дій"],
   },
   {
     name: "Promoted",
+    tagline: "Promoted — більша помітність у звичайному пошуку",
     price: "За домовленістю",
-    note: "Завжди з кінцевою датою",
-    features: ["Усе з Verified", "Вища позиція у звичайному пошуку", "Завжди з позначкою «Промо»", "Не діє в термінових запитах"],
+    note: "Передоплата: 1 або 3 місяці",
+    features: ["Усе з Verified", "Вища позиція у звичайному пошуку", "Завжди з позначкою «Промо»", "У термінових запитах не працює"],
   },
+];
+
+const STEPS = [
+  ["Додайте заклад", "Коротка форма з контактами. Це безкоштовно."],
+  ["Пройдіть модерацію", "Ми перевіряємо назву, адресу, категорію та джерела."],
+  ["Оплатіть передоплату", "Виставляємо рахунок; після надходження коштів активуємо тариф на оплачений період."],
 ];
 
 export default function ForPartnersPage() {
@@ -62,7 +71,7 @@ export default function ForPartnersPage() {
       <section id="pricing" className="mt-16">
         <div className="max-w-2xl">
           <h2 className="font-display text-3xl font-bold text-ink">Проста модель без прихованих умов</h2>
-          <p className="mt-3 leading-7 text-ink/60">Базовий профіль безкоштовний. Verified і Promoted підключаємо після модерації, за вашим запитом. Онлайн-оплату вмикаємо поступово — поки що рахунок виставляємо вручну.</p>
+          <p className="mt-3 leading-7 text-ink/60">Базовий лістинг безкоштовний. Verified і Promoted — за передоплатою: після підтвердження оплати ми активуємо тариф. Онлайн-оплату ще підключаємо, тому поки що рахунок виставляємо вручну.</p>
         </div>
         <div className="mt-7 grid gap-4 lg:grid-cols-3">
           {PLANS.map((plan, index) => (
@@ -71,7 +80,8 @@ export default function ForPartnersPage() {
                 <h3 className="font-display text-xl font-bold text-ink">{plan.name}</h3>
                 {index === 0 && <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700">Рекомендовано</span>}
               </div>
-              <p className="mt-5 text-2xl font-bold text-ink">{plan.price}</p>
+              <p className="mt-2 text-sm text-ink/60">{plan.tagline}</p>
+              <p className="mt-4 text-2xl font-bold text-ink">{plan.price}</p>
               <p className="mt-1 text-sm text-ink/45">{plan.note}</p>
               <ul className="mt-6 space-y-3 text-sm text-ink/70">
                 {plan.features.map((feature) => <li key={feature} className="flex gap-2"><span className="font-bold text-brand">✓</span><span>{feature}</span></li>)}
@@ -79,21 +89,36 @@ export default function ForPartnersPage() {
             </article>
           ))}
         </div>
-        <p className="mt-4 text-sm leading-6 text-ink/55">
-          <strong className="text-ink/75">Verified</strong> — про довіру: розширений профіль, який ми перевірили.{" "}
-          <strong className="text-ink/75">Promoted</strong> — про помітність: вища позиція з чесною позначкою «Промо».
-          Жоден тариф не дає статус 24/7 чи «термінова допомога» — його ми ставимо лише після дзвінка.
+        <p className="mt-4 rounded-2xl border border-emergency/15 bg-emergency-50 px-4 py-3 text-sm leading-6 text-emergency-700">
+          <strong>У термінових запитах платне просування не працює.</strong> Жоден тариф не дає позначку 24/7 чи
+          «термінова допомога» — її ми ставимо лише після телефонного підтвердження.
+        </p>
+        <p className="mt-3 text-sm leading-6 text-ink/55">
+          Коли оплачений період закінчується, профіль повертається на базовий тариф — без автосписань.
           Для мереж із кількома філіями умови індивідуальні. Притулки та зоозахисні організації розміщуються безкоштовно.
         </p>
       </section>
 
-      <section id="paid" className="mt-16 grid gap-8 rounded-3xl border border-brand-100 bg-surface p-6 sm:p-8 lg:grid-cols-[1fr_1.2fr]">
+      <section className="mt-16" aria-labelledby="steps-title">
+        <h2 id="steps-title" className="font-display text-2xl font-bold text-ink">Як підключити Verified або Promoted за 3 кроки</h2>
+        <ol className="mt-5 grid gap-4 md:grid-cols-3">
+          {STEPS.map(([title, text], index) => (
+            <li key={title} className="rounded-3xl border border-brand-100 bg-surface p-5">
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-brand text-sm font-bold text-white">{index + 1}</span>
+              <h3 className="mt-3 font-display text-lg font-bold text-ink">{title}</h3>
+              <p className="mt-1.5 text-sm leading-6 text-ink/60">{text}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section id="paid" className="mt-8 grid gap-8 rounded-3xl border border-brand-100 bg-surface p-6 sm:p-8 lg:grid-cols-[1fr_1.2fr]">
         <div>
           <p className="text-sm font-semibold text-brand">Платні тарифи</p>
           <h2 className="mt-2 font-display text-2xl font-bold text-ink">Запит на Verified або Promoted</h2>
           <p className="mt-3 text-sm leading-6 text-ink/60">
-            Спершу додайте заклад — базовий профіль безкоштовний. Якщо потрібен платний тариф, залиште контакт:
-            ми зателефонуємо або напишемо, узгодимо умови й підключимо тариф вручну.
+            Залиште контакт — ми звʼяжемось, щоб узгодити умови й виставити рахунок.
+            Оплата передоплатою. Після підтвердження ми активуємо тариф.
           </p>
         </div>
         <PartnerInterestForm />

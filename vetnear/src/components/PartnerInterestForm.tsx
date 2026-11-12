@@ -41,7 +41,8 @@ export function PartnerInterestForm() {
   if (state === "sent") {
     return (
       <p role="status" className="rounded-2xl border border-brand-200 bg-brand-50 px-4 py-4 text-sm leading-6 text-brand-800">
-        Дякуємо, запит отримано. Ми звʼяжемося з вами протягом двох робочих днів — зателефонуємо або напишемо на пошту.
+        Запит отримано. Ми звʼяжемось для рахунку протягом двох робочих днів — зателефонуємо або напишемо на пошту.
+        Якщо заклад ще не додано, додайте його зараз: модерація йде паралельно.
       </p>
     );
   }
@@ -82,7 +83,7 @@ export function PartnerInterestForm() {
       <button type="submit" disabled={state === "sending"} className="btn btn-brand w-full sm:w-auto">
         {state === "sending" ? "Надсилаємо…" : "Надіслати запит"}
       </button>
-      <p className="text-xs leading-5 text-ink/45">Запит ні до чого не зобовʼязує й нічого не змінює в профілі. Оплата онлайн ще не підключена.</p>
+      <p className="text-xs leading-5 text-ink/45">Запит ні до чого не зобовʼязує й нічого не змінює в профілі. Оплата передоплатою за рахунком.</p>
     </form>
   );
 }
