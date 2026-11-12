@@ -12,6 +12,7 @@ export function safeNextPath(value: string | null | undefined, fallback: string 
   if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return fallback;
   if (/[\u0000-\u001f]/.test(value)) return fallback;
   if (value.startsWith("/auth") || value.startsWith("/api")) return fallback;
+  if (value === "/") return fallback;
   return value;
 }
 
@@ -41,13 +42,16 @@ export function isSameOriginRequest(req: Request): boolean {
   }
 }
 
-export type AuthErrorCode = "expired" | "invalid" | "rate" | "config" | "unknown";
+export type AuthErrorCode = "expired" | "invalid" | "rate" | "config" | "cancelled" | "linking" | "provider" | "unknown";
 
 export const AUTH_ERROR_TEXT: Record<AuthErrorCode, string> = {
   expired: "Посилання застаріло або вже використане. Надішліть нове — це займе кілька секунд.",
   invalid: "Перевірте адресу електронної пошти.",
   rate: "Забагато спроб. Зачекайте кілька хвилин і спробуйте ще раз.",
   config: "Вхід тимчасово недоступний. Пошук закладів працює без акаунта.",
+  cancelled: "Вхід через Google скасовано. Можна спробувати ще раз або увійти через email.",
+  linking: "Цю пошту вже привʼязано до іншого способу входу. Увійдіть через email — це той самий акаунт.",
+  provider: "Вхід через Google зараз недоступний. Увійдіть через email — це займе хвилину.",
   unknown: "Не вдалося увійти. Спробуйте ще раз.",
 };
 

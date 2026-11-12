@@ -6,8 +6,10 @@ import {
   getAuthClient,
   getUserSession,
   isAuthConfigured,
+  isGoogleEnabled,
   readCookie,
   sessionCookieOptions,
+  toSessionUser,
   setSessionCookies,
   withSession,
 } from "@/lib/server/userAuth";
@@ -18,10 +20,10 @@ export const dynamic = "force-dynamic";
 /** GET /api/auth/session → { configured, user } (never cached). */
 export async function GET(req: Request): Promise<Response> {
   if (!isAuthConfigured()) {
-    return withSession(NextResponse.json({ configured: false, user: null }), null);
+    return withSession(NextResponse.json({ configured: false, google: false, user: null }), null);
   }
-  const session = await getUserSession(req);
-  return withSession(NextResponse.json({ configured: true, user: session?.user ?? null }), session);
+  const [session, google] = await Promise.all([getUserSession(req), isGoogleEnabled()]);
+  return withSession(NextResponse.json({ configured: true, google, user: session?.user ?? null }), session);
 }
 
 /**
@@ -48,7 +50,7 @@ export async function POST(req: Request): Promise<Response> {
   if (error || !data.user) return NextResponse.json({ error: "expired" }, { status: 401 });
 
   const next = safeNextPath(readCookie(req, NEXT_COOKIE));
-  const res = NextResponse.json({ ok: true, next, user: { id: data.user.id, email: data.user.email ?? null } });
+  const res = NextResponse.json({ ok: true, next, user: toSessionUser(data.user) });
   setSessionCookies(res, { accessToken, refreshToken, expiresIn: 3600 });
   res.cookies.set(NEXT_COOKIE, "", sessionCookieOptions(0));
   res.headers.set("Cache-Control", "no-store");

@@ -14,6 +14,16 @@ const REFRESH_MAX_AGE = 60 * 60 * 24 * 60; // 60 days
 export interface SessionUser {
   id: string;
   email: string | null;
+  /** Sign-in methods linked to this account, e.g. ["email", "google"]. */
+  providers: string[];
+}
+
+/** Narrows a Supabase user object to what the app needs. */
+export function toSessionUser(user: { id: string; email?: string | null; app_metadata?: { provider?: unknown; providers?: unknown } }): SessionUser {
+  const meta = user.app_metadata ?? {};
+  const list = Array.isArray(meta.providers) ? meta.providers : typeof meta.provider === "string" ? [meta.provider] : [];
+  const providers = list.filter((p): p is string => typeof p === "string" && /^[a-z_]{2,20}$/.test(p)).slice(0, 5);
+  return { id: user.id, email: user.email ?? null, providers };
 }
 
 export interface SessionTokens {
@@ -104,7 +114,7 @@ export async function getUserSession(req: Request): Promise<UserSession | null> 
   if (accessToken) {
     const { data, error } = await auth.auth.getUser(accessToken);
     if (!error && data.user) {
-      return { user: { id: data.user.id, email: data.user.email ?? null }, accessToken };
+      return { user: toSessionUser(data.user), accessToken };
     }
   }
 
@@ -118,7 +128,7 @@ export async function getUserSession(req: Request): Promise<UserSession | null> 
     expiresIn: data.session.expires_in ?? 3600,
   };
   return {
-    user: { id: data.user.id, email: data.user.email ?? null },
+    user: toSessionUser(data.user),
     accessToken: tokens.accessToken,
     refreshed: tokens,
   };
@@ -129,4 +139,74 @@ export function withSession<T extends NextResponse>(res: T, session: UserSession
   if (session?.refreshed) setSessionCookies(res, session.refreshed);
   res.headers.set("Cache-Control", "no-store");
   return res;
+}
+
+// ── Google (OAuth through Supabase, PKCE on the server) ─────────────────────
+
+interface ProviderCache { google: boolean; expires: number }
+let providerCache: ProviderCache | null = null;
+
+/**
+ * Whether Google sign-in is switched on in the Supabase project. Asked from
+ * Supabase's public settings endpoint and cached, so the button is never
+ * shown when it would lead to an error. Any failure counts as "off".
+ */
+export async function isGoogleEnabled(now: number = Date.now()): Promise<boolean> {
+  if (!isAuthConfigured()) return false;
+  if (providerCache && providerCache.expires > now) return providerCache.google;
+  let google = false;
+  let ttl = 30_000; // retry soon after a failure
+  try {
+    const res = await fetch(`${process.env.SUPABASE_URL!.replace(/\/$/, "")}/auth/v1/settings`, {
+      headers: { apikey: anonKey() },
+      signal: AbortSignal.timeout(2500),
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const body = (await res.json()) as { external?: { google?: unknown } };
+      google = body.external?.google === true;
+      ttl = 5 * 60_000;
+    }
+  } catch {
+    /* treated as off */
+  }
+  providerCache = { google, expires: now + ttl };
+  return google;
+}
+
+/** Test hook: forget the cached provider settings. */
+export function resetProviderCache(): void {
+  providerCache = null;
+}
+
+export type CodeExchange =
+  | { ok: true; tokens: SessionTokens }
+  | { ok: false; status: number; code: string | null; message: string | null };
+
+/** Exchanges the one-time OAuth code (plus our PKCE verifier) for a session. */
+export async function exchangeOAuthCode(code: string, verifier: string): Promise<CodeExchange> {
+  try {
+    const res = await fetch(`${process.env.SUPABASE_URL!.replace(/\/$/, "")}/auth/v1/token?grant_type=pkce`, {
+      method: "POST",
+      headers: { apikey: anonKey(), authorization: `Bearer ${anonKey()}`, "content-type": "application/json" },
+      body: JSON.stringify({ auth_code: code, code_verifier: verifier }),
+      signal: AbortSignal.timeout(8000),
+      cache: "no-store",
+    });
+    const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    if (!res.ok || typeof body.access_token !== "string" || typeof body.refresh_token !== "string") {
+      return {
+        ok: false,
+        status: res.status,
+        code: typeof body.error_code === "string" ? body.error_code : typeof body.error === "string" ? body.error : null,
+        message: typeof body.msg === "string" ? body.msg : typeof body.error_description === "string" ? body.error_description : null,
+      };
+    }
+    return {
+      ok: true,
+      tokens: { accessToken: body.access_token, refreshToken: body.refresh_token, expiresIn: typeof body.expires_in === "number" ? body.expires_in : 3600 },
+    };
+  } catch {
+    return { ok: false, status: 0, code: "temporarily_unavailable", message: null };
+  }
 }

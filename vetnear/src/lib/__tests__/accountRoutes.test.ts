@@ -51,7 +51,7 @@ describe("account API routes", () => {
     delete process.env.SUPABASE_ANON_KEY;
     const session = await import("@/app/api/auth/session/route");
     const pets = await import("@/app/api/pets/route");
-    expect(await (await session.GET(new Request("https://vetnear.example/api/auth/session"))).json()).toEqual({ configured: false, user: null });
+    expect(await (await session.GET(new Request("https://vetnear.example/api/auth/session"))).json()).toEqual({ configured: false, google: false, user: null });
     expect((await pets.GET(new Request("https://vetnear.example/api/pets"))).status).toBe(503);
   });
 

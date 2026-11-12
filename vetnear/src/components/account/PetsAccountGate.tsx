@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { GoogleButton } from "@/components/account/GoogleButton";
 import { TileIcon } from "@/components/icons/ServiceIcons";
 import { useSession } from "@/lib/auth/client";
 import { resolveGate } from "@/lib/auth/shared";
@@ -71,17 +72,26 @@ export function PetsAccountGate({ children }: { children: React.ReactNode }) {
           Увійдіть, щоб зберігати медичні картки в акаунті й бачити їх на будь-якому пристрої.
           Пошук клінік працює й без входу.
         </p>
-        <Link href={`/auth?next=${encodeURIComponent(pathname)}`} className="btn btn-brand mt-6 w-full">
-          Увійти або створити акаунт
-        </Link>
-        <Link href="/nearby" className="btn btn-ghost mt-2.5 w-full">Знайти клініку без входу</Link>
+        {session?.google ? (
+          <>
+            <GoogleButton next={pathname} className="mt-6 w-full" />
+            <Link href={`/auth?next=${encodeURIComponent(pathname)}`} className="mt-3 inline-block text-sm font-semibold text-ink/60 underline-offset-4 hover:text-brand hover:underline">
+              або увійти через email
+            </Link>
+          </>
+        ) : (
+          <Link href={`/auth?next=${encodeURIComponent(pathname)}`} className="btn btn-brand mt-6 w-full">
+            Увійти або створити акаунт
+          </Link>
+        )}
+        <Link href="/nearby" className="btn btn-ghost mt-4 w-full">Знайти клініку без входу</Link>
         {guestCount > 0 && (
           <p className="mt-4 rounded-2xl border border-brand-100 bg-surface px-4 py-3 text-left text-sm leading-6 text-ink/65">
             На цьому пристрої вже збережено карток: {guestCount}. Після входу ви зможете перенести їх
             в акаунт — нічого не зникне.
           </p>
         )}
-        <p className="mt-4 text-xs text-ink/45">Без пароля: ми надішлемо посилання для входу на вашу пошту.</p>
+        <p className="mt-4 text-xs text-ink/45">Без пароля: через Google або за посиланням на пошту.</p>
       </div>
     );
   }

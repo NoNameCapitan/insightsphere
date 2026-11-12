@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { deleteAccountRequest, signOutRequest, useSession } from "@/lib/auth/client";
+import { describeProviders } from "@/lib/auth/providers";
 import { stopPetSync } from "@/lib/pets/sync";
 
 export function AccountPanel() {
@@ -54,6 +55,8 @@ export function AccountPanel() {
         <dl className="mt-4 text-sm">
           <dt className="text-xs font-medium text-ink/45">Електронна пошта</dt>
           <dd className="mt-0.5 break-all font-semibold text-ink">{session.user.email ?? "—"}</dd>
+          <dt className="mt-3 text-xs font-medium text-ink/45">Спосіб входу</dt>
+          <dd className="mt-0.5 font-semibold text-ink">{describeProviders(session.user.providers)}</dd>
         </dl>
         <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
           <Link href="/my-pets" className="btn btn-brand">Мої тварини</Link>

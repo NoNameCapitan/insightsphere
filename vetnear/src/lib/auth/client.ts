@@ -5,9 +5,12 @@ import { useEffect, useState } from "react";
 export interface ClientSession {
   /** False when accounts are not set up on this deployment (local-only mode). */
   configured: boolean;
-  user: { id: string; email: string | null } | null;
+  /** Google sign-in is switched on for this deployment. */
+  google: boolean;
+  user: { id: string; email: string | null; providers: string[] } | null;
 }
 
+const OFF: ClientSession = { configured: false, google: false, user: null };
 let current: ClientSession | null = null;
 let inflight: Promise<ClientSession> | null = null;
 const listeners = new Set<(session: ClientSession) => void>();
@@ -17,10 +20,11 @@ export function loadSession(force = false): Promise<ClientSession> {
   if (current && !force) return Promise.resolve(current);
   if (inflight && !force) return inflight;
   inflight = fetch("/api/auth/session", { cache: "no-store", credentials: "same-origin" })
-    .then((res) => (res.ok ? (res.json() as Promise<ClientSession>) : { configured: false, user: null }))
-    .catch(() => ({ configured: false, user: null }) as ClientSession)
+    .then((res) => (res.ok ? (res.json() as Promise<ClientSession>) : OFF))
+    .catch(() => OFF)
     .then((session) => {
-      current = { configured: Boolean(session.configured), user: session.user ?? null };
+      const user = session.user ? { ...session.user, providers: Array.isArray(session.user.providers) ? session.user.providers : [] } : null;
+      current = { configured: Boolean(session.configured), google: Boolean(session.google), user };
       inflight = null;
       listeners.forEach((listener) => listener(current!));
       return current;
