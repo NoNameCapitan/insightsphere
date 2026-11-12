@@ -6,6 +6,7 @@ import { useState } from "react";
 import { ALL_ANIMALS, ALL_DISTRICTS, ANIMAL_LABELS, DISTRICT_LABELS, normalizeDistrict } from "@/lib/labels";
 import { PLACES } from "@/lib/data/places";
 import { createPet, deletePet, updatePet } from "@/lib/pets/store";
+import { commitPetChanges } from "@/lib/pets/sync";
 import { PetProfileIcon } from "@/components/icons/ServiceIcons";
 import { MicrochipIcon, WeightIcon } from "@/components/icons/MedicalIcons";
 import type { AnimalType, KyivDistrict, PetProfile, Sex } from "@/lib/types";
@@ -33,6 +34,7 @@ export function PetProfileForm({ existing }: { existing?: PetProfile }) {
   const [favoriteClinicId, setFavoriteClinicId] = useState(existing?.favoriteClinicId ?? "");
   const [emergencyNote, setEmergencyNote] = useState(existing?.emergencyNote ?? "");
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const field = "w-full rounded-2xl border border-brand-100 bg-white px-3.5 py-3 text-ink outline-none placeholder:text-ink/30 focus:border-brand focus:ring-2 focus:ring-brand/10";
   const labelCls = "mb-1.5 block text-sm font-medium text-ink/70";
@@ -48,12 +50,25 @@ export function PetProfileForm({ existing }: { existing?: PetProfile }) {
     if (!file) return;
     if (!/^image\/(jpeg|png|webp)$/.test(file.type)) { setError("Підтримуються лише JPG, PNG або WebP."); return; }
     if (file.size > 2_000_000) { setError("Фото має бути менше 2 МБ."); return; }
+    // Stored as a small avatar (≤320 px JPEG) so it fits in the account record.
     const reader = new FileReader();
-    reader.onload = () => setPhotoUrl(String(reader.result ?? ""));
+    reader.onload = () => {
+      const image = new window.Image();
+      image.onload = () => {
+        const scale = Math.min(1, 320 / Math.max(image.width, image.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+        canvas.getContext("2d")?.drawImage(image, 0, 0, canvas.width, canvas.height);
+        setPhotoUrl(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      image.onerror = () => setError("Не вдалося прочитати фото.");
+      image.src = String(reader.result ?? "");
+    };
     reader.readAsDataURL(file);
   };
 
-  const save = () => {
+  const save = async () => {
     if (!name.trim()) { setError("Вкажіть ім’я тварини."); return; }
     const payload = {
       name: name.trim(), animalType, breed: breed.trim() || undefined,
@@ -65,12 +80,20 @@ export function PetProfileForm({ existing }: { existing?: PetProfile }) {
       emergencyNote: emergencyNote.trim() || undefined,
     };
     const pet = existing ? updatePet(existing.id, payload) : createPet(payload);
-    if (pet) router.push(`/my-pets/${pet.id}`);
+    if (!pet) return;
+    // In account mode, wait for the save so a failure is visible right here.
+    setSaving(true);
+    const failure = await commitPetChanges();
+    setSaving(false);
+    if (failure) { setError(failure); return; }
+    router.push(`/my-pets/${pet.id}`);
   };
 
-  const remove = () => {
+  const remove = async () => {
     if (existing && window.confirm("Видалити медичну картку цієї тварини?")) {
       deletePet(existing.id);
+      const failure = await commitPetChanges();
+      if (failure) { setError(failure); return; }
       router.push("/my-pets");
     }
   };
@@ -120,11 +143,11 @@ export function PetProfileForm({ existing }: { existing?: PetProfile }) {
             <div><label htmlFor="pet-clinic" className={labelCls}>Улюблена клініка</label><select id="pet-clinic" className={field} value={favoriteClinicId} onChange={(event) => setFavoriteClinicId(event.target.value)}><option value="">Не вибрано</option>{CLINICS.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></div>
           </div>
           <div className="rounded-2xl bg-brand-50/60 p-4 text-sm leading-6 text-ink/60">Після збереження ви зможете додати вакцинації, обробки, візити, вагу, документи й нагадування.</div>
-          <div className="flex gap-3"><button type="button" className="btn btn-ghost" onClick={() => setStep(2)}>Назад</button><button type="button" className="btn btn-brand flex-1" onClick={save}>{existing ? "Зберегти картку" : "Створити медкартку"}</button></div>
+          <div className="flex gap-3"><button type="button" className="btn btn-ghost" onClick={() => setStep(2)}>Назад</button><button type="button" className="btn btn-brand flex-1" disabled={saving} onClick={() => { void save(); }}>{saving ? "Зберігаємо…" : existing ? "Зберегти картку" : "Створити медкартку"}</button></div>
         </div>}
       </section>
 
-      {existing && <button type="button" onClick={remove} className="mx-auto mt-6 block text-sm font-medium text-emergency-700 hover:underline">Видалити медкартку</button>}
+      {existing && <button type="button" onClick={() => { void remove(); }} className="mx-auto mt-6 block text-sm font-medium text-emergency-700 hover:underline">Видалити медкартку</button>}
     </div>
   );
 }

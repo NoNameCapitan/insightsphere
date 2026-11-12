@@ -11,6 +11,8 @@ import { DocumentIcon, ReminderIcon, TreatmentIcon, VaccinationIcon, VisitIcon, 
 import { ANIMAL_LABELS } from "@/lib/labels";
 import { PLACES } from "@/lib/data/places";
 import { buildIcs } from "@/lib/pets/calendar";
+import { useSession } from "@/lib/auth/client";
+import { PETS_CHANGED_EVENT } from "@/lib/pets/sync";
 import { getPet, toggleReminder } from "@/lib/pets/store";
 import type { PetProfile } from "@/lib/types";
 
@@ -44,8 +46,14 @@ export default function PetDetailPage() {
   const [pet, setPet] = useState<PetProfile | null | undefined>(undefined);
   const [tab, setTab] = useState<Tab>("Огляд");
   const [shared, setShared] = useState(false);
+  const session = useSession();
   const refresh = () => setPet(getPet(params.id));
-  useEffect(refresh, [params.id]);
+  useEffect(() => {
+    const load = () => setPet(getPet(params.id));
+    load();
+    window.addEventListener(PETS_CHANGED_EVENT, load);
+    return () => window.removeEventListener(PETS_CHANGED_EVENT, load);
+  }, [params.id]);
 
   const timeline = useMemo(() => {
     if (!pet) return [];
@@ -100,7 +108,7 @@ export default function PetDetailPage() {
 
   return (
     <main className="container-px mx-auto max-w-3xl py-7 print:max-w-none print:bg-white">
-      <div className="flex items-center justify-between print:hidden"><Link href="/my-pets" className="text-sm font-medium text-brand hover:underline">Мої тварини</Link><span className="text-xs text-ink/40">Приватна картка на цьому пристрої</span></div>
+      <div className="flex items-center justify-between print:hidden"><Link href="/my-pets" className="text-sm font-medium text-brand hover:underline">Мої тварини</Link><span className="text-xs text-ink/40">{session?.user ? "Приватна картка у вашому акаунті" : "Приватна картка на цьому пристрої"}</span></div>
 
       <header className="relative mt-4 overflow-hidden rounded-3xl border border-brand-100 bg-white p-5 shadow-card sm:p-6">
         <div className="grid items-start gap-4">

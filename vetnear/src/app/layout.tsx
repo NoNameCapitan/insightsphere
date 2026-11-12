@@ -6,6 +6,7 @@ import { t } from "@/lib/i18n";
 import { SITE, websiteJsonLd } from "@/lib/seo";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { JsonLd } from "@/components/JsonLd";
+import { AccountLink } from "@/components/account/AccountLink";
 import { HeaderNav } from "@/components/HeaderNav";
 import { MotionRuntime } from "@/components/motion/MotionRuntime";
 import { TabBar } from "@/components/TabBar";
@@ -71,7 +72,10 @@ function Header() {
         </Link>
         <HeaderNav />
         {/* Mobile: the tab bar carries navigation; the header keeps one calm link. */}
-        <Link className="site-nav__link sm:hidden" href="/kyiv-updates">Актуальне</Link>
+        <div className="flex items-center gap-0.5">
+          <Link className="site-nav__link sm:hidden" href="/kyiv-updates">Актуальне</Link>
+          <AccountLink />
+        </div>
       </nav>
     </header>
   );

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PetProfileCard } from "@/components/PetProfileCard";
+import { useSession } from "@/lib/auth/client";
+import { PETS_CHANGED_EVENT } from "@/lib/pets/sync";
 import { exportPetsBackup, getActivePetId, getPets, importPetsBackup } from "@/lib/pets/store";
 import type { PetProfile } from "@/lib/types";
 import { PetProfileIcon } from "@/components/icons/ServiceIcons";
@@ -13,12 +15,18 @@ export default function MyPetsPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const [notice, setNotice] = useState<string | null>(null);
+  const session = useSession();
+  const account = session?.user ? (session.user.email ?? "акаунт") : null;
 
   const reload = () => {
     setPets(getPets());
     setActiveId(getActivePetId());
   };
-  useEffect(reload, []);
+  useEffect(() => {
+    reload();
+    window.addEventListener(PETS_CHANGED_EVENT, reload);
+    return () => window.removeEventListener(PETS_CHANGED_EVENT, reload);
+  }, []);
 
   const saveBackup = () => {
     const url = URL.createObjectURL(new Blob([exportPetsBackup()], { type: "application/json" }));
@@ -54,6 +62,15 @@ export default function MyPetsPage() {
         <GeneratedVisual src="/visuals/d-my-pets.webp" className="mx-auto h-36 w-full max-w-[240px] sm:h-60 sm:max-w-[340px]" motion="tilt" glow shine shadow sizes="340px" />
       </div>
 
+      {account ? (
+        <p className="mt-5 flex items-start gap-3 rounded-2xl border border-brand-100 bg-white px-4 py-3 text-sm text-ink/60">
+          <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-400" />
+          <span>
+            Картки зберігаються у вашому акаунті ({account}) і доступні на будь-якому пристрої.{" "}
+            <Link href="/account" className="font-semibold text-brand hover:underline">Акаунт</Link>
+          </span>
+        </p>
+      ) : (
       <div className="mt-5 rounded-2xl border border-brand-100 bg-white px-4 py-3 text-sm text-ink/60">
         <p className="flex items-start gap-3">
           <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-400" />
@@ -70,11 +87,12 @@ export default function MyPetsPage() {
         </div>
         {notice && <p role="status" className="mt-2 pl-5 text-xs text-ink/55">{notice}</p>}
       </div>
+      )}
 
       {pets.length === 0 ? (
         <div className="mt-6 rounded-3xl border border-dashed border-brand-200 bg-white p-8 text-center sm:p-12">
           <span className="icon3d mx-auto h-20 w-20"><PetProfileIcon className="h-14 w-14" /></span>
-          <h2 className="mt-3 font-display text-xl font-bold text-ink">Створіть першу медкартку</h2>
+          <h2 className="mt-3 font-display text-xl font-bold text-ink">Додайте першу тварину</h2>
           <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink/55">Почніть з імені й виду. Вакцинації, документи та історію можна додати пізніше.</p>
           <Link href="/my-pets/new" className="btn btn-brand mt-5">Додати тварину</Link>
         </div>

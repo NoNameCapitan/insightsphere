@@ -70,6 +70,13 @@ const nextConfig = {
       { source: "/partner/:path*", headers: privateHeaders },
       { source: "/api/admin/:path*", headers: privateHeaders },
       { source: "/api/partner/:path*", headers: privateHeaders },
+      // Account area and its APIs carry personal data: never cache or index.
+      { source: "/auth/:path*", headers: privateHeaders },
+      { source: "/account/:path*", headers: privateHeaders },
+      { source: "/my-pets/:path*", headers: privateHeaders },
+      { source: "/api/auth/:path*", headers: privateHeaders },
+      { source: "/api/pets/:path*", headers: privateHeaders },
+      { source: "/api/account", headers: privateHeaders },
     ];
   },
 

@@ -7,6 +7,7 @@ import { DocumentIcon, ReminderIcon, TreatmentIcon, VaccinationIcon, VisitIcon, 
 import { GeneratedVisual } from "@/components/GeneratedVisual";
 import { PLACES } from "@/lib/data/places";
 import { addMonths, DEFAULT_INTERVAL_MONTHS, type RecordKind } from "@/lib/pets/calendar";
+import { commitPetChanges } from "@/lib/pets/sync";
 import { addDocument, addReminder, addTreatment, addVaccination, addVisit, addWeight, getPet } from "@/lib/pets/store";
 import type { PetProfile } from "@/lib/types";
 
@@ -81,7 +82,7 @@ export default function NewMedicalRecordPage() {
     reader.readAsDataURL(file);
   };
 
-  const save = () => {
+  const save = async () => {
     if (!pet) { setError("Медкартку не знайдено."); return; }
     if (!date || !name.trim()) { setError(type === "weight" ? "Вкажіть вагу й дату." : "Заповніть назву та дату."); return; }
     if (type === "vaccination") addVaccination(pet.id, { date, name: name.trim(), nextDate: effectiveNext || undefined, clinicName: clinic.trim() || undefined, batchNumber: batch.trim() || undefined, documentDataUrl: dataUrl || undefined });
@@ -94,6 +95,8 @@ export default function NewMedicalRecordPage() {
     }
     if (type === "document") addDocument(pet.id, { date, title: name.trim(), fileName: fileName || undefined, dataUrl: dataUrl || undefined });
     if (type === "reminder") addReminder(pet.id, { date, title: name.trim() });
+    const failure = await commitPetChanges();
+    if (failure) { setError(failure); return; }
     router.push(`/my-pets/${pet.id}`);
   };
 
@@ -123,7 +126,7 @@ export default function NewMedicalRecordPage() {
 
       {["vaccination", "deworming", "flea_tick", "visit", "document"].includes(type) && <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-brand-200 bg-brand-50/30 p-4"><DocumentIcon className="h-11 w-11 shrink-0" /><span className="flex-1 text-sm"><strong className="block text-ink">Додати фото або документ</strong><span className="mt-0.5 block truncate text-xs text-ink/45">{fileName || "JPG, PNG або PDF до 2 МБ"}</span></span><input type="file" accept="image/*,application/pdf" className="sr-only" onChange={(event) => readFile(event.target.files?.[0])} /></label>}
 
-      <button type="button" className="btn btn-brand w-full" onClick={save}>Зберегти запис</button>
+      <button type="button" className="btn btn-brand w-full" onClick={() => { void save(); }}>Зберегти запис</button>
     </section>
   </main>;
 }

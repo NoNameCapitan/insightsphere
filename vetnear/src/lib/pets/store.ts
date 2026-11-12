@@ -15,6 +15,14 @@ import type {
 const KEY = "vetnear:pets";
 const ACTIVE_KEY = "vetnear:active-pet";
 
+// In account mode this browser storage is a cache: every change is reported
+// to a listener (src/lib/pets/sync.ts) that pushes it to the user's account.
+type PetChangeListener = (kind: "upsert" | "remove", id: string) => void;
+let changeListener: PetChangeListener | null = null;
+export function setPetChangeListener(listener: PetChangeListener | null): void {
+  changeListener = listener;
+}
+
 export function getPets(): PetProfile[] {
   return readJSON<PetProfile[]>(KEY, []);
 }
@@ -34,6 +42,7 @@ export function createPet(
   };
   const next = [pet, ...getPets()];
   writeJSON(KEY, next);
+  changeListener?.("upsert", pet.id);
   setActivePetId(pet.id);
   track("pet_profile_created", { animalType: pet.animalType });
   return pet;
@@ -45,11 +54,13 @@ export function updatePet(id: string, patch: Partial<PetProfile>): PetProfile | 
   if (idx < 0) return null;
   pets[idx] = { ...pets[idx], ...patch, id, updatedAt: nowIso() };
   writeJSON(KEY, pets);
+  changeListener?.("upsert", id);
   return pets[idx];
 }
 
 export function deletePet(id: string): void {
   writeJSON(KEY, getPets().filter((p) => p.id !== id));
+  changeListener?.("remove", id);
   if (getActivePetId() === id) {
     const remaining = getPets();
     setActivePetId(remaining[0]?.id ?? null);
@@ -154,6 +165,7 @@ export function importPetsBackup(raw: string): number {
   if (incoming.length === 0) throw new Error("У файлі немає медкарток.");
   const ids = new Set(incoming.map((pet) => pet.id));
   writeJSON(KEY, [...incoming, ...getPets().filter((pet) => !ids.has(pet.id))]);
+  for (const pet of incoming) changeListener?.("upsert", pet.id);
   if (!getActivePetId()) setActivePetId(incoming[0].id);
   return incoming.length;
 }

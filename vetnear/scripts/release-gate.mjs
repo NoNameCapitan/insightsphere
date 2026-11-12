@@ -11,11 +11,18 @@ function requireValue(name) {
 requireValue("NEXT_PUBLIC_SITE_URL");
 requireValue("SUPABASE_URL");
 requireValue("SUPABASE_SERVICE_ROLE_KEY");
+requireValue("SUPABASE_ANON_KEY");
 requireValue("LEAD_HASH_SALT");
 requireValue("UPSTASH_REDIS_REST_URL");
 requireValue("UPSTASH_REDIS_REST_TOKEN");
 requireValue("UKRAINE_ALARM_API_TOKEN");
 
+if (value("SUPABASE_ANON_KEY") && value("SUPABASE_ANON_KEY") === value("SUPABASE_SERVICE_ROLE_KEY")) {
+  errors.push("SUPABASE_ANON_KEY must be the public anon key, not the service-role key");
+}
+for (const name of Object.keys(process.env)) {
+  if (name.startsWith("NEXT_PUBLIC_") && /SERVICE_ROLE/i.test(name)) errors.push(`${name} would expose the service-role key to browsers`);
+}
 if (value("ADMIN_TOKEN")) errors.push("ADMIN_TOKEN must be removed; issue personal moderator tokens instead");
 if (value("LEAD_HASH_SALT").length < 32) errors.push("LEAD_HASH_SALT must contain at least 32 characters");
 if (value("NEXT_PUBLIC_SHOW_DEMO_EMERGENCY") === "1") errors.push("NEXT_PUBLIC_SHOW_DEMO_EMERGENCY must be 0 in production");
