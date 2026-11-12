@@ -219,7 +219,7 @@ Deployment must run `npm run verify`, not `npm run build` alone.
    the defaults work; no `vercel.json` is required.
 3. Set the environment variables (Project → Settings → Environment Variables):
    - `NEXT_PUBLIC_SITE_URL` — the production URL (enables correct canonical/OG/sitemap);
-   - production backend: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
+   - production backend: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY` (accounts, v1.31),
      `LEAD_HASH_SALT`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`,
      `UKRAINE_ALARM_API_TOKEN`, `NEXT_PUBLIC_BACKEND_ENABLED=1`;
    - optional: `ANTHROPIC_API_KEY` (assistant smart mode).

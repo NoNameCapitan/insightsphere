@@ -1,6 +1,6 @@
 {
   "name": "vetnear",
-  "version": "1.30.0",
+  "version": "1.31.0",
   "private": true,
   "description": "VetNear — mobile-first local discovery of nearby veterinary clinics, pet stores, pharmacies, grooming and shelters.",
   "scripts": {
@@ -14,6 +14,7 @@
     "check:alarm": "node --env-file-if-exists=.env.local scripts/check-ukraine-alarm.mjs",
     "db:postcheck": "node --env-file-if-exists=.env.local scripts/run-db-postcheck.mjs",
     "release:gate": "node --env-file-if-exists=.env.local scripts/release-gate.mjs",
+    "smoke": "node --env-file-if-exists=.env.local scripts/smoke.mjs",
     "import:google-places": "node scripts/import-google-places.mjs",
     "build:places": "node scripts/build-verified-places.mjs",
     "check:places": "node scripts/build-verified-places.mjs --check",
