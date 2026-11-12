@@ -11,10 +11,10 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const limit = createServerRateLimiter({ limit: 10, windowMs: 10 * 60_000 });
+const limit = createServerRateLimiter({ namespace: "reports", limit: 10, windowMs: 10 * 60_000 });
 
 export async function POST(req: Request): Promise<Response> {
-  const rl = limit(clientKeyFromRequest(req));
+  const rl = await limit(clientKeyFromRequest(req));
   if (!rl.allowed) {
     return NextResponse.json(
       { error: "Забагато повідомлень. Спробуйте пізніше." },

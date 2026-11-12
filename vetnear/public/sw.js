@@ -1,7 +1,7 @@
 /* VetNear minimal service worker — offline app shell.
    Cache-first for same-origin static assets; network-first for navigations
    with an offline fallback to the cached home page. */
-const CACHE = "vetnear-v1.14";
+const CACHE = "vetnear-v1.30";
 const SHELL = ["/", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (event) => {

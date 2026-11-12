@@ -58,4 +58,21 @@ describe("v1.26 hardening", () => {
     expect(runner).toContain("PGDATABASE: databaseUrl");
     expect(runner).not.toContain('console.log(databaseUrl)');
   });
+
+  it("ships an idempotent weekly lead-retention schedule", () => {
+    const migration = readFileSync(join(process.cwd(), "supabase/migrations/004_lead_retention_schedule.sql"), "utf8");
+    expect(migration).toContain("create extension if not exists pg_cron");
+    expect(migration).toContain("cron.unschedule(existing_job)");
+    expect(migration).toContain("select public.purge_old_lead_events()");
+  });
+
+  it("requires distributed limits and rejects legacy admin auth at the release gate", () => {
+    const gate = readFileSync(join(process.cwd(), "scripts/release-gate.mjs"), "utf8");
+    const auth = readFileSync(join(process.cwd(), "src/lib/server/moderatorAuth.ts"), "utf8");
+    expect(gate).toContain('requireValue("UPSTASH_REDIS_REST_URL")');
+    expect(gate).toContain('requireValue("UPSTASH_REDIS_REST_TOKEN")');
+    expect(gate).toContain('value("ADMIN_TOKEN")');
+    expect(gate).toContain("must be removed");
+    expect(auth).not.toContain("process.env.ADMIN_TOKEN");
+  });
 });

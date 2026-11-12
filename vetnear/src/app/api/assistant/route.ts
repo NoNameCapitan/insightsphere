@@ -21,6 +21,7 @@ export const dynamic = "force-dynamic";
 // Real server-side rate limit — this route spends Anthropic API credits.
 // 10 requests / minute / IP; module-level so the window survives requests.
 const checkAssistantRateLimit = createServerRateLimiter({
+  namespace: "assistant",
   limit: 10,
   windowMs: 60_000,
 });
@@ -107,7 +108,7 @@ async function askClaude(apiKey: string, question: string, pet: PetProfile | nul
 
 export async function POST(req: Request): Promise<Response> {
   // Rate limit BEFORE any parsing or model calls.
-  const rl = checkAssistantRateLimit(clientKeyFromRequest(req));
+  const rl = await checkAssistantRateLimit(clientKeyFromRequest(req));
   if (!rl.allowed) {
     return NextResponse.json(
       { error: "Забагато запитів. Спробуйте за хвилину." },

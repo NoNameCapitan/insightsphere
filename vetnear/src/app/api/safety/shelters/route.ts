@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 // Each call fans out to up to 10 upstream ArcGIS pages: bound it per client so
 // this endpoint cannot be used to hammer the city GIS server (v1.26).
-const limit = createServerRateLimiter({ limit: 20, windowMs: 60_000 });
+const limit = createServerRateLimiter({ namespace: "shelters", limit: 20, windowMs: 60_000 });
 
 const DEFAULT_ARCGIS_URL =
   "https://gisserver.kyivcity.gov.ua/mayno/rest/services/KYIV_API/%D0%9A%D0%B8%D1%97%D0%B2_%D0%A6%D0%B8%D1%84%D1%80%D0%BE%D0%B2%D0%B8%D0%B9/MapServer/0/query";
@@ -19,7 +19,7 @@ function coordinate(value: string | null): number | null {
 }
 
 export async function GET(request: NextRequest) {
-  const rl = limit(clientKeyFromRequest(request));
+  const rl = await limit(clientKeyFromRequest(request));
   if (!rl.allowed) {
     return NextResponse.json(
       { error: "Забагато запитів. Спробуйте за хвилину." },

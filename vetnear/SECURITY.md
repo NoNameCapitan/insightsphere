@@ -107,13 +107,14 @@ Set globally in `next.config.mjs` via `async headers()` on `/:path*`:
 ## Rate limiting
 
 - **`POST /api/assistant` is rate-limited server-side** (real protection):
-  `src/lib/security/serverRateLimit.ts` — fixed-window in-memory limiter,
+  `src/lib/security/serverRateLimit.ts` — fixed-window distributed limiter
+  when Upstash REST credentials are configured, with a bounded process-local
+  fallback for development,
   **10 requests / minute / IP** (first hop of `x-forwarded-for`, then
   `x-real-ip`, then a shared bucket). Exceeding it returns **429** with a
   `Retry-After` header, before any parsing or Anthropic call, so the route
-  cannot be used to burn API credits. The store is per-process; on
-  serverless/multi-instance deploys swap the store to Redis/Upstash keeping
-  the same interface. Covered by unit tests.
+  cannot be used to burn API credits. Production readiness is checked by
+  `npm run release:gate`. Covered by unit tests.
 - Public forms (add-place, report) now write to the server via
   `POST /api/submissions` (5/10 min/IP) and `POST /api/reports` (10/10 min/IP),
   both behind the same fixed-window limiter. Payloads pass server-side

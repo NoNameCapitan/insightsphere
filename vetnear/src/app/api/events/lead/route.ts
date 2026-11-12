@@ -16,7 +16,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // Generous but bounded: a real visitor taps a handful of actions per minute.
-const limiter = createServerRateLimiter({ limit: 40, windowMs: 60_000 });
+const limiter = createServerRateLimiter({ namespace: "lead-events", limit: 40, windowMs: 60_000 });
 
 /** Salt for the day-rotating session digest. Falls back to a process-local
  *  value, which is still fine: it only weakens de-duplication, never privacy. */
@@ -37,7 +37,7 @@ const SALT =
  */
 export async function POST(req: Request): Promise<Response> {
   const key = clientKeyFromRequest(req);
-  const rl = limiter(key);
+  const rl = await limiter(key);
   if (!rl.allowed) {
     return NextResponse.json(
       { error: "Too many requests" },

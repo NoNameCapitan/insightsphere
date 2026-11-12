@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 const serviceWorker = readFileSync(new URL("../../../public/sw.js", import.meta.url), "utf8");
 function harness() {
   const handlers: Record<string, (event: unknown) => void> = {};
-  const caches = { keys: vi.fn(async () => ["vetnear-v1", "vetnear-v1.14"]), delete: vi.fn(async () => true), match: vi.fn(async () => ({})) };
+  const caches = { keys: vi.fn(async () => ["vetnear-v1", "vetnear-v1.30"]), delete: vi.fn(async () => true), match: vi.fn(async () => ({})) };
   runInNewContext(serviceWorker, {
     URL, caches, fetch: vi.fn(),
     self: { location: { origin: "https://vetnear.test" }, skipWaiting: vi.fn(), clients: { claim: vi.fn() },
@@ -34,6 +34,6 @@ describe("PWA safety cache", () => {
     handlers.activate({ waitUntil });
     await waitUntil.mock.calls[0][0];
     expect(caches.delete).toHaveBeenCalledWith("vetnear-v1");
-    expect(caches.delete).not.toHaveBeenCalledWith("vetnear-v1.14");
+    expect(caches.delete).not.toHaveBeenCalledWith("vetnear-v1.30");
   });
 });

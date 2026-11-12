@@ -203,7 +203,7 @@ Deployment must run `npm run verify`, not `npm run build` alone.
 - **Output:** a normal `npm run build` produces the **default Next server output**. For containers/serverless, build the **opt-in** standalone bundle with `NEXT_OUTPUT=standalone npm run build` and deploy `.next/standalone` (Node) plus `.next/static` and `public`.
 - **Build workers:** the build runs with a single worker (`experimental.cpus: 1`) to keep memory/IPC low on constrained CI. If a very memory-starved runner stalls, raise the heap: `NODE_OPTIONS=--max-old-space-size=2048 npm run build`.
 - **Rendering:** interactive/client/Leaflet routes (`/nearby`, `/my-pets/*`, `/products-nearby`, `/assistant`, `/pet-scan`, `/lost-found`, `/add-place`, `/partner/*`, `/admin/*`, `/place/[id]`, `/city/kyiv/district/[district]`) are `force-dynamic` (on-demand SSR, still crawlable). Static SEO/landing pages use a **server-safe card** (`PlaceCardStatic`, no client components); `MapView` creates Leaflet icons lazily so importing it has no DOM side effects.
-- **Env:** set `NEXT_PUBLIC_SITE_URL` (canonical/OG/sitemap); optional `LEAD_HASH_SALT` (v1.9, salt for the day-rotating lead session digest); optional `NEXT_PUBLIC_PETSCAN_PROVIDER`; `NEXT_PUBLIC_SHOW_DEMO_EMERGENCY=false` by default (see below). Set `NEXT_TELEMETRY_DISABLED=1` in CI.
+- **Env:** copy `.env.example`; production requires a unique `LEAD_HASH_SALT`, Upstash REST credentials for distributed limits, and `NEXT_PUBLIC_SHOW_DEMO_EMERGENCY=0`. Run `npm run release:gate` before deployment. Set `NEXT_TELEMETRY_DISABLED=1` in CI.
 - **Live safety:** request an official Ukraine Alarm API key and set the server-only
   `UKRAINE_ALARM_API_TOKEN`. Without it, the app shows an honest “status unavailable”
   fallback with a link to the official alert map. Shelter data uses Kyiv's official
@@ -219,10 +219,12 @@ Deployment must run `npm run verify`, not `npm run build` alone.
    the defaults work; no `vercel.json` is required.
 3. Set the environment variables (Project → Settings → Environment Variables):
    - `NEXT_PUBLIC_SITE_URL` — the production URL (enables correct canonical/OG/sitemap);
-   - everything else is **optional**: `ANTHROPIC_API_KEY` (assistant smart mode),
-     `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` + `ADMIN_TOKEN` +
-     `NEXT_PUBLIC_BACKEND_ENABLED=1` (server submissions/moderation). The app
-     deploys fine with **no env vars at all** (local-data MVP mode).
+   - production backend: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
+     `LEAD_HASH_SALT`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`,
+     `UKRAINE_ALARM_API_TOKEN`, `NEXT_PUBLIC_BACKEND_ENABLED=1`;
+   - optional: `ANTHROPIC_API_KEY` (assistant smart mode).
+   - do **not** set `ADMIN_TOKEN`; issue revocable personal moderator tokens
+     with `scripts/moderator-token.mjs`.
 4. Deploy. Then re-set `NEXT_PUBLIC_SITE_URL` to the final domain and redeploy once
    if the first deploy used a preview URL.
 5. Post-deploy smoke test: `/` renders, `/nearby` asks for location and lists
@@ -346,7 +348,7 @@ russo-Ukrainian war. Important boundaries:
 ## Known limitations
 
 - Public **places**: 31 curated (`manual_verified`, public sources, not phone-confirmed; most coordinates approximate, MAVET coordinates come from its official route link) + 34 web-researched candidates (`needs_review`, shown with an honest badge and per-place `sourceUrl`). **Product inventory remains synthetic** (~20 products). **Emergency/24-7 availability is disabled** until phone-confirmed.
-- User state (pets, submissions, requests, reports, analytics) lives in **localStorage** by default. With Supabase env vars set, submissions/reports also sync server-side and a server moderation queue is available; auth for moderators is a single `ADMIN_TOKEN` (MVP), and the partner dashboard still reads the local copy.
+- User state (pets, requests and parts of the partner flow) still uses **localStorage**. With Supabase env vars set, submissions/reports sync server-side; moderation uses hashed, revocable personal tokens. The partner dashboard still reads its local copy.
 - Assistant + triage explanations call **Claude** server-side when `ANTHROPIC_API_KEY` is set; without the key they run safe rule-based fallbacks. Neither ever diagnoses, prescribes, or gives dosages; **urgency levels are always deterministic** (rules in `src/lib/triage/engine.ts`, LLM cannot override them).
 - Bookings, QR profiles, subscriptions, product sync are **architecture + placeholders**, not live features. **Pet Scan is a pilot/demo concept**, not real vision.
 - OSRM public routing may rate-limit; the map falls back to a straight line and the external "route" link always works.
@@ -357,7 +359,7 @@ russo-Ukrainian war. Important boundaries:
 A staged plan — not an unfinished mess. Each step turns a labeled MVP/local area into a
 real one:
 
-1. **Backend hardening** — Supabase schema is live (submissions/moderation/reports); next: Auth + roles for moderators (replacing the single `ADMIN_TOKEN`), partner accounts, Redis-backed rate limiting for multi-instance deploys.
+1. **Backend hardening** — Supabase schema, personal moderator tokens and optional distributed Upstash rate limiting are live; next: Supabase Auth for partner accounts and httpOnly moderator sessions.
    - ~~Production next step: merge approved Supabase submissions into the public places feed.~~ **Done in v1.9** — approval upserts into `published_places` and the place appears in `/nearby` within the 60-second feed cache.
    - ~~Auth + roles for moderators (replacing the single `ADMIN_TOKEN`).~~ **Done in v1.9** via hashed, revocable per-moderator tokens. Supabase Auth remains the next step for *partner* self-service accounts.
 2. **Phone-confirmed urgent providers** — call a first batch of clinics, then enable emergency/24-7 (the data fields already exist).
@@ -369,7 +371,8 @@ real one:
 
 ## Deployment checklist
 
-- [ ] Set production env (`NEXT_PUBLIC_*`, any provider keys) — none are required for the current local-data MVP.
+- [ ] Copy `.env.example`, set production values and run `npm run release:gate`.
+- [ ] Apply migrations 001–004 and run `npm run db:postcheck` after 003.
 - [ ] `npm ci && NEXT_TELEMETRY_DISABLED=1 npm run verify` is green; `npm audit --omit=dev` clean.
 - [ ] Deploy on a Node 18+ host (Vercel/Node). Optional standalone: `NEXT_OUTPUT=standalone npm run build`.
 - [ ] Security headers/CSP are emitted by `next.config.mjs` (verify after deploy).

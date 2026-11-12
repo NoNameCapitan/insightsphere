@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
 
-const limit = createServerRateLimiter({ limit: 10, windowMs: 60_000 });
+const limit = createServerRateLimiter({ namespace: "triage", limit: 10, windowMs: 60_000 });
 
 const INTENTS = ["emergency", "vaccination", "food", "medicine", "grooming", "general"] as const;
 const URGENCIES = ["low", "medium", "high", "critical"] as const;
@@ -99,7 +99,7 @@ async function askClaudeForExplanation(
 }
 
 export async function POST(req: Request): Promise<Response> {
-  const rl = limit(clientKeyFromRequest(req));
+  const rl = await limit(clientKeyFromRequest(req));
   if (!rl.allowed) {
     return NextResponse.json(
       { error: "Забагато запитів. Спробуйте за хвилину." },
