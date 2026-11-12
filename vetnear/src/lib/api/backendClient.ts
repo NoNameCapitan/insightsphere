@@ -122,3 +122,20 @@ export async function setPlaceTier(
     { method: "POST", body: JSON.stringify({ placeId, tier, promotedDays }) },
   );
 }
+
+// ── Paid-tier requests (v1.31) ─────────────────────────────────────────────
+export interface PartnerInterestItem {
+  id: string;
+  place_name: string;
+  phone: string;
+  email: string;
+  plan: string;
+  note: string | null;
+  status: string;
+  created_at: string;
+}
+
+export async function fetchPartnerInterest(): Promise<PartnerInterestItem[]> {
+  const res = await adminFetch<{ items: PartnerInterestItem[] }>("/api/admin/partner-interest");
+  return res.items;
+}

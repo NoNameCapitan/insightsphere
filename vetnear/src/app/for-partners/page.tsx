@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PartnerInterestForm } from "@/components/PartnerInterestForm";
 import { SocialImpact } from "@/components/SocialImpact";
 import { SITE } from "@/lib/seo";
 
@@ -26,14 +27,14 @@ const PLANS = [
   {
     name: "Verified",
     price: "449 ₴ / місяць",
-    note: "Після запуску білінгу",
+    note: "Підключаємо вручну після модерації",
     features: ["Усе з базового плану", "Розширений профіль", "Фото, послуги й ціни", "Базова аналітика дій"],
   },
   {
-    name: "Для мереж",
-    price: "Індивідуально",
-    note: "Для кількох філій",
-    features: ["Єдиний профіль мережі", "Керування філіями", "Масове оновлення даних", "Зведена аналітика"],
+    name: "Promoted",
+    price: "За домовленістю",
+    note: "Завжди з кінцевою датою",
+    features: ["Усе з Verified", "Вища позиція у звичайному пошуку", "Завжди з позначкою «Промо»", "Не діє в термінових запитах"],
   },
 ];
 
@@ -44,7 +45,7 @@ export default function ForPartnersPage() {
         <p className="text-sm font-semibold text-brand">VetNear для партнерів</p>
         <h1 className="mt-3 font-display text-4xl font-bold leading-tight text-ink sm:text-5xl">Станьте помітними саме тоді, коли власнику потрібна допомога</h1>
         <p className="mt-5 max-w-xl text-lg leading-8 text-ink/65">Додайте заклад до перевіреного каталогу Києва. Базовий профіль безкоштовний, а публікація відбувається після модерації.</p>
-        <Link href="/add-place" className="btn btn-brand mt-7">Додати заклад</Link>
+        <div className="mt-7 flex flex-wrap gap-2.5"><Link href="/add-place" className="btn btn-brand">Додати заклад</Link><a href="#paid" className="btn btn-ghost">Запит на Verified</a></div>
         <p className="mt-3 text-sm text-ink/45">Форма займає близько двох хвилин. Оплата не потрібна.</p>
       </section>
 
@@ -61,7 +62,7 @@ export default function ForPartnersPage() {
       <section id="pricing" className="mt-16">
         <div className="max-w-2xl">
           <h2 className="font-display text-3xl font-bold text-ink">Проста модель без прихованих умов</h2>
-          <p className="mt-3 leading-7 text-ink/60">Базове розміщення залишається безкоштовним. Платіжну систему ще не підключено; платні рівні показані як прозора майбутня структура.</p>
+          <p className="mt-3 leading-7 text-ink/60">Базовий профіль безкоштовний. Verified і Promoted підключаємо після модерації, за вашим запитом. Онлайн-оплату вмикаємо поступово — поки що рахунок виставляємо вручну.</p>
         </div>
         <div className="mt-7 grid gap-4 lg:grid-cols-3">
           {PLANS.map((plan, index) => (
@@ -78,10 +79,27 @@ export default function ForPartnersPage() {
             </article>
           ))}
         </div>
-        <p className="mt-4 text-sm text-ink/55">Притулки та зоозахисні організації розміщуються безкоштовно.</p>
+        <p className="mt-4 text-sm leading-6 text-ink/55">
+          <strong className="text-ink/75">Verified</strong> — про довіру: розширений профіль, який ми перевірили.{" "}
+          <strong className="text-ink/75">Promoted</strong> — про помітність: вища позиція з чесною позначкою «Промо».
+          Жоден тариф не дає статус 24/7 чи «термінова допомога» — його ми ставимо лише після дзвінка.
+          Для мереж із кількома філіями умови індивідуальні. Притулки та зоозахисні організації розміщуються безкоштовно.
+        </p>
       </section>
 
-      <section className="mt-16 grid gap-8 rounded-3xl border border-brand-100 bg-surface p-6 sm:p-8 lg:grid-cols-[1fr_1.2fr]">
+      <section id="paid" className="mt-16 grid gap-8 rounded-3xl border border-brand-100 bg-surface p-6 sm:p-8 lg:grid-cols-[1fr_1.2fr]">
+        <div>
+          <p className="text-sm font-semibold text-brand">Платні тарифи</p>
+          <h2 className="mt-2 font-display text-2xl font-bold text-ink">Запит на Verified або Promoted</h2>
+          <p className="mt-3 text-sm leading-6 text-ink/60">
+            Спершу додайте заклад — базовий профіль безкоштовний. Якщо потрібен платний тариф, залиште контакт:
+            ми зателефонуємо або напишемо, узгодимо умови й підключимо тариф вручну.
+          </p>
+        </div>
+        <PartnerInterestForm />
+      </section>
+
+      <section className="mt-8 grid gap-8 rounded-3xl border border-brand-100 bg-surface p-6 sm:p-8 lg:grid-cols-[1fr_1.2fr]">
         <div>
           <p className="text-sm font-semibold text-brand">Перевірка даних</p>
           <h2 className="mt-2 font-display text-2xl font-bold text-ink">Довіра важливіша за кількість профілів</h2>

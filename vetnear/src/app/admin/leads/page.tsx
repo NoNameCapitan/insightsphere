@@ -8,7 +8,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { DemoAdminBanner } from "@/components/DemoBanner";
-import { fetchLeadSummary, setPlaceTier } from "@/lib/api/backendClient";
+import { fetchLeadSummary, fetchPartnerInterest, setPlaceTier, type PartnerInterestItem } from "@/lib/api/backendClient";
 import { BILLABLE_LEAD_TYPES } from "@/lib/places/leads";
 import { TIER_LABELS } from "@/lib/places/tier";
 import type { LeadEventType, LeadSummary, PlaceTier } from "@/lib/types";
@@ -34,6 +34,18 @@ export default function AdminLeadsPage() {
   const [tier, setTier] = useState<PlaceTier>("free");
   const [promoDays, setPromoDays] = useState(30);
   const [tierMsg, setTierMsg] = useState<string | null>(null);
+  const [interest, setInterest] = useState<PartnerInterestItem[] | null>(null);
+  const [interestError, setInterestError] = useState<string | null>(null);
+
+  const loadInterest = async () => {
+    setInterestError(null);
+    try {
+      setInterest(await fetchPartnerInterest());
+    } catch (e) {
+      setInterest(null);
+      setInterestError(e instanceof Error && e.message === "unauthorized" ? "Потрібен токен адміністратора." : "Не вдалося завантажити запити.");
+    }
+  };
 
   const load = async () => {
     if (!placeId.trim()) return;
@@ -207,6 +219,32 @@ export default function AdminLeadsPage() {
           </button>
         </div>
         {tierMsg && <p className="mt-2 text-sm text-brand">{tierMsg}</p>}
+      </section>
+
+      <section className="mt-4 rounded-2xl border border-brand-100 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-display text-lg font-bold text-ink">Запити на платні тарифи</h2>
+          <button onClick={() => { void loadInterest(); }} className="btn btn-ghost py-2 text-sm">Завантажити</button>
+        </div>
+        <p className="mt-1 text-sm text-ink/60">
+          Заявки з форми на сторінці «Партнерам». Оплата поки вручну: звʼяжіться, узгодьте умови, потім поставте тариф вище.
+        </p>
+        {interestError && <p className="mt-2 text-sm text-emergency-700">{interestError}</p>}
+        {interest && interest.length === 0 && <p className="mt-2 text-sm text-ink/50">Запитів поки немає.</p>}
+        {interest && interest.length > 0 && (
+          <ul className="mt-3 divide-y divide-brand-100 text-sm">
+            {interest.map((item) => (
+              <li key={item.id} className="py-2.5">
+                <p className="font-semibold text-ink">{item.place_name} <span className="ml-1 rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-700">{item.plan}</span></p>
+                <p className="mt-0.5 text-ink/65">
+                  <a href={`tel:${item.phone}`} className="text-brand hover:underline">{item.phone}</a> ·{" "}
+                  <a href={`mailto:${item.email}`} className="text-brand hover:underline">{item.email}</a>
+                </p>
+                <p className="text-xs text-ink/45">{new Date(item.created_at).toLocaleString("uk-UA")}</p>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <Link href="/admin" className="btn btn-ghost mt-6 py-2 text-sm">
