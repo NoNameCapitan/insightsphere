@@ -74,7 +74,7 @@ export function AmbientBackground() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(560px circle at var(--amb-x) var(--amb-y), rgb(11 107 98 / 0.07), transparent 70%)",
+            "radial-gradient(560px circle at var(--amb-x) var(--amb-y), rgb(6 117 106 / 0.07), transparent 70%)",
         }}
       />
       {/* Soft warm counter-glow, anchored bottom-right for gentle depth. */}

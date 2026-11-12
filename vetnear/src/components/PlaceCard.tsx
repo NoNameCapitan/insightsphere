@@ -9,7 +9,7 @@ import { track } from "@/lib/analytics";
 import { reportLead } from "@/lib/leads/report";
 import { shouldLabelAsPromoted } from "@/lib/places/tier";
 import { formatDistance, getOpenNowStatus } from "@/lib/distance";
-import { CATEGORY_LABELS, districtLabel } from "@/lib/labels";
+import { CATEGORY_COLOR, CATEGORY_LABELS, districtLabel } from "@/lib/labels";
 import { googleMapsRoute } from "@/lib/maps";
 import { EXTERNAL_LINK_PROPS, safeUrl } from "@/lib/security/url";
 import { computeBadges } from "@/lib/trust";
@@ -69,6 +69,8 @@ export function PlaceCard({
       className={`card place-card p-4 sm:p-5 ${
         emergencyMode && isEmergency ? "ring-1 ring-emergency/40" : ""
       }`}
+      // Thin top accent in the category's colour (the same colour as its map marker).
+      style={{ ["--cat" as string]: CATEGORY_COLOR[place.category] }}
     >
       <div className="flex items-start gap-3">
         <span aria-hidden className={`icon3d h-12 w-12 ${isEmergency ? "icon3d--warm" : ""}`}>
@@ -107,11 +109,8 @@ export function PlaceCard({
               </span>
             )}
             {open !== null && (
-              <span
-                className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
-                  open ? "bg-brand-50 text-brand-700" : "bg-ink/5 text-ink/50"
-                }`}
-              >
+              <span className={`status-pill ${open ? "status-pill--open" : "status-pill--closed"}`}>
+                <span aria-hidden className="status-pill__dot" />
                 {open ? "Відкрито" : "Зачинено"}
               </span>
             )}

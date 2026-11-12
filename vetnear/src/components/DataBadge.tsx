@@ -16,12 +16,20 @@ const TONE: Record<string, string> = {
   verified: "border-brand-200 bg-brand-50 text-brand-700",
 };
 
-const TONE_ICON: Record<string, string> = {
-  demo: "◇",
-  unverified: "○",
-  review: "⏳",
-  verified: "✓",
+const ICON_PATH: Record<string, string> = {
+  demo: "M8 2.5 13.5 8 8 13.5 2.5 8Z",
+  unverified: "M8 2.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z",
+  review: "M8 2.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM8 5v3.200l2 1.3",
+  verified: "M8 1.8 13 3.700v3.900c0 3-2.1 5.3-5 6.4-2.9-1.1-5-3.4-5-6.400V3.700ZM5.7 8l1.7 1.7 3-3.3",
 };
+
+function ToneIcon({ tone }: { tone: string }) {
+  return (
+    <svg aria-hidden viewBox="0 0 16 16" className="h-3 w-3 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d={ICON_PATH[tone] ?? ICON_PATH.unverified} />
+    </svg>
+  );
+}
 
 export function DataBadgeChip({ place, className = "" }: { place: Place; className?: string }) {
   const badge = getDataBadge(place);
@@ -30,7 +38,7 @@ export function DataBadgeChip({ place, className = "" }: { place: Place; classNa
     <span
       className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium ${TONE[badge.tone]} ${className}`}
     >
-      <span aria-hidden>{TONE_ICON[badge.tone]}</span>
+      <ToneIcon tone={badge.tone} />
       {badge.label}
     </span>
   );

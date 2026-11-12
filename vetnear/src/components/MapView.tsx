@@ -13,6 +13,7 @@ import {
 } from "react-leaflet";
 import { CATEGORY_COLOR, CATEGORY_EMOJI, CATEGORY_LABELS } from "@/lib/labels";
 import { isDemoPlace } from "@/lib/data/provenance";
+import { getOpenNowStatus } from "@/lib/distance";
 import type { KyivShelter } from "@/lib/safety/types";
 import type { Coordinates, PlaceWithDistance } from "@/lib/types";
 
@@ -22,15 +23,15 @@ function placeIcon(place: PlaceWithDistance, active: boolean): L.DivIcon {
   const emergency = place.emergencyAvailable || place.isOpen24_7;
   const ring = emergency ? "#E11D48" : CATEGORY_COLOR[place.category];
   const size = active ? 46 : (emergency ? 40 : 36);
+  // Presentation only: places open right now get a soft pulse under the pin.
+  const openNow = getOpenNowStatus(place) === true;
   return L.divIcon({
     className: "vetnear-pin",
-    html: `<div style="
-        width:${size}px;height:${size}px;border-radius:50% 50% 50% 0;
-        transform:rotate(-45deg);background:#fff;border:2px solid ${ring};
-        box-shadow:0 4px 10px rgba(15,42,46,.25);display:grid;place-items:center;">
-        <span style="transform:rotate(45deg);font-size:${active ? 20 : 16}px;line-height:1;">
-          ${CATEGORY_EMOJI[place.category]}
-        </span></div>`,
+    html: `<div class="vn-pin${openNow ? " vn-pin--open" : ""}" style="--ring:${ring};width:${size}px;height:${size}px;">
+        <span class="vn-pin__pulse"></span>
+        <div class="vn-pin__body">
+          <span style="font-size:${active ? 20 : 16}px;">${CATEGORY_EMOJI[place.category]}</span>
+        </div></div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size],
     popupAnchor: [0, -size],
@@ -43,9 +44,9 @@ function userIcon(): L.DivIcon {
     _userIcon = L.divIcon({
       className: "vetnear-user",
       html: `<div style="position:relative;width:20px;height:20px;">
-          <span style="position:absolute;inset:0;border-radius:50%;background:#0B6B62;opacity:.25;
+          <span style="position:absolute;inset:0;border-radius:50%;background:#06756A;opacity:.25;
             animation:vnpulse 2s infinite ease-out;"></span>
-          <span style="position:absolute;inset:5px;border-radius:50%;background:#0B6B62;border:2px solid #fff;"></span>
+          <span style="position:absolute;inset:5px;border-radius:50%;background:#06756A;border:2px solid #fff;"></span>
         </div>
         <style>@keyframes vnpulse{0%{transform:scale(1);opacity:.4}100%{transform:scale(2.4);opacity:0}}</style>`,
       iconSize: [20, 20],
@@ -154,7 +155,7 @@ function Routing({
     <Polyline
       positions={line}
       pathOptions={{
-        color: "#0B6B62",
+        color: "#06756A",
         weight: 5,
         opacity: 0.85,
         dashArray: routed ? undefined : "8 10",

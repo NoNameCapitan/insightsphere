@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type PointerEventHandler } from "react";
 import { Tilt3D } from "@/components/Tilt3D";
-import { ServiceIcon } from "@/components/icons/ServiceIcons";
+import { ServiceIcon, TileIcon, type TileIconName } from "@/components/icons/ServiceIcons";
 import type { PlaceCategory } from "@/lib/types";
 
 /** Long enough for the slowest one-shot icon animation (hotel rock, 3.4s). */
@@ -23,7 +23,10 @@ const CARD_VARIANT: Partial<Record<PlaceCategory, string>> = {
 };
 
 type ServiceCategoryCardProps = {
-  category: PlaceCategory;
+  /** Taxonomy category; omit for a non-category card and pass `tile` instead. */
+  category?: PlaceCategory;
+  /** Clay tile to show when there is no category (e.g. "everything nearby"). */
+  tile?: TileIconName;
   label: string;
   /** Optional one-line explanation shown under the label (care-path cards). */
   description?: string;
@@ -45,6 +48,7 @@ type ServiceCategoryCardProps = {
  */
 export function ServiceCategoryCard({
   category,
+  tile,
   label,
   description,
   href,
@@ -75,7 +79,7 @@ export function ServiceCategoryCard({
 
   const classes = [
     "card service-card",
-    `service-card--${CARD_VARIANT[category] ?? "generic"}`,
+    `service-card--${(category && CARD_VARIANT[category]) ?? "generic"}`,
     tapping ? "service-card--tap" : "",
     "flex h-full w-full flex-col items-center gap-2 p-4 text-center transition active:scale-[0.98]",
   ]
@@ -85,7 +89,7 @@ export function ServiceCategoryCard({
   const content = (
     <>
       <span aria-hidden className="service-card__icon">
-        <ServiceIcon category={category} />
+        {category ? <ServiceIcon category={category} /> : tile ? <TileIcon name={tile} /> : null}
       </span>
       <span className="service-card__label text-sm font-bold leading-tight">
         {label}

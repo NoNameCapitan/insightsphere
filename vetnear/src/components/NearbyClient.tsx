@@ -14,6 +14,7 @@ import { RadiusSelector } from "@/components/RadiusSelector";
 import { SafetyControls, useSafetyOverlay } from "@/components/SafetyOverlay";
 import { NearestShelterButton } from "@/components/NearestShelterButton";
 import { GeneratedVisual } from "@/components/GeneratedVisual";
+import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 import { track } from "@/lib/analytics";
 import { DEFAULT_FILTERS, getRecommendedPlaces } from "@/lib/geo/ranking";
 import { t } from "@/lib/i18n";
@@ -182,7 +183,7 @@ export function NearbyClient() {
 
       <div className="my-3 flex items-center justify-between">
         <p className="text-sm text-ink/60">
-          Знайдено: <strong className="text-ink">{result.places.length}</strong>
+          Знайдено: <AnimatedNumber value={result.places.length} className="text-ink" />
           {filters.category !== "all" && ` · ${CATEGORY_LABELS[filters.category]}`}
         </p>
         <span className="text-xs text-ink/45">Радіус {filters.radius / 1000} км</span>

@@ -117,11 +117,8 @@ export function HomeHero() {
 
               {/* Safety-critical CTA: rose color and outline set it apart —
                   calm, not alarmist. Routing stays honest (no fake 24/7). */}
-              <Link
-                href={EMERGENCY_HREF}
-                className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-emergency-700 transition hover:bg-emergency-50"
-              >
-                <span aria-hidden className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-emergency/10 text-emergency">
+              <Link href={EMERGENCY_HREF} className="hero-urgent mt-3">
+                <span aria-hidden className="hero-urgent__icon">
                   <EmergencyCtaIcon />
                 </span>
                 Термінова ситуація
@@ -152,7 +149,7 @@ export function HomeHero() {
         </div>
 
         {/* Care paths — needs first, categories second. */}
-        <div className="mt-10 sm:mt-16">
+        <div className="care-section mt-10 sm:mt-16">
           <h2 className="text-center font-display text-xl font-bold text-ink">
             Що потрібно вашому улюбленцю?
           </h2>
@@ -166,6 +163,10 @@ export function HomeHero() {
                 href={`/nearby?category=${c.category}`}
               />
             ))}
+            {/* Completes the grid without advertising an empty category. */}
+            {CARE_VISIBLE.length % 2 === 1 && (
+              <ServiceCategoryCard tile="location" label="Усе поруч" description="Всі заклади списком і на карті" href="/nearby" />
+            )}
           </RevealGroup>
         </div>
       </div>

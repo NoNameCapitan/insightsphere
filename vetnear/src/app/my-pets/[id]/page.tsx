@@ -32,8 +32,8 @@ function WeightChart({ entries }: { entries: NonNullable<PetProfile["weightHisto
   return <div>
     <svg viewBox="0 0 300 88" className="h-28 w-full" role="img" aria-label="Графік ваги">
       <path d="M12 74H288" stroke="#DDE7E2" strokeWidth="1" />
-      <polyline points={points} fill="none" stroke="#0B6B62" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-      {points.split(" ").map((point, index) => { const [cx, cy] = point.split(","); return <circle key={values[index].id} cx={cx} cy={cy} r="4" fill="#fff" stroke="#0B6B62" strokeWidth="2" />; })}
+      <polyline points={points} fill="none" stroke="#06756A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      {points.split(" ").map((point, index) => { const [cx, cy] = point.split(","); return <circle key={values[index].id} cx={cx} cy={cy} r="4" fill="#fff" stroke="#06756A" strokeWidth="2" />; })}
     </svg>
     <div className="flex justify-between text-xs text-ink/45"><span>{formatDate(values[0].date)}</span><strong className="text-ink">{values.at(-1)?.weightKg} кг</strong><span>{formatDate(values.at(-1)?.date)}</span></div>
   </div>;

@@ -13,9 +13,9 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#15292B", // warm deep ink
+        ink: "#142B28", // warm deep ink
         canvas: "#FBF8F3", // warm ivory base (not hospital white)
-        surface: "#FFFFFF",
+        surface: "#FBFDFC", // off-white with a 2% green tint
         // Apricot — the single warm accent. Emotion only (aura, care details),
         // never for urgent actions (red stays reserved for emergency).
         peach: {
@@ -26,24 +26,24 @@ const config: Config = {
           700: "#A8573A",
         },
         brand: {
-          DEFAULT: "#0B6B62", // deep teal: buttons, links, accents (AA on white)
+          DEFAULT: "#06756A", // deep teal, a touch more saturated (5.6:1 on white)
           50: "#EEF9F5", // mint wash
           100: "#DDF3EB",
           200: "#BCE7D9", // mint
           300: "#86D3BF",
-          400: "#14A08C", // fresh teal: icons and active states, not body text
-          500: "#0B6B62",
-          600: "#095E56",
-          700: "#07524B",
-          800: "#053F3A",
-          900: "#042F2B",
+          400: "#12A892", // fresh teal: icons and active states, not body text
+          500: "#06756A",
+          600: "#05685E",
+          700: "#045A52",
+          800: "#034640",
+          900: "#02332F",
         },
         emergency: {
-          DEFAULT: "#D2474F", // reserved strictly for emergency
-          50: "#FFF3F3",
-          100: "#FDE0E2",
-          600: "#B93A43",
-          700: "#942F37",
+          DEFAULT: "#CF4436", // warm coral red — reserved strictly for emergency
+          50: "#FFF4F1",
+          100: "#FDE3DD",
+          600: "#B5382C",
+          700: "#8F2B22",
         },
         amber: {
           DEFAULT: "#B26A12", // caution / alert text; tints come from opacity
