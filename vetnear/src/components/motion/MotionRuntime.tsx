@@ -45,6 +45,8 @@ export function MotionRuntime() {
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") return;
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    // Internal tools are for working, not for presentation: nothing is hidden there.
+    if (pathname?.startsWith("/admin") || pathname?.startsWith("/partner")) return;
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {

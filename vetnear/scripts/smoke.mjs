@@ -41,6 +41,20 @@ await check("accounts are switched on", async () => {
   return (res.headers.get("cache-control") || "").includes("no-store") ? null : "session response is cacheable";
 });
 
+await check("Google sign-in starts (or is cleanly off)", async () => {
+  const res = await get("/api/auth/google?next=/my-pets");
+  const location = res.headers.get("location") || "";
+  if (res.status !== 303) return `expected a redirect, got ${res.status}`;
+  if (location.includes("/auth/v1/authorize") && location.includes("code_challenge=")) return null;
+  if (location.includes("/auth?error=provider")) { console.log("       note: Google provider is OFF in Supabase — only e-mail sign-in is offered"); return null; }
+  return `unexpected redirect: ${location}`;
+});
+
+await check("payment webhook is closed until a provider is connected", async () => {
+  const res = await get("/api/billing/webhook", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+  return res.status === 501 || res.status === 401 ? null : `expected 501, got ${res.status}`;
+});
+
 await check("pet cards are closed to guests", async () => {
   const res = await get("/api/pets");
   return res.status === 401 ? null : `expected 401, got ${res.status}`;
