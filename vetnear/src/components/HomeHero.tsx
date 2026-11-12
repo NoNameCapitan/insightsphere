@@ -8,7 +8,6 @@ import { GeneratedVisual } from "@/components/GeneratedVisual";
 import { HeroMotionLayer } from "@/components/HeroMotionLayer";
 import { HeroOrbit } from "@/components/HeroOrbit";
 import { CountUp } from "@/components/motion/CountUp";
-import { RevealGroup } from "@/components/RevealGroup";
 import { ServiceCategoryCard } from "@/components/ServiceCategoryCard";
 import { usePointerVars } from "@/hooks/usePointerVars";
 import { PLACES } from "@/lib/data/places";
@@ -74,7 +73,7 @@ export function HomeHero() {
     <section ref={sectionRef} className="hero-3d relative overflow-hidden">
       <HeroAura />
 
-      <div className="mx-auto w-full max-w-5xl px-4 pb-10 pt-8 sm:pt-14">
+      <div className="mx-auto w-full max-w-5xl px-4 pb-10 pt-5 sm:pt-14">
         {/* Above the fold: message left, pet-care cockpit right (stacked on mobile). */}
         <div className="grid items-center gap-6 sm:gap-10 lg:grid-cols-[minmax(0,1fr)_420px]">
           <div className="text-center lg:text-left">
@@ -83,9 +82,9 @@ export function HomeHero() {
             </p>
 
             {/* Mobile: the orbit scene alone — the full cockpit shows from sm up. */}
-            <HeroOrbit className="mx-auto mt-6 h-44 w-40 sm:hidden" priority />
+            <HeroOrbit className="mx-auto mt-4 h-36 w-36 sm:hidden" priority />
 
-            <h1 className="hero-title mx-auto mt-5 max-w-xl text-4xl font-bold leading-[1.08] sm:text-5xl lg:mx-0">
+            <h1 className="hero-title mx-auto mt-2 max-w-xl text-[2.125rem] font-bold leading-[1.08] sm:mt-5 sm:text-5xl lg:mx-0">
               {HEADLINE.map((word, i) => (
                 <span key={word} className="hero-title__word" style={{ ["--i" as string]: i }}>
                   {i === HEADLINE.length - 1 ? (
@@ -102,12 +101,12 @@ export function HomeHero() {
               ))}
             </h1>
 
-            <p className="mx-auto mt-4 max-w-md text-base text-ink/65 lg:mx-0">
+            <p className="mx-auto mt-3 max-w-md text-[15px] leading-6 text-ink/65 sm:mt-4 sm:text-base lg:mx-0">
               Перевірені ветклініки, ветаптеки й pet-сервіси Києва — з відстанню,
               статусом даних і прямим маршрутом менш ніж за 90 секунд.
             </p>
 
-            <div className="mx-auto mt-8 flex max-w-md flex-col lg:mx-0">
+            <div className="mx-auto mt-5 flex max-w-md flex-col sm:mt-8 lg:mx-0">
               <Link href="/help" className="btn btn-brand hero-cta py-4 text-lg">
                 Знайти допомогу поруч
                 <svg aria-hidden viewBox="0 0 20 20" className="hero-cta__arrow h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -125,7 +124,7 @@ export function HomeHero() {
               </Link>
 
               {/* Honest dataset numbers, counted up once. */}
-              <dl className="hero-stats mt-6">
+              <dl className="hero-stats mt-5 sm:mt-6">
                 <div>
                   <dt>{placesWord(TOTAL)} у базі</dt>
                   <dd><CountUp value={TOTAL} /></dd>
@@ -149,11 +148,13 @@ export function HomeHero() {
         </div>
 
         {/* Care paths — needs first, categories second. */}
-        <div className="care-section mt-10 sm:mt-16">
+        <div className="care-section mt-9 sm:mt-16">
           <h2 className="text-center font-display text-xl font-bold text-ink">
             Що потрібно вашому улюбленцю?
           </h2>
-          <RevealGroup className="care-grid mt-5 grid grid-cols-2 gap-3 sm:grid-cols-6">
+          {/* Always visible: these are the main entry points, so they are never
+              hidden behind a scroll effect. */}
+          <div className="care-grid mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {CARE_VISIBLE.map((c) => (
               <ServiceCategoryCard
                 key={c.category}
@@ -167,7 +168,7 @@ export function HomeHero() {
             {CARE_VISIBLE.length % 2 === 1 && (
               <ServiceCategoryCard tile="location" label="Усе поруч" description="Всі заклади списком і на карті" href="/nearby" />
             )}
-          </RevealGroup>
+          </div>
         </div>
       </div>
     </section>

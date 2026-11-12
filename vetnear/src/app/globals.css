@@ -31,7 +31,8 @@ body {
     @apply outline-none;
   }
   :focus-visible {
-    @apply ring-2 ring-brand ring-offset-2 ring-offset-canvas rounded-lg;
+    /* An outline keeps the element's own shape and shadows intact. */
+    @apply outline outline-2 outline-offset-2 outline-brand;
   }
   /* Every interactive element eases between states instead of snapping.
      Component classes (.btn, .card, …) still override with transition-all. */
@@ -2585,14 +2586,18 @@ main {
 }
 /* Result cards arrive one after another. */
 li > .place-card {
-  animation: cardIn 640ms var(--ease-out) backwards;
+  animation: fadeUp 640ms var(--ease-out) backwards;
 }
-li:nth-child(2) > .place-card { animation-delay: 60ms; }
-li:nth-child(3) > .place-card { animation-delay: 120ms; }
-li:nth-child(4) > .place-card { animation-delay: 180ms; }
-li:nth-child(n + 5) > .place-card { animation-delay: 240ms; }
-@keyframes cardIn {
+li:nth-child(2) > .place-card { animation-delay: 45ms; }
+li:nth-child(3) > .place-card { animation-delay: 90ms; }
+li:nth-child(4) > .place-card { animation-delay: 135ms; }
+li:nth-child(5) > .place-card { animation-delay: 180ms; }
+li:nth-child(6) > .place-card { animation-delay: 225ms; }
+li:nth-child(7) > .place-card { animation-delay: 270ms; }
+li:nth-child(n + 8) > .place-card { animation-delay: 315ms; }
+@keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
 }
 
 /* --- Scroll reveal (armed by MotionRuntime, only below the fold) ---------- */
@@ -2971,9 +2976,9 @@ li:nth-child(n + 5) > .place-card { animation-delay: 240ms; }
   border-radius: 9999px;
   background: radial-gradient(closest-side, rgb(18 168 146 / 0.3), rgb(242 164 126 / 0.14) 60%, transparent);
   transform: translate(-50%, -50%);
-  animation: orbitBreathe 4.6s ease-in-out infinite;
+  animation: breathe 4.6s ease-in-out infinite;
 }
-@keyframes orbitBreathe {
+@keyframes breathe {
   0%, 100% { opacity: 0.55; transform: translate(-50%, -50%) scale(0.9); }
   50% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
 }
@@ -3012,9 +3017,9 @@ li:nth-child(n + 5) > .place-card { animation-delay: 240ms; }
 /* --- Hero CTAs ------------------------------------------------------------- */
 /* Idle shimmer: one sweep roughly every five seconds, then rest. */
 .hero-cta::after {
-  animation: ctaSweep 4.8s var(--ease-out) 1.8s infinite;
+  animation: shimmer 4.8s var(--ease-out) 1.8s infinite;
 }
-@keyframes ctaSweep {
+@keyframes shimmer {
   0%, 70% { transform: translateX(-130%); }
   100% { transform: translateX(130%); }
 }
@@ -3116,33 +3121,52 @@ li:nth-child(n + 5) > .place-card { animation-delay: 240ms; }
 }
 .service-card:active .service-card__icon,
 .service-card--tap .service-card__icon {
-  animation: iconHop 420ms var(--ease-out);
+  animation: iconBounce 420ms var(--ease-out);
 }
-@keyframes iconHop {
+@keyframes iconBounce {
   40% { transform: translateY(-3px) scale(1.04); }
 }
-.care-grid > * {
-  animation: cardIn 700ms var(--ease-out) backwards;
-  animation-delay: 760ms;
-}
-.care-grid > :nth-child(2) { animation-delay: 820ms; }
-.care-grid > :nth-child(3) { animation-delay: 880ms; }
-.care-grid > :nth-child(4) { animation-delay: 940ms; }
-.care-grid > :nth-child(5) { animation-delay: 1000ms; }
-.care-grid > :nth-child(6) { animation-delay: 1060ms; }
-
 /* --- Place cards: category accent, pill statuses -------------------------- */
+.place-card {
+  --cat: #12a892;
+  overflow: hidden;
+  border-radius: 1.25rem;
+}
+/* Soft category palette (calmer than the map-marker colours). */
+.place-card[data-cat="veterinary_clinic"] { --cat: #12a892; }
+.place-card[data-cat="emergency_vet"] { --cat: #cf4436; }
+.place-card[data-cat="vet_pharmacy"] { --cat: #55b3d4; }
+.place-card[data-cat="pet_store"] { --cat: #86bd62; }
+.place-card[data-cat="grooming"] { --cat: #f2a47e; }
+.place-card[data-cat="pet_boarding"] { --cat: #a596c2; }
+.place-card[data-cat="shelter"] { --cat: #7cc6a4; }
 .place-card::after {
   content: "";
   position: absolute;
-  left: 22px;
-  right: 22px;
-  top: 0;
+  inset: 0 0 auto 0;
   height: 3px;
-  border-radius: 0 0 6px 6px;
-  background: linear-gradient(90deg, var(--cat, #06756a), color-mix(in srgb, var(--cat, #06756a) 35%, #fff));
-  opacity: 0.85;
+  background: linear-gradient(90deg, var(--cat), color-mix(in srgb, var(--cat) 30%, #fff));
   pointer-events: none;
+}
+/* The icon tile picks up the category colour as a soft ring and shadow. */
+.place-card__icon.icon3d {
+  border-radius: 15px;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--cat) 34%, #fff),
+    0 10px 16px -10px color-mix(in srgb, var(--cat) 70%, #0b3f3a),
+    inset 0 0 0 1px rgb(255 255 255 / 0.55);
+}
+.distance-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  background: #06756a;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  box-shadow: 0 6px 12px -8px rgb(6 117 106 / 0.8);
 }
 .status-pill {
   display: inline-flex;
@@ -3265,6 +3289,189 @@ li:nth-child(n + 5) > .place-card { animation-delay: 240ms; }
   filter: drop-shadow(0 16px 9px rgb(6 46 42 / 0.4));
 }
 
+/* ===========================================================================
+   v1.29 — final polish. One motion vocabulary, calmer category cards, denser
+   place cards, tighter mobile hero. Presentation only.
+
+   Motion tokens:  --dur-fast 180ms (press), --dur 300ms (hover/colour),
+                   --dur-slow 520ms (position), all on --ease-out.
+   Keyframes:      fadeUp · breathe · shimmer · iconBounce · tabSpring
+=========================================================================== */
+:root {
+  --dur-fast: 180ms;
+  --dur: 300ms;
+  --dur-slow: 520ms;
+}
+@keyframes iconBounce {
+  45% { transform: translateY(-2px) scale(1.04); }
+}
+
+/* --- Categories ------------------------------------------------------------ */
+.care-section::before {
+  opacity: 0.045;
+}
+.care-grid > * {
+  animation: fadeUp var(--dur-slow) var(--ease-out) backwards;
+}
+.care-grid > :nth-child(2) { animation-delay: 45ms; }
+.care-grid > :nth-child(3) { animation-delay: 90ms; }
+.care-grid > :nth-child(4) { animation-delay: 135ms; }
+.care-grid > :nth-child(5) { animation-delay: 180ms; }
+.care-grid > :nth-child(6) { animation-delay: 225ms; }
+.service-card.card {
+  border-color: rgb(221 243 235 / 0.9);
+  background-color: #fbfdfc;
+  box-shadow:
+    0 1px 2px rgb(11 80 72 / 0.04),
+    0 10px 22px -18px rgb(11 80 72 / 0.3);
+  transition:
+    box-shadow var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+.service-card .service-card__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 17px;
+  transition: transform var(--dur) var(--ease-out);
+}
+/* Calm hover/focus: a ring and a little more shadow — no lift, no tilt. */
+.service-card.card:hover,
+.service-card.card:focus-visible {
+  transform: none;
+  border-color: rgb(18 168 146 / 0.45);
+  box-shadow:
+    0 0 0 3px rgb(18 168 146 / 0.12),
+    0 14px 26px -18px rgb(11 80 72 / 0.4);
+}
+.service-card:hover .service-card__icon {
+  transform: translateY(-2px);
+}
+.service-card.card:active {
+  transform: scale(0.985);
+}
+.service-card:active .service-card__icon,
+.service-card--tap .service-card__icon {
+  animation: iconBounce var(--dur-fast) var(--ease-out);
+}
+/* The earlier gradient edge is retired in favour of the single ring above. */
+.service-card::after {
+  display: none;
+}
+
+/* --- Scenario rail: a plain list on phones (no sideways scrolling) -------- */
+@media (max-width: 639px) {
+  .readiness-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-inline: 0;
+    padding: 0;
+    overflow: visible;
+  }
+  .readiness-card {
+    min-height: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    border-radius: 20px;
+    padding: 14px;
+  }
+  .readiness-card .readiness-card__icon {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    margin: 0;
+  }
+  .readiness-card > span:last-child {
+    margin-top: 0;
+    min-width: 0;
+    flex: 1;
+  }
+  .readiness-card strong {
+    font-size: 16px;
+  }
+  .readiness-card strong + span {
+    margin-top: 2px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 18px;
+  }
+  .readiness-card strong + span + span {
+    margin-top: 6px;
+    font-size: 13px;
+  }
+}
+
+/* Wide screens fit all four scenarios, so nothing scrolls sideways there either. */
+@media (min-width: 1024px) {
+  .readiness-rail {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: visible;
+    padding-bottom: 2px;
+  }
+}
+
+/* --- Hero: sharper centre with a calm breath; compact orbit on phones ----- */
+.orbit__pin .generated-visual__motion {
+  animation: pinBreathe 4s ease-in-out infinite;
+}
+@keyframes pinBreathe {
+  50% { transform: translateY(-4px) scale(1.025); }
+}
+.orbit__pin .generated-visual__image {
+  filter: drop-shadow(0 16px 18px rgb(11 80 72 / 0.22));
+}
+.orbit__halo {
+  animation: breathe 4s ease-in-out infinite;
+}
+@media (max-width: 639px) {
+  .orbit {
+    --orbit-r: 104px;
+    --orbit-tilt: 68deg;
+  }
+  .orbit__tile {
+    left: -18px;
+    top: -32px;
+    width: 36px;
+    height: 36px;
+  }
+  .orbit__tile-in {
+    border-radius: 12px;
+  }
+  .orbit__far--2 {
+    display: none;
+  }
+  .hero-stats dd {
+    font-size: 26px;
+  }
+  .hero-stats > div {
+    padding: 10px 6px 8px;
+  }
+}
+.btn:active {
+  transition-duration: var(--dur-fast);
+}
+
+/* --- One tempo for hover and press across the product --------------------- */
+.card,
+.btn,
+.chip,
+.site-nav__link,
+.district-map__chip,
+.status-pill {
+  transition-duration: var(--dur);
+  transition-timing-function: var(--ease-out);
+}
+.card:active,
+.btn:active,
+.tabbar a:active {
+  transition-duration: var(--dur-fast);
+}
 @media (prefers-reduced-motion: reduce) {
   .generated-visual__image,
   .generated-visual__stage,
@@ -3340,15 +3547,4 @@ li:nth-child(n + 5) > .place-card { animation-delay: 240ms; }
   .tilt3d__body,
   .reveal-group > * { transform: none !important; }
   .reveal-group > * { opacity: 1 !important; }
-}
-
-/* Care-path grid: 2 columns on mobile (odd last card spans both), 3-up on
-   larger screens with an incomplete last row centred instead of orphaned. */
-@media (max-width: 639px) {
-  .care-grid > :last-child:nth-child(odd) { grid-column: span 2; }
-}
-@media (min-width: 640px) {
-  .care-grid > * { grid-column: span 2; }
-  .care-grid > :nth-child(3n + 1):nth-last-child(2) { grid-column: 2 / span 2; }
-  .care-grid > :nth-child(3n + 1):last-child { grid-column: 3 / span 2; }
 }

@@ -64,7 +64,7 @@ export function EmergencyReadinessRail() {
             Коли важлива кожна хвилина
           </h2>
         </div>
-        <div className="hidden items-center gap-2 sm:flex" aria-label="Прокрутити сценарії">
+        <div className="hidden items-center gap-2 sm:flex lg:hidden" aria-label="Прокрутити сценарії">
           <button type="button" className="rail-control" onClick={() => scroll(-1)} aria-label="Попередні сценарії">
             ‹
           </button>
@@ -89,7 +89,6 @@ export function EmergencyReadinessRail() {
           </Link>
         ))}
       </div>
-      <p className="mt-2 text-xs text-ink/45 sm:hidden">Проведіть убік, щоб побачити всі сценарії.</p>
     </section>
   );
 }

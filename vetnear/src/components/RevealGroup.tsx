@@ -30,7 +30,15 @@ export function RevealGroup({ children, className = "" }: { children: ReactNode;
       { threshold: 0.12 },
     );
     io.observe(node);
-    return () => io.disconnect();
+    // Fail open: without a scroll soon after load, show the group anyway.
+    const safety = window.setTimeout(() => setState("is-shown"), 2200);
+    const cancelSafety = () => window.clearTimeout(safety);
+    window.addEventListener("scroll", cancelSafety, { passive: true, once: true });
+    return () => {
+      io.disconnect();
+      cancelSafety();
+      window.removeEventListener("scroll", cancelSafety);
+    };
   }, []);
 
   return (

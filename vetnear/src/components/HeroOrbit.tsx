@@ -29,12 +29,13 @@ export function HeroOrbit({ className = "", priority = false }: { className?: st
         <GeneratedVisual
           src="/visuals/c-home-hero.webp"
           className="orbit__pin"
-          motion="bob"
-          glow
-          shine
+          // Kept deliberately plain so the pin stays sharp: no blur-in reveal and
+          // no blend overlay. Its calm breathing comes from CSS (.orbit__pin).
+          motion="none"
+          reveal={false}
           shadow
           priority={priority}
-          sizes="(max-width: 640px) 200px, 240px"
+          sizes="(max-width: 640px) 320px, 420px"
         />
         <div className="orbit__plane orbit__plane--ring">
           <div className="orbit__ring">

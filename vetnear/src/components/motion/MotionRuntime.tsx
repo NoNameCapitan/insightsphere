@@ -64,8 +64,17 @@ export function MotionRuntime() {
         io.observe(el);
       });
     }, 80);
+    // Fail open: if the page has not been scrolled shortly after load (a slow
+    // device, a screenshot, a reader who is not scrolling yet), show everything
+    // rather than keep content hidden behind an effect.
+    const showAll = () => document.querySelectorAll(".sr-armed:not(.sr-shown)").forEach((el) => el.classList.add("sr-shown"));
+    const safety = window.setTimeout(showAll, 2200);
+    const cancelSafety = () => window.clearTimeout(safety);
+    window.addEventListener("scroll", cancelSafety, { passive: true, once: true });
     return () => {
       window.clearTimeout(timer);
+      cancelSafety();
+      window.removeEventListener("scroll", cancelSafety);
       io.disconnect();
       // Never leave anything hidden behind.
       document.querySelectorAll(".sr-armed:not(.sr-shown)").forEach((el) => el.classList.add("sr-shown"));

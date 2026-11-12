@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type PointerEventHandler } from "react";
-import { Tilt3D } from "@/components/Tilt3D";
 import { ServiceIcon, TileIcon, type TileIconName } from "@/components/icons/ServiceIcons";
 import type { PlaceCategory } from "@/lib/types";
 
@@ -42,9 +41,9 @@ type ServiceCategoryCardProps = {
  * inline SVG and a contextual micro-animation (heartbeat, bag bounce, capsule
  * tilt, scissor snip, cozy rock, emergency pulse — see globals.css). Desktop
  * animates on hover/focus-visible; touch devices get a single run on tap via
- * the `service-card--tap` class. The whole card tilts in 3D under the pointer
- * with the icon lifted off the surface. prefers-reduced-motion disables all
- * movement.
+ * the `service-card--tap` class. Interaction is deliberately calm: a ring and
+ * shadow on hover/focus and a small icon bounce on press.
+ * prefers-reduced-motion disables all movement.
  */
 export function ServiceCategoryCard({
   category,
@@ -81,7 +80,8 @@ export function ServiceCategoryCard({
     "card service-card",
     `service-card--${(category && CARD_VARIANT[category]) ?? "generic"}`,
     tapping ? "service-card--tap" : "",
-    "flex h-full w-full flex-col items-center gap-2 p-4 text-center transition active:scale-[0.98]",
+    "flex h-full min-h-[140px] w-full flex-col items-center justify-center gap-1.5 rounded-2xl px-3 py-4 text-center",
+    className,
   ]
     .filter(Boolean)
     .join(" ");
@@ -91,11 +91,11 @@ export function ServiceCategoryCard({
       <span aria-hidden className="service-card__icon">
         {category ? <ServiceIcon category={category} /> : tile ? <TileIcon name={tile} /> : null}
       </span>
-      <span className="service-card__label text-sm font-bold leading-tight">
+      <span className="service-card__label mt-1 text-sm font-semibold leading-tight text-ink">
         {label}
       </span>
       {description && (
-        <span className="text-[11px] font-normal leading-snug text-ink/55">
+        <span className="text-xs font-normal leading-snug text-ink/55">
           {description}
         </span>
       )}
@@ -104,7 +104,6 @@ export function ServiceCategoryCard({
 
   if (href) {
     return (
-      <Tilt3D className={className} bodyClassName="rounded-3xl" max={5}>
       <Link
         href={href}
         className={classes}
@@ -113,12 +112,10 @@ export function ServiceCategoryCard({
       >
         {content}
       </Link>
-      </Tilt3D>
     );
   }
 
   return (
-    <Tilt3D className={className} bodyClassName="rounded-3xl" max={5}>
     <button
       type="button"
       className={classes}
@@ -128,6 +125,5 @@ export function ServiceCategoryCard({
     >
       {content}
     </button>
-    </Tilt3D>
   );
 }

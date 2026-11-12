@@ -9,7 +9,7 @@ import { track } from "@/lib/analytics";
 import { reportLead } from "@/lib/leads/report";
 import { shouldLabelAsPromoted } from "@/lib/places/tier";
 import { formatDistance, getOpenNowStatus } from "@/lib/distance";
-import { CATEGORY_COLOR, CATEGORY_LABELS, districtLabel } from "@/lib/labels";
+import { CATEGORY_LABELS, districtLabel } from "@/lib/labels";
 import { googleMapsRoute } from "@/lib/maps";
 import { EXTERNAL_LINK_PROPS, safeUrl } from "@/lib/security/url";
 import { computeBadges } from "@/lib/trust";
@@ -69,11 +69,11 @@ export function PlaceCard({
       className={`card place-card p-4 sm:p-5 ${
         emergencyMode && isEmergency ? "ring-1 ring-emergency/40" : ""
       }`}
-      // Thin top accent in the category's colour (the same colour as its map marker).
-      style={{ ["--cat" as string]: CATEGORY_COLOR[place.category] }}
+      // The category drives the soft accent colour (see [data-cat] in globals.css).
+      data-cat={place.category}
     >
       <div className="flex items-start gap-3">
-        <span aria-hidden className={`icon3d h-12 w-12 ${isEmergency ? "icon3d--warm" : ""}`}>
+        <span aria-hidden className={`place-card__icon icon3d h-12 w-12 ${isEmergency ? "icon3d--warm" : ""}`}>
           <ServiceIcon category={place.category} className="h-9 w-9" />
         </span>
 
@@ -86,18 +86,21 @@ export function PlaceCard({
             >
               {place.name}
             </Link>
-            <div className="flex shrink-0 items-center gap-1.5">
-              {place.distanceMeters != null && (
-                <span className="rounded-full bg-brand px-2.5 py-1 text-xs font-bold tabular-nums text-white">{formatDistance(place.distanceMeters)}</span>
-              )}
+            {/* Pulled out of the line box so a one-line name sits tight above the meta row. */}
+            <span className="-mb-3 -mt-0.5 shrink-0">
               <FavoritePlaceButton placeId={place.id} compact />
-            </div>
+            </span>
           </div>
+          <p className="mt-0.5 text-[13px] leading-5 text-ink/60">{meta}</p>
+          {place.address && <p className="truncate text-xs leading-5 text-ink/45">{place.address}</p>}
+        </div>
+      </div>
 
-          <p className="mt-0.5 text-sm text-ink/55">{meta}</p>
-          {place.address && <p className="mt-0.5 truncate text-xs text-ink/45">{place.address}</p>}
-
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+      {/* One scannable row: distance first, then live status and data trust. */}
+      <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+        {place.distanceMeters != null && (
+          <span className="distance-pill">{formatDistance(place.distanceMeters)}</span>
+        )}
             {alertAvailability === "closed" && (
               <span className="rounded-full bg-emergency px-2 py-0.5 text-[11px] font-semibold text-white">
                 Зачинено через червону загрозу
@@ -168,10 +171,8 @@ export function PlaceCard({
               )}
             </div>
           )}
-        </div>
-      </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2.5">
+      <div className="mt-3 grid grid-cols-2 gap-2.5">
         <a
           href={`tel:${place.phone}`}
           onClick={() => {
@@ -206,7 +207,7 @@ export function PlaceCard({
           </a>
         )}
       </div>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 text-xs">
+      <div className="mt-2.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 text-xs">
         <Link href={`/place/${place.slug}`} className="font-semibold text-brand hover:underline">
           Деталі закладу
         </Link>
