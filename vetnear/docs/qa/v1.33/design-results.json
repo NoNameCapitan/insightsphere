@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "Home responsive composition at six widths with directly visible search",
+      "status": "passed"
+    },
+    {
+      "name": "Server GET hero search with JavaScript disabled preserves locality and need",
+      "status": "passed"
+    },
+    {
+      "name": "Map keyboard, pointer, pause and reduced motion remain equivalent",
+      "status": "passed"
+    },
+    {
+      "name": "Touch map and 44 px selectors",
+      "status": "passed"
+    }
+  ]
+}

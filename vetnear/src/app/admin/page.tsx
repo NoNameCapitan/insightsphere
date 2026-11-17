@@ -62,7 +62,9 @@ export default function AdminPage() {
             <span className="rounded-full bg-brand-50 px-2 text-sm text-brand-700">{counts.reports}</span>
           )}
         </Link>
-        <Link href="/admin/leads" className="btn btn-ghost">Ліди та тарифи</Link>
+        <Link href="/admin/analytics" className="btn btn-ghost">Воронка запуску</Link>
+        <Link href="/admin/partner-interest" className="btn btn-ghost">Партнерські звернення</Link>
+        <Link href="/admin/leads" className="btn btn-ghost">Контактні дії та тарифи</Link>
         <Link href="/admin/imports/google-places" className="btn btn-ghost">Імпорт Google Places</Link>
         <Link href="/admin/imports" className="btn btn-ghost">Імпорт товарів</Link>
       </div>

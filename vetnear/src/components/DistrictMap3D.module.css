@@ -1,0 +1,155 @@
+/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
+:global(html[data-theme="dark"]) .districtButton[aria-pressed="true"] > span { color: #d6ebe6; }
+:global(html[data-theme="dark"]) .searchLink { background: #302b21; color: #d6eae4; }
+@media (hover: hover) and (pointer: fine) {
+  :global(html[data-theme="dark"]) .districtButton:hover { border-color: #4b584e; }
+  :global(html[data-theme="dark"]) .districtButton[aria-pressed="true"]:hover { color: #dcf0ee; }
+  :global(html[data-theme="dark"]) .searchLink:hover { background: #2b271e; }
+}
+:global(html[data-theme="dark"]) .cinematic .controls { background: #25261e; color: #d4eae0; }
+:global(html[data-theme="dark"]) .cinematic .selectionText, :global(html[data-theme="dark"]) .cinematic .hint, :global(html[data-theme="dark"]) .cinematic .credit { color: #c1ccbf; }
+:global(html[data-theme="dark"]) .cinematic .districtButton { background: #152622; border-color: #424a3a; color: #ceddd1; }
+:global(html[data-theme="dark"]) .cinematic .districtButton>span { color: #bdc7ba; }
+:global(html[data-theme="dark"]) .cinematic .searchLink:focus-visible, :global(html[data-theme="dark"]) .cinematic .districtButton:focus-visible, :global(html[data-theme="dark"]) .cinematic .credit a:focus-visible { outline-color: #e4d2b9; }
+@media(hover:hover) and (pointer:fine) {
+  :global(html[data-theme="dark"]) .cinematic .districtButton:hover { background: #292c22; border-color: #5d6757; color: #cce3d7; }
+}
+/* @generated dark-theme:end */
+
+.map { --active-rise:22px; --selected-rise:14px; --side-depth:-7px; --low-depth:-14px; --shadow-depth:-30px; --map-ease: cubic-bezier(0.22, 1, 0.36, 1); width: 100%; overflow: hidden; border-radius: 24px; background: #102f2c; color: #f5f3e8; isolation: isolate; }
+.cinematic { --active-rise:5px; --selected-rise:3px; --side-depth:-3px; --low-depth:-6px; --shadow-depth:-16px; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.9fr); }
+.stage { position: relative; min-width: 0; min-height: 480px; overflow: hidden; perspective: 1100px; perspective-origin: 50% 40%; background: radial-gradient(ellipse at 48% 34%, #24584d 0%, #153e37 38%, #0c2c29 78%); }
+.stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, transparent 72%, #102f2c); }
+.stageHeader { position: absolute; z-index: 5; top: 26px; left: 28px; right: 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.cityName { font-size: 24px; font-weight: 650; letter-spacing: -0.03em; }
+.cityName > span { margin-left: 10px; font-size: 12px; font-weight: 500; letter-spacing: 0; color: #b9cec3; }
+.motionButton { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 7px 9px; border: 1px solid #648477; border-radius: 8px; color: #d2e1d6; font-size: 11px; line-height: 1.2; background: #10362e; }
+.motionButton svg { width: 15px; height: 15px; flex: 0 0 auto; }
+.motionButton:disabled { cursor: default; border-color: #3f6255; }
+.motionButton:focus-visible, .districtButton:focus-visible, .searchLink:focus-visible, .credit a:focus-visible { outline: 2px solid #edc17b; outline-offset: 4px; }
+.camera { position: absolute; width: 78%; max-width: 520px; aspect-ratio: 400 / 401; left: 11%; top: 15%; transform: translate3d(0, 0, 0); }
+.board { position: absolute; inset: 0; transform-style: preserve-3d; transform-origin: 50% 55%; transform: rotateX(32deg) rotateZ(-10deg); transition: transform 240ms var(--map-ease); }
+.board svg { position: absolute; inset: 0; height: 100%; width: 100%; overflow: visible; pointer-events: none; }
+.ground { transform: translate3d(0, 10px, var(--shadow-depth)); fill: #041c1a; opacity: 0.9; filter: blur(8px); }
+.piece { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; transition: transform 230ms var(--map-ease); }
+.side { transform: translateZ(var(--side-depth)); }
+.sideLow { transform: translateZ(var(--low-depth)); }
+.side path { fill: #225b51; stroke: #153f37; stroke-width: 1.5; stroke-linejoin: round; }
+.sideLow path { fill: #143d36; stroke: #143d36; }
+.face path { fill: var(--district-tone); stroke: #d0ead6; stroke-opacity: 0.7; stroke-width: 1; stroke-linejoin: round; }
+.faceLight { opacity: 0; transition: opacity 180ms var(--map-ease); }
+.faceLight path { fill: #efc787; stroke: #fff0cb; stroke-width: 1.7; stroke-linejoin: round; }
+.piece[data-active="true"] { transform: translateZ(var(--active-rise)); }
+.piece[data-selected="true"] { transform: translateZ(var(--selected-rise)); }
+.piece[data-active="true"] .faceLight, .piece[data-selected="true"] .faceLight { opacity: 1; }
+.board .hit { transform: translateZ(0.1px); pointer-events: none; }
+.hit path { fill: transparent; pointer-events: auto; cursor: pointer; outline: none; touch-action: manipulation; }
+.hit path:focus-visible { stroke: #fff7dc; stroke-width: 3; stroke-dasharray: 5 3; }
+.mapLabel { position: absolute; z-index: 4; left: 28px; right: 24px; bottom: 54px; display: flex; align-items: center; gap: 12px; pointer-events: none; font-size: 15px; font-weight: 650; letter-spacing: -0.01em; }
+.mapLabel small { display: block; margin-top: 4px; font-size: 11px; line-height: 1.5; font-weight: 400; letter-spacing: 0; color: #b9cec3; }
+.locationMark { display: grid; place-items: center; width: 39px; height: 39px; border: 1px solid #547267; border-radius: 50%; background: #173d34; color: #e8bd77; }
+.locationMark svg { width: 21px; height: 21px; }
+.coordinates { position: absolute; z-index: 4; bottom: 23px; left: 28px; font-size: 10px; color: #a3beb1; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+.controls { position: relative; padding: 30px; background: #102f2c; }
+.selection { min-height: 110px; }
+.selectionTitle { font-size: 22px; line-height: 1.2; letter-spacing: -0.025em; font-weight: 600; max-width: 20ch; }
+.selectionText { margin-top: 10px; max-width: 40ch; color: #bfd1c6; font-size: 12px; line-height: 1.65; }
+.hint { margin: 20px 0 12px; color: #bfd1c6; font-size: 11px; }
+.legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; list-style: none; margin: 0; padding: 0; }
+.allItem { grid-column: 1 / -1; }
+.districtButton { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 4px; min-height: 44px; padding: 8px 10px; border: 1px solid #36584c; border-radius: 7px; text-align: left; color: #d6e5db; background: #163a32; font-size: 11px; line-height: 1.4; transition: transform 130ms var(--map-ease), color 130ms ease; }
+.districtButton > span { flex-shrink: 0; font-size: 10px; font-variant-numeric: tabular-nums; color: #a8c3b4; }
+.districtButton[aria-pressed="true"] { background: #edc17b; border-color: #edc17b; color: #173b31; font-weight: 700; }
+.districtButton[aria-pressed="true"] > span { color: #173b31; }
+.searchLink { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; margin-top: 20px; padding: 12px 15px; border-radius: 8px; background: #f2e5c9; color: #193c32; font-size: 13px; line-height: 1.4; font-weight: 700; transition: transform 130ms var(--map-ease); }
+.searchLink svg { width: 19px; height: 19px; flex-shrink: 0; }
+.credit { margin-top: 16px; max-width: 48ch; color: #abc1b4; font-size: 10px; line-height: 1.6; }
+.credit a { text-decoration: underline; text-underline-offset: 3px; }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.compact { max-width: 620px; margin-inline: auto; border-radius: 16px; }
+.compact .stage { min-height: 240px; }
+.compact .stageHeader { top: 12px; left: 18px; right: 14px; }
+.compact .cityName { font-size: 18px; }
+.compact .camera { width: 58%; max-width: 230px; top: 12%; left: 21%; }
+.compact .mapLabel { display: none; }
+.compact .mapLabel small { display: none; }
+.compact .coordinates { display: none; }
+.compact .locationMark { width: 28px; height: 28px; }
+.compact .locationMark svg { width: 17px; height: 17px; }
+.compact .controls { padding: 12px 16px 18px; }
+.compact .selection { min-height: 0; }
+.compact .selectionTitle { font-size: 16px; max-width: none; }
+.compact .selectionText { display: none; }
+.compact .legend { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.compact .hint { margin: 12px 0 9px; }
+.compact .districtButton { font-size: 12px; }
+.compact .credit { max-width: none; }
+@media (hover: hover) and (pointer: fine) {
+  .districtButton:hover { color: #fff8e9; border-color: #a1b8a6; }
+  .districtButton[aria-pressed="true"]:hover { color: #102f2c; }
+  .motionButton:hover:not(:disabled) { border-color: #e7c383; color: #fff4dc; }
+  .searchLink:hover { background: #fff1d0; }
+}
+.districtButton:active, .searchLink:active, .motionButton:active:not(:disabled) { transform: scale(0.98); }
+@media (prefers-reduced-motion: no-preference) { .cinematic[data-motion="enabled"] .camera[data-entered="true"] { animation: cityArrival 720ms var(--map-ease) both; } }
+@keyframes cityArrival { from { opacity: 0.72; transform: translate3d(0, 24px, 0) scale(0.94) rotate(-3deg); } to { opacity: 1; transform: translate3d(0, 0, 0) scale(1) rotate(0); } }
+.map[data-input="keyboard"] .board, .map[data-input="keyboard"] .piece, .map[data-input="keyboard"] .faceLight, .map[data-input="keyboard"] .camera { transition: none; animation: none; }
+.map[data-motion="paused"] .board { transform: rotateX(32deg) rotateZ(-10deg) !important; }
+.map[data-motion="paused"] .piece { transform: none; }
+.map[data-motion="paused"] .board, .map[data-motion="paused"] .piece, .map[data-motion="paused"] .camera, .map[data-motion="paused"] .faceLight { transition: none; animation: none; }
+@media (max-width: 900px) {
+  .cinematic { grid-template-columns: minmax(0, 1.1fr) minmax(290px, 1fr); }
+  .controls { padding: 25px 22px; }
+  .selectionTitle { font-size: 20px; }
+  .stageHeader { left: 20px; right: 16px; }
+  .cityName > span { display: block; margin-left: 0; margin-top: 3px; }
+  .camera { width: 89%; left: 5.5%; top: 24%; }
+  .mapLabel { left: 20px; bottom: 67px; }
+  .coordinates { left: 20px; bottom: 36px; }
+}
+@media (max-width: 700px) {
+  .cinematic { display: block; }
+  .cinematic .stage { min-height: 375px; }
+  .camera { width: 75%; max-width: 340px; left: 12.5%; top: 16%; }
+  .stageHeader { top: 18px; }
+  .cityName > span { display: inline; margin-left: 8px; }
+  .mapLabel { bottom: 36px; }
+  .coordinates { bottom: 13px; }
+  .controls { padding: 16px 22px 24px; }
+  .selection { min-height: 0; }
+  .selectionText { max-width: 48ch; }
+  .hint { margin-top: 16px; }
+  .districtButton { font-size: 12px; padding-inline: 11px; }
+  .credit { max-width: none; }
+}
+@media (max-width: 380px) {
+  .cinematic .stage { min-height: 330px; }
+  .controls { padding-inline: 16px; }
+  .districtButton { font-size: 11px; padding-inline: 8px; }
+  .mapLabel { font-size: 13px; }
+  .compact .camera { width: 58%; left: 21%; top: 12%; }
+  .compact .stage { min-height: 240px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map .board { transform: rotateX(32deg) rotateZ(-10deg) !important; }
+  .map .piece, .map .camera { transform: none; animation: none; }
+  .map .board, .map .piece, .map .faceLight, .map .districtButton, .map .searchLink { transition: none; }
+  .districtButton:active, .searchLink:active, .motionButton:active { transform: none; }
+}
+
+/* The city is a lit relief; its controls stay on a quiet working surface. */
+.cinematic { border-radius:18px; box-shadow:0 28px 60px -42px #163e3266; }
+.cinematic .stage { background:radial-gradient(ellipse at 20% 8%,#7d805a66,transparent 55%),radial-gradient(ellipse at 54% 38%,#2d6551,#153e31 58%,#0b2924); }
+.cinematic .stage::before { content:""; position:absolute; z-index:2; inset:0; box-shadow:inset 0 1px 0 #cbd7b526; pointer-events:none; }
+.cinematic .controls { background:#f0f1e6; color:#193f2d; }
+.cinematic .selectionTitle { font-size:24px; line-height:1.2; font-weight:600; }
+.cinematic .selectionText,.cinematic .hint,.cinematic .credit { color:#52674e; }
+.cinematic .selectionText { font-size:13px; }
+.cinematic .districtButton { background:#fafaf2; border-color:#d2dbc9; color:#2f4c35; font-size:12px; }
+.cinematic .districtButton>span { color:#5d7157; }
+.cinematic .districtButton[aria-pressed="true"] { background:#254f39; border-color:#254f39; color:#fff7e5; }
+.cinematic .districtButton[aria-pressed="true"]>span { color:#f0d7ad; }
+.cinematic .searchLink { background:#153e2d; color:#fff8e8; min-height:50px; }
+.cinematic .searchLink:focus-visible,.cinematic .districtButton:focus-visible,.cinematic .credit a:focus-visible { outline-color:#7a531b; }
+@media(hover:hover) and (pointer:fine) { .cinematic .districtButton:hover { background:#e4ead8; border-color:#899c7b; color:#254f39; }.cinematic .districtButton[aria-pressed="true"]:hover { background:#193d2b; color:#fff8e8; }.cinematic .searchLink:hover { background:#285c40; } }
+@media(max-width:700px) { .cinematic .selectionTitle { font-size:23px; }.cinematic .controls { padding:22px 20px; } }

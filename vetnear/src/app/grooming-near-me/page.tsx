@@ -5,7 +5,7 @@ import { PLACES } from "@/lib/data/places";
 const PATH = "/grooming-near-me";
 
 export const metadata: Metadata = {
-  title: "Грумінг поруч — догляд за тваринами у Києві",
+  title: "Грумінг поруч — догляд за тваринами у Києві та Київській області",
   description:
     "Найближчі салони грумінгу Києва: стрижка, купання, тримінг, догляд за кігтями. Відстань і запис.",
   alternates: { canonical: PATH },

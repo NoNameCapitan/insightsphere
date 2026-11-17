@@ -1,0 +1,243 @@
+/* ===========================================================================
+   VetNear 1.35 — theme tokens (light + dark).
+
+   Source of truth for colour. Tailwind reads these channels
+   (tailwind.config.ts → rgb(var(--c-*) / <alpha-value>)), and component CSS
+   reads the --care-* and --theme-* variables. Components never branch on the
+   theme in JS: <html data-theme="light|dark"> is set before first paint by
+   the bootstrap script in the root layout (src/lib/theme/theme.ts).
+
+   Dark palette — "night pine": the deep forest of the hero becomes the page,
+   warm cream text, mint for actions, the hero's gold as the one warm accent,
+   and a coral that stays reserved for emergencies.
+   Pairs used for text are checked for WCAG AA in src/lib/__tests__/theme.test.ts.
+=========================================================================== */
+
+:root {
+  /* Tailwind colour channels (light — identical to v1.34). */
+  --c-ink: 20 43 40;
+  --c-canvas: 251 248 243;
+  --c-surface: 251 253 252;
+  --c-peach: 242 164 126;
+  --c-peach-50: 254 246 240;
+  --c-peach-100: 251 232 219;
+  --c-peach-200: 246 210 189;
+  --c-peach-700: 168 87 58;
+  --c-brand: 6 117 106;
+  --c-brand-50: 238 249 245;
+  --c-brand-100: 221 243 235;
+  --c-brand-200: 188 231 217;
+  --c-brand-300: 134 211 191;
+  --c-brand-400: 18 168 146;
+  --c-brand-600: 5 104 94;
+  --c-brand-700: 4 90 82;
+  --c-brand-800: 3 70 64;
+  --c-brand-900: 2 51 47;
+  --c-emergency: 207 68 54;
+  --c-emergency-50: 255 244 241;
+  --c-emergency-100: 253 227 221;
+  --c-emergency-600: 181 56 44;
+  --c-emergency-700: 143 43 34;
+  --c-amber: 178 106 18;
+
+  /* Semantic tokens for new components (prefer these over raw hex). */
+  --theme-canvas: rgb(var(--c-canvas));
+  --theme-surface: #fffcf6;
+  --theme-surface-raised: #ffffff;
+  --theme-text: #183c30;
+  --theme-text-muted: #5b6e60;
+  --theme-line: #d8ded0;
+  --theme-accent: #245742; /* filled actions */
+  --theme-accent-text: #fffdf5; /* text on --theme-accent */
+  --theme-link: #245742;
+  --theme-gold: #b0813e;
+  --theme-danger: #ae4435;
+  --theme-danger-text: #953c2e;
+  --theme-focus: #386e4b;
+  --theme-shadow: 0 16px 40px -26px rgb(22 55 40 / 0.28);
+  --theme-glow: 0 0 0 transparent;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --c-ink: 236 239 230;
+  --c-canvas: 10 23 20;
+  --c-surface: 18 34 30;
+  --c-peach: 242 164 126;
+  --c-peach-50: 42 29 22;
+  --c-peach-100: 58 39 29;
+  --c-peach-200: 90 59 43;
+  --c-peach-700: 244 185 153;
+  /* DEFAULT/600 are fills under white text; 50–300 are tints; 700–900 are text. */
+  --c-brand: 31 122 99;
+  --c-brand-50: 18 48 42;
+  --c-brand-100: 32 62 54;
+  --c-brand-200: 44 84 73;
+  --c-brand-300: 70 126 107;
+  --c-brand-400: 92 205 172;
+  --c-brand-600: 24 102 82;
+  --c-brand-700: 155 221 196;
+  --c-brand-800: 189 234 217;
+  --c-brand-900: 221 245 236;
+  --c-emergency: 194 65 47;
+  --c-emergency-50: 44 22 19;
+  --c-emergency-100: 64 30 25;
+  --c-emergency-600: 169 56 40;
+  --c-emergency-700: 255 179 165;
+  --c-amber: 230 168 82;
+
+  --theme-surface: #12221e;
+  --theme-surface-raised: #182c27;
+  --theme-text: #e8ebe1;
+  --theme-text-muted: #a8b6aa;
+  --theme-line: #25392f;
+  --theme-accent: #1f7a63;
+  --theme-accent-text: #fbfff9;
+  --theme-link: #8fd9bd;
+  --theme-gold: #e4c18b;
+  --theme-danger: #c2412f;
+  --theme-danger-text: #ff9a88;
+  --theme-focus: #8fd9bd;
+  --theme-shadow: 0 18px 44px -24px rgb(0 0 0 / 0.7);
+  --theme-glow: 0 0 0 1px rgb(143 217 189 / 0.08), 0 20px 50px -30px rgb(0 0 0 / 0.8);
+
+  /* v1.34 "care" variables, re-pointed for the night palette. */
+  --care-pine: #e8e4d3;
+  --care-forest: #9ed4b6;
+  --care-ink: #e6eae0;
+  --care-muted: #a7b5a9;
+  --care-paper: #0a1714;
+  --care-surface: #12221e;
+  --care-line: #25392f;
+  --care-amber: #e4c18b;
+  --care-shadow: 0 18px 44px -24px rgb(0 0 0 / 0.7);
+}
+
+/* Theme switch: colours cross-fade instead of snapping (not on first paint). */
+html[data-theme-ready] body,
+html[data-theme-ready] .site-header__bar,
+html[data-theme-ready] .tabbar,
+html[data-theme-ready] .card {
+  transition: background-color 380ms var(--ease-care), color 380ms var(--ease-care), border-color 380ms var(--ease-care);
+}
+
+/* --- Header toggle -------------------------------------------------------- */
+.theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: var(--theme-text-muted);
+  transition: background-color 150ms, color 150ms, transform 140ms var(--ease-care);
+}
+.theme-toggle svg { width: 20px; height: 20px; }
+.theme-toggle:hover { background: rgb(var(--c-brand-50)); color: var(--theme-text); }
+.theme-toggle:active { transform: scale(0.94); }
+
+/* ===========================================================================
+   Dark overrides for v1.34 surfaces that use fixed colours.
+   Grouped by area; each block mirrors the light rule it replaces.
+=========================================================================== */
+html[data-theme="dark"] { scrollbar-color: #3a5248 #0a1714; }
+html[data-theme="dark"] body {
+  color: var(--care-ink);
+  background:
+    radial-gradient(ellipse 70% 30rem at 88% -4%, rgb(228 193 139 / 0.07), transparent),
+    radial-gradient(ellipse 60% 26rem at 0% 30%, rgb(92 205 172 / 0.05), transparent),
+    var(--care-paper);
+}
+html[data-theme="dark"] ::selection { background: #2c5a49; color: #f3f6ee; }
+html[data-theme="dark"] :is(input, textarea) { caret-color: #8fd9bd; }
+html[data-theme="dark"] :is(input, textarea)::placeholder { color: #8a998d; }
+html[data-theme="dark"] :focus-visible { outline-color: var(--theme-focus); }
+
+/* Utilities whose meaning is "light surface" or "brand text". */
+html[data-theme="dark"] .bg-white { background-color: rgb(var(--c-surface)); }
+html[data-theme="dark"] :is(.text-brand, .hover\:text-brand:hover, .group:hover .group-hover\:text-brand) { color: var(--theme-link); }
+html[data-theme="dark"] :is(.text-emergency, .hover\:text-emergency:hover) { color: var(--theme-danger-text); }
+html[data-theme="dark"] :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]):not([type="range"]) {
+  background-color: rgb(var(--c-surface));
+  color: rgb(var(--c-ink));
+  border-color: var(--theme-line);
+}
+html[data-theme="dark"] select option { background: #12221e; color: #e8ebe1; }
+
+/* Header, footer, tab bar. */
+html[data-theme="dark"] .site-header__bar {
+  background: rgb(14 30 26 / 0.86);
+  box-shadow: 0 12px 32px -22px rgb(0 0 0 / 0.9), inset 0 0 0 1px rgb(143 217 189 / 0.07);
+}
+html[data-theme="dark"] .site-nav__link { color: #b9c6bb; }
+html[data-theme="dark"] .site-nav__link:hover,
+html[data-theme="dark"] .site-nav__link[aria-current="page"] { color: #eef3ea; background: rgb(143 217 189 / 0.1); box-shadow: none; }
+html[data-theme="dark"] .site-nav__link--urgent { color: #ffab9b; background: rgb(194 65 47 / 0.16); }
+html[data-theme="dark"] .site-footer { background: #0d1c18; border-color: #1f322b; }
+html[data-theme="dark"] .site-footer p { color: #a7b5a9; }
+html[data-theme="dark"] .tabbar {
+  background: rgb(14 30 26 / 0.94);
+  box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.85), 0 0 0 1px rgb(143 217 189 / 0.08);
+}
+html[data-theme="dark"] .tabbar a { color: #a8b6aa; }
+html[data-theme="dark"] .tabbar a[aria-current="page"] { background: rgb(143 217 189 / 0.13); color: #b9ecd8; }
+html[data-theme="dark"] .tabbar a.tabbar__urgent { color: #ff9a88; }
+
+/* Buttons, cards, tiles. */
+html[data-theme="dark"] .btn-brand { background: #1f7a63; background-image: linear-gradient(180deg, #24876d, #1d7360); color: #fbfff9; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 10px 22px -14px rgb(31 122 99 / 0.9); }
+html[data-theme="dark"] .btn-emergency { background: #c2412f; }
+html[data-theme="dark"] .btn-ghost { background: #142722; border-color: #2a4238; color: #e6eae0; }
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .place-card { background: var(--care-surface); border-color: #23382f; }
+html[data-theme="dark"] .place-card__icon.icon3d,
+html[data-theme="dark"] .icon3d { background: linear-gradient(155deg, #1f362f, #15291f 70%); border-color: rgb(143 217 189 / 0.08); color: #a9dcc4; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05); }
+/* Clay icon tiles are ivory images; dim them slightly so they sit in the night palette. */
+html[data-theme="dark"] .icon-raster { filter: brightness(0.86) saturate(0.95); }
+html[data-theme="dark"] .care-dark-surface { background: linear-gradient(135deg, #1a3a2e, #0d211c); box-shadow: var(--theme-glow); }
+html[data-theme="dark"] .owner-home { background: linear-gradient(120deg, #13261f, #172a24); box-shadow: var(--theme-glow); }
+html[data-theme="dark"] .owner-home h2 { color: #eef0e4; }
+html[data-theme="dark"] .owner-home h2 span { color: #9ed4b6; }
+html[data-theme="dark"] :is(.owner-home > div > p, .owner-home__details small) { color: #a7b5a9; }
+html[data-theme="dark"] .home-partner { border-color: #24392f; }
+html[data-theme="dark"] .home-partner h2 { color: #eef0e4; }
+html[data-theme="dark"] .home-partner h2 span { color: #9ed4b6; }
+html[data-theme="dark"] .home-partner > a { background: #1f7a63; }
+html[data-theme="dark"] .status-pill--open { background: rgb(92 205 172 / 0.14); color: #a9e8d2; }
+html[data-theme="dark"] .status-pill--closed { background: rgb(236 239 230 / 0.07); color: #a8b6aa; }
+html[data-theme="dark"] .distance-pill { background: #1f7a63; }
+html[data-theme="dark"] .skeleton { background: linear-gradient(100deg, rgb(92 205 172 / 0.06) 25%, rgb(228 193 139 / 0.1) 50%, rgb(92 205 172 / 0.06) 75%); background-size: 220% 100%; }
+html[data-theme="dark"] .chip-off { border-color: #2a4238; color: #c8d3c9; }
+html[data-theme="dark"] .chip-on { background: rgb(92 205 172 / 0.14); border-color: #3f8f75; color: #b9ecd8; }
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-theme="dark"] .card:hover,
+  html[data-theme="dark"] .card:active { border-color: #3a5b4c; box-shadow: 0 16px 34px -24px rgb(0 0 0 / 0.9); }
+  html[data-theme="dark"] .btn-brand:hover { background: #24876d; }
+  html[data-theme="dark"] .btn-ghost:hover { background: #1a3029; }
+}
+
+/* Map (Leaflet): night tiles from the same OpenStreetMap source — no new host. */
+html[data-theme="dark"] .leaflet-container { background: #0e1d19; }
+html[data-theme="dark"] .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.82) contrast(0.92) saturate(0.6); }
+html[data-theme="dark"] :is(.leaflet-popup-content-wrapper, .leaflet-popup-tip, .leaflet-bar a, .leaflet-control-attribution) {
+  background: #142722;
+  color: #e6eae0;
+  border-color: #2a4238;
+}
+html[data-theme="dark"] .leaflet-control-attribution a { color: #8fd9bd; }
+
+html[data-theme="dark"] :is(.bg-white\/80, .bg-white\/85, .bg-white\/90, .bg-white\/95) { background-color: rgb(18 34 30 / 0.95); }
+
+/* Muted text (v1.34 used ink at 40–60 % opacity: 2.6–4.0:1, below WCAG AA).
+   Raised to ≥ 4.5:1 in both themes. :where() keeps specificity at one class,
+   so hover:text-* utilities still win. */
+:where(html) :is(.text-ink\/40, .text-ink\/45, .text-ink\/50, .text-ink\/55, .text-ink\/60) { color: rgb(var(--c-ink) / 0.72); }
+:where(html[data-theme="dark"]) :is(.text-ink\/40, .text-ink\/45, .text-ink\/50, .text-ink\/55, .text-ink\/60) { color: rgb(var(--c-ink) / 0.66); }
+
+/* Filled brand buttons keep pure white text (≥ 5:1 on the dark brand fill). */
+html[data-theme="dark"] .btn-brand { color: #fff; }
+
+/* Hand-kept exceptions to the generated overrides (pale fill + dark text). */
+html[data-theme="dark"] [class*="districtButton"][aria-pressed="true"] > span { color: #2c5446; }
+
+/* Print: ThemeToggle switches the page to light around window.print(). */

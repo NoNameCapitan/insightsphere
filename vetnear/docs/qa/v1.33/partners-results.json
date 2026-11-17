@@ -1,0 +1,30 @@
+[
+  {
+    "viewport": 390,
+    "checks": [
+      "cinematic landing/no overflow",
+      "finder canonical claim link",
+      "claim prefill",
+      "local draft no POST",
+      "portable text action",
+      "add-place no map",
+      "duplicates",
+      "operator unauthorized401"
+    ],
+    "passed": true
+  },
+  {
+    "viewport": 1440,
+    "checks": [
+      "cinematic landing/no overflow",
+      "finder canonical claim link",
+      "claim prefill",
+      "local draft no POST",
+      "portable text action",
+      "add-place no map",
+      "duplicates",
+      "operator unauthorized401"
+    ],
+    "passed": true
+  }
+]

@@ -1,5 +1,4 @@
-// Lead events (v1.9) — the signal a partner actually pays for, and the number
-// that makes this product valuable to a buyer. Pure module: validation, privacy
+// Outbound intent events. Clicks do not establish calls, appointments or revenue. Pure module: validation, privacy
 // hashing and aggregation live here so they can be tested without a database.
 //
 // Privacy stance: we never store an IP, a user agent or a user id. The session
@@ -18,8 +17,9 @@ export const LEAD_EVENT_TYPES: LeadEventType[] = [
   "detail_view",
 ];
 
-/** Events a partner is billed/credited for as a real lead (not just a view). */
-export const BILLABLE_LEAD_TYPES: LeadEventType[] = ["call", "route", "request"];
+/** No click is billable without an independently confirmed commercial outcome. */
+export const BILLABLE_LEAD_TYPES: LeadEventType[] = [];
+export const CONTACT_ACTION_TYPES: LeadEventType[] = ["call", "route", "website", "social"];
 
 const PLACE_ID_RE = /^[a-z0-9][a-z0-9_-]{1,79}$/i;
 const SOURCE_PATH_MAX = 120;
@@ -129,7 +129,7 @@ export function aggregateLeadEvents(
   };
 }
 
-/** Billable leads only — what an invoice would be built from. */
+/** Compatibility field; click telemetry never creates a payable outcome. */
 export function countBillableLeads(summary: LeadSummary): number {
   return BILLABLE_LEAD_TYPES.reduce((sum, t) => sum + summary.totals[t], 0);
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Landing } from "@/components/Landing";
 import { PLACES } from "@/lib/data/places";
+import { regionOf } from "@/config/coverage";
 import { ALL_DISTRICTS, DISTRICT_LABELS, normalizeDistrict } from "@/lib/labels";
 import type { KyivDistrict } from "@/lib/types";
 
@@ -33,7 +34,7 @@ export default async function DistrictPage({ params }: { params: Promise<{ distr
     notFound();
   }
   const label = DISTRICT_LABELS[district];
-  const places = PLACES.filter((p) => p.district === district).slice(0, 30);
+  const places = PLACES.filter((p) => regionOf(p) === "kyiv_city").filter((p) => p.district === district).slice(0, 30);
   return (
     <Landing
       h1={`Послуги для тварин — ${label}`}

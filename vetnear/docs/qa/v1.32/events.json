@@ -1,0 +1,30 @@
+[
+  {
+    "name": "desktop",
+    "status": "passed",
+    "checks": [
+      "hydration",
+      "responsive overflow",
+      "category + region",
+      "save + reload",
+      "archive + no invalid calendar",
+      "topic following",
+      "quota failure",
+      "no runtime errors"
+    ]
+  },
+  {
+    "name": "mobile",
+    "status": "passed",
+    "checks": [
+      "hydration",
+      "responsive overflow",
+      "category + region",
+      "save + reload",
+      "archive + no invalid calendar",
+      "topic following",
+      "quota failure",
+      "no runtime errors"
+    ]
+  }
+]

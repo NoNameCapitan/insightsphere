@@ -1,0 +1,54 @@
+[
+  {
+    "name": "Responsive home: 320, 390, 640, 768, 1024 and 1440 px; primary search visible",
+    "status": "passed"
+  },
+  {
+    "name": "Home animal and service selection reaches matching search",
+    "status": "passed"
+  },
+  {
+    "name": "Failed geocoding never silently chooses Kyiv; named location must be selected",
+    "status": "passed"
+  },
+  {
+    "name": "Name search, empty recovery and progressive result loading",
+    "status": "passed"
+  },
+  {
+    "name": "Keyboard radius selection and map toggle",
+    "status": "passed"
+  },
+  {
+    "name": "Urgent navigation opens direct urgent action without need selection",
+    "status": "passed"
+  },
+  {
+    "name": "Pet profile and record: explicit next date, storage failure retains input",
+    "status": "passed"
+  },
+  {
+    "name": "Active pet updates animal filter and manual location survives return without GPS",
+    "status": "passed"
+  },
+  {
+    "name": "Denied geolocation disclosure can close and reopen accessibly",
+    "status": "passed"
+  },
+  {
+    "name": "Cinematic hero respects reduced motion and desktop motion toggle",
+    "status": "passed"
+  },
+  {
+    "name": "Partner plans and local interest: no payment, correct draft, consent resets",
+    "status": "passed"
+  },
+  {
+    "name": "Partner draft quota failure retains the form and never claims delivery",
+    "status": "passed"
+  },
+  {
+    "name": "Home GET search works without JavaScript",
+    "status": "passed"
+  }
+]

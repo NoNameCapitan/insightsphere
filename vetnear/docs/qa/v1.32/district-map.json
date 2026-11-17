@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "checks": [
+    "HTML keyboard selection, visible focus, instant keyboard feedback, correct selected district CTA",
+    "SVG keyboard selection uses same controlled value and CTA",
+    "Motion pause/resume works without changing selected district",
+    "Direct pointer selection of a map polygon updates the same district and CTA",
+    "320/390/768/1440px no horizontal overflow; all HTML district targets >=44px",
+    "Reduced-motion preference stops spatial effects and leaves selection usable",
+    "Touch district selection and actual CTA navigation to Kyiv-city district results"
+  ],
+  "errors": [],
+  "baseUrl": "http://127.0.0.1:3001",
+  "browser": "Headless Chromium /usr/bin/chromium",
+  "productionHydration": "passed",
+  "sourceChangedAfterBuild": false,
+  "screenshots": [
+    "/workspace/work/screenshots/v132-map-prod-desktop.png",
+    "/workspace/work/screenshots/v132-map-selected-desktop.png",
+    "/workspace/work/screenshots/v132-map-mobile-viewport.png",
+    "/workspace/work/screenshots/v132-map-mobile-controls.png"
+  ],
+  "limitations": [
+    "Physical-device GPU performance not measured",
+    "Complete assistive-technology audit not performed",
+    "Service workers blocked in browser context to avoid stale preview caches"
+  ]
+}

@@ -1,5 +1,6 @@
 // Honest data-provenance badges + warnings (P0.2). Server-safe (pure).
-import { getDataBadge, getDataWarning, isDemoPlace, isVerifiedPlace, verificationLabel } from "@/lib/data/provenance";
+import { getDataBadge, getDataWarning, isDemoPlace, isVerifiedPlace, verificationLabel, verificationOf } from "@/lib/data/provenance";
+import { phoneConfirmationFreshness } from "@/lib/data/phoneConfirmation";
 import { isEmergencyPlace, isEmergencySearchSafe } from "@/lib/data/verification";
 import { EXTERNAL_LINK_PROPS, safeUrl } from "@/lib/security/url";
 import type { Place } from "@/lib/types";
@@ -51,10 +52,10 @@ export function DataWarningNote({ place, className = "" }: { place: Place; class
   if (!warning && !emergencyUnsafe) return null;
   return (
     <div className={`rounded-2xl border border-amber/30 bg-amber/5 px-3 py-2 text-xs text-ink/70 ${className}`}>
-      {warning && <p>⚠️ {warning}</p>}
+      {warning && <p>{warning}</p>}
       {emergencyUnsafe && (
         <p className="mt-1 font-medium text-amber">
-          Це демонстраційний запис невідкладної допомоги — НЕ покладайтесь на нього в екстреній ситуації.
+          Невідкладний або нічний прийом потребує свіжого підтвердження. Уточніть можливість прийому телефоном перед виїздом.
         </p>
       )}
     </div>
@@ -75,8 +76,9 @@ export function VerifiedMeta({
   className?: string;
   compact?: boolean;
 }) {
-  if (!isVerifiedPlace(place)) return null;
+  if (!isVerifiedPlace(place) && verificationOf(place) !== "source_checked") return null;
   const checked = place.lastVerifiedAt;
+  const phoneState = phoneConfirmationFreshness(place);
   const source = place.sourceLabel;
   const sourceHref = safeUrl(place.sourceUrl);
   const stale = checked ? new Date(checked).getTime() < STALE_BEFORE_MS : false;
@@ -93,8 +95,9 @@ export function VerifiedMeta({
   return (
     <div className={`flex flex-wrap items-center gap-1.5 text-[11px] ${className}`}>
       <span className="rounded-full border border-brand-200 bg-brand-50 px-2 py-0.5 font-medium text-brand-700">✓ {verificationLabel(place)}</span>
+      {place.phoneConfirmedAt && (phoneState === "current" || phoneState === "stale") && <span className="rounded-full bg-ink/5 px-2 py-1 text-ink/70">Дзвінок: {place.phoneConfirmedAt.slice(0, 10)}{phoneState === "stale" ? " · потребує оновлення" : ""}</span>}
       {checked && (
-        <span className="rounded-full bg-ink/5 px-2 py-0.5 text-ink/60">Востаннє перевірено: {checked}</span>
+        <span className="rounded-full bg-ink/5 px-2 py-0.5 text-ink/60">Джерело звірено: {checked}</span>
       )}
       {source && (
         <span className="rounded-full bg-ink/5 px-2 py-0.5 text-ink/60">

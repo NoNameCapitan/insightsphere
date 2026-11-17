@@ -3,25 +3,26 @@
 // fast and cannot block. The interactive client PlaceCard is used only on the
 // dynamic /nearby surface.
 import Link from "next/link";
-import { DataBadgeChip, VerifiedMeta } from "@/components/DataBadge";
+import { ServiceIcon } from "@/components/icons/ServiceIcons";
+import { DataBadgeChip, DataWarningNote, VerifiedMeta } from "@/components/DataBadge";
 import { TrustBadges } from "@/components/TrustBadges";
-import { CATEGORY_EMOJI, CATEGORY_LABELS } from "@/lib/labels";
+import { CATEGORY_LABELS, placeLocationLabel } from "@/lib/labels";
 import { googleMapsRoute } from "@/lib/maps";
 import { EXTERNAL_LINK_PROPS, safeUrl } from "@/lib/security/url";
+import { isEmergencyPlace, isEmergencySearchSafe, isPhoneConfirmedEmergency } from "@/lib/data/verification";
 import type { Place, TrustBadge } from "@/lib/types";
 
 // Only stable (non-time-dependent) badges are safe to bake into static HTML.
 function stableBadges(place: Place): TrustBadge[] {
   const b: TrustBadge[] = [];
   if (place.verified) b.push("verified");
-  if (place.emergencyAvailable || place.isOpen24_7) b.push("emergency");
-  if (!place.claimed) b.push("free");
+  if (isPhoneConfirmedEmergency(place)) b.push("emergency");
   return b;
 }
 
 export function PlaceCardStatic({ place }: { place: Place }) {
   const website = safeUrl(place.website);
-  const isEmergency = place.emergencyAvailable || place.isOpen24_7;
+  const isEmergency = isPhoneConfirmedEmergency(place);
 
   return (
     <div className={`card p-4 ${isEmergency ? "ring-1 ring-emergency/40" : ""}`}>
@@ -32,7 +33,7 @@ export function PlaceCardStatic({ place }: { place: Place }) {
             isEmergency ? "bg-emergency-50" : "bg-brand-50"
           }`}
         >
-          {CATEGORY_EMOJI[place.category]}
+          <ServiceIcon category={place.category} className="h-7 w-7" />
         </div>
 
         <div className="min-w-0 flex-1">
@@ -42,7 +43,7 @@ export function PlaceCardStatic({ place }: { place: Place }) {
           >
             {place.name}
           </Link>
-          <p className="text-sm text-ink/60">{CATEGORY_LABELS[place.category]}</p>
+          <p className="text-sm text-ink/60">{CATEGORY_LABELS[place.category]} · {placeLocationLabel(place)}</p>
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <DataBadgeChip place={place} />
             <VerifiedMeta place={place} compact />
@@ -55,6 +56,10 @@ export function PlaceCardStatic({ place }: { place: Place }) {
           )}
         </div>
       </div>
+
+      {isEmergencyPlace(place) && !isEmergencySearchSafe(place) && (
+        <DataWarningNote place={place} className="mt-3" />
+      )}
 
       <div className="mt-3 grid grid-cols-3 gap-2">
         <a href={`tel:${place.phone}`} className="btn btn-brand py-2 text-sm">

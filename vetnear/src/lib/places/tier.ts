@@ -15,7 +15,7 @@ export const PROMOTED_MAX_DISTANCE_ADVANTAGE_M = 1200;
 
 export const TIER_LABELS: Record<PlaceTier, string> = {
   free: "Безкоштовний профіль",
-  verified: "Підтверджений партнер",
+  verified: "Партнерський план",
   promoted: "Промо-розміщення",
 };
 
@@ -24,7 +24,9 @@ export function tierOf(place: Pick<Place, "tier">): PlaceTier {
 }
 
 /**
- * A promotion counts only while it is paid for. An expired or missing
+ * A configured commercial window counts only before its end. This legacy
+ * field is not payment evidence; verified billing entitlements are separate.
+ * An expired or missing
  * `promotedUntil` silently degrades the place to its organic position.
  */
 export function isPromotionActive(

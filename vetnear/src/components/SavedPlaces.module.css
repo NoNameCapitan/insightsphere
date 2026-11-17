@@ -1,0 +1,26 @@
+/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
+:global(html[data-theme="dark"]) .favoriteError { background: #142521; color: #dfbcb6; }
+:global(html[data-theme="dark"]) .entry { color: #c8e3d8; }
+:global(html[data-theme="dark"]) .intro { border: 1px solid #41473a; background: #13241f; }
+:global(html[data-theme="dark"]) .intro h2 { color: #d6ebe4; }
+:global(html[data-theme="dark"]) .intro p { color: #bbc5be; }
+:global(html[data-theme="dark"]) .note { border: 1px solid #41473a; background: #26251e; color: #c5d2ca; }
+:global(html[data-theme="dark"]) .count { color: #bbc5be; }
+/* @generated dark-theme:end */
+
+.favoriteWrap { position: relative; display: inline-flex; flex-shrink: 0; vertical-align: middle; }
+.compact { min-width: 44px; min-height: 44px; }
+.favoriteError { position: absolute; z-index: 30; top: calc(100% + 8px); right: 0; width: min(260px, calc(100vw - 48px)); padding: 12px 14px; border: 1px solid #d8bdb4; border-radius: 12px; background: #fff8f1; color: #7a3629; box-shadow: 0 8px 24px #183c301a; font-size: 13px; line-height: 1.6; font-weight: 400; }
+.favoriteErrorStart { right: auto; left: 0; }
+.entry { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 13px; font-weight: 650; color: #245742; }
+.entry svg { width: 18px; height: 18px; }
+.entry:hover { text-decoration: underline; text-underline-offset: 4px; }
+.intro { margin-top: 24px; padding: 28px; border: 1px solid #d8ded0; border-radius: 20px; background: #fffcf6; }
+.intro h2 { max-width: 25ch; font-size: 24px; line-height: 1.25; font-weight: 600; letter-spacing: -.025em; color: #183c30; }
+.intro p { max-width: 50ch; margin-top: 12px; font-size: 15px; line-height: 1.7; color: #5b6e60; }
+.intro a { margin-top: 20px; }
+.note { margin-top: 18px; padding: 16px; border: 1px solid #d8ded0; border-radius: 14px; background: #f2f1e7; font-size: 14px; line-height: 1.7; color: #435d4d; }
+.note button { display: block; min-height: 44px; margin-top: 4px; font-weight: 650; text-decoration: underline; text-underline-offset: 4px; }
+.count { margin: 24px 0 12px; font-size: 14px; color: #5b6e60; }
+.list { display: grid; gap: 12px; }
+@media (max-width: 380px) { .intro { padding: 22px; } .list :global(.place-card .btn) { padding-inline: 8px; gap: 6px; font-size: 13px; } .list :global(.place-card .btn svg) { display: none; } }

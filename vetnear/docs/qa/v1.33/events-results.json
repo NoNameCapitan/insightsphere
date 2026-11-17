@@ -1,0 +1,92 @@
+[
+  {
+    "width": 390,
+    "name": "no horizontal overflow",
+    "passed": true
+  },
+  {
+    "width": 390,
+    "name": "topics enabled before feed",
+    "passed": true
+  },
+  {
+    "width": 390,
+    "name": "no invented confirmed dates",
+    "passed": true
+  },
+  {
+    "width": 390,
+    "name": "saved-only view",
+    "passed": true
+  },
+  {
+    "width": 390,
+    "name": "save persists reload",
+    "passed": true
+  },
+  {
+    "width": 390,
+    "name": "followed topics filter",
+    "passed": true
+  },
+  {
+    "width": 390,
+    "name": "archive contains old campaign",
+    "passed": true
+  },
+  {
+    "width": 390,
+    "name": "pending events no calendar",
+    "passed": true
+  },
+  {
+    "width": 390,
+    "name": "quota error keeps unsaved state",
+    "passed": true
+  },
+  {
+    "width": 1440,
+    "name": "no horizontal overflow",
+    "passed": true
+  },
+  {
+    "width": 1440,
+    "name": "topics enabled before feed",
+    "passed": true
+  },
+  {
+    "width": 1440,
+    "name": "no invented confirmed dates",
+    "passed": true
+  },
+  {
+    "width": 1440,
+    "name": "saved-only view",
+    "passed": true
+  },
+  {
+    "width": 1440,
+    "name": "save persists reload",
+    "passed": true
+  },
+  {
+    "width": 1440,
+    "name": "followed topics filter",
+    "passed": true
+  },
+  {
+    "width": 1440,
+    "name": "archive contains old campaign",
+    "passed": true
+  },
+  {
+    "width": 1440,
+    "name": "pending events no calendar",
+    "passed": true
+  },
+  {
+    "width": 1440,
+    "name": "quota error keeps unsaved state",
+    "passed": true
+  }
+]

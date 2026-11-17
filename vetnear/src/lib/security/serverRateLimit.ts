@@ -1,6 +1,7 @@
 // Server-side API rate limiting. With Upstash REST env vars counters are
 // shared across Vercel instances; otherwise a bounded process-local fallback
 // keeps previews and local development protected.
+import { createHmac, randomBytes } from "node:crypto";
 
 export interface ServerRateLimitOptions {
   namespace?: string;
@@ -21,6 +22,7 @@ interface RedisConfig { url: string; token: string }
 const MAX_BUCKETS = 10_000;
 const REDIS_TIMEOUT_MS = 2_500;
 let warnedAboutRedis = false;
+const localSecret = randomBytes(32).toString("hex");
 
 function redisConfig(): RedisConfig | null {
   const url = process.env.UPSTASH_REDIS_REST_URL?.trim().replace(/\/$/, "");
@@ -31,6 +33,20 @@ function redisConfig(): RedisConfig | null {
 
 function safePart(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9:._-]/g, "_").slice(0, 120);
+}
+
+/** Never persist raw client IPs in Redis keys or process-local buckets.
+ * The existing production salt is preferred. Redis credentials provide a
+ * stable secret across instances when a preview omitted that salt; a random
+ * fallback is used only when there is no shared store configured. */
+function privateClientKey(value: string, namespace: string, config: RedisConfig | null): string {
+  const secret = process.env.LEAD_HASH_SALT?.trim()
+    || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
+    || config?.token
+    || localSecret;
+  return createHmac("sha256", secret)
+    .update(`vetnear:rate-limit:v1\0${namespace}\0${value}`)
+    .digest("hex");
 }
 
 async function redisCommand<T>(config: RedisConfig, command: Array<string | number>): Promise<T> {
@@ -56,10 +72,10 @@ const INCREMENT_SCRIPT = [
   "return {current, ttl}",
 ].join("\n");
 
-function warnAndFallback(error: unknown): void {
+function warnAndFallback(): void {
   if (warnedAboutRedis) return;
   warnedAboutRedis = true;
-  console.error("[rate-limit] distributed store unavailable; using process-local fallback", error);
+  console.error("[rate-limit] distributed store unavailable; using process-local fallback");
 }
 
 function createMemoryCounter() {
@@ -89,8 +105,8 @@ export function createServerRateLimiter(opts: ServerRateLimitOptions) {
   const incrementMemory = createMemoryCounter();
   const namespace = safePart(opts.namespace || "default");
   return async function check(key: string, now: number = Date.now()): Promise<ServerRateLimitResult> {
-    const normalizedKey = safePart(key) || "anonymous";
     const config = redisConfig();
+    const normalizedKey = privateClientKey(safePart(key) || "anonymous", `rl:${namespace}`, config);
     let count: number;
     let resetAt: number;
     if (config) {
@@ -102,8 +118,8 @@ export function createServerRateLimiter(opts: ServerRateLimitOptions) {
         const ttl = Math.max(1, Number(result[1]));
         if (!Number.isFinite(count) || !Number.isFinite(ttl)) throw new Error("Invalid Upstash counter response");
         resetAt = now + ttl;
-      } catch (error) {
-        warnAndFallback(error);
+      } catch {
+        warnAndFallback();
         const bucket = incrementMemory(normalizedKey, opts.windowMs, now);
         count = bucket.count;
         resetAt = bucket.resetAt;
@@ -131,42 +147,46 @@ export interface FailureTracker {
 export function createServerFailureTracker(opts: ServerRateLimitOptions): FailureTracker {
   const namespace = safePart(opts.namespace || "failures");
   const failures = new Map<string, Bucket>();
-  const redisKey = (key: string) => `vetnear:fail:${namespace}:${safePart(key) || "anonymous"}`;
+  const opaqueKey = (key: string, config: RedisConfig | null) => privateClientKey(safePart(key) || "anonymous", `fail:${namespace}`, config);
+  const redisKey = (key: string) => `vetnear:fail:${namespace}:${key}`;
   return {
     async isBlocked(key, now = Date.now()) {
       const config = redisConfig();
+      const clientKey = opaqueKey(key, config);
       if (config) {
         try {
-          const value = await redisCommand<string | null>(config, ["GET", redisKey(key)]);
+          const value = await redisCommand<string | null>(config, ["GET", redisKey(clientKey)]);
           return Number(value ?? 0) >= opts.limit;
-        } catch (error) { warnAndFallback(error); }
+        } catch { warnAndFallback(); }
       }
-      const current = failures.get(key);
+      const current = failures.get(clientKey);
       if (!current) return false;
-      if (current.resetAt <= now) { failures.delete(key); return false; }
+      if (current.resetAt <= now) { failures.delete(clientKey); return false; }
       return current.count >= opts.limit;
     },
     async recordFailure(key, now = Date.now()) {
       const config = redisConfig();
+      const clientKey = opaqueKey(key, config);
       if (config) {
         try {
           await redisCommand<[number, number]>(config, [
-            "EVAL", INCREMENT_SCRIPT, 1, redisKey(key), opts.windowMs,
+            "EVAL", INCREMENT_SCRIPT, 1, redisKey(clientKey), opts.windowMs,
           ]);
           return;
-        } catch (error) { warnAndFallback(error); }
+        } catch { warnAndFallback(); }
       }
       if (failures.size > 5_000) failures.clear();
-      const current = failures.get(key);
-      if (!current || current.resetAt <= now) failures.set(key, { count: 1, resetAt: now + opts.windowMs });
+      const current = failures.get(clientKey);
+      if (!current || current.resetAt <= now) failures.set(clientKey, { count: 1, resetAt: now + opts.windowMs });
       else current.count += 1;
     },
     async clear(key) {
-      failures.delete(key);
       const config = redisConfig();
+      const clientKey = opaqueKey(key, config);
+      failures.delete(clientKey);
       if (!config) return;
-      try { await redisCommand<number>(config, ["DEL", redisKey(key)]); }
-      catch (error) { warnAndFallback(error); }
+      try { await redisCommand<number>(config, ["DEL", redisKey(clientKey)]); }
+      catch { warnAndFallback(); }
     },
   };
 }

@@ -1,127 +1,204 @@
-export type KyivUpdateStatus = "confirmed" | "source_checked" | "needs_phone_check" | "coming_soon";
-export type KyivInfoKind = "event" | "vaccination" | "safety" | "campaign" | "service";
+import type { PlaceRegion } from "@/lib/types";
 
-export interface KyivUpdateSource { label: string; url: string; }
-export interface KyivOperationalUpdate {
-  id: string; date: string; status: KyivUpdateStatus; title: string; area: string;
-  summary: string; whyItMatters: string; action: string; sources: KyivUpdateSource[];
+export const KYIV_UPDATES_AS_OF = "2026-11-17";
+export const KYIV_EVENTS_TIMEZONE = "Europe/Kyiv";
+export const EVENT_CATEGORIES = ["vaccination", "adoption", "event", "opportunity"] as const;
+export type KyivEventCategory = (typeof EVENT_CATEGORIES)[number];
+export type KyivEventStatus = "upcoming" | "ongoing" | "expired" | "needs_confirmation";
+export type KyivEventScope = "current" | "archive" | "saved" | "following";
+export const EVENT_CATEGORY_LABELS: Record<KyivEventCategory, string> = {
+  vaccination: "Вакцинація", adoption: "Адопція", event: "Події", opportunity: "Можливості",
+};
+export const EVENT_STATUS_LABELS: Record<KyivEventStatus, string> = {
+  upcoming: "Заплановано", ongoing: "Постійна можливість", expired: "Дата минула", needs_confirmation: "Уточніть умови",
+};
+export interface KyivEventSource { label: string; url: string; publishedAt?: string; }
+export interface KyivEvent {
+  id: string;
+  category: KyivEventCategory;
+  title: string;
+  summary: string;
+  region: PlaceRegion;
+  locality: string;
+  venue: string;
+  schedule: { kind: "ongoing"; label: string } | { kind: "date"; startDate: string; endDate: string; label: string; datesConfirmed: boolean } | { kind: "unannounced"; label: string };
+  confirmation: "source_confirmed" | "needs_confirmation";
+  cost: "free" | "check";
+  eligibility: string;
+  action: string;
+  sources: KyivEventSource[];
+  lastCheckedAt: string;
+  reviewAfter: string;
 }
-export interface KyivInfoItem {
-  id: string; kind: KyivInfoKind; dateLabel: string; title: string; summary: string;
-  href: string; linkLabel: string; activeUntil?: string;
-}
 
-export const KYIV_UPDATES_AS_OF = "2026-11-09";
-
-/** Current operational changes. Finished one-off September events were removed. */
-export const KYIV_OPERATIONAL_UPDATES: KyivOperationalUpdate[] = [
+/** Editorial snapshot, not a live event feed. Source checks are not phone confirmations. */
+export const KYIV_EVENTS: KyivEvent[] = [
   {
-    id: "alert-load-november", date: "2026-11-09", status: "confirmed",
-    title: "49 тривог за неповний тиждень: маршрут до укриття став основним safety-сценарієм",
-    area: "Київ; особливо Солом’янський, Деснянський та Оболонський райони",
-    summary: "Від 2 листопада після 14:00 до 9 листопада 01:54 офіційна історія зафіксувала 49 інтервалів тривоги загальною тривалістю близько 46 годин. 7 листопада пошкодження цивільної інфраструктури зафіксували у трьох районах.",
-    whyItMatters: "Користувачу потрібен свіжий статус, найближче офіційне укриття і можливість одним натисканням продовжити свій маршрут.",
-    action: "Кнопка «Укриття» працює лише за свіжої підтвердженої тривоги; при помилці показується причина, ручне оновлення і офіційна карта.",
+    id: "kyiv-rabies-vaccination", category: "vaccination", title: "Щеплення від сказу без оплати за вакцину",
+    summary: "Державні ветлікарні Києва проводять безоплатну вакцинацію проти сказу. Знайдіть свій заклад в офіційному переліку та погодьте прийом.",
+    region: "kyiv_city", locality: "Київ", venue: "Державні ветеринарні лікарні міста",
+    schedule: { kind: "ongoing", label: "За попереднім записом" }, confirmation: "source_confirmed", cost: "free",
+    eligibility: "Домашні тварини. Вид тварини, допуск до щеплення, наявність вакцини й супутні послуги уточніть у лікарні.",
+    action: "Адреси та телефони лікарень",
     sources: [
-      { label: "Київ Цифровий — історія тривог", url: "https://kyiv.digital/storage/air-alert/stats.html" },
-      { label: "Поліція Києва — наслідки 7 листопада", url: "https://kyiv.npu.gov.ua/news/u-kyievi-vnaslidok-vorozhoi-ataky-postrazhdalo-piatero-liudei-politsiia-fiksuie-naslidky-rosiiskoho-udaru" },
-    ],
+      { label: "ОВМ · державні лікарні Києва", url: "https://ovm.gov.ua/index.php/derzhavni-veterynarni-kliniky-v-m-kyiv" },
+      { label: "ОВМ · про безоплатну вакцинацію", url: "https://ovm.gov.ua/index.php/1304-skaz-nebezpeka-pro-yaku-varto-pam-yatati", publishedAt: "2026-05-19" },
+    ], lastCheckedAt: KYIV_UPDATES_AS_OF, reviewAfter: "2026-12-17",
   },
   {
-    id: "a-vet-source-check", date: "2026-11-06", status: "source_checked",
-    title: "А-Вет уточнила повноцінний нічний формат на Оболоні",
-    area: "Оболонський район, просп. Володимира Івасюка, 8, корп. 8",
-    summary: "Офіційний сайт заявляє лікаря й асистента вночі, невідкладний прийом 24/7, автономне живлення, операційну, лабораторію, рентген, УЗД і стаціонар на 16 боксів, із яких шість кисневі. Амбулаторія на Івасюка, 4 працює 09:00–21:00.",
-    whyItMatters: "Це корисна резервна точка півночі Києва, але стаціонарну адресу не можна змішувати з амбулаторною.",
-    action: "Картки клініки й ветаптеки оновлено; перед нічним виїздом та під час тривоги VetNear радить телефонувати.",
+    id: "oblast-rabies-vaccination", category: "vaccination", title: "Безоплатна вакцина проти сказу на Київщині",
+    summary: "Обласна ветслужба публікує контакти державних лікарень. Зателефонуйте до найближчої установи: виїзний пункт або прийом сьогодні без підтвердження не обіцяємо.",
+    region: "kyiv_oblast", locality: "Київська область", venue: "Державні лікарні та дільниці за переліком області",
+    schedule: { kind: "ongoing", label: "Дату прийому погодьте з лікарнею" }, confirmation: "source_confirmed", cost: "free",
+    eligibility: "Для власників домашніх тварин. Наявність вакцини, вид тварини та умови прийому підтверджує конкретна установа.",
+    action: "Знайти державну лікарню",
     sources: [
-      { label: "Офіційний сайт А-Вет", url: "https://avet.kiev.ua/" },
-      { label: "Контакти та розподіл відділень", url: "https://avet.kiev.ua/kontakti/" },
-    ],
+      { label: "Держпродспоживслужба Київщини · установи", url: "https://dpssko.gov.ua/структура/підпорядковані-установи-лабораторі/" },
+      { label: "Держпродспоживслужба · безоплатна вакцина", url: "https://dpss.gov.ua/news/28-veresnia-vsesvitnii-den-borotby-zi-skazom-shcho-potribno-znaty-shchob-zakhystyty-sebe-i-tvaryn", publishedAt: "2026-09-28" },
+    ], lastCheckedAt: KYIV_UPDATES_AS_OF, reviewAfter: "2026-12-17",
   },
   {
-    id: "mini-pig-vaccination", date: "2026-11-06", status: "confirmed",
-    title: "Міська ветслужба вакцинувала свиней і мініпігів",
-    area: "Дніпровський район, зокрема тварини Piggy Cafe",
-    summary: "5 листопада фахівці ОВМ провели профілактичну вакцинацію проти класичної чуми свиней. Це завершений захід, а не постійний пункт вакцинації.",
-    whyItMatters: "Мініпіги та інші нетипові тварини потребують окремої спеціалізації в каталозі.",
-    action: "Додано інформаційний сигнал «мініпіги / екзотичні тварини»; кафе не публікується як ветзаклад.",
-    sources: [{ label: "ОВМ — офіційне повідомлення", url: "https://ovm.gov.ua/index.php/1483-profilaktychna-vaktsynatsiia-svynei-u-kyievi" }],
-  },
-  {
-    id: "city-lost-found", date: "2026-11-05", status: "confirmed",
-    title: "Міський реєстр загублених і знайдених тварин отримує нові записи",
-    area: "Київ, зокрема Виноградар",
-    summary: "На початку листопада в офіційному реєстрі з’явилися свіжі оголошення про загублених і знайдених тварин.",
-    whyItMatters: "VetNear не повинен створювати ізольований дубль міської бази або копіювати персональні контакти без згоди.",
-    action: "Сторінка VetNear тепер веде до офіційних списків і окремо пропонує знайти клініку для перевірки чипа.",
+    id: "gostomel-adoption", category: "adoption", title: "Друг чекає у Гостомелі",
+    summary: "Перегляньте тварин Gostomel Shelter та домовтеся про знайомство з командою. Анкета на сайті — перший крок до адопції.",
+    region: "kyiv_oblast", locality: "Гостомель", venue: "Gostomel Shelter · місце зустрічі погодьте з командою",
+    schedule: { kind: "ongoing", label: "Знайомство за домовленістю" }, confirmation: "source_confirmed", cost: "check",
+    eligibility: "Майбутні власники тварин. Наявність конкретної тварини та умови адопції підтверджує притулок.",
+    action: "Познайомитися з тваринами",
     sources: [
-      { label: "Загублені тварини", url: "https://pets.kyivcity.gov.ua/lost-animals" },
-      { label: "Знайдені тварини", url: "https://pets.kyivcity.gov.ua/lost-animals/found" },
-    ],
+      { label: "Gostomel Shelter · хочу друга", url: "https://www.gostomelshelter.com/hochu-druga" },
+      { label: "Контакти притулку", url: "https://www.gostomelshelter.com/ua-contacts" },
+    ], lastCheckedAt: KYIV_UPDATES_AS_OF, reviewAfter: "2026-12-17",
   },
   {
-    id: "municipal-clinics-alert-policy", date: "2026-09-17", status: "confirmed",
-    title: "Комунальні ветклініки залежать від рівня повітряної загрози",
-    area: "Героїв Енергетиків, 5-А; Ярославська, 13-А; Вірменська, 29",
-    summary: "За жовтого рівня клініки продовжують роботу з рекомендацією перейти в укриття. За червоного рівня три комунальні клініки припиняють прийом і зачиняються.",
-    whyItMatters: "Статичний статус «відкрито» не гарантує доступність маршруту під час тривоги.",
-    action: "VetNear позначає жовтий режим як call-first, а за підтвердженого червоного рівня блокує маршрут до цих клінік.",
-    sources: [{ label: "КМДА — офіційні правила", url: "https://kyivcity.gov.ua/news/komunalni_veterinarni_kliniki_kiyeva_zminili_rezhim_roboti_pid_chas_povitryanikh_trivog/" }],
+    id: "sirius-visits", category: "adoption", title: "Знайомство та прогулянка у «Сіріусі»",
+    summary: "Притулок у Федорівці публікує години відвідування у вихідні: 11:00–16:00. Перед дорогою зв’яжіться з командою та прочитайте правила.",
+    region: "kyiv_oblast", locality: "Федорівка, Вишгородський район", venue: "Притулок «Сіріус»",
+    schedule: { kind: "ongoing", label: "Сб–Нд, 11:00–16:00 · погодьте візит" }, confirmation: "source_confirmed", cost: "check",
+    eligibility: "Відвідування, знайомство з тваринами й адопція — за правилами притулку. Перед поїздкою перевірте можливість прийому.",
+    action: "Правила відвідування",
+    sources: [
+      { label: "«Сіріус» · правила візиту", url: "https://dogcat.com.ua/visiting-rules" },
+      { label: "«Сіріус» · контакти й години", url: "https://dogcat.com.ua/contacts" },
+    ], lastCheckedAt: KYIV_UPDATES_AS_OF, reviewAfter: "2026-12-17",
   },
   {
-    id: "empetico-coming-soon", date: "2026-11-09", status: "coming_soon",
-    title: "Empetico на Ревуцького, 12 ще не підтверджено як відкритий заклад",
-    area: "Позняки, Дарницький район",
-    summary: "Публічно доступна вакансія говорить про підготовку нового зоомагазину з грумінгом, але немає надійного підтвердження фактичного відкриття.",
-    whyItMatters: "Передчасна активна картка може привести користувача до закритих дверей.",
-    action: "Тримати статус coming_soon і не показувати маршрут або години до підтвердження відкриття.",
-    sources: [{ label: "Вакансія нового магазину", url: "https://www.work.ua/jobs/7823847/" }],
+    id: "ukc-pinscher-november", category: "event", title: "Племінний огляд цвергпінчерів",
+    summary: "Кінологічний клуб України вказує цю дату в календарі 2026 року. Час, точну адресу, реєстрацію та проведення потрібно підтвердити в організатора.",
+    region: "kyiv_city", locality: "Київ", venue: "Адресу організатор має уточнити",
+    schedule: { kind: "date", startDate: "2026-11-28", endDate: "2026-11-28", label: "28 листопада 2026 · час не підтверджено", datesConfirmed: true },
+    confirmation: "needs_confirmation", cost: "check", eligibility: "Для власників цвергпінчерів. Допуск, документи та вартість участі уточнюйте в ККУ.",
+    action: "Календар і контакти організатора", sources: [{ label: "Кінологічний клуб України · календар 2026", url: "https://ukc.org.ua/vistavki/" }],
+    lastCheckedAt: KYIV_UPDATES_AS_OF, reviewAfter: "2026-11-24",
+  },
+  {
+    id: "ukc-labrador-november", category: "event", title: "Племінний огляд лабрадорів",
+    summary: "Дата заявлена в календарі ККУ. У доступному анонсі немає точної локації й часу — перевірте деталі до реєстрації та поїздки.",
+    region: "kyiv_city", locality: "Київ", venue: "Адресу організатор має уточнити",
+    schedule: { kind: "date", startDate: "2026-11-29", endDate: "2026-11-29", label: "29 листопада 2026 · час не підтверджено", datesConfirmed: true },
+    confirmation: "needs_confirmation", cost: "check", eligibility: "Для власників лабрадорів. Правила участі й оплату уточнюйте в ККУ.",
+    action: "Календар і контакти організатора", sources: [{ label: "Кінологічний клуб України · календар 2026", url: "https://ukc.org.ua/vistavki/" }],
+    lastCheckedAt: KYIV_UPDATES_AS_OF, reviewAfter: "2026-11-24",
+  },
+  {
+    id: "adoptme-next-date", category: "event", title: "Наступний AdoptMe Days: чекаємо на дату",
+    summary: "Організатор описує фестиваль адопції, але нову дату в перевіреному джерелі не оголошено. Попередні фотозвіти не є анонсом наступного заходу.",
+    region: "kyiv_city", locality: "Київ · наступна локація не оголошена", venue: "AdoptMe Days",
+    schedule: { kind: "unannounced", label: "Наступну дату не підтверджено" }, confirmation: "needs_confirmation", cost: "check",
+    eligibility: "Для майбутніх власників та друзів притулків. Деталі нового заходу очікуються від організатора.",
+    action: "Перевірити сторінку організатора", sources: [{ label: "Gostomel Shelter · AdoptMe Days", url: "https://www.gostomelshelter.com/adopt-me-days" }],
+    lastCheckedAt: KYIV_UPDATES_AS_OF, reviewAfter: "2026-11-24",
+  },
+  {
+    id: "city-lost-found-register", category: "opportunity", title: "Пошук тварини через міський реєстр",
+    summary: "Перевірте офіційні оголошення про загублених і знайдених тварин або подайте своє повідомлення на модерацію. Особисті контакти залишаються в першоджерелі.",
+    region: "kyiv_city", locality: "Київ", venue: "Онлайн · Реєстр домашніх тварин",
+    schedule: { kind: "ongoing", label: "Онлайн-сервіс" }, confirmation: "source_confirmed", cost: "check",
+    eligibility: "Власники та люди, які знайшли тварину. Публікацію оголошення перевіряє модератор міського сервісу.",
+    action: "Відкрити міський реєстр", sources: [
+      { label: "Реєстр · загублені тварини", url: "https://pets.kyivcity.gov.ua/lost-animals" },
+      { label: "Реєстр · знайдені тварини", url: "https://pets.kyivcity.gov.ua/lost-animals/found" },
+    ], lastCheckedAt: KYIV_UPDATES_AS_OF, reviewAfter: "2026-12-17",
+  },
+  {
+    id: "obukhiv-vaccination-november", category: "vaccination", title: "Виїзні щеплення в Обухівській громаді",
+    summary: "Міська рада оголошувала безоплатні щеплення собак і котів від сказу 9–13 листопада в Обухові; окремий виїзд до Григорівки — 10 листопада. Ці дати вже минули.",
+    region: "kyiv_oblast", locality: "Обухів та Григорівка", venue: "Обухів, вул. Васильківська, 13; Григорівка, біля сільради",
+    schedule: { kind: "date", startDate: "2026-11-09", endDate: "2026-11-13", label: "9–13 листопада 2026", datesConfirmed: true },
+    confirmation: "source_confirmed", cost: "free", eligibility: "Архів оголошення. Новий прийом або наступну виїзну акцію уточнюйте окремо.",
+    action: "Прочитати початкове оголошення", sources: [{ label: "Обухівська міська рада", url: "https://obcity.gov.ua/2026/11/04/uvaga-bezkoshtovne-shheplennya-domashnikh-tvarin-proti-skazu-v-obukhivskiy-gromadi/", publishedAt: "2026-11-04" }],
+    lastCheckedAt: KYIV_UPDATES_AS_OF, reviewAfter: "2026-11-17",
   },
 ];
 
-/** Small owner-facing news strip. No newsletters or push notifications. */
-export const KYIV_INFO_ITEMS: KyivInfoItem[] = [
-  {
-    id: "power-coins-2026", kind: "campaign", dateLabel: "до 30 листопада",
-    title: "#PowerCoins на допомогу тваринам",
-    summary: "Кошти спрямовують на корм, лікування та облаштування притулків для евакуйованих тварин.",
-    href: "https://kyivcity.gov.ua/news/do_30_listopada_trivaye_aktsiya_PowerCoins_zi_zboru_koshtiv_na_dopomogu_tvarinam/",
-    linkLabel: "Умови кампанії", activeUntil: "2026-11-30",
-  },
-  {
-    id: "rabies-human-help", kind: "safety", dateLabel: "важливо завжди",
-    title: "Укус, подряпина або ослинення твариною",
-    summary: "Промийте місце контакту водою з милом 10–15 хвилин і якнайшвидше зверніться по безоплатну антирабічну допомогу. Рішення про вакцинацію приймає лікар.",
-    href: "https://kyiv.cdc.gov.ua/article/ukus-podryapyna-chy-oslynennya-tvarynoyu-kudy-zvertatysya-u-kyyevi-za-antyrabichnoyu-dopomogoyu/",
-    linkLabel: "Пункти допомоги в Києві",
-  },
-  {
-    id: "dog-shows-november", kind: "event", dateLabel: "28–29 листопада",
-    title: "Кінологічні заходи у Києві",
-    summary: "У календарі заявлені заходи для цвергпінчерів 28 листопада і лабрадорів 29 листопада. Перед поїздкою підтвердьте адресу та проведення в організатора.",
-    href: "https://ukc.org.ua/vistavki/", linkLabel: "Календар організатора", activeUntil: "2026-11-29",
-  },
-  {
-    id: "mini-pig-vaccination-info", kind: "vaccination", dateLabel: "5 листопада · завершено",
-    title: "Профілактична вакцинація мініпігів",
-    summary: "Міська ветслужба провела вакцинацію тварин у Дніпровському районі. Це новина, а не чинний пункт прийому.",
-    href: "https://ovm.gov.ua/index.php/1483-profilaktychna-vaktsynatsiia-svynei-u-kyievi",
-    linkLabel: "Офіційне повідомлення",
-  },
-];
+export function kyivCalendarDate(now: Date): string {
+  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: KYIV_EVENTS_TIMEZONE, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
+  const part = (type: string) => parts.find((item) => item.type === type)!.value;
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}
 
-export const EMERGENCY_VERIFICATION_FIELDS = [
-  "Чи приймає лікар просто зараз, а не лише чергує асистент?",
-  "Walk-in, call-first чи тільки за записом?",
-  "Який режим за жовтої та червоної повітряної загрози?",
-  "Чи доступні вночі лабораторія, рентген або УЗД?",
-  "Чи є стаціонар, резервне живлення та окремий нічний вхід?",
-  "Коли й ким інформацію підтверджено телефоном?",
-] as const;
+function validDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T12:00:00Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
 
-export const PARTNERSHIP_OPPORTUNITIES = [
-  { name: "UAnimals / #PowerCoins", timing: "до 30 листопада", action: "Запропонувати клінікам і зоомагазинам QR-перехід лише на офіційні реквізити кампанії.", url: "https://kyivcity.gov.ua/news/do_30_listopada_trivaye_aktsiya_PowerCoins_zi_zboru_koshtiv_na_dopomogu_tvarinam/" },
-  { name: "Міський реєстр тварин", timing: "актуально зараз", action: "Використовувати офіційні сторінки як основний канал lost/found і додати маршрут до сканера чипа.", url: "https://pets.kyivcity.gov.ua/lost-animals" },
-  { name: "ОВМ — нетипові тварини", timing: "після листопадової вакцинації", action: "Запросити перелік лікарів, які реально приймають мініпігів та екзотичних тварин.", url: "https://ovm.gov.ua/" },
-] as const;
+export function eventStatus(event: KyivEvent, now = new Date()): KyivEventStatus {
+  if (!validDate(event.reviewAfter) || !validDate(event.lastCheckedAt)) return "needs_confirmation";
+  if (event.schedule.kind === "date" && (!validDate(event.schedule.startDate) || !validDate(event.schedule.endDate) || event.schedule.endDate < event.schedule.startDate)) return "needs_confirmation";
+  const today = kyivCalendarDate(now);
+  if (event.schedule.kind === "date" && today > event.schedule.endDate) return "expired";
+  if (event.confirmation === "needs_confirmation" || event.schedule.kind === "unannounced" || today > event.reviewAfter) return "needs_confirmation";
+  if (event.schedule.kind === "date" && !event.schedule.datesConfirmed) return "needs_confirmation";
+  return event.schedule.kind === "date" && today < event.schedule.startDate ? "upcoming" : "ongoing";
+}
+
+export function eventStatusLabel(event: KyivEvent, now = new Date()): string {
+  const status = eventStatus(event, now);
+  return status === "ongoing" && event.schedule.kind === "date" ? "Триває" : EVENT_STATUS_LABELS[status];
+}
+
+export function filterKyivEvents(events: KyivEvent[], filters: {
+  category?: KyivEventCategory | "all"; region?: PlaceRegion | "all"; scope?: KyivEventScope;
+  savedIds?: string[]; followedCategories?: KyivEventCategory[];
+}, now = new Date()): KyivEvent[] {
+  const scope = filters.scope ?? "current";
+  return events.filter((event) => {
+    if (filters.category && filters.category !== "all" && event.category !== filters.category) return false;
+    if (filters.region && filters.region !== "all" && event.region !== filters.region) return false;
+    const expired = eventStatus(event, now) === "expired";
+    if (scope === "archive") return expired;
+    if (scope === "saved") return filters.savedIds?.includes(event.id) ?? false;
+    if (expired) return false;
+    if (scope === "following") return filters.followedCategories?.includes(event.category) ?? false;
+    return true;
+  });
+}
+
+export function isCalendarEligible(event: KyivEvent, now = new Date()): boolean {
+  const state = eventStatus(event, now);
+  return event.schedule.kind === "date" && event.schedule.datesConfirmed && (state === "upcoming" || state === "ongoing");
+}
+
+/** Only explicit, confirmed all-day dates; unknown times are never invented. */
+export function buildEventCalendar(event: KyivEvent, now = new Date()): string | null {
+  if (!isCalendarEligible(event, now) || event.schedule.kind !== "date") return null;
+  const escape = (text: string) => text.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+  const end = new Date(`${event.schedule.endDate}T12:00:00Z`);
+  end.setUTCDate(end.getUTCDate() + 1);
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//VetNear//Kyiv events//UK", "CALSCALE:GREGORIAN", "BEGIN:VEVENT",
+    `UID:${event.id}@vetnear`, `DTSTAMP:${now.toISOString().replace(/[-:]/g, "").slice(0, 15)}Z`,
+    `DTSTART;VALUE=DATE:${event.schedule.startDate.replace(/-/g, "")}`, `DTEND;VALUE=DATE:${end.toISOString().slice(0, 10).replace(/-/g, "")}`,
+    `SUMMARY:${escape(event.title)}`, `LOCATION:${escape(`${event.locality}, ${event.venue}`)}`,
+    `DESCRIPTION:${escape(`${event.summary}\nПеред поїздкою перевірте умови в організатора.\n${event.sources[0].url}`)}`, "END:VEVENT", "END:VCALENDAR"];
+  // RFC 5545 lines fold at 75 UTF-8 octets, not 75 JavaScript characters.
+  const fold = (line: string) => {
+    const chunks: string[] = []; let chunk = ""; let bytes = 0;
+    for (const character of line) {
+      const size = new TextEncoder().encode(character).length;
+      if (bytes + size > 75) { chunks.push(chunk); chunk = " "; bytes = 1; }
+      chunk += character; bytes += size;
+    }
+    chunks.push(chunk); return chunks.join("\r\n");
+  };
+  return `${lines.map(fold).join("\r\n")}\r\n`;
+}

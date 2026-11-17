@@ -2,11 +2,12 @@
 // Client-side lead reporting (v1.9).
 //
 // Fires alongside the existing `track()` analytics call. The difference matters:
-// `track()` is a local/demo debug stream, this one is the server-side record a
-// partner is shown and billed on.
+// `track()` measures the optional funnel; this endpoint measures outbound intent.
+// Neither a click nor a route is a confirmed appointment or a billable customer.
 //
 // Uses `navigator.sendBeacon` so the event survives the navigation that a
 // tel:/maps: link triggers — a plain fetch is frequently cancelled there.
+import { measurementAllowed } from "@/lib/measurement/client";
 import type { LeadEventType } from "@/lib/types";
 
 const ENDPOINT = "/api/events/lead";
@@ -16,7 +17,7 @@ const recent = new Map<string, number>();
 const DEDUPE_MS = 5_000;
 
 export function reportLead(placeId: string, eventType: LeadEventType): void {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "1" || !measurementAllowed()) return;
   if (!placeId) return;
 
   const key = `${placeId}:${eventType}`;

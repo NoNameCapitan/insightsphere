@@ -88,8 +88,8 @@ function Note({ children }: { children: React.ReactNode }) {
   return <p className="rounded-2xl bg-white/70 px-3 py-2 text-xs text-ink/70">{children}</p>;
 }
 
-export function NeedRouter() {
-  const [step, setStep] = useState<Step>("root");
+export function NeedRouter({ initialStep = "root" }: { initialStep?: "root" | "urgent" }) {
+  const [step, setStep] = useState<Step>(initialStep);
   const [pet, setPet] = useState<PetProfile | null>(null);
   useEffect(() => setPet(getActivePet()), []);
 

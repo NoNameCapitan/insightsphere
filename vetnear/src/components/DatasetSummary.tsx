@@ -19,6 +19,7 @@ const ORDER: { category: PlaceCategory; label: string }[] = [
 export function DatasetSummary({ className = "" }: { className?: string }) {
   const publicPlaces = PLACES.filter(isSearchablePublicPlace);
   const verifiedCount = publicPlaces.filter((p) => p.verificationStatus === "verified").length;
+  const sourceCheckedCount = publicPlaces.filter((p) => p.verificationStatus === "source_checked").length;
   const reviewCount = publicPlaces.filter((p) => p.verificationStatus === "needs_review").length;
   const counts = publicPlaces.reduce<Partial<Record<PlaceCategory, number>>>((m, p) => {
     m[p.category] = (m[p.category] ?? 0) + 1;
@@ -34,8 +35,9 @@ export function DatasetSummary({ className = "" }: { className?: string }) {
   return (
     <section className={`container-px mx-auto max-w-3xl ${className}`}>
       <div className="rounded-2xl border border-brand-100 bg-brand-50/40 px-4 py-3 text-sm text-ink/70">
-        <span className="font-semibold text-ink">База VetNear у Києві:</span>{" "}
-        {publicPlaces.length} місць — {verifiedCount} перевірено за публічними джерелами,{" "}
+        <span className="font-semibold text-ink">Каталог Києва та області:</span>{" "}
+        {publicPlaces.length} місць — {verifiedCount} пройшли ручну перевірку джерел,{" "}
+        {sourceCheckedCount} звірено з опублікованими джерелами,{" "}
         {reviewCount} очікують ручної перевірки · {parts.join(" · ")}.{" "}
         <span className="text-ink/60">Перед візитом зателефонуйте. {emergencyNote}</span>
       </div>

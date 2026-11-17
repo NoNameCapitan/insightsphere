@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS: { href: string; label: string; urgent?: boolean; match: (p: string) => boolean }[] = [
-  { href: "/help", label: "Терміново", urgent: true, match: (p) => p.startsWith("/help") },
-  { href: "/nearby", label: "Поруч", match: (p) => p.startsWith("/nearby") || p.startsWith("/place") },
+  { href: "/help?urgent=1", label: "Терміново", urgent: true, match: (p) => p.startsWith("/help") },
+  { href: "/nearby", label: "Поруч", match: (p) => p.startsWith("/nearby") || p.startsWith("/place") || p === "/saved" },
   { href: "/my-pets", label: "Мої тварини", match: (p) => p.startsWith("/my-pets") },
-  { href: "/kyiv-updates", label: "Актуальне", match: (p) => p.startsWith("/kyiv-updates") },
+  { href: "/kyiv-updates", label: "Події та користь", match: (p) => p.startsWith("/kyiv-updates") },
   { href: "/for-partners", label: "Партнерам", match: (p) => p.startsWith("/for-partners") },
 ];
 
@@ -15,7 +15,7 @@ const LINKS: { href: string; label: string; urgent?: boolean; match: (p: string)
 export function HeaderNav() {
   const pathname = usePathname() ?? "/";
   return (
-    <div className="hidden min-w-0 items-center gap-0.5 text-sm sm:flex">
+    <div className="hidden min-w-0 items-center gap-0.5 text-sm md:flex">
       {LINKS.map((link) => {
         const active = link.match(pathname);
         return (

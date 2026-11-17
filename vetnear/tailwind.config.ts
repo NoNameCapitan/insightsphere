@@ -8,46 +8,38 @@ import type { Config } from "tailwindcss";
  * apricot accent, and an emergency red that is never used decoratively.
  * The rings/pulse motif is the product signature (search radius made visible).
  */
+/** A theme colour that keeps Tailwind's opacity modifiers working (bg-brand/10). */
+const v = (name: string) => `rgb(var(--c-${name}) / <alpha-value>)`;
+
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      // Every colour is a CSS variable (src/app/theme.css), so the whole
+      // utility layer follows <html data-theme="light|dark"> automatically.
+      // Light values are unchanged from v1.34; dark values live in theme.css.
       colors: {
-        ink: "#142B28", // warm deep ink
-        canvas: "#FBF8F3", // warm ivory base (not hospital white)
-        surface: "#FBFDFC", // off-white with a 2% green tint
-        // Apricot — the single warm accent. Emotion only (aura, care details),
-        // never for urgent actions (red stays reserved for emergency).
-        peach: {
-          DEFAULT: "#F2A47E",
-          50: "#FEF6F0",
-          100: "#FBE8DB",
-          200: "#F6D2BD",
-          700: "#A8573A",
-        },
+        ink: v("ink"), // primary text
+        canvas: v("canvas"), // page background
+        surface: v("surface"), // cards, sheets, inputs
+        // Apricot — the single warm accent. Emotion only, never urgent actions.
+        peach: { DEFAULT: v("peach"), 50: v("peach-50"), 100: v("peach-100"), 200: v("peach-200"), 700: v("peach-700") },
         brand: {
-          DEFAULT: "#06756A", // deep teal, a touch more saturated (5.6:1 on white)
-          50: "#EEF9F5", // mint wash
-          100: "#DDF3EB",
-          200: "#BCE7D9", // mint
-          300: "#86D3BF",
-          400: "#12A892", // fresh teal: icons and active states, not body text
-          500: "#06756A",
-          600: "#05685E",
-          700: "#045A52",
-          800: "#034640",
-          900: "#02332F",
+          DEFAULT: v("brand"), // filled actions (white text on top)
+          50: v("brand-50"), // soft tinted backgrounds
+          100: v("brand-100"), // hairlines
+          200: v("brand-200"),
+          300: v("brand-300"),
+          400: v("brand-400"), // icons and active states, not body text
+          500: v("brand"),
+          600: v("brand-600"),
+          700: v("brand-700"), // strong brand text
+          800: v("brand-800"),
+          900: v("brand-900"),
         },
-        emergency: {
-          DEFAULT: "#CF4436", // warm coral red — reserved strictly for emergency
-          50: "#FFF4F1",
-          100: "#FDE3DD",
-          600: "#B5382C",
-          700: "#8F2B22",
-        },
-        amber: {
-          DEFAULT: "#B26A12", // caution / alert text; tints come from opacity
-        },
+        // Reserved strictly for emergency.
+        emergency: { DEFAULT: v("emergency"), 50: v("emergency-50"), 100: v("emergency-100"), 600: v("emergency-600"), 700: v("emergency-700") },
+        amber: { DEFAULT: v("amber") }, // caution / alert text
       },
       fontFamily: {
         // One self-hosted variable typeface (@fontsource) with full Cyrillic.

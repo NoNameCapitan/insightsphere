@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PlaceActions } from "@/components/PlaceActions";
+import { PlaceActions, PlaceOpeningStatus } from "@/components/PlaceActions";
 import { PlaceDetailMap } from "@/components/PlaceDetailMap";
 import { Disclaimer, JsonLd } from "@/components/JsonLd";
 import { TrustBadges } from "@/components/TrustBadges";
@@ -9,20 +9,17 @@ import { DataBadgeChip, DataWarningNote, VerifiedMeta } from "@/components/DataB
 import { ReportIncorrectButton } from "@/components/ReportIncorrectButton";
 import { ServiceIcon } from "@/components/icons/ServiceIcons";
 import { PlaceDetailUtilityActions } from "@/components/PlaceDetailUtilityActions";
-import { GeneratedVisual } from "@/components/GeneratedVisual";
-import { EMERGENCY_DATA_WARNING, isEmergencyPlace } from "@/lib/data/verification";
-import { PLACES } from "@/lib/data/places";
-import { isVerifiedPlace } from "@/lib/data/provenance";
+import { SearchReturnLink } from "@/components/SearchReturnLink";
+import { placeLocationLabel } from "@/lib/labels";
+import styles from "./place.module.css";
+import { isEmergencySearchSafe } from "@/lib/data/verification";
+import { getPublicPlace } from "@/lib/server/placesFeed";
 import { CATEGORY_LABELS, ANIMAL_LABELS } from "@/lib/labels";
 import { placeJsonLd, SITE } from "@/lib/seo";
 import { computeBadges } from "@/lib/trust";
 import type { PlaceWithDistance } from "@/lib/types";
 
 const DAY_LABELS = ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
-
-function findPlace(id: string) {
-  return PLACES.find((p) => p.slug === id || p.id === id) ?? null;
-}
 
 // Detail pages render the interactive client graph (PlaceActions, Leaflet map).
 // They are rendered ON DEMAND rather than prerendered: this keeps `next build`
@@ -32,7 +29,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const place = findPlace(id);
+  const place = await getPublicPlace(id);
   if (!place) return { title: "404" };
   const title = `${place.name} — ${CATEGORY_LABELS[place.category]}`;
   return {
@@ -49,7 +46,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 function HoursTable({ place }: { place: PlaceWithDistance }) {
-  if (place.isOpen24_7) return <p className="text-ink/70">Цілодобово — 24/7</p>;
+  if (place.isOpen24_7) {
+    return <p className="text-ink/70">{isEmergencySearchSafe(place)
+      ? "Цілодобовий графік підтверджено дзвінком. Перед виїздом уточніть можливість прийому."
+      : "Джерело вказує цілодобовий графік; VetNear ще не підтвердив його дзвінком. Уточніть графік і можливість прийому телефоном."}</p>;
+  }
   const order = [1, 2, 3, 4, 5, 6, 0];
   return (
     <ul className="divide-y divide-brand-100/70 rounded-2xl border border-brand-100">
@@ -59,7 +60,7 @@ function HoursTable({ place }: { place: PlaceWithDistance }) {
           <li key={day} className="flex justify-between px-4 py-2 text-sm">
             <span className="font-medium text-ink/80">{DAY_LABELS[day]}</span>
             <span className="text-ink/60">
-              {!wh || wh.closed ? "Зачинено" : `${wh.open}–${wh.close}`}
+              {!wh ? "Графік не уточнено" : wh.closed ? "Зачинено" : `${wh.open}–${wh.close}`}
             </span>
           </li>
         );
@@ -70,59 +71,43 @@ function HoursTable({ place }: { place: PlaceWithDistance }) {
 
 export default async function PlaceDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const base = findPlace(id);
+  const base = await getPublicPlace(id);
   if (!base) notFound();
   const place: PlaceWithDistance = { ...base, distanceMeters: null };
-  const isEmergency = place.emergencyAvailable || place.isOpen24_7;
-  const badges = computeBadges(place);
+  const badges = computeBadges(place).filter((badge) => badge === "data_outdated" || badge === "emergency" || badge === "claimed");
 
   return (
-    <article className="container-px mx-auto max-w-3xl py-6 pb-24 sm:pb-6">
+    <article className={`operating-screen container-px mx-auto max-w-3xl py-5 ${styles.page}`}>
       <JsonLd data={placeJsonLd(place)} />
 
-      <Link href="/nearby" className="text-sm text-brand hover:underline">
-        ← Пошук поруч
-      </Link>
+      <SearchReturnLink />
 
-      {/* 1. Header */}
-      <header className="relative mt-3 grid items-start gap-4 overflow-hidden rounded-3xl border border-brand-100 bg-white p-4 shadow-card sm:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="flex items-start gap-3">
-        <div
-          aria-hidden
-          className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl border ${
-            isEmergency ? "border-emergency/15 bg-emergency-50" : "border-brand-100 bg-brand-50"
-          }`}
-        >
-          <ServiceIcon category={place.category} className="h-9 w-9" />
+      <header className={styles.header}>
+        <div className={styles.titleRow}>
+          <span aria-hidden className={styles.categoryIcon}><ServiceIcon category={place.category} className="h-7 w-7" /></span>
+          <p>{CATEGORY_LABELS[place.category]} · {placeLocationLabel(place)}</p>
         </div>
-        <div className="min-w-0">
-          <h1 className="font-display text-2xl font-extrabold text-ink">{place.name}</h1>
-          <p className="text-ink/60">{CATEGORY_LABELS[place.category]}</p>
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            {/* Verified places already show this label in VerifiedMeta below. */}
-            {!isVerifiedPlace(place) && <DataBadgeChip place={place} />}
-            <TrustBadges badges={badges} />
-          </div>
-          <VerifiedMeta place={place} className="mt-2" />
-          <p className="mt-3 text-sm text-ink/60">
-            Перед візитом зателефонуйте — графік, ціни та наявність можуть змінюватися.
-          </p>
-        </div></div>
-        <GeneratedVisual src="/visuals/h-place-detail.webp" className="mx-auto h-56 w-full max-w-[380px] sm:h-60" motion="tilt" glow shine shadow sizes="(max-width: 640px) 90vw, 380px" />
+        <h1 className={styles.title}>{place.name}</h1>
+        <p className={styles.address}>{place.address}</p>
+        <div className={styles.statusRow}>
+          <PlaceOpeningStatus place={place} />
+          <DataBadgeChip place={place} />
+          <TrustBadges badges={badges} />
+        </div>
       </header>
 
-      <DataWarningNote place={place} className="mt-4" />
-      {isEmergencyPlace(place) && (
-        <div className="mt-3 rounded-2xl border border-emergency/30 bg-emergency-50 px-4 py-3 text-sm text-emergency-700">
-          {EMERGENCY_DATA_WARNING}
-        </div>
-      )}
-
-      {/* 2. Quick actions + 7/4/12 interactions */}
-      <div className="mt-5">
+      <section className={styles.contact} aria-label="Контакти й запис">
         <PlaceActions place={place} />
-      </div>
+      </section>
       <PlaceDetailUtilityActions placeId={place.id} />
+
+      <details className={styles.provenance}>
+        <summary>Як перевірено інформацію</summary>
+        <VerifiedMeta place={place} className="mt-2" />
+        {!place.lastVerifiedAt && <p className="mt-2 text-sm text-ink/70">Дата підтвердження не вказана. Перед візитом уточніть контакти й умови у закладі.</p>}
+        {place.lastVerifiedAt && <p className="mt-2 text-sm text-ink/70">Перевірка даних: {place.lastVerifiedAt}. Це не гарантія прийому зараз.</p>}
+        <DataWarningNote place={place} className="mt-3" />
+      </details>
 
       {/* 3. About */}
       <section className="mt-6">
@@ -149,12 +134,18 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ i
       <section className="mt-6">
         <h2 className="mb-2 font-display text-lg font-bold text-ink">Які тварини</h2>
         <div className="flex flex-wrap gap-2">
+          {place.animalTypes.length === 0 && <p className="text-sm text-ink/70">Спеціалізацію за видом тварини ще не уточнено. Запитайте під час дзвінка.</p>}
           {place.animalTypes.map((a) => (
             <span key={a} className="rounded-full bg-brand-50 px-3 py-1 text-sm text-brand-700">
               {ANIMAL_LABELS[a]}
             </span>
           ))}
         </div>
+      </section>
+
+      <section className={styles.photoNote} aria-label="Фотографії закладу">
+        <svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 6h4l2-2h4l2 2h4v14H4Z"/><circle cx="12" cy="12" r="4"/></svg>
+        <div><h2>Фото закладу ще не додано</h2><p>Вхід і приміщення можна уточнити на офіційному сайті.</p></div>
       </section>
 
       {/* 7. Contacts */}
@@ -178,7 +169,8 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ i
         <PlaceDetailMap place={place} />
       </section>
 
-      <div className="mt-6">
+      <div className="mt-6 space-y-3">
+        <Link href={`/partner-interest?claim=${encodeURIComponent(place.slug)}`} className="inline-flex min-h-11 items-center text-sm font-semibold text-brand underline underline-offset-4">Це ваш заклад? Уточніть дані профілю</Link>
         <ReportIncorrectButton placeId={place.id} placeName={place.name} />
         <Disclaimer text="VetNear — інформаційний сервіс. Ми не ставимо діагнози та не призначаємо лікування. У невідкладних випадках звертайтесь до ветеринара." />
       </div>

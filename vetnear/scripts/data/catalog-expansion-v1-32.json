@@ -1,0 +1,1502 @@
+{
+  "checkedAt": "2026-11-17",
+  "records": [
+    {
+      "id": "genesis-hospital-kyiv",
+      "name": "Genesis Hospital",
+      "category": "veterinary_clinic",
+      "region": "kyiv_city",
+      "locality": "Київ",
+      "district": "solomianskyi",
+      "address": "пров. Індустріальний, 23",
+      "phone": "+380669303030",
+      "website": "https://genesishospital.com.ua/",
+      "latitude": 50.4424707,
+      "longitude": 30.445379,
+      "sourceUrl": "https://genesishospital.com.ua/contact/",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://maps.app.goo.gl/X5DMNRsnwy6b6JjC7",
+      "coordinateMethod": "official_map_marker",
+      "services": [
+        "Терапія",
+        "Хірургія",
+        "Лабораторія",
+        "УЗД",
+        "Рентген",
+        "Екзотичні тварини"
+      ],
+      "animalTypes": [
+        "dog",
+        "cat",
+        "rodent",
+        "reptile",
+        "exotic"
+      ],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 1,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 2,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 3,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 4,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 5,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 6,
+          "open": "00:00",
+          "close": "23:59"
+        }
+      ],
+      "reviewNote": "Офіційно заявлено 24/7; нічний прийом і роботу під час тривоги не підтверджено дзвінком. Перед виїздом телефонуйте.",
+      "flags": {
+        "hasSurgery": true,
+        "hasUltrasound": true,
+        "hasXray": true
+      },
+      "isOpen24_7": true,
+      "serviceSourceUrls": [
+        "https://genesishospital.com.ua/",
+        "https://genesishospital.com.ua/departments/ekzot/"
+      ],
+      "hoursSourceUrl": "https://genesishospital.com.ua/"
+    },
+    {
+      "id": "genesis-care-olesia",
+      "name": "Genesis Care (Олександра Олеся)",
+      "category": "veterinary_clinic",
+      "region": "kyiv_city",
+      "locality": "Київ",
+      "district": "podilskyi",
+      "address": "вул. Олександра Олеся, 25",
+      "phone": "+380932272727",
+      "website": "https://genesishospital.com.ua/care/",
+      "latitude": 50.5030429,
+      "longitude": 30.4090313,
+      "sourceUrl": "https://genesishospital.com.ua/care/",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://maps.app.goo.gl/W255hbpzbvSdPkf66",
+      "coordinateMethod": "official_map_marker",
+      "services": [
+        "Терапія",
+        "Вакцинація",
+        "Лабораторія",
+        "УЗД",
+        "Хірургія"
+      ],
+      "animalTypes": [
+        "dog",
+        "cat",
+        "exotic"
+      ],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "10:00",
+          "close": "20:00"
+        },
+        {
+          "day": 1,
+          "open": "10:00",
+          "close": "20:00"
+        },
+        {
+          "day": 2,
+          "open": "10:00",
+          "close": "20:00"
+        },
+        {
+          "day": 3,
+          "open": "10:00",
+          "close": "20:00"
+        },
+        {
+          "day": 4,
+          "open": "10:00",
+          "close": "20:00"
+        },
+        {
+          "day": 5,
+          "open": "10:00",
+          "close": "20:00"
+        },
+        {
+          "day": 6,
+          "open": "10:00",
+          "close": "20:00"
+        }
+      ],
+      "reviewNote": "Складні випадки клініка направляє до головного шпиталю. Наявність потрібного фахівця уточнюйте.",
+      "flags": {
+        "hasSurgery": true,
+        "hasUltrasound": true
+      },
+      "serviceSourceUrls": [
+        "https://genesishospital.com.ua/care/"
+      ],
+      "hoursSourceUrl": "https://genesishospital.com.ua/care/"
+    },
+    {
+      "id": "hab-vet-zhytomyrska",
+      "name": "HAB VET",
+      "category": "veterinary_clinic",
+      "region": "kyiv_city",
+      "locality": "Київ",
+      "district": "shevchenkivskyi",
+      "address": "вул. Велика Житомирська, 30",
+      "phone": "+380973093309",
+      "website": "https://hab.vet/",
+      "latitude": 50.4553984,
+      "longitude": 30.5104032,
+      "sourceUrl": "https://hab.vet/",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://goo.gl/maps/pdWXmXv9ze4KLSV9A",
+      "coordinateMethod": "official_map_marker",
+      "services": [
+        "Терапія",
+        "Лабораторія",
+        "УЗД",
+        "Вакцинація",
+        "Хірургія",
+        "Стоматологія"
+      ],
+      "animalTypes": [
+        "dog",
+        "cat"
+      ],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 1,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 2,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 3,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 4,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 5,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 6,
+          "open": "09:00",
+          "close": "20:00"
+        }
+      ],
+      "reviewNote": "Цілодобовий догляд у стаціонарі не означає нічний прийом нових пацієнтів.",
+      "flags": {
+        "hasSurgery": true,
+        "hasUltrasound": true
+      },
+      "serviceSourceUrls": [
+        "https://hab.vet/"
+      ],
+      "hoursSourceUrl": "https://hab.vet/"
+    },
+    {
+      "id": "neovetlab-vasylkivska",
+      "name": "НеоВетЛаб Україна",
+      "category": "other_pet_service",
+      "region": "kyiv_city",
+      "locality": "Київ",
+      "district": "holosiivskyi",
+      "address": "вул. Васильківська, 28",
+      "phone": "+380501913383",
+      "website": "https://www.neovetlab.com.ua/ua/",
+      "latitude": 50.3949787,
+      "longitude": 30.4920053,
+      "sourceUrl": "https://www.neovetlab.com.ua/ua/",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://www.neovetlab.com.ua/ua/",
+      "coordinateMethod": "official_map_address_marker",
+      "services": [
+        "Ветеринарна лабораторія",
+        "Титр антитіл до сказу",
+        "Забір зразків",
+        "Чіпування",
+        "Вакцинація"
+      ],
+      "animalTypes": [
+        "dog",
+        "cat"
+      ],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "00:00",
+          "close": "00:00",
+          "closed": true
+        },
+        {
+          "day": 1,
+          "open": "09:30",
+          "close": "17:30"
+        },
+        {
+          "day": 2,
+          "open": "09:30",
+          "close": "17:30"
+        },
+        {
+          "day": 3,
+          "open": "09:30",
+          "close": "17:30"
+        },
+        {
+          "day": 4,
+          "open": "09:30",
+          "close": "17:30"
+        },
+        {
+          "day": 5,
+          "open": "09:30",
+          "close": "17:30"
+        },
+        {
+          "day": 6,
+          "open": "00:00",
+          "close": "00:00",
+          "closed": true
+        }
+      ],
+      "reviewNote": "Забір матеріалу в лабораторії — за попереднім записом. Вимоги до зразків і документів уточнюйте безпосередньо у лабораторії. Координати позначають будинок; точний вхід уточнюйте.",
+      "flags": {
+        "appointmentRequired": true
+      },
+      "coordinateEvidence": "Адресний marker [50.3949787,30.4920053] у Google Maps iframe офіційного сайту; не viewport center.",
+      "serviceSourceUrls": [
+        "https://www.neovetlab.com.ua/ua/"
+      ],
+      "hoursSourceUrl": "https://www.neovetlab.com.ua/ua/",
+      "routeByAddress": true
+    },
+    {
+      "id": "vetnova-humennoi",
+      "name": "ВетНова",
+      "category": "veterinary_clinic",
+      "region": "kyiv_city",
+      "locality": "Київ",
+      "district": "holosiivskyi",
+      "address": "вул. Докії Гуменної, 2",
+      "phone": "+380973383368",
+      "website": "https://vetnova.ua/",
+      "latitude": 50.3853241,
+      "longitude": 30.4506368,
+      "sourceUrl": "https://vetnova.ua/contacts/",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://vetnova.ua/contacts/",
+      "coordinateMethod": "official_map_marker",
+      "services": [
+        "Терапія",
+        "Лабораторія",
+        "УЗД",
+        "Рентген",
+        "Стаціонар",
+        "Ортопедія"
+      ],
+      "animalTypes": [
+        "dog",
+        "cat"
+      ],
+      "workingHours": [],
+      "reviewNote": "Прийом за записом; 10:00–11:00 — передача зміни без прийому. Під час комендантської години сайт заявляє лише невідкладні випадки. Цілодобовий безперервний прийом не підтверджено.",
+      "flags": {
+        "appointmentRequired": true,
+        "hasUltrasound": true,
+        "hasXray": true
+      },
+      "coordinateEvidence": "Marker Veterynarna Klinika Vetnova [50.3853241,30.4506368] у Google Maps iframe офіційної сторінки.",
+      "serviceSourceUrls": [
+        "https://vetnova.ua/"
+      ],
+      "hoursUnknownReason": "Перерва 10:00–11:00 і обмеження нічного прийому не моделюються одним щоденним інтервалом."
+    },
+    {
+      "id": "neurocare-hnata-yury",
+      "name": "Neurocare — неврологія та реабілітація",
+      "category": "veterinary_clinic",
+      "region": "kyiv_city",
+      "locality": "Київ",
+      "district": "sviatoshynskyi",
+      "address": "вул. Гната Юри, 9 (вхід з двору)",
+      "phone": "+380914810189",
+      "website": "https://vetneurocare.com/",
+      "latitude": 50.43141,
+      "longitude": 30.3850684,
+      "sourceUrl": "https://vetneurocare.com/",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://vetneurocare.com/",
+      "coordinateMethod": "official_site_map_coordinates",
+      "services": [
+        "Неврологія",
+        "Нейрохірургія",
+        "Реабілітація"
+      ],
+      "animalTypes": [],
+      "workingHours": [],
+      "reviewNote": "Офіційний сайт просить уточнювати графік телефоном під час воєнного стану. Вид тварини та запис до спеціаліста уточнюйте.",
+      "flags": {
+        "hasSurgery": true
+      },
+      "coordinateEvidence": "data-widget-latlng=\"50.43141,30.3850684\" на офіційному сайті.",
+      "hoursUnknownReason": "Графік на період воєнного стану — за телефоном.",
+      "serviceSourceUrls": [
+        "https://vetneurocare.com/"
+      ]
+    },
+    {
+      "id": "ua-vet-olzhycha",
+      "name": "UA-Vet — ветаптека та зоомаркет",
+      "category": "vet_pharmacy",
+      "region": "kyiv_city",
+      "locality": "Київ",
+      "district": "shevchenkivskyi",
+      "address": "вул. Ольжича, 8",
+      "phone": "+380667832306",
+      "website": "https://www.ua-vet.com/",
+      "latitude": 50.4786801,
+      "longitude": 30.4492371,
+      "sourceUrl": "https://www.ua-vet.com/",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://maps.app.goo.gl/JFmDkDftsLa7QaQW9",
+      "coordinateMethod": "official_map_marker",
+      "services": [
+        "Ветаптека",
+        "Корми",
+        "Зоотовари",
+        "Самовивіз"
+      ],
+      "animalTypes": [
+        "dog",
+        "cat",
+        "rodent",
+        "bird"
+      ],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "10:00",
+          "close": "18:00"
+        },
+        {
+          "day": 1,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 2,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 3,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 4,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 5,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 6,
+          "open": "10:00",
+          "close": "18:00"
+        }
+      ],
+      "reviewNote": "Наявність препаратів уточнюйте. Офіційний сайт: оплата лише в магазині, доставки та передоплати немає.",
+      "flags": {
+        "hasPharmacy": true,
+        "pickupAvailable": true
+      },
+      "serviceSourceUrls": [
+        "https://www.ua-vet.com/"
+      ],
+      "hoursSourceUrl": "https://www.ua-vet.com/"
+    },
+    {
+      "id": "ukrzoovet-vasylkivska",
+      "name": "Укрзооветпромпостач (Васильківська)",
+      "category": "vet_pharmacy",
+      "region": "kyiv_city",
+      "locality": "Київ",
+      "district": "holosiivskyi",
+      "address": "вул. Васильківська, 16",
+      "phone": "+380981112716",
+      "website": "https://ukrzoovet.com.ua/",
+      "latitude": 50.3963281,
+      "longitude": 30.5001506,
+      "sourceUrl": "https://ukrzoovet.com.ua/firmovi-tochki-prodazhu",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://maps.app.goo.gl/7R5wXX6DbHvEt6As5",
+      "coordinateMethod": "official_map_marker",
+      "services": [
+        "Ветеринарні препарати",
+        "Засоби догляду"
+      ],
+      "animalTypes": [],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "09:00",
+          "close": "14:00"
+        },
+        {
+          "day": 1,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 2,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 3,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 4,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 5,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 6,
+          "open": "09:00",
+          "close": "18:00"
+        }
+      ],
+      "reviewNote": "Наявність конкретного препарату, умови відпуску та придатність для вашої тварини уточнюйте у ветаптеці.",
+      "flags": {
+        "hasPharmacy": true
+      },
+      "serviceSourceUrls": [
+        "https://ukrzoovet.com.ua/firmovi-tochki-prodazhu"
+      ],
+      "hoursSourceUrl": "https://ukrzoovet.com.ua/firmovi-tochki-prodazhu"
+    },
+    {
+      "id": "ukrzoovet-vyshhorodska",
+      "name": "Укрзооветпромпостач (Вишгородська)",
+      "category": "vet_pharmacy",
+      "region": "kyiv_city",
+      "locality": "Київ",
+      "district": "obolonskyi",
+      "address": "вул. Вишгородська, 20/1",
+      "phone": "+380988509551",
+      "website": "https://ukrzoovet.com.ua/",
+      "latitude": 50.5039075,
+      "longitude": 30.451911,
+      "sourceUrl": "https://ukrzoovet.com.ua/firmovi-tochki-prodazhu",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://maps.app.goo.gl/xpBh8F7cbdEwGGdWA",
+      "coordinateMethod": "official_map_marker",
+      "services": [
+        "Ветеринарні препарати",
+        "Засоби догляду"
+      ],
+      "animalTypes": [],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "00:00",
+          "close": "00:00",
+          "closed": true
+        },
+        {
+          "day": 1,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 2,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 3,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 4,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 5,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 6,
+          "open": "09:00",
+          "close": "14:00"
+        }
+      ],
+      "reviewNote": "Наявність конкретного препарату, умови відпуску та придатність для вашої тварини уточнюйте у ветаптеці.",
+      "flags": {
+        "hasPharmacy": true
+      },
+      "serviceSourceUrls": [
+        "https://ukrzoovet.com.ua/firmovi-tochki-prodazhu"
+      ],
+      "hoursSourceUrl": "https://ukrzoovet.com.ua/firmovi-tochki-prodazhu"
+    },
+    {
+      "id": "ukrzoovet-hradynska",
+      "name": "Укрзооветпромпостач (Градинська)",
+      "category": "vet_pharmacy",
+      "region": "kyiv_city",
+      "locality": "Київ",
+      "district": "desnianskyi",
+      "address": "вул. Градинська, 7",
+      "phone": "+380975992261",
+      "website": "https://ukrzoovet.com.ua/",
+      "latitude": 50.5183638,
+      "longitude": 30.5986522,
+      "sourceUrl": "https://ukrzoovet.com.ua/firmovi-tochki-prodazhu",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://maps.app.goo.gl/PpF8XDQNQfu4FWgAA",
+      "coordinateMethod": "official_map_marker",
+      "services": [
+        "Ветеринарні препарати",
+        "Засоби догляду"
+      ],
+      "animalTypes": [],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "00:00",
+          "close": "00:00",
+          "closed": true
+        },
+        {
+          "day": 1,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 2,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 3,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 4,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 5,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 6,
+          "open": "09:00",
+          "close": "14:00"
+        }
+      ],
+      "reviewNote": "Наявність конкретного препарату, умови відпуску та придатність для вашої тварини уточнюйте у ветаптеці.",
+      "flags": {
+        "hasPharmacy": true
+      },
+      "serviceSourceUrls": [
+        "https://ukrzoovet.com.ua/firmovi-tochki-prodazhu"
+      ],
+      "hoursSourceUrl": "https://ukrzoovet.com.ua/firmovi-tochki-prodazhu"
+    },
+    {
+      "id": "sirius-fedorivka",
+      "name": "Притулок «Сіріус»",
+      "category": "shelter",
+      "region": "kyiv_oblast",
+      "locality": "Федорівка",
+      "address": "с. Федорівка, притулок «Сіріус»",
+      "phone": "+380931934069",
+      "website": "https://dogcat.com.ua/",
+      "latitude": 50.891532,
+      "longitude": 30.219491,
+      "sourceUrl": "https://dogcat.com.ua/contacts",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://dogcat.com.ua/contacts",
+      "coordinateMethod": "official_site_map_coordinates",
+      "services": [
+        "Адопція тварин",
+        "Волонтерство"
+      ],
+      "animalTypes": [
+        "dog",
+        "cat"
+      ],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "11:00",
+          "close": "16:00"
+        },
+        {
+          "day": 1,
+          "open": "00:00",
+          "close": "00:00",
+          "closed": true
+        },
+        {
+          "day": 2,
+          "open": "00:00",
+          "close": "00:00",
+          "closed": true
+        },
+        {
+          "day": 3,
+          "open": "00:00",
+          "close": "00:00",
+          "closed": true
+        },
+        {
+          "day": 4,
+          "open": "00:00",
+          "close": "00:00",
+          "closed": true
+        },
+        {
+          "day": 5,
+          "open": "00:00",
+          "close": "00:00",
+          "closed": true
+        },
+        {
+          "day": 6,
+          "open": "11:00",
+          "close": "16:00"
+        }
+      ],
+      "reviewNote": "Відвідування у вихідні 11:00–16:00; будні — санітарні дні. Притулок повідомляє про переповнення: нових тварин приймають лише за індивідуальною домовленістю.",
+      "flags": {
+        "appointmentRequired": true
+      },
+      "coordinateEvidence": "data-lat=\"50.891532\", data-lon=\"30.219491\" на офіційній сторінці контактів.",
+      "serviceSourceUrls": [
+        "https://dogcat.com.ua/contacts"
+      ],
+      "hoursSourceUrl": "https://dogcat.com.ua/contacts"
+    },
+    {
+      "id": "gostomel-shelter",
+      "name": "Гостомельський притулок для тварин",
+      "category": "shelter",
+      "region": "kyiv_oblast",
+      "locality": "Гостомель",
+      "address": "вул. Свято-Покровська, за офіційною геолокацією притулку",
+      "phone": "+380505978931",
+      "website": "https://www.gostomelshelter.com/",
+      "latitude": 50.6032179,
+      "longitude": 30.2520964,
+      "sourceUrl": "https://www.gostomelshelter.com/ua-contacts",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://goo.gl/maps/FW2bKUVrcXj8HvJ1A",
+      "coordinateMethod": "official_map_marker",
+      "services": [
+        "Адопція тварин",
+        "Волонтерство"
+      ],
+      "animalTypes": [
+        "dog",
+        "cat"
+      ],
+      "workingHours": [],
+      "reviewNote": "Години відвідування та прийом нових тварин уточнюйте телефоном. Офіційний сайт дає орієнтири та точну геолокацію, без номера будинку.",
+      "flags": {
+        "appointmentRequired": true
+      },
+      "hoursUnknownReason": "Поточний графік відвідувань не опубліковано на сторінці контактів.",
+      "serviceSourceUrls": [
+        "https://www.gostomelshelter.com/ua-contacts"
+      ]
+    },
+    {
+      "id": "realvet-brovary",
+      "name": "RealVet (Бровари)",
+      "category": "veterinary_clinic",
+      "region": "kyiv_oblast",
+      "locality": "Бровари",
+      "address": "вул. Київська, 139а",
+      "phone": "+380679928228",
+      "website": "https://realvet.com.ua/",
+      "latitude": 50.49855,
+      "longitude": 30.7665,
+      "sourceUrl": "https://realvet.com.ua/contact",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://realvet.com.ua/contact",
+      "coordinateMethod": "official_site_structured_data",
+      "coordinateEvidence": "Офіційний JSON-LD VeterinaryCare.geo; додатково marker Maps збігається з адресою і телефоном.",
+      "services": [
+        "Хірургія",
+        "Діагностика",
+        "Дерматологія",
+        "Стаціонар",
+        "Вакцинація"
+      ],
+      "animalTypes": [],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 1,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 2,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 3,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 4,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 5,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 6,
+          "open": "00:00",
+          "close": "23:59"
+        }
+      ],
+      "reviewNote": "Сайт заявляє цілодобову роботу; поточний прийом, вид тварини та спеціаліста підтверджуйте дзвінком.",
+      "flags": {
+        "hasSurgery": true
+      },
+      "serviceSourceUrls": [
+        "https://realvet.com.ua/contact"
+      ],
+      "hoursSourceUrl": "https://realvet.com.ua/contact",
+      "isOpen24_7": true
+    },
+    {
+      "id": "zoolux-brovary",
+      "name": "Зоолюкс (Бровари)",
+      "category": "veterinary_clinic",
+      "region": "kyiv_oblast",
+      "locality": "Бровари",
+      "address": "вул. Металургів, 51",
+      "phone": "+380973448888",
+      "website": "https://zoolux.clinic/",
+      "latitude": 50.5260436,
+      "longitude": 30.8001088,
+      "sourceUrl": "https://zoolux.clinic/clinic/brovary",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://www.google.com.ua/maps/place/Зоолюкс/@50.5260436,30.7979201,17z/data=!3m1!4b1!4m5!3m4!1s0x40d4d93ba93fa843:0x15eab03646575da4!8m2!3d50.5260436!4d30.8001088",
+      "coordinateMethod": "official_map_marker",
+      "coordinateEvidence": "Офіційне посилання на Google Maps; координати маркера !3d/!4d.",
+      "services": [],
+      "animalTypes": [],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 1,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 2,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 3,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 4,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 5,
+          "open": "00:00",
+          "close": "23:59"
+        },
+        {
+          "day": 6,
+          "open": "00:00",
+          "close": "23:59"
+        }
+      ],
+      "reviewNote": "Цілодобова робота заявлена офіційною сторінкою; наявність потрібної послуги, спеціаліста та поточний прийом уточнюйте.",
+      "flags": {},
+      "serviceSourceUrls": [
+        "https://zoolux.clinic/clinic/brovary"
+      ],
+      "hoursSourceUrl": "https://zoolux.clinic/clinic/brovary",
+      "isOpen24_7": true
+    },
+    {
+      "id": "zoovetcentr-boryspil",
+      "name": "ЗооВетЦентр (Бориспіль)",
+      "category": "veterinary_clinic",
+      "region": "kyiv_oblast",
+      "locality": "Бориспіль",
+      "address": "вул. Польова, 26/2",
+      "phone": "+380673292905",
+      "website": "https://www.vetcentr.com.ua/",
+      "latitude": 50.337453,
+      "longitude": 30.940758,
+      "sourceUrl": "https://www.vetcentr.com.ua/kontakty/",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://www.google.com/maps?cid=18195943018566452437",
+      "coordinateMethod": "official_map_marker",
+      "coordinateEvidence": "Marker Zoovettsentr, Polova St 26/2, Boryspil у Google Maps iframe офіційного сайту.",
+      "services": [
+        "Лабораторна діагностика",
+        "Терапія",
+        "Хірургія",
+        "Вакцинація",
+        "Чіпування",
+        "Стоматологія",
+        "УЗД",
+        "Стаціонар"
+      ],
+      "animalTypes": [],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "08:00",
+          "close": "20:00"
+        },
+        {
+          "day": 1,
+          "open": "08:00",
+          "close": "20:00"
+        },
+        {
+          "day": 2,
+          "open": "08:00",
+          "close": "20:00"
+        },
+        {
+          "day": 3,
+          "open": "08:00",
+          "close": "20:00"
+        },
+        {
+          "day": 4,
+          "open": "08:00",
+          "close": "20:00"
+        },
+        {
+          "day": 5,
+          "open": "08:00",
+          "close": "20:00"
+        },
+        {
+          "day": 6,
+          "open": "08:00",
+          "close": "20:00"
+        }
+      ],
+      "reviewNote": "Запис, прийом потрібного виду тварини та доступність діагностики уточнюйте.",
+      "flags": {
+        "hasSurgery": true,
+        "hasUltrasound": true
+      },
+      "serviceSourceUrls": [
+        "https://www.vetcentr.com.ua/kontakty/"
+      ],
+      "hoursSourceUrl": "https://www.vetcentr.com.ua/kontakty/"
+    },
+    {
+      "id": "kindvet-bucha",
+      "name": "Ласкавий Ветеринар (Буча)",
+      "category": "veterinary_clinic",
+      "region": "kyiv_oblast",
+      "locality": "Буча",
+      "address": "вул. Нове Шосе, 14",
+      "phone": "+380678917777",
+      "website": "https://kindvet.com.ua/",
+      "latitude": 50.5526176,
+      "longitude": 30.2086869,
+      "sourceUrl": "https://kindvet.com.ua/contacts",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://maps.google.com/maps?q=Ласкавий+Ветеринар+Буча+Нове+Шосе+14&output=embed",
+      "coordinateMethod": "address_and_name_geocode",
+      "coordinateEvidence": "Геокодування назви та офіційної адреси; Google marker Laskavyy Veterynar Bucha, Nove Shose14, +380678917777, CID1689409937843549670. Некоректний шаблонний iframe офіційного сайту відкинуто.",
+      "services": [
+        "Вакцинація",
+        "Хірургія",
+        "Терапія",
+        "Лабораторія",
+        "Діагностика",
+        "Стоматологія",
+        "Стаціонар"
+      ],
+      "animalTypes": [],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "09:00",
+          "close": "22:00"
+        },
+        {
+          "day": 1,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 2,
+          "open": "09:00",
+          "close": "22:00"
+        },
+        {
+          "day": 3,
+          "open": "09:00",
+          "close": "22:00"
+        },
+        {
+          "day": 4,
+          "open": "09:00",
+          "close": "22:00"
+        },
+        {
+          "day": 5,
+          "open": "09:00",
+          "close": "22:00"
+        },
+        {
+          "day": 6,
+          "open": "09:00",
+          "close": "22:00"
+        }
+      ],
+      "reviewNote": "Координати звірено за назвою, адресою й телефоном; шаблонну карту на сайті не використано. Перед візитом уточніть прийом.",
+      "flags": {
+        "hasSurgery": true
+      },
+      "serviceSourceUrls": [
+        "https://kindvet.com.ua/contacts"
+      ],
+      "hoursSourceUrl": "https://kindvet.com.ua/contacts"
+    },
+    {
+      "id": "vet-plus-irpin",
+      "name": "Vet+Klinika (Ірпінь)",
+      "category": "veterinary_clinic",
+      "region": "kyiv_oblast",
+      "locality": "Ірпінь",
+      "address": "вул. Давидчука, 42",
+      "phone": "+380684449344",
+      "website": "https://vet-klinika.com.ua/",
+      "latitude": 50.5149119,
+      "longitude": 30.2164123,
+      "sourceUrl": "https://vet-klinika.com.ua/contacts/",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://maps.app.goo.gl/JXMM2rYm7vbVa27k6",
+      "coordinateMethod": "official_map_marker",
+      "coordinateEvidence": "Офіційне Maps-посилання; marker !3d50.5149119!4d30.2164123. Адреса й телефон збігаються.",
+      "services": [
+        "Хірургія",
+        "Ортопедія",
+        "Стоматологія",
+        "УЗД",
+        "Аналізи"
+      ],
+      "animalTypes": [],
+      "workingHours": [],
+      "reviewNote": "На сайті є суперечність «щодня» / «Пн–Пт 10:00–18:00», тому графік не визначено. Зателефонуйте перед поїздкою.",
+      "flags": {
+        "hasSurgery": true,
+        "hasUltrasound": true
+      },
+      "serviceSourceUrls": [
+        "https://vet-klinika.com.ua/contacts/"
+      ],
+      "hoursUnknownReason": "На сайті є суперечність «щодня» / «Пн–Пт 10:00–18:00», тому графік не визначено. Зателефонуйте перед поїздкою."
+    },
+    {
+      "id": "profivet-bila-tserkva",
+      "name": "ПрофіВет (Біла Церква)",
+      "category": "veterinary_clinic",
+      "region": "kyiv_oblast",
+      "locality": "Біла Церква",
+      "address": "вул. Богдана Хмельницького, 9",
+      "phone": "+380677711930",
+      "website": "https://www.profivetbc.com/",
+      "latitude": 49.7986159,
+      "longitude": 30.1130347,
+      "sourceUrl": "https://www.profivetbc.com/ua/contacts",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://www.profivetbc.com/ua/contacts",
+      "coordinateMethod": "official_map_address_marker",
+      "coordinateEvidence": "Маркер точного будинку Богдана Хмельницького9 у Google Maps iframe офіційної сторінки; не підтверджений вхід клініки.",
+      "services": [
+        "Хірургія",
+        "Терапія",
+        "Лабораторні дослідження",
+        "УЗД",
+        "Стаціонар",
+        "Прийом гризунів та екзотичних ссавців"
+      ],
+      "animalTypes": [
+        "rodent",
+        "exotic"
+      ],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 1,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 2,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 3,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 4,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 5,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 6,
+          "open": "09:00",
+          "close": "20:00"
+        }
+      ],
+      "reviewNote": "Координати позначають будинок; точний вхід, вид тварини та час прийому спеціаліста уточнюйте.",
+      "flags": {
+        "hasSurgery": true,
+        "hasUltrasound": true
+      },
+      "serviceSourceUrls": [
+        "https://www.profivetbc.com/ua/contacts",
+        "https://www.profivetbc.com/"
+      ],
+      "hoursSourceUrl": "https://www.profivetbc.com/ua/contacts",
+      "routeByAddress": true
+    },
+    {
+      "id": "aybolit-kovalskyi-bila-tserkva",
+      "name": "Айболит (Біла Церква, Ковальський)",
+      "category": "veterinary_clinic",
+      "region": "kyiv_oblast",
+      "locality": "Біла Церква",
+      "address": "пров. Ковальський, 12",
+      "phone": "+380662608963",
+      "website": "https://dr-aybolit.com.ua/",
+      "latitude": 49.7950902,
+      "longitude": 30.1207834,
+      "sourceUrl": "https://dr-aybolit.com.ua/",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://www.google.com.ua/maps/place/Айболить/@49.7950841,30.1202643,19z/data=!4m5!3m4!1s0x40d3421be877f30b:0xd03e17b733304af7!8m2!3d49.7950902!4d30.1207834",
+      "coordinateMethod": "official_map_marker",
+      "coordinateEvidence": "Пряме Maps-посилання з офіційного сайту; координати маркера.",
+      "services": [
+        "Терапія",
+        "Хірургія",
+        "Лабораторна діагностика",
+        "УЗД",
+        "Рентген",
+        "Стаціонар",
+        "Фізіотерапія та реабілітація"
+      ],
+      "animalTypes": [],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "10:00",
+          "close": "17:00"
+        },
+        {
+          "day": 1,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 2,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 3,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 4,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 5,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 6,
+          "open": "10:00",
+          "close": "17:00"
+        }
+      ],
+      "reviewNote": "Вузькі спеціалісти та реабілітація — після уточнення запису.",
+      "flags": {
+        "hasSurgery": true,
+        "hasUltrasound": true,
+        "hasXray": true
+      },
+      "serviceSourceUrls": [
+        "https://dr-aybolit.com.ua/"
+      ],
+      "hoursSourceUrl": "https://dr-aybolit.com.ua/"
+    },
+    {
+      "id": "aybolit-stusa-bila-tserkva",
+      "name": "Айболит — ветеринарний кабінет (Стуса)",
+      "category": "veterinary_clinic",
+      "region": "kyiv_oblast",
+      "locality": "Біла Церква",
+      "address": "вул. Василя Стуса, 3",
+      "phone": "+380991483015",
+      "website": "https://dr-aybolit.com.ua/",
+      "latitude": 49.8111465,
+      "longitude": 30.0878117,
+      "sourceUrl": "https://dr-aybolit.com.ua/",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://www.google.com/maps?cid=3780767694772741031",
+      "coordinateMethod": "official_map_marker",
+      "coordinateEvidence": "Офіційний Maps link веде до маркера Кіт і Пес на Василя Стуса3; саме тут сайт вказує ветеринарний кабінет. Використано place marker !3d49.8111465!4d30.0878117, а не street marker.",
+      "services": [],
+      "animalTypes": [],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 1,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 2,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 3,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 4,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 5,
+          "open": "09:00",
+          "close": "19:00"
+        },
+        {
+          "day": 6,
+          "open": "09:00",
+          "close": "19:00"
+        }
+      ],
+      "reviewNote": "Кабінет при зоомаркеті «Кіт і Пес». Перелік процедур уточнюйте: послуги головної клініки не перенесено на цю філію.",
+      "flags": {},
+      "serviceSourceUrls": [
+        "https://dr-aybolit.com.ua/"
+      ],
+      "hoursSourceUrl": "https://dr-aybolit.com.ua/"
+    },
+    {
+      "id": "ryativnyk-vyshhorod",
+      "name": "Рятівник (Вишгород)",
+      "category": "veterinary_clinic",
+      "region": "kyiv_oblast",
+      "locality": "Вишгород",
+      "address": "вул. Набережна, 8а",
+      "phone": "+380680652151",
+      "website": "https://www.ryativnyk.vet/",
+      "latitude": 50.5837852,
+      "longitude": 30.4931505,
+      "sourceUrl": "https://www.ryativnyk.vet/",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://www.google.com/maps?cid=17999440792436479806",
+      "coordinateMethod": "official_map_marker",
+      "coordinateEvidence": "Офіційний iframe: marker Ветеринарна клініка Рятівник, Naberezhna St8A, Vyshhorod.",
+      "services": [
+        "Стаціонар",
+        "Ветеринарна аптека",
+        "УЗД"
+      ],
+      "animalTypes": [
+        "dog",
+        "cat",
+        "rodent"
+      ],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 1,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 2,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 3,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 4,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 5,
+          "open": "09:00",
+          "close": "20:00"
+        },
+        {
+          "day": 6,
+          "open": "09:00",
+          "close": "20:00"
+        }
+      ],
+      "reviewNote": "Прийом за попереднім записом. Офіційний сайт просить уточнювати доступність вузьких спеціалістів.",
+      "flags": {
+        "appointmentRequired": true,
+        "hasPharmacy": true,
+        "hasUltrasound": true
+      },
+      "serviceSourceUrls": [
+        "https://www.ryativnyk.vet/"
+      ],
+      "hoursSourceUrl": "https://www.ryativnyk.vet/"
+    },
+    {
+      "id": "profi-vet-vyshhorod",
+      "name": "Profi-VET (Вишгород)",
+      "category": "veterinary_clinic",
+      "region": "kyiv_oblast",
+      "locality": "Вишгород",
+      "address": "вул. Набережна, 6-Г",
+      "phone": "+380504440204",
+      "website": "https://www.vet-help.com.ua/",
+      "latitude": 50.583506,
+      "longitude": 30.495541,
+      "sourceUrl": "https://www.vet-help.com.ua/contact",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://www.vet-help.com.ua/contact",
+      "coordinateMethod": "official_site_structured_data",
+      "coordinateEvidence": "Офіційна Wix-конфігурація businessLocationCoordinates; адреса збігається з видимими контактами.",
+      "services": [
+        "Хірургія",
+        "УЗД",
+        "Рентген"
+      ],
+      "animalTypes": [
+        "dog",
+        "cat"
+      ],
+      "workingHours": [
+        {
+          "day": 0,
+          "open": "11:00",
+          "close": "15:00"
+        },
+        {
+          "day": 1,
+          "open": "00:00",
+          "close": "00:00",
+          "closed": true
+        },
+        {
+          "day": 2,
+          "open": "11:00",
+          "close": "15:00"
+        },
+        {
+          "day": 3,
+          "open": "11:00",
+          "close": "15:00"
+        },
+        {
+          "day": 4,
+          "open": "11:00",
+          "close": "15:00"
+        },
+        {
+          "day": 5,
+          "open": "11:00",
+          "close": "15:00"
+        },
+        {
+          "day": 6,
+          "open": "11:00",
+          "close": "15:00"
+        }
+      ],
+      "reviewNote": "Після 15:00 — лише за попереднім записом; понеділок вихідний. Дзвінок потрібен для узгодження прийому.",
+      "flags": {
+        "hasSurgery": true,
+        "hasUltrasound": true,
+        "hasXray": true
+      },
+      "serviceSourceUrls": [
+        "https://www.vet-help.com.ua/contact"
+      ],
+      "hoursSourceUrl": "https://www.vet-help.com.ua/contact"
+    },
+    {
+      "id": "state-vet-vyshneve",
+      "name": "Київська обласна державна лікарня ветеринарної медицини (Вишневе)",
+      "category": "veterinary_clinic",
+      "region": "kyiv_oblast",
+      "locality": "Вишневе",
+      "address": "вул. Балукова, 28",
+      "phone": "+380503857863",
+      "website": "https://dpssko.gov.ua/",
+      "latitude": 50.3799304,
+      "longitude": 30.3589326,
+      "sourceUrl": "https://dpssko.gov.ua/структура/підпорядковані-установи-лабораторі/",
+      "sourceCheckedAt": "2026-11-17",
+      "coordinateSourceUrl": "https://maps.google.com/maps?q=Вишневе,+Балукова,+28&output=embed",
+      "coordinateMethod": "address_geocode",
+      "coordinateEvidence": "Адресне геокодування офіційної адреси: marker Balukova St28, Vyshneve. Координати будинку, не підтверджений вхід.",
+      "services": [],
+      "animalTypes": [],
+      "workingHours": [
+        {
+          "day": 1,
+          "open": "09:00",
+          "close": "17:45"
+        },
+        {
+          "day": 2,
+          "open": "09:00",
+          "close": "17:45"
+        },
+        {
+          "day": 3,
+          "open": "09:00",
+          "close": "17:45"
+        },
+        {
+          "day": 4,
+          "open": "09:00",
+          "close": "17:45"
+        },
+        {
+          "day": 5,
+          "open": "09:00",
+          "close": "17:45"
+        }
+      ],
+      "reviewNote": "Опубліковано графік установи у будні. Час клінічного прийому, необхідну послугу та вхід узгоджуйте телефоном.",
+      "flags": {},
+      "serviceSourceUrls": [
+        "https://dpssko.gov.ua/структура/підпорядковані-установи-лабораторі/"
+      ],
+      "hoursSourceUrl": "https://dpssko.gov.ua/структура/підпорядковані-установи-лабораторі/",
+      "routeByAddress": true
+    }
+  ]
+}

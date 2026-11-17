@@ -1,6 +1,8 @@
 import { categoryMap } from "@/config/vertical";
 import { VERTICAL } from "@/config/verticals/pet-care-kyiv";
+import { COVERAGE_REGIONS, localityOf, regionOf } from "@/config/coverage";
 import type { Place, PlaceCategory } from "./types";
+import { isEmergencySearchSafe } from "@/lib/data/verification";
 
 export const SITE = {
   name: VERTICAL.productName,
@@ -23,7 +25,7 @@ export function schemaTypeFor(category: PlaceCategory): string {
   return SCHEMA_TYPES[category] ?? "LocalBusiness";
 }
 
-export function placeJsonLd(place: Place) {
+export function placeJsonLd(place: Place, now: Date = new Date()) {
   return {
     "@context": "https://schema.org",
     "@type": schemaTypeFor(place.category),
@@ -34,24 +36,18 @@ export function placeJsonLd(place: Place) {
     address: {
       "@type": "PostalAddress",
       streetAddress: place.address,
-      addressLocality: VERTICAL.city.name,
-      addressCountry: "UA",
+      addressLocality: localityOf(place) || undefined,
+      addressRegion: COVERAGE_REGIONS[regionOf(place)],
+      addressCountry: place.countryCode ?? "UA",
     },
     geo: {
       "@type": "GeoCoordinates",
       latitude: place.latitude,
       longitude: place.longitude,
     },
-    aggregateRating:
-      place.rating > 0
-        ? {
-            "@type": "AggregateRating",
-            ratingValue: place.rating,
-            bestRating: 5,
-            ratingCount: Math.round(place.rating * 23),
-          }
-        : undefined,
-    openingHours: place.isOpen24_7 ? "Mo-Su 00:00-23:59" : undefined,
+    // No aggregateRating until a real review count and its provenance exist.
+    // A star score cannot be converted into an invented number of reviews.
+    openingHours: place.isOpen24_7 && isEmergencySearchSafe(place, now) ? "Mo-Su 00:00-23:59" : undefined,
   };
 }
 

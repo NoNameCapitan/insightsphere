@@ -2,9 +2,7 @@ import { describe, it, expect } from "vitest";
 import { PLACES } from "@/lib/data/places";
 import { isSearchablePublicPlace } from "@/lib/data/provenance";
 import { isPublicEmergencyVisible } from "@/lib/data/verification";
-
-// Kyiv bounding box (approximate)
-const KYIV = { latMin: 50.2, latMax: 50.65, lngMin: 30.2, lngMax: 30.85 };
+import { regionOf, withinCoverageBounds } from "@/config/coverage";
 
 describe("dataset invariants — data honesty rules", () => {
   it("has unique ids and slugs", () => {
@@ -21,12 +19,13 @@ describe("dataset invariants — data honesty rules", () => {
     }
   });
 
-  it("all coordinates are inside the Kyiv bounding box", () => {
+  it("coordinates match the declared coverage and oblast records have a real locality", () => {
     for (const p of PLACES) {
-      expect(p.latitude, p.id).toBeGreaterThan(KYIV.latMin);
-      expect(p.latitude, p.id).toBeLessThan(KYIV.latMax);
-      expect(p.longitude, p.id).toBeGreaterThan(KYIV.lngMin);
-      expect(p.longitude, p.id).toBeLessThan(KYIV.lngMax);
+      expect(withinCoverageBounds(regionOf(p), p), p.id).toBe(true);
+      if (p.region === "kyiv_oblast") {
+        expect(p.locality?.trim(), p.id).toBeTruthy();
+        expect(p.district, p.id).toBeUndefined();
+      }
     }
   });
 

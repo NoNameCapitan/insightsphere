@@ -5,9 +5,7 @@ import { FounderNote } from "@/components/FounderNote";
 import { HomeDistricts } from "@/components/HomeDistricts";
 import { HomeHero } from "@/components/HomeHero";
 import { HomeUpdatesStrip } from "@/components/HomeUpdatesStrip";
-import { TileIcon, type TileIconName } from "@/components/icons/ServiceIcons";
-import { TaglineReveal } from "@/components/motion/TaglineReveal";
-import { RevealGroup } from "@/components/RevealGroup";
+import { HomeCareReturn } from "@/components/HomeCareReturn";
 
 // The home page is statically rendered. WebSite JSON-LD is emitted once in the
 // root layout. Structure (top → bottom): help-first hero (headline, CTAs, trust
@@ -15,42 +13,31 @@ import { RevealGroup } from "@/components/RevealGroup";
 // trust cards + compact safety line, a collapsed "Докладніше про VetNear" block (full SEO/safety prose
 // stays in the DOM) and the compact social-impact card.
 
-const TRUST_CARDS: { icon: TileIconName; text: string }[] = [
-  { icon: "location", text: "Без реєстрації" },
-  { icon: "phone", text: "Дзвінок і маршрут одразу" },
-  { icon: "verified", text: "Статус перевірки в кожного закладу" },
-  { icon: "shield", text: "Потреба улюбленця, не реклама" },
-];
-
 export default function HomePage() {
   return (
     <>
       <HomeHero />
 
-      <EmergencyReadinessRail />
-
-      {/* One statement, revealed word by word as it scrolls into view. */}
-      <section data-no-reveal className="container-px mx-auto max-w-3xl pt-16 sm:pt-24">
-        <TaglineReveal text="Коли улюбленцю зле, важить кожна хвилина. VetNear показує найближчу перевірену допомогу, телефон і маршрут. Без реєстрації та зайвих кроків." />
-      </section>
+      <HomeCareReturn />
 
       <HomeDistricts />
 
       <HomeUpdatesStrip />
 
-      {/* Trust, stated once and compactly: one strip instead of four cards. */}
-      <section className="container-px mx-auto max-w-3xl pt-10">
-        <RevealGroup className="grid grid-cols-2 gap-x-4 gap-y-4 rounded-3xl border border-brand-100 bg-surface p-4 shadow-card sm:grid-cols-4 sm:p-5">
-          {TRUST_CARDS.map((c) => (
-            <div key={c.text} className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-2.5">
-              <span className="icon3d h-11 w-11">
-                <TileIcon name={c.icon} />
-              </span>
-              <p className="text-xs font-semibold leading-snug text-ink/75">{c.text}</p>
-            </div>
-          ))}
-        </RevealGroup>
+      <section className="owner-home" aria-labelledby="owner-home-title">
+        <div>
+          <h2 id="owner-home-title">Усе важливе про вашу тварину.<br /><span>В одному місці.</span></h2>
+          <p>Медичні записи, щеплення та заплановані події — щоб підготуватися до візиту й нічого не забути.</p>
+          <Link href="/my-pets" className="owner-home__link">Відкрити моїх тварин <svg aria-hidden className="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M5 15 15 5M5 5h10v10" /></svg></Link>
+        </div>
+        <div className="owner-home__details">
+          <div><span aria-hidden>+</span><p><strong>Своя картка для кожного</strong><small>Історія візитів, алергії та важливі нотатки.</small></p></div>
+          <div><svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="4" y="5" width="16" height="16" rx="3" /><path d="M8 3v4m8-4v4M4 11h16m-12 4h3m2 0h3" /></svg><p><strong>Наступний крок під рукою</strong><small>Дати, які ви обрали за рекомендацією ветеринара.</small></p></div>
+          <p className="owner-home__local">Картки зберігаються у цьому браузері. Резервну копію можна завантажити в розділі «Мої тварини».</p>
+        </div>
       </section>
+
+      <EmergencyReadinessRail />
 
       {/* Honest dataset provenance, stated in full: how many places are verified
           vs. still awaiting manual review. Counts derive from the dataset. */}
@@ -71,11 +58,11 @@ export default function HomePage() {
           </summary>
           <div className="space-y-3 px-4 pb-4 text-sm text-ink/70">
             <p>
-              VetNear допомагає власникам тварин у Києві знайти найближчу{" "}
+              VetNear допомагає власникам тварин у Києві та області знайти відповідну{" "}
               <strong>ветклініку</strong>, <strong>зоомагазин</strong>,{" "}
               <strong>ветаптеку</strong>, салон <strong>грумінгу</strong> або
               притулок. Дозвольте доступ до геолокації — і побачите заклади у
-              радіусі 1–10 км із відстанню, графіком роботи й маршрутом.
+              вибраному радіусі із відстанню, відомим графіком роботи й маршрутом.
             </p>
             <p>
               Якщо ситуація термінова — телефонуйте у клініку напряму; сервіс покаже
@@ -92,10 +79,13 @@ export default function HomePage() {
         </details>
       </section>
 
-      {/* The full social-impact commitment lives on /for-partners. */}
+      <section className="home-partner" aria-labelledby="home-partner-title">
+        <div><h2 id="home-partner-title">Ви дбаєте про тварин.<br /><span>Допоможемо вас знайти.</span></h2><p>Для клінік, аптек, грумерів та інших фахівців Києва й області. Розкажіть про ваш заклад і оберіть формат участі.</p></div>
+        <Link href="/for-partners">Стати партнером <svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 19 19 5M5 5h14v14" /></svg></Link>
+      </section>
+
       <p className="container-px mx-auto max-w-3xl pb-2 pt-8 text-center text-xs leading-5 text-ink/50">
-        10% доходу від платних партнерських планів VetNear спрямує на реабілітацію постраждалих від війни.{" "}
-        <Link href="/for-partners" className="font-semibold text-brand hover:underline">Докладніше</Link>
+        Плануємо програму підтримки реабілітації постраждалих від війни. Умови та звітність опублікуємо до її запуску.
       </p>
     </>
   );

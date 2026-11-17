@@ -187,7 +187,7 @@ export function guidedAnswer(question: string, pet: PetProfile | null): GuidedRe
           // until providers are phone-confirmed) stays as the secondary action.
           {
             label: "Показати найближчі ветклініки",
-            href: "/nearby?category=veterinary_clinic&sort=distance",
+            href: SAFE_EMERGENCY_CTA_HREF,
             tone: "emergency",
           },
           { label: "Про термінову допомогу", href: "/emergency-vet-near-me", tone: "ghost" },

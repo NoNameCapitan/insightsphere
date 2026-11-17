@@ -9,6 +9,9 @@ const LABEL: Record<RadiusMeters, string> = {
   3000: "3 км",
   5000: "5 км",
   10000: "10 км",
+  25000: "25 км",
+  50000: "50 км",
+  100000: "100 км",
 };
 
 /** Concentric-rings glyph + segmented radius control (the VetNear signature). */
@@ -21,9 +24,9 @@ export function RadiusSelector({
 }) {
   const activeIdx = RADII.indexOf(value);
   return (
-    <div className="flex items-center gap-3">
-      <span aria-hidden className="relative grid h-9 w-9 place-items-center">
-        {RADII.map((_, i) => (
+    <div className="flex min-w-0 items-center gap-3">
+      <span aria-hidden className="relative hidden h-9 w-9 shrink-0 place-items-center sm:grid">
+        {RADII.slice(0, 5).map((_, i) => (
           <span
             key={i}
             className={`absolute rounded-full border ${
@@ -36,15 +39,29 @@ export function RadiusSelector({
       <div
         role="radiogroup"
         aria-label="Радіус пошуку"
-        className="flex flex-1 overflow-hidden rounded-2xl border border-brand-100"
+        className="flex min-w-0 flex-1 overflow-x-auto rounded-2xl border border-brand-100"
       >
         {RADII.map((r) => (
           <button
             key={r}
+            type="button"
             role="radio"
             aria-checked={r === value}
+            tabIndex={r === value ? 0 : -1}
+            onKeyDown={(event) => {
+              const index = RADII.indexOf(r);
+              let next = index;
+              if (event.key === "ArrowRight" || event.key === "ArrowDown") next = (index + 1) % RADII.length;
+              else if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = (index + RADII.length - 1) % RADII.length;
+              else if (event.key === "Home") next = 0;
+              else if (event.key === "End") next = RADII.length - 1;
+              else return;
+              event.preventDefault();
+              onChange(RADII[next]);
+              event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>("button")[next]?.focus();
+            }}
             onClick={() => onChange(r)}
-            className={`flex-1 px-2 py-2 text-sm font-medium transition ${
+            className={`min-h-11 min-w-12 shrink-0 flex-1 whitespace-nowrap px-2 py-2 text-xs font-medium transition ${
               r === value ? "bg-brand text-white" : "bg-surface text-ink/70 hover:bg-brand-50"
             }`}
           >

@@ -108,6 +108,8 @@ describe("getRecommendedPlaces — discovery pipeline", () => {
       name: "VerifiedEmergency",
       isOpen24_7: true,
       emergencyAvailable: true,
+      phoneConfirmedAt: "2026-06-30T10:00:00.000Z",
+      phoneConfirmedBy: "mod_1",
     });
     const res = getRecommendedPlaces([demoEmergency, verifiedEmergency], KYIV_CENTER, {
       filters: makeFilters({ emergency: true }),

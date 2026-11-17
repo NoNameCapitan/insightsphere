@@ -9,12 +9,14 @@ export function readJSON<T>(key: string, fallback: T): T {
   }
 }
 
-export function writeJSON<T>(key: string, value: T): void {
-  if (typeof window === "undefined") return;
+/** Callers that save important user data must check the result. */
+export function writeJSON<T>(key: string, value: T): boolean {
+  if (typeof window === "undefined") return false;
   try {
     localStorage.setItem(key, JSON.stringify(value));
+    return true;
   } catch {
-    /* quota / disabled storage — best-effort */
+    return false;
   }
 }
 

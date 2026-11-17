@@ -131,10 +131,10 @@ describe("aggregateLeadEvents", () => {
     expect(s.total).toBe(0);
   });
 
-  it("counts billable leads separately from views", () => {
+  it("never bills clicks as confirmed customers", () => {
     const s = aggregateLeadEvents(rows, "p1", 7, now);
-    // call x2 + route x1 = 3; detail_view is not billable.
-    expect(countBillableLeads(s)).toBe(3);
+    // Calls/routes are intents only; no verified commercial outcome exists.
+    expect(countBillableLeads(s)).toBe(0);
   });
 });
 

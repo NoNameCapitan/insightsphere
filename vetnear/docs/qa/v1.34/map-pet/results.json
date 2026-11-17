@@ -1,0 +1,24 @@
+[
+  {
+    "width": 390,
+    "passed": true,
+    "checks": [
+      "Keyboard selection names district in CTA; targets 44/48px",
+      "Reduced motion removes spatial movement",
+      "Touch selection reaches selected district results",
+      "Personal monogram, composed Unicode initial and real photo preserved",
+      "Detail shares portrait; no overflow or page errors"
+    ]
+  },
+  {
+    "width": 1440,
+    "passed": true,
+    "checks": [
+      "Keyboard selection names district in CTA; targets 44/48px",
+      "5px hover and3px selected relief",
+      "Reduced motion removes spatial movement",
+      "Personal monogram, composed Unicode initial and real photo preserved",
+      "Detail shares portrait; no overflow or page errors"
+    ]
+  }
+]

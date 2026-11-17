@@ -1,0 +1,25 @@
+/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
+:global(html[data-theme="dark"]) .explanation { color: #bfcac7; }
+:global(html[data-theme="dark"]) .secondary { color: #c6e9e6; }
+:global(html[data-theme="dark"]) .sticky { background: #142520; }
+/* @generated dark-theme:end */
+
+.actions { display: grid; gap: 12px; }
+.primary { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.primary > a { min-height: 54px; padding-inline: 12px; }
+.explanation { color: #526862; font-size: 14px; line-height: 1.6; max-width: 62ch; }
+.secondary { display: flex; flex-wrap: wrap; gap: 4px 20px; color: #00756b; font-weight: 650; font-size: 14px; }
+.secondary a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; text-underline-offset: 4px; }
+.secondary a:hover { text-decoration: underline; }
+.schedule { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; line-height: 1.5; color: #c6dcd2; }
+.statusDot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.schedule[data-status="open"] { color: #d9ecd9; }
+.sticky { position: fixed; inset-inline: 12px; bottom: var(--bottom-nav-clearance,calc(88px + env(safe-area-inset-bottom,0px))); z-index: 40; padding: 8px; border-radius: 16px; background: #fcfaf5; box-shadow: 0 6px 28px rgb(9 45 38 / .18); }
+.stickyInner { max-width: 720px; margin-inline: auto; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.stickyInner a { min-height: 46px; padding: 10px 8px; font-size: 14px; }
+@media(max-width:359px) {
+  .primary > a, .stickyInner a { padding-inline: 6px; font-size: 14px; gap: 6px; }
+  .primary svg, .stickyInner svg { display: none; }
+}
+@media(min-width:768px) { .sticky { display: none; } }
+@media(prefers-reduced-motion:reduce) { .sticky, .primary a { transition: none; } }

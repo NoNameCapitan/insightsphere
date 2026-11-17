@@ -29,6 +29,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { pathToFileURL } from "node:url";
 
 const ROOT = process.cwd();
 const TEXT_SEARCH_URL = "https://places.googleapis.com/v1/places:searchText";
@@ -36,6 +37,18 @@ const DEFAULT_OUTPUT_TS = "src/lib/data/google-places.ts";
 const DEFAULT_RAW_JSON = "data/imports/google-places-raw.json";
 const DEFAULT_REVIEW_CSV = "data/imports/google-places-review.csv";
 const PLACES_TS = "src/lib/data/places.ts";
+
+// Review-only sanity envelopes; locality and area still require human checks.
+const COVERAGE_BOUNDS = {
+  kyiv_city: { minLat: 50.1, maxLat: 50.65, minLng: 30.2, maxLng: 30.9 },
+  kyiv_oblast: { minLat: 49.0, maxLat: 51.6, minLng: 29.0, maxLng: 32.0 },
+};
+export function withinImportCoverage(location, region = "kyiv_city") {
+  const b = COVERAGE_BOUNDS[region];
+  return Boolean(b && location && Number.isFinite(location.latitude) && Number.isFinite(location.longitude)
+    && location.latitude >= b.minLat && location.latitude <= b.maxLat
+    && location.longitude >= b.minLng && location.longitude <= b.maxLng);
+}
 
 // Minimal field mask keeps request cost low.
 const FIELD_MASK = [
@@ -263,15 +276,14 @@ function qualityScore(c) {
   return score;
 }
 
-function normalizeCandidate(place, cfg, categoryName, queryMeta, excludeEmergency) {
+export function normalizeCandidate(place, cfg, categoryName, queryMeta, excludeEmergency) {
   const displayName = place.displayName?.text || "Без назви";
   const googleId = place.id || `${displayName}-${place.formattedAddress ?? ""}`;
-  const location = place.location
-    ? { latitude: Number(place.location.latitude), longitude: Number(place.location.longitude) }
-    : null;
+  const region = queryMeta.region ?? "kyiv_city";
+  const location = withinImportCoverage(place.location, region) ? place.location : null;
   const open247 = isOpen247(place);
   const types = Array.isArray(place.types) ? place.types : [];
-  const address = place.formattedAddress || "Київ, Україна";
+  const address = place.formattedAddress || "";
   const businessStatus = place.businessStatus ?? null;
 
   const emergencyCandidate = looksEmergency({
@@ -289,7 +301,10 @@ function normalizeCandidate(place, cfg, categoryName, queryMeta, excludeEmergenc
     name: displayName,
     category: categoryName,
     address,
-    district: nearestDistrict(location, address),
+    countryCode: "UA",
+    region,
+    locality: queryMeta.locality ?? (region === "kyiv_city" ? "Київ" : undefined),
+    district: region === "kyiv_city" && location ? nearestDistrict(location, address) : null,
     phone: place.internationalPhoneNumber || place.nationalPhoneNumber || null,
     website: place.websiteUri || null,
     googleMapsUri: place.googleMapsUri || null,
@@ -318,7 +333,7 @@ function normalizeCandidate(place, cfg, categoryName, queryMeta, excludeEmergenc
         ? `Google Places (${businessStatus}, external, unreviewed)`
         : "Google Places (external, unreviewed)",
     sourceUrl: place.googleMapsUri || null,
-    importMeta: { query: queryMeta.query, district: queryMeta.district, googleId, excludeEmergency },
+    importMeta: { query: queryMeta.query, district: queryMeta.district, region, locality: queryMeta.locality, googleId, excludeEmergency },
   };
 }
 
@@ -421,7 +436,7 @@ async function googleTextSearch({ apiKey, query, center, radius, includedType, p
 }
 
 const CSV_COLUMNS = [
-  "id", "google_place_id", "name", "category", "district", "address", "lat", "lng",
+  "id", "google_place_id", "name", "category", "region", "locality", "district", "address", "lat", "lng",
   "phone", "website", "google_maps_url", "rating", "user_rating_count", "business_status",
   "types", "emergency_candidate", "open_24_7_candidate", "duplicate_candidate",
   "matched_existing_place_id", "quality_score", "verification_status", "manual_check_result", "notes",
@@ -442,7 +457,7 @@ function toReviewCsv(candidates) {
   });
   const rows = sorted.map((c) =>
     [
-      c.id, c.googlePlaceId || "", c.name, c.category, c.district || "", c.address,
+      c.id, c.googlePlaceId || "", c.name, c.category, c.region || "kyiv_city", c.locality || "", c.district || "", c.address,
       c.latitude ?? "", c.longitude ?? "", c.phone || "", c.website || "", c.googleMapsUri || "",
       c.rating ?? "", c.userRatingCount ?? "", c.businessStatus || "", (c.types || []).join("|"),
       c.emergencyCandidate ? "true" : "", c.open24_7Candidate ? "true" : "",
@@ -523,6 +538,9 @@ Options:
   --categories=veterinary_clinic,pet_store,vet_pharmacy,grooming,pet_boarding,shelter,animal_volunteer_help,pet_friendly_place
                 (default: all safe categories — emergency_vet is excluded)
   --districts=pecherskyi,obolonskyi,darnytskyi,holosiivskyi,solomianskyi   (default: all)
+  --region=kyiv_city          (or kyiv_oblast; review-only geography)
+  --locality=Бровари --latitude=50.51 --longitude=30.79
+                (required search-bias point for oblast imports, never used as a provider coordinate)
   --exclude-emergency=true    (default true — skip emergency_vet, flag 24/7 as needs_phone_confirmation)
   --radius=3500
   --limit=100
@@ -553,6 +571,9 @@ async function main() {
   const rawJson = argValue("raw", DEFAULT_RAW_JSON);
   const reviewCsv = argValue("review-csv", DEFAULT_REVIEW_CSV);
   const excludeEmergency = boolArg("exclude-emergency", true);
+  const region = argValue("region", "kyiv_city");
+  if (!COVERAGE_BOUNDS[region]) throw new Error("Region must be kyiv_city or kyiv_oblast.");
+  const locality = argValue("locality", "").trim();
 
   const mkdirs = async () => {
     for (const f of [outputTs, reviewCsv, rawJson]) {
@@ -594,6 +615,16 @@ async function main() {
   for (const name of districtNames) {
     if (!DISTRICTS[name]) throw new Error(`Unknown district: ${name}`);
   }
+  const oblastCenter = {
+    latitude: Number(argValue("latitude", "NaN")),
+    longitude: Number(argValue("longitude", "NaN")),
+  };
+  if (region === "kyiv_oblast" && (!locality || !withinImportCoverage(oblastCenter, region))) {
+    throw new Error("Oblast import requires --locality and valid --latitude/--longitude search-bias coordinates.");
+  }
+  const targets = region === "kyiv_oblast"
+    ? [{ key: locality, center: oblastCenter, label: `${locality}, Київська область, Україна` }]
+    : districtNames.map((name) => ({ key: name, center: DISTRICTS[name], label: `${DISTRICTS[name].label}, Київ, Україна` }));
 
   // Safety: never query emergency_vet while exclude-emergency is on (the default).
   if (excludeEmergency && categoryNames.includes("emergency_vet")) {
@@ -614,22 +645,22 @@ async function main() {
   outer:
   for (const categoryName of categoryNames) {
     const cfg = CATEGORY_CONFIG[categoryName];
-    for (const districtName of districtNames) {
-      const district = DISTRICTS[districtName];
+    for (const target of targets) {
+      const districtName = target.key;
       for (const query of cfg.queries) {
-        const textQuery = `${query} ${district.label}, Київ, Україна`;
+        const textQuery = `${query} ${target.label}`;
         console.log(`→ ${categoryName} / ${districtName}: ${textQuery}`);
         let pageToken = null;
         for (let page = 0; page < 3; page += 1) {
           if (pageToken) await sleep(2200);
-          const json = await googleTextSearch({ apiKey, query: textQuery, center: district, radius, includedType: cfg.includedType, pageToken });
+          const json = await googleTextSearch({ apiKey, query: textQuery, center: target.center, radius, includedType: cfg.includedType, pageToken });
           const places = Array.isArray(json.places) ? json.places : [];
           rawResults.push({ categoryName, districtName, query: textQuery, page, count: places.length, response: json });
           for (const place of places) {
             const googleId = place.id;
             if (!googleId || byGoogleId.has(googleId)) continue;
             byGoogleId.set(googleId, place);
-            const normalized = normalizeCandidate(place, cfg, categoryName, { query, district: districtName }, excludeEmergency);
+            const normalized = normalizeCandidate(place, cfg, categoryName, { query, district: region === "kyiv_city" ? districtName : null, region, locality: region === "kyiv_city" ? "Київ" : locality }, excludeEmergency);
             normalizedById.set(normalized.id, normalized);
             if (normalizedById.size >= totalLimit) break outer;
           }
@@ -675,7 +706,9 @@ async function main() {
   console.log("Next: review at /admin/imports/google-places. Emergency candidates need a phone call before any use.");
 }
 
-main().catch((error) => {
-  console.error(`\nImport failed: ${error.message}\n`);
-  process.exit(1);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    console.error(`\nImport failed: ${error.message}\n`);
+    process.exit(1);
+  });
+}

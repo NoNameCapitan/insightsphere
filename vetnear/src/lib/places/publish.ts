@@ -8,11 +8,10 @@
 //     `isSearchablePublicPlace` already excludes from discovery and the map.
 //  3. `verified` stays false until a human verifies; partner self-assertion is
 //     provenance `partner_submitted`, not verification.
-import { isWithinCityBounds } from "@/config/vertical";
-import { VERTICAL } from "@/config/verticals/pet-care-kyiv";
+import { localityOf, normalizeRegion, regionOf, withinCoverageBounds } from "@/config/coverage";
 import { normalizeDistrict } from "@/lib/labels";
+import { hasRecordedPhoneConfirmation } from "@/lib/data/phoneConfirmation";
 import type {
-  KyivDistrict,
   PartnerSubmission,
   Place,
   PlaceTier,
@@ -33,7 +32,8 @@ export interface PublishRejection {
     | "missing_name"
     | "missing_address"
     | "missing_phone"
-    | "missing_district";
+    | "missing_district"
+    | "invalid_location";
 }
 
 export type PublishResult = { ok: true; place: Place } | PublishRejection;
@@ -61,14 +61,12 @@ export function slugify(input: string): string {
 
 function hasCoords(s: PartnerSubmission): boolean {
   if (typeof s.latitude !== "number" || typeof s.longitude !== "number") return false;
-  // Sanity box comes from the vertical config — a mistyped coordinate must not
-  // land on the map, and another city brings its own bounds.
-  return isWithinCityBounds(VERTICAL, s.latitude, s.longitude);
+  return withinCoverageBounds(regionOf(s), { latitude: s.latitude, longitude: s.longitude });
 }
 
 /** A phone confirmation is the ONLY thing that can unlock urgent claims. */
 export function isPhoneConfirmed(s: PartnerSubmission): boolean {
-  return Boolean(s.phoneConfirmedAt && s.phoneConfirmedBy);
+  return hasRecordedPhoneConfirmation(s);
 }
 
 export function submissionToPlace(
@@ -81,7 +79,12 @@ export function submissionToPlace(
   if (!submission.phone?.trim()) return { ok: false, reason: "missing_phone" };
   // Submissions stored before v1.25 may carry a neighbourhood slug.
   const district = normalizeDistrict(submission.district);
-  if (!district) return { ok: false, reason: "missing_district" };
+  const region = regionOf(submission);
+  if (!normalizeRegion(region) || (submission.countryCode && submission.countryCode !== "UA")
+    || (region === "kyiv_oblast" && (!submission.locality?.trim() || submission.district))) {
+    return { ok: false, reason: "invalid_location" };
+  }
+  if (submission.district && !district) return { ok: false, reason: "missing_district" };
 
   const now = opts.now ?? new Date();
   const iso = now.toISOString();
@@ -95,9 +98,12 @@ export function submissionToPlace(
     category: submission.category,
     description:
       submission.description?.trim() ||
-      `${submission.name.trim()} — заклад для тварин у Києві. Дані надані представником закладу.`,
+      `${submission.name.trim()} — заклад для тварин. Населений пункт: ${localityOf(submission)}. Дані надані представником закладу.`,
     address: submission.address.trim(),
-    district,
+    countryCode: submission.countryCode ?? "UA",
+    region,
+    locality: localityOf(submission),
+    ...(district ? { district } : {}),
     latitude: coordsOk ? (submission.latitude as number) : 0,
     longitude: coordsOk ? (submission.longitude as number) : 0,
     phone: submission.phone.trim(),
@@ -105,6 +111,7 @@ export function submissionToPlace(
     website: submission.website,
     socialLinks: submission.socialLinks,
     workingHours: (submission.workingHours ?? []) as WorkingHours[],
+    timeZone: "Europe/Kyiv",
     // Invariant 1: urgent claims require a recorded phone call.
     isOpen24_7: false,
     emergencyAvailable: phoneConfirmed ? Boolean(submission.emergencyAvailable) : false,
@@ -151,6 +158,8 @@ export function submissionToPlace(
 export function isPlaceLike(value: unknown): value is Place {
   if (!value || typeof value !== "object") return false;
   const p = value as Record<string, unknown>;
+  if (p.region != null && !normalizeRegion(p.region)) return false;
+  if (p.region === "kyiv_oblast" && (typeof p.locality !== "string" || !p.locality.trim() || p.district)) return false;
   return (
     typeof p.id === "string" &&
     typeof p.slug === "string" &&

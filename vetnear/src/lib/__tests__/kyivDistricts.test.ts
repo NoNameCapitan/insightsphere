@@ -15,8 +15,11 @@ describe("Kyiv districts", () => {
     expect(DISTRICT_LABELS.shevchenkivskyi).toBe("Шевченківський район");
   });
 
-  it("assigns every place to an official district", () => {
-    for (const place of PLACES) expect(OFFICIAL, place.name).toContain(place.district);
+  it("uses official city districts without assigning Kyiv districts to the oblast", () => {
+    for (const place of PLACES) {
+      if (place.region === "kyiv_oblast") expect(place.district, place.name).toBeUndefined();
+      else if (place.district) expect(OFFICIAL, place.name).toContain(place.district);
+    }
     // The places on Dmytrivska and Prorizna streets are in Shevchenkivskyi district.
     const shev = PLACES.filter((p) => p.district === "shevchenkivskyi").map((p) => p.address);
     expect(shev).toEqual(expect.arrayContaining(["вул. Дмитрівська, 39", "вул. Прорізна, 22"]));

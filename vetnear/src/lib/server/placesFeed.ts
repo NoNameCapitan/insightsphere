@@ -71,3 +71,10 @@ export async function getPublicPlaces(): Promise<PublishedFeed> {
     publishedCount: published.length,
   };
 }
+
+/** Detail pages use the same published layer as discovery, including overrides. */
+export async function getPublicPlace(idOrSlug: string): Promise<Place | null> {
+  const { places } = await getPublicPlaces();
+  return places.find((place) => place.status === "approved" &&
+    (place.slug === idOrSlug || place.id === idOrSlug)) ?? null;
+}

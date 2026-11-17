@@ -7,16 +7,14 @@
 // plainly rather than inventing a chart.
 import Link from "next/link";
 import { useState } from "react";
-import { AdminBillingPanel } from "@/components/admin/AdminBillingPanel";
 import { DemoAdminBanner } from "@/components/DemoBanner";
-import { fetchLeadSummary, fetchPartnerInterest, setPartnerInterestStatus, setPlaceTier, type PartnerInterestItem } from "@/lib/api/backendClient";
-import { BILLABLE_LEAD_TYPES } from "@/lib/places/leads";
+import { fetchLeadSummary, setPlaceTier } from "@/lib/api/backendClient";
 import { TIER_LABELS } from "@/lib/places/tier";
 import type { LeadEventType, LeadSummary, PlaceTier } from "@/lib/types";
 
 const TYPE_LABELS: Record<LeadEventType, string> = {
-  call: "Дзвінки",
-  route: "Маршрути",
+  call: "Натискання телефону",
+  route: "Натискання маршруту",
   website: "Переходи на сайт",
   social: "Соцмережі",
   request: "Запити послуги",
@@ -24,7 +22,6 @@ const TYPE_LABELS: Record<LeadEventType, string> = {
 };
 
 const TIERS: PlaceTier[] = ["free", "verified", "promoted"];
-const INTEREST_STATUS: Record<string, string> = { new: "новий", contacted: "звʼязались", won: "підключено", lost: "відмова" };
 
 export default function AdminLeadsPage() {
   const [placeId, setPlaceId] = useState("");
@@ -36,18 +33,6 @@ export default function AdminLeadsPage() {
   const [tier, setTier] = useState<PlaceTier>("free");
   const [promoDays, setPromoDays] = useState(30);
   const [tierMsg, setTierMsg] = useState<string | null>(null);
-  const [interest, setInterest] = useState<PartnerInterestItem[] | null>(null);
-  const [interestError, setInterestError] = useState<string | null>(null);
-
-  const loadInterest = async () => {
-    setInterestError(null);
-    try {
-      setInterest(await fetchPartnerInterest());
-    } catch (e) {
-      setInterest(null);
-      setInterestError(e instanceof Error && e.message === "unauthorized" ? "Потрібен токен адміністратора." : "Не вдалося завантажити запити.");
-    }
-  };
 
   const load = async () => {
     if (!placeId.trim()) return;
@@ -56,7 +41,7 @@ export default function AdminLeadsPage() {
     try {
       const res = await fetchLeadSummary(placeId.trim(), days);
       setSummary(res.summary);
-      setBillable(res.billableLeads);
+      setBillable(res.summary.totals.call + res.summary.totals.route + res.summary.totals.website + res.summary.totals.social);
     } catch (e) {
       setSummary(null);
       setError(
@@ -97,10 +82,9 @@ export default function AdminLeadsPage() {
 
   return (
     <div className="container-px mx-auto max-w-3xl py-6">
-      <h1 className="font-display text-2xl font-extrabold text-ink">Ліди та тарифи</h1>
+      <h1 className="font-display text-2xl font-extrabold text-ink">Контактні дії та тарифи</h1>
       <p className="mt-1 text-ink/60">
-        Реальні дії користувачів по картці закладу. Перегляди не є лідом —
-        оплачуються лише дзвінки, маршрути та запити послуги.
+        Натискання контактів у картці закладу. Вони не підтверджують дзвінок, запис або клієнта й не створюють оплату.
       </p>
 
       <div className="mt-4">
@@ -133,7 +117,7 @@ export default function AdminLeadsPage() {
             disabled={busy || !placeId.trim()}
             className="btn btn-brand py-2 text-sm disabled:opacity-50"
           >
-            Показати ліди
+            Показати дії
           </button>
         </div>
         {error && <p className="mt-3 text-sm text-emergency">{error}</p>}
@@ -146,7 +130,7 @@ export default function AdminLeadsPage() {
               {summary.total} дій за {summary.rangeDays} дн.
             </h2>
             <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700">
-              {billable} оплачуваних лідів
+              {billable} контактних дій
             </span>
           </div>
 
@@ -158,9 +142,7 @@ export default function AdminLeadsPage() {
               >
                 <span className="text-ink/70">
                   {TYPE_LABELS[t]}
-                  {BILLABLE_LEAD_TYPES.includes(t) && (
-                    <span className="ml-1 text-[11px] text-brand-700">₴</span>
-                  )}
+                  
                 </span>
                 <span className="font-semibold text-ink">{summary.totals[t]}</span>
               </li>
@@ -178,15 +160,14 @@ export default function AdminLeadsPage() {
             ))}
           </div>
           <p className="mt-1 text-[11px] text-ink/45">
-            Ліди за днями. Дані знеособлені: IP та user-agent не зберігаються.
+            Контактні події за днями. Дані знеособлені: IP та user-agent не зберігаються.
           </p>
         </section>
       )}
 
       <section className="mt-4 rounded-2xl border border-brand-100 p-4">
-        <h2 className="font-display text-lg font-bold text-ink">Тариф вручну (без оплати)</h2>
+        <h2 className="font-display text-lg font-bold text-ink">Комерційний тариф</h2>
         <p className="mt-1 text-sm text-ink/60">
-          Щоб зняти тариф або виправити помилку. Оплачений період вмикайте блоком «Передоплата» нижче.{" "}
           Промо дає невелике підняття в списку, завжди позначається міткою «Промо»
           і не діє в термінових запитах.
         </p>
@@ -222,45 +203,6 @@ export default function AdminLeadsPage() {
           </button>
         </div>
         {tierMsg && <p className="mt-2 text-sm text-brand">{tierMsg}</p>}
-      </section>
-
-      <AdminBillingPanel placeId={placeId} />
-
-      <section className="mt-4 rounded-2xl border border-brand-100 p-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-display text-lg font-bold text-ink">Запити на платні тарифи{interest ? ` · нових: ${interest.filter((i) => i.status === "new").length}` : ""}</h2>
-          <button onClick={() => { void loadInterest(); }} className="btn btn-ghost py-2 text-sm">Завантажити</button>
-        </div>
-        <p className="mt-1 text-sm text-ink/60">
-          Заявки з форми на сторінці «Партнерам». Оплата поки вручну: звʼяжіться, узгодьте умови, потім поставте тариф вище.
-        </p>
-        {interestError && <p className="mt-2 text-sm text-emergency-700">{interestError}</p>}
-        {interest && interest.length === 0 && <p className="mt-2 text-sm text-ink/50">Запитів поки немає.</p>}
-        {interest && interest.length > 0 && (
-          <ul className="mt-3 divide-y divide-brand-100 text-sm">
-            {interest.map((item) => (
-              <li key={item.id} className="py-2.5">
-                <p className="font-semibold text-ink">{item.place_name} <span className="ml-1 rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-700">{item.plan}</span></p>
-                <p className="mt-0.5 text-ink/65">
-                  <a href={`tel:${item.phone}`} className="text-brand hover:underline">{item.phone}</a> ·{" "}
-                  <a href={`mailto:${item.email}`} className="text-brand hover:underline">{item.email}</a>
-                </p>
-                <p className="text-xs text-ink/45">{new Date(item.created_at).toLocaleString("uk-UA")} · статус: {INTEREST_STATUS[item.status] ?? item.status}</p>
-                <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  {(["contacted", "won", "lost"] as const).filter((st) => st !== item.status).map((st) => (
-                    <button
-                      key={st}
-                      onClick={() => { void setPartnerInterestStatus(item.id, st).then(loadInterest).catch(() => setInterestError("Не вдалося змінити статус.")); }}
-                      className="rounded-full border border-brand-100 px-2.5 py-1 text-xs font-medium text-ink/65 hover:border-brand-300 hover:text-brand-700"
-                    >
-                      {INTEREST_STATUS[st]}
-                    </button>
-                  ))}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
       </section>
 
       <Link href="/admin" className="btn btn-ghost mt-6 py-2 text-sm">

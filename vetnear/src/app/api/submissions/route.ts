@@ -49,7 +49,7 @@ export async function POST(req: Request): Promise<Response> {
     id,
     status: submission.status,
     category: submission.category,
-    district: submission.district,
+    district: submission.district ?? null,
     name: submission.name,
     data: submission,
     created_at: now,

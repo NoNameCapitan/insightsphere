@@ -1,0 +1,58 @@
+[
+  {
+    "width": 390,
+    "oblastCatalogue": "Знайдено: 13",
+    "bilaTserkvaCards": 3,
+    "mapFit": true,
+    "noInventedOrigin": true,
+    "legacyDistrict": "pozniaky → darnytskyi",
+    "districtReset": true,
+    "oblastFormRequiredLocality": true,
+    "formProgresses": true,
+    "speciesRecoveryPreservesRegionLocalityCategoryQueryOrigin": true,
+    "horizontalOverflow": false,
+    "pageErrors": [],
+    "basemapNetworking": {
+      "verified": false,
+      "reason": "Standalone Chromium rejected OpenStreetMap certificates with net::ERR_CERT_AUTHORITY_INVALID; actual tile hosts match CSP. Provider markers and fitBounds verified independently."
+    },
+    "tileErrorNotice": {
+      "unitRegressionTestsPassed": 2,
+      "productionSmoke": {
+        "width": 390,
+        "tileFailureNotice": true,
+        "providerMarkersRetained": 3,
+        "listRecoveryPreservesRegionLocality": true,
+        "pageErrors": []
+      }
+    }
+  },
+  {
+    "width": 1440,
+    "oblastCatalogue": "Знайдено: 13",
+    "bilaTserkvaCards": 3,
+    "mapFit": true,
+    "noInventedOrigin": true,
+    "legacyDistrict": "pozniaky → darnytskyi",
+    "districtReset": true,
+    "oblastFormRequiredLocality": true,
+    "formProgresses": true,
+    "speciesRecoveryPreservesRegionLocalityCategoryQueryOrigin": true,
+    "horizontalOverflow": false,
+    "pageErrors": [],
+    "basemapNetworking": {
+      "verified": false,
+      "reason": "Standalone Chromium rejected OpenStreetMap certificates with net::ERR_CERT_AUTHORITY_INVALID; actual tile hosts match CSP. Provider markers and fitBounds verified independently."
+    },
+    "tileErrorNotice": {
+      "unitRegressionTestsPassed": 2,
+      "productionSmoke": {
+        "width": 1440,
+        "tileFailureNotice": true,
+        "providerMarkersRetained": 3,
+        "listRecoveryPreservesRegionLocality": true,
+        "pageErrors": []
+      }
+    }
+  }
+]

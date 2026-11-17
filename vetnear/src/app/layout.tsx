@@ -2,15 +2,19 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import "@fontsource-variable/manrope";
 import "./globals.css";
+import "./care-system.css";
+import "./theme-dark.generated.css";
+import "./theme.css";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { THEME_BOOTSTRAP_SCRIPT, THEME_COLOR } from "@/lib/theme/theme";
 import { t } from "@/lib/i18n";
 import { SITE, websiteJsonLd } from "@/lib/seo";
-import { AmbientBackground } from "@/components/AmbientBackground";
 import { JsonLd } from "@/components/JsonLd";
-import { AccountLink } from "@/components/account/AccountLink";
 import { HeaderNav } from "@/components/HeaderNav";
 import { MotionRuntime } from "@/components/motion/MotionRuntime";
 import { TabBar } from "@/components/TabBar";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+import { LaunchMeasurement } from "@/components/LaunchMeasurement";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -52,7 +56,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#06756A",
+  // Matches the system scheme on first load; ThemeToggle updates it live.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: THEME_COLOR.light },
+    { media: "(prefers-color-scheme: dark)", color: THEME_COLOR.dark },
+  ],
+  colorScheme: "light dark",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -63,18 +72,14 @@ function Header() {
     <header className="site-header">
       <nav className="site-header__bar" aria-label="Головна навігація">
         <Link href="/" className="flex shrink-0 items-center gap-2 font-display text-lg font-bold">
-          <span aria-hidden className="relative grid h-7 w-7 place-items-center">
-            <span className="absolute inset-0 rounded-full bg-brand/15" />
-            <span className="absolute inset-0 rounded-full bg-brand/30 animate-ping2" />
-            <span className="relative h-2.5 w-2.5 rounded-full bg-brand" />
-          </span>
+          <span aria-hidden className="grid h-8 w-8 place-items-center rounded-full bg-brand text-white"><svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><ellipse cx="6.5" cy="9" rx="2" ry="2.7" transform="rotate(-24 6.5 9)" /><ellipse cx="10.5" cy="5.8" rx="1.9" ry="2.5" transform="rotate(-8 10.5 5.8)" /><ellipse cx="15" cy="6.3" rx="1.9" ry="2.5" transform="rotate(15 15 6.3)" /><ellipse cx="18.4" cy="10" rx="1.8" ry="2.5" transform="rotate(28 18.4 10)" /><path d="M7.4 14.5c1.4-1.2 2-3.4 4.4-3.4 2.6 0 3.2 2.4 4.8 3.6 1.5 1.3 1.3 4.7-1 5.2-1.6.4-2.4-.8-3.7-.8-1.4 0-2.5 1-4 .5-2.2-.7-2.2-3.7-.5-5.1Z" /></svg></span>
           {t.brand}
         </Link>
         <HeaderNav />
-        {/* Mobile: the tab bar carries navigation; the header keeps one calm link. */}
-        <div className="flex items-center gap-0.5">
-          <Link className="site-nav__link sm:hidden" href="/kyiv-updates">Актуальне</Link>
-          <AccountLink />
+        <div className="flex shrink-0 items-center gap-1">
+          {/* Mobile: the tab bar carries navigation; the header keeps one calm link. */}
+          <Link className="site-nav__link md:hidden" href="/kyiv-updates">Події та користь</Link>
+          <ThemeToggle />
         </div>
       </nav>
     </header>
@@ -98,7 +103,7 @@ const FOOTER_GROUPS: { title: string; links: [string, string][] }[] = [
       ["/help", "Потрібна допомога"],
       ["/emergency-vet-near-me", "Термінова ситуація"],
       ["/lost-found", "Загублені / знайдені"],
-      ["/kyiv-updates", "Оновлення Києва"],
+      ["/kyiv-updates", "Події та користь"],
       ["/city/kyiv/shelters", "Притулки Києва"],
     ],
   },
@@ -106,6 +111,7 @@ const FOOTER_GROUPS: { title: string; links: [string, string][] }[] = [
     title: "VetNear",
     links: [
       ["/my-pets", "Мої тварини"],
+      ["/saved", "Збережені місця"],
       ["/add-place", "Додати заклад"],
       ["/for-partners", "Партнерам"],
       ["/privacy", "Конфіденційність"],
@@ -149,17 +155,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="uk">
+    // The bootstrap script sets data-theme before hydration, hence the warning opt-out.
+    <html lang="uk" data-theme="light" suppressHydrationWarning>
+      <head>
+        {/* Applies the saved/system theme before first paint (no white flash). */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }} />
+      </head>
       <body>
         <JsonLd data={websiteJsonLd()} />
         <a href="#main" className="skip-link">Перейти до вмісту</a>
         <MotionRuntime />
-        <AmbientBackground />
         <Header />
         <main id="main">{children}</main>
         <Footer />
         <TabBar />
         <ServiceWorkerRegister />
+        <LaunchMeasurement />
       </body>
     </html>
   );

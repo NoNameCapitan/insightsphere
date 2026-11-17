@@ -1,8 +1,8 @@
 "use client";
 // "Report incorrect info" submissions (Modules 4 & 12).
-// Local copy in localStorage + non-blocking push to the server API when enabled.
+// Local copy in localStorage + explicit delivery result from the server API.
 import { track } from "@/lib/analytics";
-import { syncReportToServer } from "@/lib/api/backendClient";
+import { syncReportToServer, type DeliveryResult } from "@/lib/api/backendClient";
 import { makeId, nowIso, readJSON, writeJSON } from "@/lib/storage";
 import type { ReportIssue } from "@/lib/types";
 
@@ -22,11 +22,11 @@ export function getReports(): ReportIssue[] {
   return readJSON<ReportIssue[]>(KEY, []);
 }
 
-export function createReport(
+export async function createReport(
   placeId: string,
   reason: ReportIssue["reason"],
   message?: string,
-): ReportIssue {
+): Promise<ReportIssue & { delivery: DeliveryResult; localSaved: boolean }> {
   const report: ReportIssue = {
     id: makeId("rep"),
     placeId,
@@ -35,7 +35,8 @@ export function createReport(
     createdAt: nowIso(),
   };
   writeJSON(KEY, [report, ...getReports()]);
+  const localSaved = getReports().some((item) => item.id === report.id);
   track("report_issue_submitted", { placeId, reason });
-  void syncReportToServer(placeId, reason, message);
-  return report;
+  const delivery = await syncReportToServer(placeId, reason, message);
+  return { ...report, delivery, localSaved };
 }

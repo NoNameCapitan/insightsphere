@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { aggregateLeadEvents, countBillableLeads } from "@/lib/places/leads";
+import { aggregateLeadEvents, countBillableLeads, CONTACT_ACTION_TYPES } from "@/lib/places/leads";
 import { authenticateModerator } from "@/lib/server/moderatorAuth";
 import { getSupabaseAdmin } from "@/lib/server/supabase";
 
@@ -54,5 +54,7 @@ export async function GET(req: Request): Promise<Response> {
   return NextResponse.json({
     summary,
     billableLeads: countBillableLeads(summary),
+    contactActions: CONTACT_ACTION_TYPES.reduce((sum, type) => sum + summary.totals[type], 0),
+    truncated: (data?.length ?? 0) >= 10_000,
   });
 }

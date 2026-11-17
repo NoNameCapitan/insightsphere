@@ -34,9 +34,9 @@ describe("active vertical", () => {
     }
   });
 
-  it("covers every district used by the seed dataset", () => {
+  it("covers every optional Kyiv district used by the seed dataset", () => {
     for (const place of PLACES) {
-      expect(DISTRICT_LABELS[place.district]).toBeTruthy();
+      if (place.district) expect(DISTRICT_LABELS[place.district]).toBeTruthy();
     }
   });
 

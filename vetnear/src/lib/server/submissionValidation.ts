@@ -4,6 +4,8 @@
 //  - status/provenance are set by the server, not the client,
 //  - all URLs pass the safe-URL gate, strings are length-capped.
 import { isSafeUrl, isValidEmail, isValidPhone } from "@/lib/security/url";
+import { normalizeRegion, withinCoverageBounds } from "@/config/coverage";
+import { normalizeDistrict } from "@/lib/labels";
 import type { PartnerSubmission, ReportIssue } from "@/lib/types";
 
 // Must cover every category the /add-place form offers (see CATEGORY_LABELS),
@@ -13,10 +15,6 @@ const CATEGORIES = [
   "veterinary_clinic", "emergency_vet", "vet_pharmacy", "pet_store", "grooming",
   "pet_boarding", "pet_friendly_place", "shelter", "animal_volunteer_help",
   "dog_walking", "dog_training", "other_pet_service",
-] as const;
-const DISTRICTS = [
-  "holosiivskyi", "darnytskyi", "desnianskyi", "dniprovskyi", "obolonskyi",
-  "pecherskyi", "podilskyi", "sviatoshynskyi", "solomianskyi", "shevchenkivskyi",
 ] as const;
 const REPORT_REASONS = [
   "wrong_phone", "wrong_address", "wrong_hours", "closed_permanently", "duplicate", "other",
@@ -59,13 +57,20 @@ export function sanitizeSubmissionInput(
   const address = str(b.address, MAX.address);
   const phone = str(b.phone, 32);
   const category = str(b.category, 50);
-  const district = str(b.district, 50);
+  const region = b.region == null ? "kyiv_city" : normalizeRegion(b.region);
+  const locality = region === "kyiv_city" ? "Київ" : str(b.locality, 100);
+  const districtInput = str(b.district, 50);
+  const district = normalizeDistrict(districtInput);
 
   if (!name) errors.push("name is required");
   if (!address) errors.push("address is required");
   if (!phone || !isValidPhone(phone)) errors.push("valid phone is required");
   if (!(CATEGORIES as readonly string[]).includes(category)) errors.push("invalid category");
-  if (!(DISTRICTS as readonly string[]).includes(district)) errors.push("invalid district");
+  if (!region) errors.push("Оберіть Київ або Київську область.");
+  if (b.countryCode != null && b.countryCode !== "UA") errors.push("Зараз приймаємо заявки для України.");
+  if (region === "kyiv_oblast" && !locality) errors.push("Вкажіть населений пункт Київської області.");
+  if (region === "kyiv_oblast" && districtInput) errors.push("Район Києва не застосовується до населеного пункту області.");
+  if (districtInput && !district) errors.push("invalid district");
 
   // HONESTY: no self-declared emergency category from the public form.
   if (category === "emergency_vet") errors.push("emergency_vet cannot be self-declared");
@@ -86,7 +91,8 @@ export function sanitizeSubmissionInput(
 
   const latitude = typeof b.latitude === "number" && Number.isFinite(b.latitude) && Math.abs(b.latitude) <= 90 ? b.latitude : undefined;
   const longitude = typeof b.longitude === "number" && Number.isFinite(b.longitude) && Math.abs(b.longitude) <= 180 ? b.longitude : undefined;
-  const hasCoords = latitude !== undefined && longitude !== undefined;
+  const hasCoords = latitude !== undefined && longitude !== undefined
+    && region !== null && withinCoverageBounds(region, { latitude, longitude });
 
   if (errors.length) return { ok: false, errors };
 
@@ -98,7 +104,10 @@ export function sanitizeSubmissionInput(
     category: category as PartnerSubmission["category"],
     description: str(b.description, MAX.description),
     address,
-    district: district as PartnerSubmission["district"],
+    countryCode: "UA",
+    region: region!,
+    locality,
+    ...(region === "kyiv_city" && district ? { district } : {}),
     ...(hasCoords ? { latitude, longitude } : {}),
     phone,
     ...(email ? { email } : {}),

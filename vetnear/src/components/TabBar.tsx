@@ -13,7 +13,7 @@ const TABS = [
   {
     href: "/nearby",
     label: "Поруч",
-    match: (p: string) => p.startsWith("/nearby") || p.startsWith("/place"),
+    match: (p: string) => p.startsWith("/nearby") || p.startsWith("/place") || p === "/saved",
     icon: (
       <>
         <path d="M12 21s6.5-5.6 6.5-11A6.5 6.5 0 0 0 5.5 10c0 5.4 6.5 11 6.5 11Z" />
@@ -22,7 +22,7 @@ const TABS = [
     ),
   },
   {
-    href: "/help",
+    href: "/help?urgent=1",
     label: "Терміново",
     urgent: true,
     match: (p: string) => p.startsWith("/help"),
@@ -49,7 +49,7 @@ const TABS = [
   },
 ];
 
-/** Mobile-only bottom navigation. Hidden from sm up, where the header nav shows. */
+/** Compact navigation through small tablets; desktop links start at 768 px. */
 export function TabBar() {
   const pathname = usePathname() ?? "/";
   // Admin and partner tools keep their own full-height layouts.

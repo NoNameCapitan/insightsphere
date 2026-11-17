@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isUrgent, routeSuggestion, mockProvider } from "@/lib/assistant";
+import { isUrgent, routeSuggestion, mockProvider, guidedAnswer } from "@/lib/assistant";
 import { SAFE_EMERGENCY_CTA_HREF } from "@/lib/data/verification";
 import { makePet } from "./fixtures";
 
@@ -47,6 +47,11 @@ describe("routeSuggestion — rule-based category routing", () => {
 });
 
 describe("mockProvider.answer", () => {
+  it("preserves urgent intent in the guided assistant fallback too", () => {
+    const r = guidedAnswer("собака не дихає", null);
+    expect(r.urgent).toBe(true);
+    expect(r.actions?.[0].href).toBe(SAFE_EMERGENCY_CTA_HREF);
+  });
   it("urgent questions get urgent=true and the SAFE emergency CTA (no fake 24/7)", () => {
     const r = mockProvider.answer("собака не дихає", null);
     expect(r.urgent).toBe(true);

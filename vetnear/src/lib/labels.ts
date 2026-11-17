@@ -6,11 +6,13 @@
 // marker colour and icon in one place.
 import { categoryMap } from "@/config/vertical";
 import { VERTICAL } from "@/config/verticals/pet-care-kyiv";
+import { COVERAGE_REGIONS, localityOf, regionOf } from "@/config/coverage";
 import type {
   AnimalType,
   Availability,
   KyivDistrict,
   PlaceCategory,
+  PlaceLocation,
   RequestStatus,
   SubmissionStatus,
   TrustBadge,
@@ -59,7 +61,7 @@ export const BADGE_LABELS: Record<TrustBadge, string> = {
   updated_recently: "Нещодавно оновлено",
   data_outdated: "Дані можуть бути застарілі",
   emergency: "Термінова ситуація",
-  open_now: "Відкрито зараз",
+  open_now: "Відкрито за графіком",
   partner: "Партнер",
 };
 
@@ -115,4 +117,12 @@ export function categoryLabel(c: PlaceCategory): string {
 export function districtLabel(d: KyivDistrict | string): string {
   const key = normalizeDistrict(d);
   return key ? DISTRICT_LABELS[key] : d;
+}
+
+/** Never attach a Kyiv district to a listing in the oblast. */
+export function placeLocationLabel(place: PlaceLocation): string {
+  if (regionOf(place) === "kyiv_oblast") {
+    return [localityOf(place), COVERAGE_REGIONS.kyiv_oblast].filter(Boolean).join(" · ");
+  }
+  return place.district ? districtLabel(place.district) : localityOf(place);
 }

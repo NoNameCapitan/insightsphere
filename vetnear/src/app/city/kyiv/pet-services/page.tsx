@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Landing } from "@/components/Landing";
 import { PLACES } from "@/lib/data/places";
+import { regionOf } from "@/config/coverage";
 
 const PATH = "/city/kyiv/pet-services";
 
@@ -12,14 +13,14 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  const places = PLACES.filter((p) => true).slice(0, 30);
+  const places = PLACES.filter((p) => regionOf(p) === "kyiv_city").filter((p) => true).slice(0, 30);
   return (
     <Landing
       h1="Послуги для тварин у Києві"
       intro="Каталог закладів для тварин у Києві за всіма категоріями. Натисніть, щоб відсортувати найближчі."
       places={places}
       path={PATH}
-      ctaHref="/nearby"
+      ctaHref="/nearby?region=kyiv_city"
       ctaLabel="Дивитися всі поруч"
     />
   );

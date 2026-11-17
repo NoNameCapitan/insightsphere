@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { track } from "@/lib/analytics";
 import { Disclaimer } from "@/components/JsonLd";
-import { DemoAdminBanner } from "@/components/DemoBanner";
+import styles from "@/app/for-partners/partners.module.css";
 import { CATEGORY_LABELS, STATUS_LABELS } from "@/lib/labels";
 import { getSubmissions } from "@/lib/partners/store";
 import type { PartnerSubmission } from "@/lib/types";
@@ -18,16 +18,17 @@ export default function PartnerDashboardPage() {
 
   return (
     <div className="container-px mx-auto max-w-3xl py-6">
-      <h1 className="font-display text-2xl font-extrabold text-ink">Кабінет партнера</h1>
+      <h1 className="font-display text-2xl font-extrabold text-ink">Мої чернетки закладів</h1>
       <p className="mt-1 text-ink/60">
         У локальному режимі показуються лише заявки, збережені в цьому браузері. Після
         підключення авторизації партнер бачитиме тільки власні заклади.
       </p>
 
-      <div className="mt-4"><DemoAdminBanner /></div>
+      <p className={styles.notice}>Партнерський пілот. Підписка не активована, оплата не стягується. Це локальний список заявок, а не авторизований бізнес-акаунт.</p>
 
       <div className="mt-4 flex gap-2">
-        <Link href="/add-place" className="btn btn-brand py-2 text-sm">+ Додати заклад</Link>
+        <Link href="/add-place" className="btn btn-brand py-2 text-sm">Додати заклад</Link>
+        <Link href="/partner-interest?founding=1" className="btn btn-ghost py-2 text-sm">Обговорити партнерство</Link>
       </div>
 
       <section className="mt-6">
@@ -52,48 +53,14 @@ export default function PartnerDashboardPage() {
       </section>
 
       <section className="mt-8">
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-lg font-bold text-ink">Показники профілю</h2>
-          <span className="inline-flex items-center gap-1 rounded-full border border-amber/30 bg-amber/10 px-2.5 py-1 text-[11px] font-semibold text-amber">
-            <span aria-hidden>◇</span> демо-дані
-          </span>
-        </div>
-        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {([
-            ["Перегляди профілю", "1 280"],
-            ["Кліки «Зателефонувати»", "184"],
-            ["Кліки «Маршрут»", "96"],
-            ["Кліки на сайт", "73"],
-            ["Збережено користувачами", "41"],
-            ["Запити на послуги", "12"],
-          ] as const).map(([label, val]) => (
-            <div key={label} className="card px-3 py-3 text-center">
-              <p className="text-lg font-bold text-ink">{val}</p>
-              <p className="text-[11px] text-ink/50">{label}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-3 grid gap-2 sm:grid-cols-3 text-sm">
-          <div className="rounded-2xl border border-brand-100 px-3 py-2">
-            <p className="text-[11px] text-ink/50">Оцінка конверсії</p>
-            <p className="font-medium text-ink">≈ 23% → дзвінок/маршрут</p>
-          </div>
-          <div className="rounded-2xl border border-brand-100 px-3 py-2">
-            <p className="text-[11px] text-ink/50">Статус перевірки</p>
-            <p className="font-medium text-ink">Перевірено за публічними джерелами</p>
-          </div>
-          <div className="rounded-2xl border border-brand-100 px-3 py-2">
-            <p className="text-[11px] text-ink/50">План</p>
-            <p className="font-medium text-ink">Free (базовий)</p>
-          </div>
-        </div>
-        <p className="mt-2 text-xs text-ink/40">
-          Показники демонстраційні. Реальна аналітика зʼявиться з планами Verified / Pro.
-        </p>
+        <h2 className="font-display text-lg font-bold text-ink">Аналітика без припущень</h2>
+        <p className={styles.dashboardEmpty}>У цьому кабінеті ще немає підтверджених показників вашого закладу. Реальні звіти потребують авторизації власника й підключення серверних подій. Натискання телефону або маршруту — це дія в інтерфейсі, а не підтверджений клієнт чи завершений запис.</p>
+        <dl className={styles.statusList}><div><dt>Підписка</dt><dd>Не активована</dd></div><div><dt>Оплата</dt><dd>Не стягувалася</dd></div><div><dt>Доступний початок</dt><dd>Безкоштовний профіль після модерації</dd></div></dl>
+        <Link href="/for-partners#pricing" className={`${styles.inlineLink} mt-5 inline-block`}>Безкоштовний профіль і партнерський пілот</Link>
       </section>
 
       <div className="mt-6">
-        <Disclaimer text="Дані демо зберігаються у вашому браузері. Реальний кабінет потребуватиме авторизації та перевірки прав власника." />
+        <Disclaimer text="Локальні статуси не є підтвердженням публікації на сервері. Партнерський акаунт потребує авторизації та перевірки прав власника." />
       </div>
     </div>
   );

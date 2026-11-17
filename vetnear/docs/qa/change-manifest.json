@@ -1,0 +1,341 @@
+{
+  "version": "1.31.0",
+  "source": "vetnear-v1_30-release-hardened.zip",
+  "changed_files": [
+    {
+      "path": "AGENTS.md",
+      "kind": "modified"
+    },
+    {
+      "path": "README.md",
+      "kind": "modified"
+    },
+    {
+      "path": "docs/PREMIUM_PRODUCT_BLUEPRINT_RU.md",
+      "kind": "added"
+    },
+    {
+      "path": "docs/RELEASE_NOTES_V1_31.md",
+      "kind": "added"
+    },
+    {
+      "path": "docs/UX_REVIEW_V1_31_RU.md",
+      "kind": "added"
+    },
+    {
+      "path": "docs/qa/browser-qa-results.json",
+      "kind": "added"
+    },
+    {
+      "path": "docs/qa/screenshots/final-address-error.png",
+      "kind": "added"
+    },
+    {
+      "path": "docs/qa/screenshots/final-home-1440.png",
+      "kind": "added"
+    },
+    {
+      "path": "docs/qa/screenshots/final-home-390.png",
+      "kind": "added"
+    },
+    {
+      "path": "docs/qa/screenshots/final-nearby-mobile.png",
+      "kind": "added"
+    },
+    {
+      "path": "docs/qa/screenshots/final-record-storage-error.png",
+      "kind": "added"
+    },
+    {
+      "path": "docs/qa/screenshots/final-urgent-mobile.png",
+      "kind": "added"
+    },
+    {
+      "path": "package-lock.json",
+      "kind": "modified"
+    },
+    {
+      "path": "package.json",
+      "kind": "modified"
+    },
+    {
+      "path": "public/offline.html",
+      "kind": "added"
+    },
+    {
+      "path": "public/sw.js",
+      "kind": "modified"
+    },
+    {
+      "path": "scripts/release-gate.mjs",
+      "kind": "modified"
+    },
+    {
+      "path": "src/app/add-place/page.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/app/globals.css",
+      "kind": "modified"
+    },
+    {
+      "path": "src/app/help/page.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/app/my-pets/[id]/page.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/app/my-pets/[id]/records/new/page.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/app/my-pets/page.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/app/page.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/app/place/[id]/page.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/app/privacy/page.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/ActivePetSelector.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/DataBadge.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/GeoFallback.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/HeaderNav.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/HomeHero.module.css",
+      "kind": "added"
+    },
+    {
+      "path": "src/components/HomeHero.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/Landing.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/MapView.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/NearbyClient.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/NeedRouter.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/PetProfileForm.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/PlaceActions.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/PlaceCard.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/PlaceCardStatic.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/RadiusSelector.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/ReportIncorrectButton.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/ServerModerationPanel.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/ServiceWorkerRegister.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/components/TabBar.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "src/hooks/useGeolocation.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/__tests__/assistant.test.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/__tests__/delivery.test.ts",
+      "kind": "added"
+    },
+    {
+      "path": "src/lib/__tests__/distance.test.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/__tests__/emergencyVerification.test.ts",
+      "kind": "added"
+    },
+    {
+      "path": "src/lib/__tests__/geoFallbackDom.test.ts",
+      "kind": "added"
+    },
+    {
+      "path": "src/lib/__tests__/petCalendar.test.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/__tests__/petPersistence.test.ts",
+      "kind": "added"
+    },
+    {
+      "path": "src/lib/__tests__/petRecordFormDom.test.ts",
+      "kind": "added"
+    },
+    {
+      "path": "src/lib/__tests__/publicPlaceLookup.test.ts",
+      "kind": "added"
+    },
+    {
+      "path": "src/lib/__tests__/publishing.test.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/__tests__/ranking.test.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/__tests__/releaseGate.test.ts",
+      "kind": "added"
+    },
+    {
+      "path": "src/lib/__tests__/safetyCache.test.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/__tests__/serverRateLimit.test.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/__tests__/serviceWorker.test.ts",
+      "kind": "added"
+    },
+    {
+      "path": "src/lib/api/backendClient.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/assistant/index.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/data/phoneConfirmation.ts",
+      "kind": "added"
+    },
+    {
+      "path": "src/lib/data/provenance.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/data/verification.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/distance.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/geo/coordinates.ts",
+      "kind": "added"
+    },
+    {
+      "path": "src/lib/geo/ranking.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/labels.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/partners/store.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/pets/calendar.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/pets/store.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/pets/validation.ts",
+      "kind": "added"
+    },
+    {
+      "path": "src/lib/places/publish.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/reports/store.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/security/serverRateLimit.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/seo.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/server/placesFeed.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/storage.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/trust.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "src/lib/types/index.ts",
+      "kind": "modified"
+    }
+  ],
+  "verification": {
+    "unit_dom_tests": 387,
+    "test_files": 32,
+    "browser_scenarios": 9,
+    "production_audit_vulnerabilities": 0,
+    "production_build": "passed"
+  }
+}

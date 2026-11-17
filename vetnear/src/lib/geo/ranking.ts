@@ -1,8 +1,9 @@
 // Pet-aware discovery & ranking (Module 2).
 import { getOpenNowStatus, withDistances, filterPlacesByRadius } from "@/lib/distance";
 import { isSearchablePublicPlace } from "@/lib/data/provenance";
-import { isPublicEmergencyVisible } from "@/lib/data/verification";
+import { isPhoneConfirmedEmergency, isPublicEmergencyVisible } from "@/lib/data/verification";
 import { promotionBoost } from "@/lib/places/tier";
+import { localityKey, localityOf, regionOf } from "@/config/coverage";
 import type {
   Coordinates,
   FilterState,
@@ -12,10 +13,10 @@ import type {
   RadiusMeters,
 } from "@/lib/types";
 
-export const RADII: RadiusMeters[] = [1000, 2000, 3000, 5000, 10000];
+export const RADII: RadiusMeters[] = [1000, 2000, 3000, 5000, 10000, 25000, 50000, 100000];
 
 /** Auto-expand ladder used when a radius yields nothing. */
-const EXPAND_LADDER: RadiusMeters[] = [1000, 2000, 3000, 5000, 10000];
+const EXPAND_LADDER = RADII;
 
 export interface RankContext {
   pet?: PetProfile | null;
@@ -34,6 +35,7 @@ export function rankPlacesForPet(
 ): PlaceWithDistance[] {
   const now = ctx.now ?? new Date();
   const { pet, filters } = ctx;
+  const emergencyOnly = filters.emergency || filters.category === "emergency_vet";
 
   const scored = places.map((p) => {
     let score = 0;
@@ -51,7 +53,7 @@ export function rankPlacesForPet(
     if (!getOpenNowStatus(p, now)) score += 4;
 
     // 5. emergency availability (only weighted when emergency requested)
-    if (filters.emergency && !(p.emergencyAvailable || p.isOpen24_7)) score += 20;
+    if (emergencyOnly && !isPhoneConfirmedEmergency(p, now)) score += 20;
 
     // 6. verified / claimed
     if (!p.verified) score += 1.5;
@@ -64,7 +66,7 @@ export function rankPlacesForPet(
 
     // 8. paid promotion (v1.9) — a bounded tie-breaker, never an override.
     //    Disabled entirely in emergency mode: money must not reorder urgent care.
-    score -= promotionBoost(p, { emergency: filters.emergency, now });
+    score -= promotionBoost(p, { emergency: emergencyOnly || Boolean(filters.urgentIntent), now });
 
     return { p, score };
   });
@@ -75,8 +77,8 @@ export function rankPlacesForPet(
     open_now: (a, b) =>
       Number(getOpenNowStatus(b.p, now)) - Number(getOpenNowStatus(a.p, now)),
     emergency: (a, b) =>
-      Number(b.p.emergencyAvailable || b.p.isOpen24_7) -
-      Number(a.p.emergencyAvailable || a.p.isOpen24_7),
+      Number(isPhoneConfirmedEmergency(b.p, now)) -
+      Number(isPhoneConfirmedEmergency(a.p, now)),
     verified: (a, b) => Number(b.p.verified) - Number(a.p.verified),
     recent: (a, b) =>
       new Date(b.p.updatedAt).getTime() - new Date(a.p.updatedAt).getTime(),
@@ -111,6 +113,7 @@ export function getRecommendedPlaces(
 ): DiscoveryResult {
   const now = ctx.now ?? new Date();
   const { filters, pet } = ctx;
+  const emergencyOnly = filters.emergency || filters.category === "emergency_vet";
 
   // Only approved places with valid coordinates are publicly discoverable.
   // (Coordinate safety P0.6: no-coordinate / needs-geocoding places are excluded
@@ -119,14 +122,18 @@ export function getRecommendedPlaces(
 
   // Non-spatial filters
   const filtered = base.filter((p) => {
+    if (filters.region && filters.region !== "all" && regionOf(p) !== filters.region) return false;
+    if (filters.locality && localityKey(localityOf(p)) !== localityKey(filters.locality)) return false;
     if (filters.category !== "all" && p.category !== filters.category) return false;
-    if (filters.district !== "all" && p.district !== filters.district) return false;
+    if (filters.district !== "all" && (regionOf(p) !== "kyiv_city" || p.district !== filters.district)) return false;
     if (filters.animal !== "all" && !p.animalTypes.includes(filters.animal))
       return false;
     if (filters.openNow && !getOpenNowStatus(p, now)) return false;
-    if (filters.emergency && !(p.emergencyAvailable || p.isOpen24_7)) return false;
+    // A 24-hour store/pharmacy is not an emergency veterinary provider.
+    if (emergencyOnly && (p.emergencyAvailable !== true ||
+      (p.category !== "veterinary_clinic" && p.category !== "emergency_vet"))) return false;
     // Hide demo/unverified emergency listings from public emergency-first results.
-    if (filters.emergency && !isPublicEmergencyVisible(p)) return false;
+    if (emergencyOnly && !isPublicEmergencyVisible(p, now)) return false;
     if (filters.verified && !p.verified) return false;
     return true;
   });
@@ -158,6 +165,8 @@ export function getRecommendedPlaces(
 
 /** Default discovery filter state. */
 export const DEFAULT_FILTERS: FilterState = {
+  region: "all",
+  locality: "",
   category: "all",
   animal: "all",
   radius: 3000,

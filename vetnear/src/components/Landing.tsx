@@ -3,6 +3,7 @@ import { Disclaimer, JsonLd } from "@/components/JsonLd";
 import { PlaceCardStatic } from "@/components/PlaceCardStatic";
 import { t } from "@/lib/i18n";
 import { itemListJsonLd, SITE } from "@/lib/seo";
+import { SAFE_EMERGENCY_CTA_HREF } from "@/lib/data/verification";
 import type { Place } from "@/lib/types";
 
 /**
@@ -65,7 +66,7 @@ export function Landing({
             У критичній ситуації телефонуйте напряму до закладу.
           </p>
           <Link
-            href="/nearby?category=veterinary_clinic&sort=distance"
+            href={SAFE_EMERGENCY_CTA_HREF}
             className="btn btn-emergency mt-4 text-sm"
           >
             Показати найближчі перевірені ветклініки

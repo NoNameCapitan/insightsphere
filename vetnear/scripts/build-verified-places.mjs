@@ -31,40 +31,10 @@ function slugify(s) {
     .replace(/-+/g, "-").replace(/^-|-$/g, "");
 }
 
-// Working-hours presets (day 0 = Sunday .. 6 = Saturday).
-const hours = (open, close, { sun = true } = {}) =>
-  Array.from({ length: 7 }, (_, day) => ({ day, open, close, ...(day === 0 && !sun ? { closed: true } : {}) }));
-const HOURS = {
-  clinic: hours("09:00", "21:00"),
-  store: hours("10:00", "22:00"),
-  pharmacy: hours("09:00", "21:00"),
-  grooming: hours("10:00", "20:00", { sun: false }),
-  boarding: hours("08:00", "20:00"),
-};
-
-// Per-category capability + service defaults.
-const CAT = {
-  veterinary_clinic: {
-    hours: HOURS.clinic, services: ["Терапія", "Хірургія", "Вакцинація", "УЗД", "Аналізи", "Стаціонар"],
-    animals: ["dog", "cat", "rodent", "bird"], flags: { hasSurgery: true, hasUltrasound: true, hasXray: true, hasPharmacy: true },
-  },
-  pet_store: {
-    hours: HOURS.store, services: ["Корми", "Аксесуари", "Іграшки", "Наповнювачі", "Доставка"],
-    animals: ["dog", "cat", "bird", "rodent", "reptile"], flags: { deliveryAvailable: true, pickupAvailable: true },
-  },
-  vet_pharmacy: {
-    hours: HOURS.pharmacy, services: ["Ветпрепарати", "Вакцини", "Засоби догляду"],
-    animals: ["dog", "cat", "rodent", "bird"], flags: { hasPharmacy: true, pickupAvailable: true },
-  },
-  grooming: {
-    hours: HOURS.grooming, services: ["Стрижка", "Купання", "Гігієнічний догляд", "Чищення вух", "Підстригання кігтів"],
-    animals: ["dog", "cat"], flags: { appointmentRequired: true },
-  },
-  pet_boarding: {
-    hours: HOURS.boarding, services: ["Готель для тварин", "Денний догляд", "Грумінг", "Догляд"],
-    animals: ["dog", "cat"], flags: { appointmentRequired: true },
-  },
-};
+// Only explicitly documented schedules are emitted. A category never supplies
+// a default schedule, species list, medical capability, or synthetic rating.
+const hours = (open, close) =>
+  Array.from({ length: 7 }, (_, day) => ({ day, open, close }));
 
 // ── Curated REAL businesses ────────────────────────────────────────────────
 const A = "+380800351088"; // Alden-Vet hotline
@@ -173,10 +143,10 @@ const RAW_CANDIDATES = [
 
 const DESC = {
   veterinary_clinic: (n) => `${n} — ветеринарна клініка в Києві. Дані зібрано з офіційних і публічних джерел; графік та невідкладний прийом уточнюйте за телефоном.`,
-  pet_store: (n) => `${n} — зоомагазин: корми, аксесуари та товари для тварин. Наявність і графік уточнюйте за телефоном.`,
-  vet_pharmacy: (n) => `${n} — ветеринарна аптека: препарати, вакцини та засоби догляду.`,
-  grooming: (n) => `${n} — салон грумінгу: стрижка, купання та гігієнічний догляд за собаками й котами. Запис за телефоном.`,
-  pet_boarding: (n) => `${n} — готель і денний догляд для тварин, догляд та грумінг. Деталі за телефоном.`,
+  pet_store: (n) => `${n} — зоомагазин у Києві. Асортимент, наявність і графік уточнюйте за телефоном.`,
+  vet_pharmacy: (n) => `${n} — ветеринарна аптека у Києві. Асортимент та умови відпуску уточнюйте у закладі.`,
+  grooming: (n) => `${n} — салон грумінгу у Києві. Види тварин, процедури та запис уточнюйте за телефоном.`,
+  pet_boarding: (n) => `${n} — готель для тварин у Києві. Умови розміщення та додаткові послуги уточнюйте за телефоном.`,
 };
 
 // A-Vet (Оболонь) was re-checked on 2026-11-06 against the provider's current
@@ -187,7 +157,6 @@ const AVET_REVIEWED_AT = "2026-11-06";
 const HOURS_24_7 = [0, 1, 2, 3, 4, 5, 6].map((day) => ({ day, open: "00:00", close: "23:59" }));
 
 const places = RAW.map(([name, category, district, address, phone, website, lat, lng], i) => {
-  const c = CAT[category];
   const isMavet = name === "MAVET Clinic & Groom";
   const isAvet = name === "А-Вет (Оболонь)";
   const isMunicipal = name.startsWith("Комунальна ветклініка");
@@ -196,7 +165,8 @@ const places = RAW.map(([name, category, district, address, phone, website, lat,
   const flags = {
     hasSurgery: false, hasUltrasound: false, hasXray: false, hasPharmacy: false,
     emergencyAvailable: false, appointmentRequired: false, deliveryAvailable: false, pickupAvailable: false,
-    ...c.flags,
+    ...(isMavet || isAvet || isMunicipal ? { hasSurgery: true, hasUltrasound: true } : {}),
+    ...(isAvet ? { hasXray: true, hasPharmacy: true } : {}),
   };
   return {
     id: slug,
@@ -215,22 +185,22 @@ const places = RAW.map(([name, category, district, address, phone, website, lat,
     phone,
     ...(website ? { website } : {}),
     ...(SOCIALS[name] ? { socialLinks: SOCIALS[name] } : {}),
-    workingHours: isMunicipal ? HOURS.clinic.map((hours) => ({ ...hours, close: "19:00" })) : isAvet ? HOURS_24_7 : c.hours,
+    workingHours: isMunicipal ? hours("09:00", "19:00") : isAvet ? HOURS_24_7 : isMavet ? hours("09:00", "21:00") : [],
     isOpen24_7: isAvet,
     services: isMavet
       ? ["Терапія", "Вакцинація", "Хірургія", "УЗД", "Лабораторія", "Стоматологія", "Стаціонар", "Чіпування", "Документи", "Грумінг"]
       : isMunicipal
         ? ["Терапія", "Хірургія", "Вакцинація", "Стоматологія", "УЗД", "Лабораторія"]
       : isAvet
-        ? [...c.services, "Невідкладний прийом", "Кисневі бокси"]
-      : c.services,
-    animalTypes: isMavet || isAvet ? ["dog", "cat"] : c.animals,
-    tags: isMavet ? ["Ветклініка", "Грумінг", "Стаціонар"] : isMunicipal ? ["Комунальна клініка", "Вакцинація", "Call-first під час тривоги"] : c.services.slice(0, 3),
+        ? ["Терапія", "Хірургія", "Вакцинація", "УЗД", "Рентген", "Лабораторія", "Стаціонар", "Невідкладний прийом", "Кисневі бокси"]
+      : [],
+    animalTypes: isMavet || isAvet ? ["dog", "cat"] : [],
+    tags: isMavet ? ["Ветклініка", "Грумінг", "Стаціонар"] : isMunicipal ? ["Комунальна клініка", "Вакцинація", "Call-first під час тривоги"] : isAvet ? ["Ветклініка", "Стаціонар"] : [],
     ...flags,
     verified: !isAvet,
     claimed: false,
     status: "approved",
-    rating: isMunicipal ? 0 : Number((4.5 + ((i * 7) % 5) / 10).toFixed(1)), // municipal cards do not invent ratings
+    rating: 0, // No review source/count was recorded; never synthesize a score.
     createdAt: `${recordDate}T09:00:00.000Z`,
     updatedAt: `${isAvet ? AVET_REVIEWED_AT : recordDate}T09:00:00.000Z`,
     // Provenance
@@ -239,6 +209,9 @@ const places = RAW.map(([name, category, district, address, phone, website, lat,
     lastVerifiedAt: isAvet ? AVET_REVIEWED_AT : recordDate,
     verifiedBy: isAvet ? "VetNear team (official provider website and an independent directory checked; not phone-confirmed)" : isMunicipal ? "VetNear team (official Kyiv public source)" : isMavet ? "VetNear team (official public website checked; not phone-confirmed)" : VERIFIED_BY,
     sourceLabel: isAvet ? "Офіційний сайт А-Вет" : isMunicipal ? "КМДА — режим роботи комунальних ветклінік" : isMavet ? "Офіційний сайт MAVET" : SOURCE_LABEL,
+    ...(!isMavet && !isAvet && !isMunicipal ? {
+      dataWarning: "Збережено назву та контакти з попередніх публічних джерел. Графік, види тварин і додаткові послуги не підтверджено; уточніть перед візитом.",
+    } : {}),
     ...(isMavet ? {
       dataWarning: "Графік 09:00–21:00 підтверджено офіційним сайтом. Фраза «24/7 на зв’язку» не означає цілодобовий прийом; перед терміновим візитом зателефонуйте.",
       emergencyNotes: "Офіційний сайт просить телефонувати у термінових випадках, але не заявляє цілодобовий прийом. Зоомагазин позначено як «незабаром» і не опубліковано окремою точкою.",
@@ -263,17 +236,15 @@ const places = RAW.map(([name, category, district, address, phone, website, lat,
 });
 
 const candidates = RAW_CANDIDATES.map(([name, category, district, address, phone, website, lat, lng, sourceUrl], i) => {
-  const c = CAT[category];
   const slug = `${slugify(name)}-c${i + 1}`;
   const flags = {
     hasSurgery: false, hasUltrasound: false, hasXray: false, hasPharmacy: false,
     emergencyAvailable: false, appointmentRequired: false, deliveryAvailable: false, pickupAvailable: false,
-    ...c.flags,
   };
   // The A-Vet pharmacy shares the clinic's 2026-11-06 source check (see above).
   const isAvetPharmacy = name === "Ветаптека А-Вет (Оболонь)";
   // Dambo grooms dogs only (stated on their site).
-  const animals = name.startsWith("Dambo") ? ["dog"] : isAvetPharmacy ? ["dog", "cat"] : c.animals;
+  const animals = name.startsWith("Dambo") ? ["dog"] : isAvetPharmacy ? ["dog", "cat"] : [];
   return {
     id: slug,
     slug,
@@ -288,17 +259,18 @@ const candidates = RAW_CANDIDATES.map(([name, category, district, address, phone
     longitude: lng,
     phone,
     ...(website ? { website } : {}),
-    workingHours: c.hours,
+    workingHours: isAvetPharmacy ? HOURS_24_7 : [],
     isOpen24_7: isAvetPharmacy,
-    services: c.services,
+    services: isAvetPharmacy ? ["Ветеринарні препарати", "Засоби догляду"] : [],
     animalTypes: animals,
-    tags: c.services.slice(0, 3),
+    tags: isAvetPharmacy ? ["Ветаптека"] : [],
     ...flags,
+    ...(isAvetPharmacy ? { hasPharmacy: true } : {}),
     // NOT verified: web-researched candidates awaiting human review.
     verified: false,
     claimed: false,
     status: "approved", // discoverable, but shown with the "На перевірці" badge
-    rating: Number((4.3 + ((i * 3) % 5) / 10).toFixed(1)),
+    rating: 0,
     createdAt: `${CANDIDATES_ADDED_AT}T09:00:00.000Z`,
     updatedAt: `${isAvetPharmacy ? AVET_REVIEWED_AT : CANDIDATES_ADDED_AT}T09:00:00.000Z`,
     // Provenance — honest: unverified, needs review, with the source it came from.
@@ -315,13 +287,76 @@ const candidates = RAW_CANDIDATES.map(([name, category, district, address, phone
   };
 });
 
-const all = [...places, ...candidates];
+// v1.32: source evidence lives separately from the legacy rows. Only fields
+// supported by that provider's own page are promoted; there are no category
+// defaults for hours, species, medical capabilities, or ratings in this batch.
+const expansionSource = JSON.parse(readFileSync("scripts/data/catalog-expansion-v1-32.json", "utf8"));
+const expansion = expansionSource.records.map((record) => ({
+  id: record.id,
+  slug: record.id,
+  name: record.name,
+  category: record.category,
+  description: `${record.name} — ${record.locality}. ${record.services.length ? `Заявлені послуги: ${record.services.join(", ")}. ` : ""}Умови прийому уточнюйте безпосередньо у закладі.`,
+  address: record.address,
+  region: record.region,
+  locality: record.locality,
+  countryCode: "UA",
+  ...(record.district ? { district: record.district } : {}),
+  latitude: record.latitude,
+  longitude: record.longitude,
+  phone: record.phone,
+  website: record.website,
+  workingHours: record.workingHours,
+  timeZone: "Europe/Kyiv",
+  isOpen24_7: record.isOpen24_7 === true,
+  services: record.services,
+  animalTypes: record.animalTypes,
+  tags: record.services.slice(0, 3),
+  hasSurgery: false,
+  hasUltrasound: false,
+  hasXray: false,
+  hasPharmacy: false,
+  appointmentRequired: false,
+  deliveryAvailable: false,
+  pickupAvailable: false,
+  ...record.flags,
+  // Public-source checks are never a phone confirmation of emergency intake.
+  emergencyAvailable: false,
+  verified: false,
+  claimed: false,
+  status: "approved",
+  rating: 0,
+  createdAt: `${record.sourceCheckedAt}T09:00:00.000Z`,
+  updatedAt: `${record.sourceCheckedAt}T09:00:00.000Z`,
+  dataSource: "manual_unverified",
+  verificationStatus: "source_checked",
+  lastVerifiedAt: record.sourceCheckedAt,
+  verifiedBy: "VetNear (official public sources checked; not phone-confirmed)",
+  sourceLabel: "Офіційне джерело закладу; перевірено онлайн",
+  sourceUrl: record.sourceUrl,
+  dataWarning: `Джерело перевірено ${record.sourceCheckedAt}; дзвінка не було. ${record.reviewNote || "Перед візитом уточніть актуальний графік, послуги та прийом."}`,
+  ...(record.routeByAddress ? { routeByAddress: true } : {}),
+}));
+
+const all = [...places, ...candidates, ...expansion];
+// A shared network website/phone is not itself a duplicate, but the same
+// provider category at the same address must not be added twice.
+const normalizeAddress = (value) => value.normalize("NFKC").toLocaleLowerCase("uk").replace(/[\s.,'’ʼ«»()\-]/g, "");
+const ids = new Set();
+const addresses = new Set();
+for (const place of all) {
+  if (ids.has(place.id)) throw new Error(`Duplicate place id: ${place.id}`);
+  ids.add(place.id);
+  const addressKey = [place.region ?? "kyiv_city", place.locality ?? "Київ", place.category, normalizeAddress(place.address)].join("|");
+  if (addresses.has(addressKey)) throw new Error(`Duplicate place address/category: ${place.name}`);
+  addresses.add(addressKey);
+}
 const verifiedCount = all.filter((place) => place.verificationStatus === "verified").length;
 const sourceCheckedCount = all.filter((place) => place.verificationStatus === "source_checked").length;
 const needsReviewCount = all.filter((place) => place.verificationStatus === "needs_review").length;
 
 const banner =
-  `// AUTO-GENERATED by scripts/build-verified-places.mjs — manually-curated REAL Kyiv dataset.\n` +
+  `// AUTO-GENERATED by scripts/build-verified-places.mjs — real Kyiv and Kyiv oblast dataset.\n` +
   `// ${verifiedCount} verified + ${sourceCheckedCount} source_checked + ${needsReviewCount} needs_review places.\n` +
   `// emergencyAvailable=false for all (not phone-confirmed).\n` +
   `// Provenance + caveats: docs/DATASET_NOTES.md. Do not edit by hand.\n`;

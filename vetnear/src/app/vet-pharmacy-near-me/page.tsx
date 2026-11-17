@@ -5,7 +5,7 @@ import { PLACES } from "@/lib/data/places";
 const PATH = "/vet-pharmacy-near-me";
 
 export const metadata: Metadata = {
-  title: "Ветаптека поруч — ветпрепарати у Києві",
+  title: "Ветаптека поруч — ветпрепарати у Києві та Київській області",
   description:
     "Найближчі ветеринарні аптеки Києва: ветпрепарати, вітаміни, антипаразитарні засоби. Відстань і маршрут.",
   alternates: { canonical: PATH },

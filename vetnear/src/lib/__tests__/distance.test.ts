@@ -3,10 +3,15 @@ import {
   calculateDistance,
   formatDistance,
   getOpenNowStatus,
+  getOpeningHoursStatus,
   withDistances,
   filterPlacesByRadius,
 } from "@/lib/distance";
-import { makePlace, KYIV_CENTER, NOON, LATE_NIGHT } from "./fixtures";
+import { makePlace, KYIV_CENTER } from "./fixtures";
+
+// Explicit instants: Wednesday 12:00 and 23:00 in Kyiv, independent of runner TZ.
+const NOON = new Date("2026-07-01T09:00:00Z");
+const LATE_NIGHT = new Date("2026-07-01T20:00:00Z");
 
 describe("calculateDistance", () => {
   it("returns 0 for identical points", () => {
@@ -64,20 +69,93 @@ describe("getOpenNowStatus", () => {
   });
 
   it("respects closed flag for the day", () => {
-    const wed = NOON.getDay();
     const p = makePlace({
-      workingHours: [{ day: wed, open: "08:00", close: "20:00", closed: true }],
+      workingHours: [{ day: 3, open: "08:00", close: "20:00", closed: true }],
     });
     expect(getOpenNowStatus(p, NOON)).toBe(false);
   });
 
   it("handles closing after midnight (e.g. 20:00–02:00)", () => {
-    const wed = LATE_NIGHT.getDay();
     const p = makePlace({
-      workingHours: [{ day: wed, open: "20:00", close: "02:00" }],
+      workingHours: [{ day: 3, open: "20:00", close: "02:00" }],
     });
     expect(getOpenNowStatus(p, LATE_NIGHT)).toBe(true); // 23:00 is inside
     expect(getOpenNowStatus(p, NOON)).toBe(false);
+  });
+});
+
+describe("opening hours in the provider's time zone", () => {
+  it("uses Kyiv rather than UTC for legacy places", () => {
+    const p = makePlace({ workingHours: [{ day: 3, open: "08:00", close: "10:00" }] });
+    expect(getOpeningHoursStatus(p, new Date("2026-07-01T06:00:00Z"))).toBe("open");
+    expect(getOpeningHoursStatus(p, new Date("2026-07-01T08:00:00Z"))).toBe("closed");
+  });
+
+  it("includes the tail of yesterday's overnight shift, even on today's closed day", () => {
+    const p = makePlace({ workingHours: [
+      { day: 3, open: "20:00", close: "02:00" },
+      { day: 4, open: "", close: "", closed: true },
+    ] });
+    expect(getOpeningHoursStatus(p, new Date("2026-07-01T22:00:00Z"))).toBe("open"); // Thu 01:00
+    expect(getOpeningHoursStatus(p, new Date("2026-07-01T23:00:00Z"))).toBe("closed"); // Thu 02:00
+  });
+
+  it("carries Saturday's night shift into Sunday", () => {
+    const p = makePlace({ workingHours: [{ day: 6, open: "22:00", close: "03:00" }] });
+    expect(getOpeningHoursStatus(p, new Date("2026-07-04T22:30:00Z"))).toBe("open");
+  });
+
+  it("includes opening and excludes the exact closing minute", () => {
+    const p = makePlace();
+    expect(getOpeningHoursStatus(p, new Date("2026-07-01T05:00:00Z"))).toBe("open");
+    expect(getOpeningHoursStatus(p, new Date("2026-07-01T16:59:59Z"))).toBe("open");
+    expect(getOpeningHoursStatus(p, new Date("2026-07-01T17:00:00Z"))).toBe("closed");
+  });
+
+  it("handles a full day expressed as 00:00–24:00 and split shifts", () => {
+    expect(getOpeningHoursStatus(makePlace({ workingHours: [{ day: 3, open: "00:00", close: "24:00" }] }), LATE_NIGHT)).toBe("open");
+    const p = makePlace({ workingHours: [
+      { day: 3, open: "08:00", close: "12:00" },
+      { day: 3, open: "13:00", close: "20:00" },
+    ] });
+    expect(getOpeningHoursStatus(p, NOON)).toBe("closed");
+    expect(getOpeningHoursStatus(p, new Date("2026-07-01T10:00:00Z"))).toBe("open");
+  });
+
+  it("uses the optional IANA time zone, including a different local calendar day", () => {
+    const p = makePlace({ timeZone: "America/New_York", workingHours: [{ day: 2, open: "20:00", close: "23:00" }] });
+    expect(getOpeningHoursStatus(p, new Date("2026-07-01T01:00:00Z"))).toBe("open"); // Tue 21:00
+  });
+
+  it("observes Kyiv's spring-forward and repeated autumn hour", () => {
+    const spring = makePlace({ workingHours: [{ day: 0, open: "03:30", close: "05:00" }] });
+    expect(getOpeningHoursStatus(spring, new Date("2026-03-29T00:30:00Z"))).toBe("closed");
+    expect(getOpeningHoursStatus(spring, new Date("2026-03-29T01:00:00Z"))).toBe("open");
+    const autumn = makePlace({ workingHours: [{ day: 0, open: "03:00", close: "04:00" }] });
+    expect(getOpeningHoursStatus(autumn, new Date("2026-10-25T00:30:00Z"))).toBe("open");
+    expect(getOpeningHoursStatus(autumn, new Date("2026-10-25T01:30:00Z"))).toBe("open");
+    expect(getOpeningHoursStatus(autumn, new Date("2026-10-25T02:00:00Z"))).toBe("closed");
+  });
+
+  it("distinguishes missing hours from a confirmed closed day", () => {
+    expect(getOpeningHoursStatus(makePlace({ workingHours: [] }), NOON)).toBe("unknown");
+    expect(getOpeningHoursStatus(makePlace({ workingHours: [{ day: 2, open: "08:00", close: "20:00" }] }), NOON)).toBe("unknown");
+    expect(getOpeningHoursStatus(makePlace({ workingHours: [{ day: 3, open: "", close: "", closed: true }] }), NOON)).toBe("closed");
+  });
+
+  it.each([
+    { workingHours: [{ day: 3, open: "25:00", close: "26:00" }] },
+    { workingHours: [{ day: 3, open: "00:00", close: "00:00" }] },
+    { workingHours: [{ day: 7, open: "08:00", close: "20:00" }] },
+    { timeZone: "Mars/Olympus" },
+  ])("does not claim opening for invalid schedule data: %j", (overrides) => {
+    const p = makePlace(overrides);
+    expect(getOpeningHoursStatus(p, NOON)).toBe("unknown");
+    expect(getOpenNowStatus(p, NOON)).toBe(false);
+  });
+
+  it("handles invalid dates without throwing or claiming availability", () => {
+    expect(getOpeningHoursStatus(makePlace(), new Date("invalid"))).toBe("unknown");
   });
 });
 

@@ -12,7 +12,7 @@ import {
   setAdminToken,
   setServerSubmissionStatus,
 } from "@/lib/api/backendClient";
-import { CATEGORY_LABELS, DISTRICT_LABELS, STATUS_LABELS } from "@/lib/labels";
+import { CATEGORY_LABELS, placeLocationLabel, STATUS_LABELS } from "@/lib/labels";
 import type { PartnerSubmission, ReportIssue } from "@/lib/types";
 
 export function ServerModerationPanel() {
@@ -51,8 +51,9 @@ export function ServerModerationPanel() {
     try {
       await setServerSubmissionStatus(id, status);
       await load();
-    } catch {
-      setError("Не вдалося змінити статус.");
+    } catch (e) {
+      setError(e instanceof Error && e.message.startsWith("Статус змінено")
+        ? e.message : "Не вдалося змінити статус.");
     }
   };
 
@@ -111,7 +112,7 @@ export function ServerModerationPanel() {
                   </span>
                 </div>
                 <div className="text-slate-600">
-                  {CATEGORY_LABELS[s.category]} · {DISTRICT_LABELS[s.district]} · {s.phone}
+                  {CATEGORY_LABELS[s.category]} · {placeLocationLabel(s)} · {s.phone}
                 </div>
                 <div className="text-slate-600">{s.address}</div>
                 {s.status === "pending_review" && (

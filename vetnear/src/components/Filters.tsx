@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { DistrictMap3D } from "@/components/DistrictMap3D";
+import { useEffect, useRef, useState } from "react";
 import { FilterIcon } from "@/components/icons/ServiceIcons";
 
 import {
@@ -27,7 +26,7 @@ const filterCategoryLabel = (c: (typeof ALL_CATEGORIES)[number]) =>
 const ALL_SORTS: { key: SortKey; label: string }[] = [
   { key: "distance", label: "За відстанню" },
   { key: "pet_match", label: "Підходить улюбленцю" },
-  { key: "open_now", label: "Відкрито зараз" },
+  { key: "open_now", label: "Відкрито за графіком" },
   { key: "emergency", label: "Термінова ситуація" },
   { key: "verified", label: "Перевірені" },
   { key: "recent", label: "Нещодавно оновлені" },
@@ -45,6 +44,20 @@ export function FiltersBar({
   onReset: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const panel = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setOpen(false); trigger.current?.focus(); }
+    };
+    const outside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !panel.current?.contains(event.target)) setOpen(false);
+    };
+    document.addEventListener("keydown", escape);
+    document.addEventListener("pointerdown", outside);
+    return () => { document.removeEventListener("keydown", escape); document.removeEventListener("pointerdown", outside); };
+  }, [open]);
   const activeCount = [
     filters.category !== "all",
     filters.animal !== "all",
@@ -55,17 +68,18 @@ export function FiltersBar({
     filters.sort !== "distance",
   ].filter(Boolean).length;
   const sel =
-    "rounded-xl border border-brand-100 bg-surface px-3 py-2 text-sm text-ink";
+    "min-h-11 min-w-0 rounded-xl border border-brand-100 bg-surface px-3 py-2 text-sm text-ink";
   return (
-    <div className="relative rounded-2xl border border-brand-100 bg-white">
+    <div ref={panel} className="relative rounded-2xl border border-brand-100 bg-white">
       <button
+        ref={trigger}
         type="button"
         aria-expanded={open}
         aria-controls="nearby-advanced-filters"
         onClick={() => setOpen((value) => !value)}
-        className="flex min-h-12 w-full items-center gap-3 px-3.5 text-left text-sm font-semibold text-ink"
+        className="flex min-h-[50px] w-full items-center gap-2 px-3 text-left text-sm font-semibold text-ink"
       >
-        <FilterIcon className="h-8 w-8 shrink-0" />
+        <FilterIcon className="h-5 w-5 shrink-0" />
         <span className="flex-1">Фільтри</span>
         {activeCount > 0 && (
           <span className="rounded-full bg-brand px-2 py-0.5 text-xs font-bold text-white">{activeCount}</span>
@@ -73,7 +87,7 @@ export function FiltersBar({
         <span aria-hidden className={`text-brand transition-transform ${open ? "rotate-180" : ""}`}>⌄</span>
       </button>
 
-      <div id="nearby-advanced-filters" hidden={!open} className="absolute right-0 top-[calc(100%+8px)] z-30 w-[min(680px,calc(100vw-2rem))] space-y-3 rounded-2xl border border-brand-100 bg-white p-3.5 shadow-pop">
+      <div id="nearby-advanced-filters" hidden={!open} className="absolute right-0 top-[calc(100%+8px)] z-30 max-h-[70dvh] w-[min(680px,calc(100vw-2rem))] space-y-3 overflow-y-auto rounded-2xl border border-brand-100 bg-white p-3.5 shadow-pop">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <select
           aria-label="Категорія"
@@ -99,17 +113,17 @@ export function FiltersBar({
           ))}
         </select>
 
-        <select
+        {filters.region !== "kyiv_oblast" && <select
           aria-label="Район"
           className={sel}
           value={filters.district}
-          onChange={(e) => onChange({ district: e.target.value as FilterState["district"] })}
+          onChange={(e) => onChange({ district: e.target.value as FilterState["district"], ...(e.target.value !== "all" ? { region: "kyiv_city", locality: "" } : {}) })}
         >
           <option value="all">Усі райони</option>
           {ALL_DISTRICTS.map((d) => (
             <option key={d} value={d}>{DISTRICT_LABELS[d]}</option>
           ))}
-        </select>
+        </select>}
 
         <select
           aria-label="Сортування"
@@ -123,14 +137,10 @@ export function FiltersBar({
         </select>
       </div>
 
-      <div className="rounded-2xl border border-brand-100 bg-canvas/60 px-2 pb-3 pt-2">
-        <p className="px-2 pt-1 text-xs font-semibold text-ink/55">Район на карті</p>
-        {open && <DistrictMap3D value={filters.district} onChange={(district) => onChange({ district })} />}
-      </div>
 
       <div className="flex flex-wrap items-center gap-2">
         <Toggle on={filters.openNow} onClick={() => onChange({ openNow: !filters.openNow })}>
-          Відкрито зараз
+          Відкрито за графіком
         </Toggle>
         {SHOW_EMERGENCY && (
           <Toggle on={filters.emergency} onClick={() => onChange({ emergency: !filters.emergency })}>
@@ -142,7 +152,7 @@ export function FiltersBar({
         </Toggle>
         <button
           onClick={onReset}
-          className="ml-auto rounded-full px-3 py-1.5 text-sm text-ink/60 hover:text-ink"
+          className="ml-auto min-h-11 rounded-full px-3 py-1.5 text-sm text-ink/60 hover:text-ink"
         >
           Скинути
         </button>
@@ -165,7 +175,7 @@ function Toggle({
     <button
       aria-pressed={on}
       onClick={onClick}
-      className={`rounded-full border px-3 py-1.5 text-sm transition ${
+      className={`min-h-11 rounded-full border px-3 py-1.5 text-sm transition-colors ${
         on
           ? "border-brand bg-brand text-white"
           : "border-brand-100 bg-surface text-ink/70 hover:border-brand"

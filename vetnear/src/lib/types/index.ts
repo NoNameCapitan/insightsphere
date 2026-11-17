@@ -11,6 +11,19 @@ export interface Coordinates {
   longitude: number;
 }
 
+/** Explicit catalogue coverage. Kyiv city is separate from Kyiv oblast. */
+export type PlaceRegion = "kyiv_city" | "kyiv_oblast";
+
+export interface PlaceLocation {
+  countryCode?: string;
+  /** Legacy records without a region belong to Kyiv city. */
+  region?: PlaceRegion;
+  /** Actual settlement name, including towns and villages. */
+  locality?: string;
+  /** Kyiv city district only; never assign one to an oblast settlement. */
+  district?: KyivDistrict;
+}
+
 // The ten official districts of Kyiv.
 export type KyivDistrict =
   | "holosiivskyi"
@@ -122,6 +135,7 @@ export interface PetProfile {
   importantNotes?: string;
   favoriteClinicId?: string;
   preferredDistrict?: KyivDistrict;
+  preferredLocality?: string; // Optional place label; never a GPS position.
   emergencyNote?: string; // quick note for urgent visits (e.g. reacts badly to anesthesia)
   vaccinations?: PetVaccination[];
   treatments?: PetTreatment[];
@@ -178,7 +192,7 @@ export type VerificationStatus =
  * yet been human-reviewed. Kept separate from Place: these are review inputs,
  * never published as-is.
  */
-export interface GooglePlaceCandidate {
+export interface GooglePlaceCandidate extends Omit<PlaceLocation, "district"> {
   id: string;
   googlePlaceId?: string | null;
   name: string;
@@ -252,7 +266,7 @@ export interface Service {
   category?: string;
 }
 
-export interface Place {
+export interface Place extends PlaceLocation {
   id: string;
   ownerId?: string;
   slug: string;
@@ -260,7 +274,6 @@ export interface Place {
   category: PlaceCategory;
   description: string;
   address: string;
-  district: KyivDistrict;
   latitude: number;
   longitude: number;
   phone: string;
@@ -268,6 +281,8 @@ export interface Place {
   website?: string;
   socialLinks?: SocialLinks;
   workingHours: WorkingHours[];
+  /** IANA time zone of the place; legacy Kyiv records default to Europe/Kyiv. */
+  timeZone?: string;
   isOpen24_7: boolean;
   services: string[];
   animalTypes: AnimalType[];
@@ -370,7 +385,7 @@ export type TrustBadge =
   | "partner";
 
 // ── Discovery / filtering (Module 2) ───────────────────────────────────────────
-export type RadiusMeters = 1000 | 2000 | 3000 | 5000 | 10000;
+export type RadiusMeters = 1000 | 2000 | 3000 | 5000 | 10000 | 25000 | 50000 | 100000;
 
 export type SortKey =
   | "distance"
@@ -383,6 +398,10 @@ export type SortKey =
   | "rating";
 
 export interface FilterState {
+  region?: PlaceRegion | "all";
+  locality?: string;
+  /** Urgent user intent keeps fallback clinic results free of paid ranking boosts. */
+  urgentIntent?: boolean;
   category: PlaceCategory | "all";
   animal: AnimalType | "all";
   radius: RadiusMeters;
@@ -396,13 +415,12 @@ export interface FilterState {
 // ── Partner onboarding & moderation (Module 5) ─────────────────────────────────
 export type SubmissionStatus = PlaceStatus;
 
-export interface PartnerSubmission {
+export interface PartnerSubmission extends PlaceLocation {
   id: string;
   name: string;
   category: PlaceCategory;
   description: string;
   address: string;
-  district: KyivDistrict;
   latitude?: number;
   longitude?: number;
   phone: string;

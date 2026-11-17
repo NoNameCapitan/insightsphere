@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { DemoAdminBanner } from "@/components/DemoBanner";
 import { ServerModerationPanel } from "@/components/ServerModerationPanel";
-import { CATEGORY_LABELS, DISTRICT_LABELS, STATUS_LABELS } from "@/lib/labels";
+import { CATEGORY_LABELS, placeLocationLabel, STATUS_LABELS } from "@/lib/labels";
 import {
   getSubmissions,
   setSubmissionCoords,
@@ -78,7 +78,7 @@ export default function ModerationPage() {
                   <div className="min-w-0">
                     <p className="font-display font-bold text-ink">{s.name}</p>
                     <p className="text-sm text-ink/60">
-                      {CATEGORY_LABELS[s.category]} · {DISTRICT_LABELS[s.district]}
+                      {CATEGORY_LABELS[s.category]} · {placeLocationLabel(s)}
                     </p>
                     <p className="mt-1 text-sm text-ink/70">{s.address} · {s.phone}</p>
                   </div>

@@ -5,7 +5,7 @@ import { PLACES } from "@/lib/data/places";
 const PATH = "/pet-store-near-me";
 
 export const metadata: Metadata = {
-  title: "Зоомагазин поруч — корми та товари для тварин у Києві",
+  title: "Зоомагазин поруч — корми та товари для тварин у Києві та Київській області",
   description:
     "Найближчі зоомагазини Києва: корми, аксесуари, наповнювачі, переноски. Відстань, графік і маршрут.",
   alternates: { canonical: PATH },

@@ -7,7 +7,7 @@ import { useEffect, useRef } from "react";
  * One small runtime for page-wide motion, so individual components stay
  * untouched:
  *  - pointer spotlight: writes --sx/--sy on the card under a fine pointer;
- *  - scroll reveal: sections that start below the fold rise in once;
+ *  - scroll reveal: only explicitly authored data-reveal regions rise in once;
  *  - scroll progress: a hairline at the top of the page.
  * Everything is skipped under prefers-reduced-motion.
  */
@@ -17,6 +17,7 @@ export function MotionRuntime() {
 
   // Pointer spotlight (event delegation, rAF-throttled).
   useEffect(() => {
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
     if (!window.matchMedia?.("(hover: hover) and (pointer: fine)").matches) return;
     let frame = 0;
     let last: PointerEvent | null = null;
@@ -45,8 +46,6 @@ export function MotionRuntime() {
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") return;
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-    // Internal tools are for working, not for presentation: nothing is hidden there.
-    if (pathname?.startsWith("/admin") || pathname?.startsWith("/partner")) return;
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -58,7 +57,7 @@ export function MotionRuntime() {
       { threshold: 0.08, rootMargin: "0px 0px -6% 0px" },
     );
     const timer = window.setTimeout(() => {
-      const candidates = document.querySelectorAll<HTMLElement>("main section, main [data-reveal], footer");
+      const candidates = document.querySelectorAll<HTMLElement>("main [data-reveal]");
       candidates.forEach((el) => {
         if (el.classList.contains("sr-armed") || el.closest(".sr-armed, [data-no-reveal]")) return;
         if (el.getBoundingClientRect().top < window.innerHeight * 0.92) return;

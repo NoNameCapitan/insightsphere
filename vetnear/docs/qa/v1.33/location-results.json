@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "checks": [
+    "No unsolicited GPS; denial leaves manual location usable",
+    "Empty lookup never selects Kyiv; explicit address enables radius and preserves manual point"
+  ],
+  "pageErrors": []
+}

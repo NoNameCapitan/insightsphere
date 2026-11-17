@@ -137,11 +137,13 @@ describe("submissionToPlace — safety invariants", () => {
 });
 
 describe("isPhoneConfirmed", () => {
-  it("needs both timestamp and actor", () => {
+  it("needs a valid date and a nonblank moderator identity", () => {
     expect(isPhoneConfirmed(submission({ phoneConfirmedAt: "x" }))).toBe(false);
     expect(
       isPhoneConfirmed(submission({ phoneConfirmedAt: "x", phoneConfirmedBy: "y" })),
-    ).toBe(true);
+    ).toBe(false);
+    expect(isPhoneConfirmed(submission({ phoneConfirmedAt: "2026-02-01T10:00:00.000Z", phoneConfirmedBy: "   " }))).toBe(false);
+    expect(isPhoneConfirmed(submission({ phoneConfirmedAt: "2026-02-01T10:00:00.000Z", phoneConfirmedBy: "mod_1" }))).toBe(true);
   });
 });
 

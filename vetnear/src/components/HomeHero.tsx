@@ -1,176 +1,84 @@
-"use client";
-
 import Link from "next/link";
-import { useRef } from "react";
-import { EmergencyCtaIcon, LocationIcon } from "@/components/icons/ServiceIcons";
-import { PetCareCockpit } from "@/components/PetCareCockpit";
-import { GeneratedVisual } from "@/components/GeneratedVisual";
-import { HeroMotionLayer } from "@/components/HeroMotionLayer";
-import { HeroOrbit } from "@/components/HeroOrbit";
-import { CountUp } from "@/components/motion/CountUp";
-import { ServiceCategoryCard } from "@/components/ServiceCategoryCard";
-import { usePointerVars } from "@/hooks/usePointerVars";
+import { CinematicCompanions } from "@/components/CinematicCompanions";
+import { ServiceIcon } from "@/components/icons/ServiceIcons";
+import { ALL_ANIMALS, ANIMAL_LABELS } from "@/lib/labels";
 import { PLACES } from "@/lib/data/places";
-import { isSearchablePublicPlace } from "@/lib/data/provenance";
-import { hasPhoneConfirmedEmergency, SAFE_EMERGENCY_CTA_HREF } from "@/lib/data/verification";
+import { localityOf } from "@/config/coverage";
+import { SAFE_EMERGENCY_CTA_HREF } from "@/lib/data/verification";
 import type { PlaceCategory } from "@/lib/types";
+import styles from "./HomeHero.module.css";
 
-/** Care-path cards: the pet's need first, the category second. */
-const CARE_PATHS: { category: PlaceCategory; title: string; desc: string }[] = [
-  { category: "veterinary_clinic", title: "Здоров’я", desc: "Ветклініки поруч" },
-  { category: "vet_pharmacy", title: "Ліки", desc: "Ветаптеки поруч" },
-  { category: "pet_store", title: "Їжа й товари", desc: "Зоомагазини поруч" },
-  { category: "grooming", title: "Догляд", desc: "Грумінг і стрижка" },
-  { category: "pet_boarding", title: "Перетримка", desc: "Коли треба залишити улюбленця" },
+const SERVICES: { category: PlaceCategory; label: string; description: string }[] = [
+  { category: "veterinary_clinic", label: "Ветеринар", description: "Огляд і лікування" },
+  { category: "vet_pharmacy", label: "Ветаптека", description: "Ліки та препарати" },
+  { category: "pet_store", label: "Зоомагазин", description: "Корм і товари" },
+  { category: "grooming", label: "Грумінг", description: "Догляд за улюбленцем" },
+  { category: "pet_boarding", label: "Перетримка", description: "Турбота на час поїздки" },
 ];
 
-// Never advertise an empty category (e.g. shelters currently have 0 public
-// places), and keep the honest Kyiv dataset numbers for the hero trust line.
-const PUBLIC = PLACES.filter(isSearchablePublicPlace);
-const TOTAL = PUBLIC.length;
-const VERIFIED = PUBLIC.filter((p) => p.verificationStatus === "verified").length;
-const PUBLIC_COUNT = PUBLIC.reduce<Partial<Record<PlaceCategory, number>>>((m, p) => {
-  m[p.category] = (m[p.category] ?? 0) + 1;
-  return m;
-}, {});
-const CARE_VISIBLE = CARE_PATHS.filter((c) => (PUBLIC_COUNT[c.category] ?? 0) > 0);
+const LOCALITIES = Array.from(new Set(PLACES.filter((place) => place.status === "approved").map(localityOf).filter(Boolean)))
+  .sort((a, b) => a === "Київ" ? -1 : b === "Київ" ? 1 : a.localeCompare(b, "uk"));
 
-const HEADLINE = ["Надійна", "допомога", "для", "вашого", "улюбленця", "поруч"];
-
-/** Ukrainian plural form for "місце" (1 місце / 2 місця / 5 місць). */
-function placesWord(n: number): string {
-  const d = n % 10;
-  const h = n % 100;
-  if (d === 1 && h !== 11) return "місце";
-  if (d >= 2 && d <= 4 && (h < 10 || h > 20)) return "місця";
-  return "місць";
+function Arrow({ diagonal = false }: { diagonal?: boolean }) {
+  return <svg aria-hidden className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={diagonal ? "M5 15 15 5M5 5h10v10" : "M3 10h14m-5-5 5 5-5 5"} /></svg>;
 }
 
-// Until an emergency place is phone-confirmed, the urgent button routes to the
-// nearest vet clinics rather than promising 24/7 availability.
-const EMERGENCY_HREF = hasPhoneConfirmedEmergency(PLACES)
-  ? "/nearby?emergency=1"
-  : SAFE_EMERGENCY_CTA_HREF;
-
-/** Warm mint/peach "care aura" behind the hero (styles in globals.css). */
-function HeroAura() {
-  return (
-    <div aria-hidden className="hero-aura pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-      <GeneratedVisual src="/visuals/a-visual-system.webp" className="visual-a-background absolute inset-0 h-full w-full" motion="none" reveal={false} fit="cover" priority sizes="100vw" />
-      <HeroMotionLayer />
-      <span className="hero-aura__glow hero-aura__glow--mint" />
-      <span className="hero-aura__glow hero-aura__glow--peach" />
-      <span className="hero-aura__glow hero-aura__glow--soft" />
-    </div>
-  );
-}
-
+/** The search is a server-rendered GET form: the cinematic layer never gates it. */
 export function HomeHero() {
-  const sectionRef = useRef<HTMLElement>(null);
-  usePointerVars(sectionRef);
-
   return (
-    <section ref={sectionRef} className="hero-3d relative overflow-hidden">
-      <HeroAura />
-
-      <div className="mx-auto w-full max-w-5xl px-4 pb-10 pt-5 sm:pt-14">
-        {/* Above the fold: message left, pet-care cockpit right (stacked on mobile). */}
-        <div className="grid items-center gap-6 sm:gap-10 lg:grid-cols-[minmax(0,1fr)_420px]">
-          <div className="text-center lg:text-left">
-            <p className="inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-surface/70 px-3 py-1 text-xs font-semibold text-brand-700 backdrop-blur">
-              <LocationIcon className="h-5 w-5" /> Київ · pet-сервіси поруч
-            </p>
-
-            {/* Mobile: the orbit scene alone — the full cockpit shows from sm up. */}
-            <HeroOrbit className="mx-auto mt-4 h-36 w-36 sm:hidden" priority />
-
-            <h1 className="hero-title mx-auto mt-2 max-w-xl text-[2.125rem] font-bold leading-[1.08] sm:mt-5 sm:text-5xl lg:mx-0">
-              {HEADLINE.map((word, i) => (
-                <span key={word} className="hero-title__word" style={{ ["--i" as string]: i }}>
-                  {i === HEADLINE.length - 1 ? (
-                    <span className="hero-title__accent">
-                      {word}
-                      <svg aria-hidden viewBox="0 0 120 12" preserveAspectRatio="none" className="hero-title__stroke">
-                        <path d="M2 8.5C22 3.5 44 2.5 62 5.2c18 2.7 38 3.2 56-1.2" />
-                      </svg>
-                    </span>
-                  ) : (
-                    word
-                  )}{" "}
-                </span>
-              ))}
+    <section className={styles.hero} aria-labelledby="home-title" data-no-reveal>
+      <div className={styles.stage} data-cinematic-stage>
+        <div className={styles.intro}>
+          <div className={styles.copy}>
+            <p className={styles.context}>Ветеринарна допомога та догляд поруч</p>
+            {/* Each line rises out of its own mask; the text itself is plain and static for assistive tech. */}
+            <h1 id="home-title">
+              <span className={styles.line}><span>Турбота про тих,</span></span>
+              <span className={styles.line}><span>хто робить дім <em className={styles.gold}>домом.</em></span></span>
             </h1>
-
-            <p className="mx-auto mt-3 max-w-md text-[15px] leading-6 text-ink/65 sm:mt-4 sm:text-base lg:mx-0">
-              Перевірені ветклініки, ветаптеки й pet-сервіси Києва — з відстанню,
-              статусом даних і прямим маршрутом менш ніж за 90 секунд.
-            </p>
-
-            <div className="mx-auto mt-5 flex max-w-md flex-col sm:mt-8 lg:mx-0">
-              <Link href="/help" className="btn btn-brand hero-cta py-4 text-lg">
-                Знайти допомогу поруч
-                <svg aria-hidden viewBox="0 0 20 20" className="hero-cta__arrow h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 10h12M11 5l5 5-5 5" />
-                </svg>
-              </Link>
-
-              {/* Safety-critical CTA: rose color and outline set it apart —
-                  calm, not alarmist. Routing stays honest (no fake 24/7). */}
-              <Link href={EMERGENCY_HREF} className="hero-urgent mt-3">
-                <span aria-hidden className="hero-urgent__icon">
-                  <EmergencyCtaIcon />
-                </span>
-                Термінова ситуація
-              </Link>
-
-              {/* Honest dataset numbers, counted up once. */}
-              <dl className="hero-stats mt-5 sm:mt-6">
-                <div>
-                  <dt>{placesWord(TOTAL)} у базі</dt>
-                  <dd><CountUp value={TOTAL} /></dd>
-                </div>
-                <div>
-                  <dt>перевірено</dt>
-                  <dd><CountUp value={VERIFIED} /></dd>
-                </div>
-                <div>
-                  <dt>районів Києва</dt>
-                  <dd><CountUp value={10} duration={900} /></dd>
-                </div>
-              </dl>
-              <p className="mt-3 text-xs text-ink/45">Без реєстрації · Не замінює ветеринара</p>
-            </div>
+            <p className={styles.description}>Ветеринари, грумінг і ветаптеки у Києві та області. Знайдіть потрібне місце й зв’яжіться напряму.</p>
+            <Link className={styles.coverage} href="/nearby?location=manual"><svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>Київ та Київська область <Arrow diagonal /></Link>
           </div>
-
-          <div className="mx-auto hidden w-full max-w-[380px] pb-6 pt-16 sm:block lg:pb-4 lg:pt-20">
-            <PetCareCockpit />
-          </div>
+          <CinematicCompanions />
         </div>
-
-        {/* Care paths — needs first, categories second. */}
-        <div className="care-section mt-9 sm:mt-16">
-          <h2 className="text-center font-display text-xl font-bold text-ink">
-            Що потрібно вашому улюбленцю?
-          </h2>
-          {/* Always visible: these are the main entry points, so they are never
-              hidden behind a scroll effect. */}
-          <div className="care-grid mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {CARE_VISIBLE.map((c) => (
-              <ServiceCategoryCard
-                key={c.category}
-                category={c.category}
-                label={c.title}
-                description={c.desc}
-                href={`/nearby?category=${c.category}`}
-              />
-            ))}
-            {/* Completes the grid without advertising an empty category. */}
-            {CARE_VISIBLE.length % 2 === 1 && (
-              <ServiceCategoryCard tile="location" label="Усе поруч" description="Всі заклади списком і на карті" href="/nearby" />
-            )}
+        <div className={styles.searchArea}>
+          <form action="/nearby" method="get" className={styles.search} aria-label="Пошук допомоги для тварини">
+            <div className={`${styles.field} ${styles.locationField}`}>
+              <label htmlFor="home-locality">Де шукаємо?</label>
+              <select name="locality" id="home-locality" defaultValue="">
+                <option value="">Київ та область</option>
+                {LOCALITIES.map((locality) => <option key={locality} value={locality}>{locality}</option>)}
+              </select>
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="home-animal">Для кого шукаємо?</label>
+              <select name="animal" id="home-animal" defaultValue="all">
+                <option value="all">Усі тварини</option>
+                {ALL_ANIMALS.map((animal) => <option key={animal} value={animal}>{ANIMAL_LABELS[animal]}</option>)}
+              </select>
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="home-service">Що потрібно?</label>
+              <select name="category" id="home-service" defaultValue="veterinary_clinic">
+                {SERVICES.map((service) => <option key={service.category} value={service.category}>{service.label}</option>)}
+                <option value="all">Усі послуги</option>
+              </select>
+            </div>
+            <button className={styles.searchButton} type="submit">Знайти поруч<svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4.5 4.5" /></svg></button>
+          </form>
+          <div className={styles.searchNotes}>
+            <p>Без реєстрації. Зв’язок напряму із закладом.</p>
+            <Link className={styles.urgentShortcut} href={SAFE_EMERGENCY_CTA_HREF}><span aria-hidden className={styles.urgentMark}>+</span>Тварині зле? Знайти клініку <Arrow diagonal /></Link>
           </div>
         </div>
       </div>
+      <nav className={styles.services} aria-label="Послуги для тварин">
+        {SERVICES.map((service) => <Link key={service.category} href={`/nearby?category=${service.category}`}><span className={styles.serviceIcon} aria-hidden><ServiceIcon category={service.category} /></span><span><strong>{service.label}</strong><small>{service.description}</small></span><span className={styles.serviceArrow}><Arrow diagonal /></span></Link>)}
+      </nav>
+      <nav className={styles.returnLinks} aria-label="Швидкий доступ">
+        <Link href="/saved"><svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M20 5a5 5 0 0 0-7 0l-1 1-1-1a5 5 0 0 0-7 7l8 8 8-8a5 5 0 0 0 0-7Z" /></svg>Збережені місця <Arrow /></Link>
+        <Link href="#district-explorer">Дослідити райони Києва <Arrow diagonal /></Link>
+      </nav>
     </section>
   );
 }

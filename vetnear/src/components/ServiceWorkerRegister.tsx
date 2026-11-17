@@ -5,7 +5,7 @@ import { useEffect } from "react";
 /** Registers the PWA service worker in production-capable browsers. */
 export function ServiceWorkerRegister() {
   useEffect(() => {
-    if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) {
+    if (process.env.NODE_ENV !== "production" || typeof navigator === "undefined" || !("serviceWorker" in navigator)) {
       return;
     }
     const onLoad = () => {

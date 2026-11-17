@@ -1,54 +1,36 @@
+"use client";
+
 import Link from "next/link";
-import { RevealGroup } from "@/components/RevealGroup";
-import { KYIV_INFO_ITEMS, KYIV_UPDATES_AS_OF, type KyivInfoKind } from "@/lib/data/kyivUpdates";
+import { useEffect, useState } from "react";
+import { COVERAGE_LABEL } from "@/config/coverage";
+import { EVENT_CATEGORIES, EVENT_CATEGORY_LABELS, eventStatus, KYIV_EVENTS, KYIV_UPDATES_AS_OF } from "@/lib/data/kyivUpdates";
+import styles from "./HomeUpdatesStrip.module.css";
 
-const KIND_LABEL: Record<KyivInfoKind, string> = {
-  event: "Подія",
-  vaccination: "Вакцинація тварин",
-  safety: "Безпека людей",
-  campaign: "Допомога",
-  service: "Сервіс",
-};
-
-const KIND_TONE: Record<KyivInfoKind, string> = {
-  event: "bg-peach-50 text-peach-700",
-  vaccination: "bg-brand-50 text-brand-700",
-  safety: "bg-emergency-50 text-emergency-700",
-  campaign: "bg-brand-50 text-brand-700",
-  service: "bg-ink/5 text-ink/65",
-};
+function Arrow() { return <svg aria-hidden width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>; }
 
 export function HomeUpdatesStrip() {
-  const featured = KYIV_INFO_ITEMS.slice(0, 3);
-  return (
-    <section className="container-px mx-auto max-w-4xl pt-10" aria-labelledby="kyiv-now-title">
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold text-brand-700">Оновлено {KYIV_UPDATES_AS_OF}</p>
-          <h2 id="kyiv-now-title" className="mt-1 font-display text-xl font-bold text-ink">
-            Актуальне для власників тварин
-          </h2>
-        </div>
-        <Link href="/kyiv-updates" className="shrink-0 text-sm font-semibold text-brand underline decoration-brand/25 underline-offset-4 hover:decoration-brand">
-          Усі новини
-        </Link>
-      </div>
+  const [now, setNow] = useState(() => new Date(`${KYIV_UPDATES_AS_OF}T12:00:00+02:00`));
+  useEffect(() => {
+    const refresh = () => setNow(new Date()); refresh();
+    window.addEventListener("focus", refresh);
+    const timer = window.setInterval(refresh, 60_000);
+    return () => { window.removeEventListener("focus", refresh); window.clearInterval(timer); };
+  }, []);
+  const active = KYIV_EVENTS.filter((event) => eventStatus(event, now) !== "expired");
+  const featured = [active.find((event) => event.category === "vaccination"), active.find((event) => event.category === "adoption"), active.find((event) => event.category === "event" && eventStatus(event, now) === "upcoming") ?? active.find((event) => event.category === "opportunity")].filter((event) => event !== undefined);
 
-      <RevealGroup className="mt-4 grid gap-3 md:grid-cols-3">
-        {featured.map((item) => (
-          <article key={item.id} className="rounded-2xl border border-brand-100 bg-surface p-4 shadow-card">
-            <div className="flex flex-wrap items-center gap-2 text-[11px]">
-              <span className={`rounded-full px-2 py-1 font-semibold ${KIND_TONE[item.kind]}`}>{KIND_LABEL[item.kind]}</span>
-              <span className="text-ink/50">{item.dateLabel}</span>
-            </div>
-            <h3 className="mt-3 font-display text-base font-bold leading-snug text-ink">{item.title}</h3>
-            <p className="mt-2 line-clamp-3 text-sm leading-5 text-ink/65">{item.summary}</p>
-          </article>
-        ))}
-      </RevealGroup>
-      <p className="mt-3 text-xs leading-5 text-ink/50">
-        Короткі перевірені підказки без розсилок: події, вакцинації, безпека та міські сервіси. Перед поїздкою звіряйте умови в першоджерелі.
-      </p>
-    </section>
-  );
+  return <section className={styles.strip} aria-labelledby="kyiv-now-title">
+    <div className={styles.intro}>
+      <h2 id="kyiv-now-title">Місто живе.<br /><span>Турбота триває.</span></h2>
+      <p>Вакцинації, адопції, події та можливості для власників тварин. {COVERAGE_LABEL} — в окремій добірці.</p>
+      <nav className={styles.topics} aria-label="Теми новин">{EVENT_CATEGORIES.map((category) => <Link key={category} href={`/kyiv-updates?category=${category}`}>{EVENT_CATEGORY_LABELS[category]}</Link>)}</nav>
+      <Link href="/kyiv-updates" className={styles.allLink}>Події та можливості <Arrow /></Link>
+      <p className={styles.checked}>Перевірка джерел · {new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Kyiv" }).format(new Date(`${KYIV_UPDATES_AS_OF}T12:00:00Z`))}</p>
+    </div>
+    <div className={styles.items}>{featured.map((event) => <article key={event.id}>
+      <div className={styles.meta}><span>{EVENT_CATEGORY_LABELS[event.category]}</span><span>{event.schedule.kind === "date" ? event.schedule.label : eventStatus(event, now) === "needs_confirmation" ? "Уточніть актуальні умови" : "Постійна можливість"}</span></div>
+      <Link href={`/kyiv-updates?category=${event.category}#event-${event.id}`}><h3>{event.title}</h3><Arrow /></Link>
+      <p>{event.locality}{event.confirmation === "needs_confirmation" ? " · деталі потребують підтвердження" : " · умови в першоджерелі"}</p>
+    </article>)}</div>
+  </section>;
 }

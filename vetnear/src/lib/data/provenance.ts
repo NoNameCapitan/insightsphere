@@ -1,5 +1,6 @@
 // Data provenance helpers (P0 — data honesty). Pure, server-safe.
 import type { DataSource, Place, VerificationStatus } from "@/lib/types";
+import { hasRecentPhoneConfirmation, phoneConfirmationFreshness } from "@/lib/data/phoneConfirmation";
 
 export function dataSourceOf(p: { dataSource?: DataSource }): DataSource {
   return p.dataSource ?? "demo";
@@ -55,8 +56,8 @@ export interface DataBadge {
 export function getDataBadge(p: Place): DataBadge | null {
   const v = verificationOf(p);
   if (isDemoPlace(p)) return { label: "Демо-дані", tone: "demo" };
-  if (v === "verified") return { label: verificationLabel(p), tone: "verified" };
-  if (v === "source_checked") return { label: "Джерело перевірено", tone: "review" };
+  if (v === "verified") return { label: verificationLabel(p), tone: hasRecentPhoneConfirmation(p) ? "verified" : "review" };
+  if (v === "source_checked") return { label: "Дані звірено з джерелом", tone: "review" };
   if (v === "needs_review") return { label: "На перевірці", tone: "review" };
   if (v === "unverified") return { label: "Не перевірено", tone: "unverified" };
   return null;
@@ -64,13 +65,15 @@ export function getDataBadge(p: Place): DataBadge | null {
 
 /**
  * Honest label for a verified place. Current places are verified against public
- * sources; a place that has been phone-confirmed (verifiedBy mentions a call)
+ * sources; a place with recorded phone-confirmation evidence
  * gets the stronger "Підтверджено дзвінком".
  */
-export function verificationLabel(p: Place): string {
-  const by = (p.verifiedBy ?? "").toLowerCase();
-  if (/дзвінк|подзвон|phone|call/.test(by)) return "Підтверджено дзвінком";
-  return "Перевірено за публічними джерелами";
+export function verificationLabel(p: Place, now: Date = new Date()): string {
+  if (verificationOf(p) === "verified" && !isDemoPlace(p) && hasRecentPhoneConfirmation(p, now)) {
+    return "Контакт підтверджено дзвінком";
+  }
+  if (verificationOf(p) === "verified" && !isDemoPlace(p) && phoneConfirmationFreshness(p, now) === "stale") return "Дзвінок потребує оновлення";
+  return "Дані звірено з джерелом";
 }
 
 /** Inline warning text for a place, or null when the data is verified. */

@@ -32,10 +32,13 @@ const SALT =
  * POST /api/events/lead — record an outbound intent action on a place.
  * Body: { placeId, eventType, sourcePath? }
  *
- * Always answers 204 on success, including when the backend is disabled, so the
- * client can fire this unconditionally (sendBeacon cannot branch on config).
+ * A storage receipt is returned only after insertion or a duplicate.
+ * Disabled/demo mode explicitly reports recorded:false.
  */
 export async function POST(req: Request): Promise<Response> {
+  if (process.env.MEASUREMENT_ENABLED !== "1") return NextResponse.json({ recorded: false, reason: "disabled" }, { status: 202, headers: { "Cache-Control": "no-store" } });
+  const origin = req.headers.get("origin");
+  if (origin && origin !== new URL(req.url).origin) return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
   const key = clientKeyFromRequest(req);
   const rl = await limiter(key);
   if (!rl.allowed) {
@@ -58,7 +61,7 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const db = getSupabaseAdmin();
-  if (!db) return new Response(null, { status: 204 }); // demo mode: accept, drop.
+  if (!db) return NextResponse.json({ recorded: false, reason: "storage_unavailable" }, { status: 503 });
 
   const { error } = await db.from("place_lead_events").insert({
     id: leadEventId(),
@@ -71,10 +74,10 @@ export async function POST(req: Request): Promise<Response> {
 
   // A duplicate (same place+type+session+day) hits the unique index. That is the
   // de-duplication working as designed, not a failure.
-  if (error && !error.message.includes("duplicate")) {
+  if (error && error.code !== "23505") {
     console.error("[api/events/lead] insert failed:", error.message);
     return NextResponse.json({ error: "Storage error" }, { status: 500 });
   }
 
-  return new Response(null, { status: 204 });
+  return NextResponse.json({ recorded: true }, { status: 201, headers: { "Cache-Control": "no-store" } });
 }

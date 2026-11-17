@@ -8,8 +8,9 @@ import { PhoneIcon, RouteIcon, ServiceIcon } from "@/components/icons/ServiceIco
 import { track } from "@/lib/analytics";
 import { reportLead } from "@/lib/leads/report";
 import { shouldLabelAsPromoted } from "@/lib/places/tier";
-import { formatDistance, getOpenNowStatus } from "@/lib/distance";
-import { CATEGORY_LABELS, districtLabel } from "@/lib/labels";
+import { formatDistance, getOpeningHoursStatus } from "@/lib/distance";
+import { isEmergencyPlace, isEmergencySearchSafe, isPhoneConfirmedEmergency } from "@/lib/data/verification";
+import { CATEGORY_LABELS, placeLocationLabel } from "@/lib/labels";
 import { googleMapsRoute } from "@/lib/maps";
 import { EXTERNAL_LINK_PROPS, safeUrl } from "@/lib/security/url";
 import { computeBadges } from "@/lib/trust";
@@ -44,11 +45,11 @@ export function PlaceCard({
   // (where the boost is switched off anyway — see lib/places/tier.ts).
   const promoted = shouldLabelAsPromoted(place, { emergency: emergencyMode });
   // Compute open-now after mount to avoid hydration mismatch.
-  const [open, setOpen] = useState<boolean | null>(null);
-  useEffect(() => setOpen(getOpenNowStatus(place)), [place]);
+  const [hoursStatus, setHoursStatus] = useState<"open" | "closed" | "unknown" | null>(null);
+  useEffect(() => setHoursStatus(getOpeningHoursStatus(place)), [place]);
 
   const website = safeUrl(place.website);
-  const isEmergency = place.emergencyAvailable || place.isOpen24_7;
+  const isEmergency = isPhoneConfirmedEmergency(place);
   // Verification is communicated once, by the provenance badge (DataBadgeChip);
   // "open now" has its own live chip — so only the remaining signals stay here.
   const badges = computeBadges(place).filter((b) =>
@@ -56,7 +57,7 @@ export function PlaceCard({
   );
   const meta = [
     CATEGORY_LABELS[place.category],
-    place.district ? districtLabel(place.district) : null,
+    placeLocationLabel(place),
   ]
     .filter(Boolean)
     .join(" · ");
@@ -91,8 +92,8 @@ export function PlaceCard({
               <FavoritePlaceButton placeId={place.id} compact />
             </span>
           </div>
-          <p className="mt-0.5 text-[13px] leading-5 text-ink/60">{meta}</p>
-          {place.address && <p className="truncate text-xs leading-5 text-ink/45">{place.address}</p>}
+          <p className="mt-0.5 text-sm leading-5 text-ink/70">{meta}</p>
+          {place.address && <p className="truncate text-sm leading-5 text-ink/70">{place.address}</p>}
         </div>
       </div>
 
@@ -111,10 +112,10 @@ export function PlaceCard({
                 Під час тривоги — спочатку зателефонуйте
               </span>
             )}
-            {open !== null && (
-              <span className={`status-pill ${open ? "status-pill--open" : "status-pill--closed"}`}>
+            {hoursStatus !== null && (
+              <span className={`status-pill ${hoursStatus === "open" ? "status-pill--open" : "status-pill--closed"}`}>
                 <span aria-hidden className="status-pill__dot" />
-                {open ? "Відкрито" : "Зачинено"}
+                {hoursStatus === "open" ? "Відкрито за графіком" : hoursStatus === "closed" ? "Зачинено за графіком" : "Графік не уточнено"}
               </span>
             )}
             <DataBadgeChip place={place} />
@@ -133,6 +134,10 @@ export function PlaceCard({
               </span>
             )}
           </div>
+
+          {isEmergencyPlace(place) && !isEmergencySearchSafe(place) && (
+            <p className="mt-2 text-xs leading-5 text-ink/70">Нічний або терміновий прийом потрібно підтвердити телефоном.</p>
+          )}
 
           {place.services.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">

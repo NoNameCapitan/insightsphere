@@ -1,0 +1,30 @@
+[
+  {
+    "name": "profile contact is visible and unobscured on 320,390,640,768",
+    "passed": true
+  },
+  {
+    "name": "contact dock clears bottom navigation after scrolling",
+    "passed": true
+  },
+  {
+    "name": "search first result and origin dependent radius",
+    "passed": true
+  },
+  {
+    "name": "empty oblast grooming recovers category in Kyiv",
+    "passed": true
+  },
+  {
+    "name": "advanced filters keyboard dismissal",
+    "passed": true
+  },
+  {
+    "name": "return preserves category locality query and shown count",
+    "passed": true
+  },
+  {
+    "name": "urgent goes straight to clinic results preserving locality",
+    "passed": true
+  }
+]

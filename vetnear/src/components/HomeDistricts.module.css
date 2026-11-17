@@ -1,0 +1,30 @@
+/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
+:global(html[data-theme="dark"]) .section { color: #d5ebe5; }
+:global(html[data-theme="dark"]) .heading h2 > span { color: #b7c7c1; }
+:global(html[data-theme="dark"]) .heading p { color: #bfcac3; }
+:global(html[data-theme="dark"]) .regionNav { border: 1px solid #434b3f; }
+:global(html[data-theme="dark"]) .regionNav a { color: #c7d8d1; }
+:global(html[data-theme="dark"]) .regionNav a:focus-visible, :global(html[data-theme="dark"]) .footnote a:focus-visible { outline: 2px solid #dec7aa; }
+:global(html[data-theme="dark"]) .footnote p { color: #b8c2bb; }
+:global(html[data-theme="dark"]) .footnote a { color: #c8e3d9; }
+@media (hover: hover) and (pointer: fine) {
+  :global(html[data-theme="dark"]) .regionNav a:not(.cityLink):hover { background: #262922; }
+}
+/* @generated dark-theme:end */
+
+.section { width: min(100% - 48px, 1180px); margin: 88px auto 0; color: #183e34; scroll-margin-top: 90px; }
+.heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; margin-bottom: 27px; }
+.heading h2 { font-size: clamp(30px, 3.5vw, 46px); line-height: 1.12; letter-spacing: -0.035em; font-weight: 650; }
+.heading h2 > span { color: #57766a; }
+.heading p { max-width: 49ch; margin-top: 15px; font-size: 14px; line-height: 1.7; color: #52685b; }
+.regionNav { display: flex; flex: 0 0 auto; flex-wrap: wrap; gap: 4px; padding: 4px; border: 1px solid #cad4c5; border-radius: 12px; }
+.regionNav a { display: inline-flex; align-items: center; justify-content: center; gap: 16px; min-height: 44px; padding: 9px 14px; border-radius: 8px; color: #39584b; font-size: 12px; font-weight: 600; }
+.regionNav .cityLink { background: #183f34; color: #faf7ec; }
+.regionNav a:focus-visible, .footnote a:focus-visible { outline: 2px solid #9b6420; outline-offset: 4px; }
+.mapAnchor { scroll-margin-top: 90px; }
+.footnote { display: flex; justify-content: space-between; align-items: flex-start; gap: 36px; margin-top: 17px; }
+.footnote p { max-width: 64ch; color: #607466; font-size: 11px; line-height: 1.6; }
+.footnote a { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; margin-top: -11px; color: #245744; font-size: 12px; font-weight: 600; }
+@media (hover: hover) and (pointer: fine) { .regionNav a:not(.cityLink):hover { background: #e6ebdf; } .footnote a:hover { text-decoration: underline; text-underline-offset: 4px; } }
+@media (max-width: 900px) { .heading { align-items: flex-start; } .regionNav { flex-direction: column; } }
+@media (max-width: 700px) { .section { width: calc(100% - 32px); margin-top: 56px; } .heading { display: block; margin-bottom: 20px; } .heading p { font-size: 13px; max-width: 45ch; } .regionNav { flex-direction: row; display: inline-flex; margin-top: 22px; } .footnote { display: block; margin-top: 13px; } .footnote p { font-size: 10px; } .footnote a { font-size: 11px; margin-top: 4px; } }

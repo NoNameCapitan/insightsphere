@@ -2,7 +2,8 @@
 
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   MapContainer,
   Marker,
@@ -11,8 +12,9 @@ import {
   TileLayer,
   useMap,
 } from "react-leaflet";
-import { CATEGORY_COLOR, CATEGORY_EMOJI, CATEGORY_LABELS } from "@/lib/labels";
+import { CATEGORY_COLOR, CATEGORY_EMOJI, CATEGORY_LABELS, placeLocationLabel } from "@/lib/labels";
 import { isDemoPlace } from "@/lib/data/provenance";
+import { isEmergencyPlace, isEmergencySearchSafe, isPhoneConfirmedEmergency } from "@/lib/data/verification";
 import { getOpenNowStatus } from "@/lib/distance";
 import type { KyivShelter } from "@/lib/safety/types";
 import type { Coordinates, PlaceWithDistance } from "@/lib/types";
@@ -20,7 +22,7 @@ import type { Coordinates, PlaceWithDistance } from "@/lib/types";
 const KYIV: Coordinates = { latitude: 50.4501, longitude: 30.5234 };
 
 function placeIcon(place: PlaceWithDistance, active: boolean): L.DivIcon {
-  const emergency = place.emergencyAvailable || place.isOpen24_7;
+  const emergency = isPhoneConfirmedEmergency(place);
   const ring = emergency ? "#E11D48" : CATEGORY_COLOR[place.category];
   const size = active ? 46 : (emergency ? 40 : 36);
   // Presentation only: places open right now get a soft pulse under the pin.
@@ -80,6 +82,20 @@ function Recenter({ center, zoom }: { center: Coordinates; zoom: number }) {
   useEffect(() => {
     map.setView([center.latitude, center.longitude], zoom, { animate: true });
   }, [map, center.latitude, center.longitude, zoom]);
+  return null;
+}
+
+/** Fit actual results, including regional places, without inventing a user location. */
+function FitResults({ places, origin }: { places: PlaceWithDistance[]; origin?: Coordinates | null }) {
+  const map = useMap();
+  const pointsKey = JSON.stringify([
+    ...places.map((place) => [place.latitude, place.longitude]),
+    ...(origin ? [[origin.latitude, origin.longitude]] : []),
+  ]);
+  useEffect(() => {
+    const points = JSON.parse(pointsKey) as [number, number][];
+    if (points.length) map.fitBounds(L.latLngBounds(points), { padding: [32, 32], maxZoom: 15, animate: false });
+  }, [map, pointsKey]);
   return null;
 }
 
@@ -175,6 +191,7 @@ export default function MapView({
   selectedShelterId,
   onSelectShelter,
   onSelect,
+  onShowList,
 }: {
   places: PlaceWithDistance[];
   origin?: Coordinates | null;
@@ -186,10 +203,27 @@ export default function MapView({
   selectedShelterId?: string | null;
   onSelectShelter?: (id: string) => void;
   onSelect?: (id: string) => void;
+  onShowList?: () => void;
 }) {
   const c = center || origin || KYIV;
   const selectedShelter = shelters.find((shelter) => shelter.id === selectedShelterId) ?? shelters[0] ?? null;
+  const [tileError, setTileError] = useState(false);
+  const tileEvents = useMemo(() => ({
+    loading: () => setTileError(false),
+    tileerror: () => setTileError(true),
+  }), []);
   return (
+    <div className="relative isolate h-full w-full">
+      {tileError && (
+        <div role="status" className="absolute left-14 right-3 top-3 z-[500] rounded-2xl border border-brand-100 bg-white/95 px-3 py-2 text-xs leading-5 text-ink shadow-sm">
+          <p>Не вдалося повністю завантажити карту. Дані закладів доступні у списку.</p>
+          {onShowList ? (
+            <button type="button" onClick={onShowList} className="min-h-11 font-semibold text-brand underline underline-offset-4">До списку</button>
+          ) : (
+            <Link href="/nearby" className="inline-flex min-h-11 items-center font-semibold text-brand underline underline-offset-4">До списку</Link>
+          )}
+        </div>
+      )}
     <MapContainer
       center={[c.latitude, c.longitude]}
       zoom={zoom}
@@ -200,8 +234,10 @@ export default function MapView({
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        eventHandlers={tileEvents}
       />
       <Recenter center={c} zoom={zoom} />
+      {!center && !routeTo && !selectedShelter && <FitResults places={places} origin={origin} />}
 
       {origin && <Marker position={[origin.latitude, origin.longitude]} icon={userIcon()} />}
 
@@ -216,6 +252,13 @@ export default function MapView({
             <strong>{p.name}</strong>
             <br />
             {CATEGORY_LABELS[p.category]}
+            <br />
+            {placeLocationLabel(p)}
+            {isEmergencyPlace(p) && !isEmergencySearchSafe(p) && (
+              <span style={{ display: "block", marginTop: 4 }}>
+                Невідкладний / цілодобовий прийом не підтверджено дзвінком. Уточніть телефоном.
+              </span>
+            )}
             {isDemoPlace(p) && (
               <span style={{ display: "block", color: "#B45309", fontSize: 11, marginTop: 2 }}>
                 Демо-дані — телефонуйте, щоб підтвердити
@@ -267,5 +310,6 @@ export default function MapView({
         />
       )}
     </MapContainer>
+    </div>
   );
 }

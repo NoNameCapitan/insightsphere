@@ -1,0 +1,34 @@
+[
+  {
+    "width": 390,
+    "checks": [
+      "empty CTA above fold",
+      "one-step create",
+      "next-action/clinic first",
+      "settings immediately refresh",
+      "locality saved",
+      "explicit reminder date",
+      "stable per-event calendar export",
+      "home return widget",
+      "completion persists",
+      "no overflow/errors"
+    ],
+    "passed": true
+  },
+  {
+    "width": 1440,
+    "checks": [
+      "empty CTA above fold",
+      "one-step create",
+      "next-action/clinic first",
+      "settings immediately refresh",
+      "locality saved",
+      "explicit reminder date",
+      "stable per-event calendar export",
+      "home return widget",
+      "completion persists",
+      "no overflow/errors"
+    ],
+    "passed": true
+  }
+]

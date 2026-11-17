@@ -1,10 +1,11 @@
 "use client";
 // Partner submissions + moderation (Module 5). localStorage is the local copy;
-// when NEXT_PUBLIC_BACKEND_ENABLED=1 every new submission is also pushed to the
-// server API (see src/lib/api/backendClient.ts) so moderators see it anywhere.
+// when NEXT_PUBLIC_BACKEND_ENABLED=1 await the server receipt separately from
+// the local save. A local draft alone is not visible to remote moderators.
 import { track } from "@/lib/analytics";
-import { syncSubmissionToServer } from "@/lib/api/backendClient";
+import { syncSubmissionToServer, type DeliveryResult } from "@/lib/api/backendClient";
 import { makeId, nowIso, readJSON, writeJSON } from "@/lib/storage";
+import { normalizeRegion, regionOf, withinCoverageBounds } from "@/config/coverage";
 import type {
   ModerationEvent,
   PartnerSubmission,
@@ -19,9 +20,9 @@ export function getSubmissions(): PartnerSubmission[] {
   return readJSON<PartnerSubmission[]>(KEY, []);
 }
 
-export function createSubmission(
+export async function createSubmission(
   input: Omit<PartnerSubmission, "id" | "status" | "createdAt" | "updatedAt">,
-): PartnerSubmission {
+): Promise<PartnerSubmission & { delivery: DeliveryResult; localSaved: boolean }> {
   const hasCoords =
     typeof input.latitude === "number" && typeof input.longitude === "number";
   const sub: PartnerSubmission = {
@@ -35,10 +36,10 @@ export function createSubmission(
     updatedAt: nowIso(),
   };
   writeJSON(KEY, [sub, ...getSubmissions()]);
+  const localSaved = getSubmissions().some((item) => item.id === sub.id);
   track("add_place_submitted", { category: sub.category });
-  // Push to server (non-blocking; local copy is kept regardless).
-  void syncSubmissionToServer(input);
-  return sub;
+  const delivery = await syncSubmissionToServer(input);
+  return { ...sub, delivery, localSaved };
 }
 
 export function setSubmissionStatus(
@@ -143,6 +144,8 @@ export function submissionToPlace(s: PartnerSubmission): Place | null {
   if (typeof s.latitude !== "number" || typeof s.longitude !== "number") {
     return null;
   }
+  if (!normalizeRegion(regionOf(s)) || !withinCoverageBounds(regionOf(s), { latitude: s.latitude, longitude: s.longitude })) return null;
+  if (regionOf(s) === "kyiv_oblast" && (!s.locality?.trim() || s.district)) return null;
   return {
     id: s.id,
     ownerId: undefined,
@@ -151,6 +154,9 @@ export function submissionToPlace(s: PartnerSubmission): Place | null {
     category: s.category,
     description: s.description,
     address: s.address,
+    countryCode: s.countryCode,
+    region: s.region,
+    locality: s.locality,
     district: s.district,
     latitude: s.latitude,
     longitude: s.longitude,

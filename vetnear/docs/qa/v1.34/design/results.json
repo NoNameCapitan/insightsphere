@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Responsive home and visible direct actions at320/390/640/768/1024/1440",
+    "passed": true
+  },
+  {
+    "name": "Home GET search works withoutJavaScript and preserves territory/animal/need",
+    "passed": true
+  },
+  {
+    "name": "Fine pointer affects only light; pause and reducedmotion remove movement",
+    "passed": true
+  },
+  {
+    "name": "Photo failure leaves useful readable hero and a workingsearch",
+    "passed": true
+  },
+  {
+    "name": "Urgent shortcut reaches direct clinics and saved-entry reaches collection",
+    "passed": true
+  },
+  {
+    "name": "Primary keyboard focus remainsvisible and usable",
+    "passed": true
+  }
+]

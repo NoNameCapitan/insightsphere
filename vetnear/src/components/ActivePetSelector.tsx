@@ -15,10 +15,13 @@ import { PetProfileIcon } from "@/components/icons/ServiceIcons";
 export function ActivePetSelector({
   onChange,
   hideWhenEmpty = false,
+  selectedPetId,
 }: {
   onChange?: (pet: PetProfile | null) => void;
   /** Render nothing (instead of an "add a pet" prompt) when there are no pets. */
   hideWhenEmpty?: boolean;
+  /** Controlled context: null means the current search is not tied to a saved pet. */
+  selectedPetId?: string | null;
 }) {
   const [pets, setPets] = useState<PetProfile[]>([]);
   const [activeId, setActive] = useState<string | null>(null);
@@ -42,7 +45,7 @@ export function ActivePetSelector({
 
   const select = (id: string) => {
     setActive(id);
-    setActivePetId(id);
+    setActivePetId(id || null);
     onChange?.(pets.find((p) => p.id === id) ?? null);
   };
 
@@ -53,9 +56,10 @@ export function ActivePetSelector({
       <select
         id="active-pet"
         className="flex-1 rounded-2xl border border-brand-100 bg-surface px-3 py-2 text-sm text-ink"
-        value={activeId ?? ""}
+        value={(selectedPetId !== undefined ? selectedPetId : activeId) ?? ""}
         onChange={(e) => select(e.target.value)}
       >
+        <option value="">Без активної картки</option>
         {pets.map((p) => (
           <option key={p.id} value={p.id}>
             {p.name} · {ANIMAL_LABELS[p.animalType]}

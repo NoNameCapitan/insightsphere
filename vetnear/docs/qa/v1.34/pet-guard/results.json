@@ -1,0 +1,30 @@
+[
+  {
+    "case": "object",
+    "passed": true,
+    "checks": [
+      "explicit read alert",
+      "no first-time onboarding",
+      "retry preserves damaged bytes",
+      "create failure retains input",
+      "no navigation on failed write",
+      "no hidden medical writes",
+      "retry displays restored legacy record",
+      "no browser errors or overflow"
+    ]
+  },
+  {
+    "case": "null-member",
+    "passed": true,
+    "checks": [
+      "explicit read alert",
+      "no first-time onboarding",
+      "retry preserves damaged bytes",
+      "create failure retains input",
+      "no navigation on failed write",
+      "no hidden medical writes",
+      "retry displays restored legacy record",
+      "no browser errors or overflow"
+    ]
+  }
+]

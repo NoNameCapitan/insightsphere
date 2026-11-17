@@ -1,195 +1,75 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SocialRow } from "@/components/SocialRow";
 import { track } from "@/lib/analytics";
 import { reportLead } from "@/lib/leads/report";
 import { googleMapsRoute } from "@/lib/maps";
-import { getActivePetId } from "@/lib/pets/store";
-import { createReport } from "@/lib/reports/store";
-import { createRequest } from "@/lib/requests/store";
 import { EXTERNAL_LINK_PROPS, safeUrl } from "@/lib/security/url";
-import type { Place, ReportIssue } from "@/lib/types";
+import { getOpeningHoursStatus, type OpeningHoursStatus } from "@/lib/distance";
+import type { Place } from "@/lib/types";
 import { PhoneIcon, RouteIcon } from "@/components/icons/ServiceIcons";
+import styles from "./PlaceActions.module.css";
 
-const REPORT_REASONS: { value: ReportIssue["reason"]; label: string }[] = [
-  { value: "wrong_phone", label: "Невірний телефон" },
-  { value: "wrong_address", label: "Невірна адреса" },
-  { value: "wrong_hours", label: "Невірний графік" },
-  { value: "closed_permanently", label: "Заклад закрито" },
-  { value: "duplicate", label: "Дублікат" },
-  { value: "other", label: "Інше" },
-];
+/** Schedule only: never an assertion that a doctor can accept a patient now. */
+export function PlaceOpeningStatus({ place }: { place: Place }) {
+  const [status, setStatus] = useState<OpeningHoursStatus>("unknown");
+  useEffect(() => {
+    const refresh = () => setStatus(getOpeningHoursStatus(place));
+    refresh();
+    const timer = window.setInterval(refresh, 60_000);
+    window.addEventListener("focus", refresh);
+    return () => { window.clearInterval(timer); window.removeEventListener("focus", refresh); };
+  }, [place]);
+  return <span className={styles.schedule} data-status={status}>
+    <span aria-hidden className={styles.statusDot} />
+    {status === "open" ? "Відкрито за графіком" : status === "closed" ? "Зачинено за графіком" : "Графік варто уточнити"}
+  </span>;
+}
 
 export function PlaceActions({ place }: { place: Place }) {
   const website = safeUrl(place.website);
-  const email = place.email;
-  const [reqOpen, setReqOpen] = useState(false);
-  const [reqDone, setReqDone] = useState(false);
-  const [repOpen, setRepOpen] = useState(false);
-  const [repDone, setRepDone] = useState(false);
-  const [reason, setReason] = useState<ReportIssue["reason"]>("wrong_phone");
-  const [reqMsg, setReqMsg] = useState("");
+  const inlineActions = useRef<HTMLDivElement>(null);
+  const [inlineVisible, setInlineVisible] = useState(true);
+  useEffect(() => { track("place_profile_viewed", { placeId: place.id }); }, [place.id]);
+  useEffect(() => {
+    if (!inlineActions.current || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) => setInlineVisible(entry.isIntersecting), { threshold: 0.1 });
+    observer.observe(inlineActions.current);
+    return () => observer.disconnect();
+  }, []);
 
-  const submitRequest = () => {
-    createRequest({
-      petId: getActivePetId() ?? undefined,
-      placeId: place.id,
-      serviceType: place.category,
-      message: reqMsg.trim() || undefined,
-    });
-    reportLead(place.id, "request");
-    setReqDone(true);
-    setReqOpen(false);
-  };
-
-  const submitReport = () => {
-    createReport(place.id, reason);
-    setRepDone(true);
-    setRepOpen(false);
+  const contact = (type: "call" | "route" | "website") => {
+    track(`${type}_clicked`, { placeId: place.id });
+    reportLead(place.id, type);
   };
 
   return (
-    <div className="space-y-4">
-      {/* Quick actions */}
-      <div className="grid grid-cols-2 gap-3">
-        <a
-          href={`tel:${place.phone}`}
-          onClick={() => {
-            track("call_clicked", { placeId: place.id });
-            reportLead(place.id, "call");
-          }}
-          className="btn btn-brand"
-        >
-          <PhoneIcon className="h-7 w-7" />
-          Зателефонувати
+    <div className={styles.actions}>
+      <div ref={inlineActions} className={styles.primary} aria-label="Зв’язатися із закладом">
+        <a href={`tel:${place.phone}`} onClick={() => contact("call")} className="btn btn-brand">
+          <PhoneIcon className="h-6 w-6" />Зателефонувати
         </a>
-        <a
-          href={googleMapsRoute(place)}
-          {...EXTERNAL_LINK_PROPS}
-          onClick={() => {
-            track("route_clicked", { placeId: place.id });
-            reportLead(place.id, "route");
-          }}
-          className="btn btn-ghost"
-        >
-          <RouteIcon className="h-7 w-7" />
-          Маршрут
+        <a href={googleMapsRoute(place)} {...EXTERNAL_LINK_PROPS} onClick={() => contact("route")} className="btn btn-ghost">
+          <RouteIcon className="h-6 w-6" />Маршрут
         </a>
       </div>
-
-      {(website || email) && (
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-          {website && (
-            <a
-              href={website}
-              {...EXTERNAL_LINK_PROPS}
-              onClick={() => {
-                track("website_clicked", { placeId: place.id });
-                reportLead(place.id, "website");
-              }}
-              className="font-medium text-brand hover:underline"
-            >
-              Відкрити сайт
-            </a>
-          )}
-          {email && <a href={`mailto:${email}`} className="text-ink/60 hover:text-brand hover:underline">Написати email</a>}
-        </div>
-      )}
-
+      <p className={styles.explanation}>Запис і умови прийому — напряму із закладом. Перед виїздом уточніть, чи можуть прийняти вашу тварину.</p>
+      {(website || place.email) && <div className={styles.secondary}>
+        {website && <a href={website} {...EXTERNAL_LINK_PROPS} onClick={() => contact("website")}>Офіційний сайт <svg aria-hidden viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 12 12 4M4 4h8v8" /></svg></a>}
+        {place.email && <a href={`mailto:${place.email}`}>Написати email</a>}
+      </div>}
       <SocialRow links={place.socialLinks} placeId={place.id} />
-
-      {/* Request service (Module 7) */}
-      <div className="rounded-2xl border border-brand-100 p-4">
-        <div className="flex items-center justify-between">
-          <p className="font-medium text-ink">Записатися / запит послуги</p>
-          <span className="rounded-full bg-ink/5 px-2 py-0.5 text-[11px] text-ink/50">
-            інтеграція бронювання — скоро
-          </span>
-        </div>
-        {reqDone ? (
-          <p className="mt-2 text-sm text-brand">
-            Запит збережено локально. Заклад зможе підтвердити його в майбутньому.
-          </p>
-        ) : reqOpen ? (
-          <div className="mt-3 space-y-2">
-            <textarea
-              className="w-full rounded-xl border border-brand-100 px-3 py-2 text-sm"
-              rows={2}
-              placeholder="Коротко опишіть запит (необов'язково)"
-              value={reqMsg}
-              onChange={(e) => setReqMsg(e.target.value)}
-            />
-            <div className="flex gap-2">
-              <button className="btn btn-brand flex-1 py-2 text-sm" onClick={submitRequest}>
-                Надіслати запит
-              </button>
-              <button className="btn btn-ghost py-2 text-sm" onClick={() => setReqOpen(false)}>
-                Скасувати
-              </button>
-            </div>
-          </div>
-        ) : (
-          <button className="btn btn-ghost mt-3 w-full py-2 text-sm" onClick={() => setReqOpen(true)}>
-            Запит послуги
-          </button>
-        )}
-      </div>
-
-      {/* Report issue (Module 4 + 12) */}
-      <div className="rounded-2xl border border-brand-100 p-4">
-        <p className="font-medium text-ink">Повідомити про неточність</p>
-        {repDone ? (
-          <p className="mt-2 text-sm text-brand">Дякуємо! Повідомлення збережено для модерації.</p>
-        ) : repOpen ? (
-          <div className="mt-3 space-y-2">
-            <select
-              className="w-full rounded-xl border border-brand-100 px-3 py-2 text-sm"
-              value={reason}
-              onChange={(e) => setReason(e.target.value as ReportIssue["reason"])}
-            >
-              {REPORT_REASONS.map((r) => (
-                <option key={r.value} value={r.value}>{r.label}</option>
-              ))}
-            </select>
-            <div className="flex gap-2">
-              <button className="btn btn-brand flex-1 py-2 text-sm" onClick={submitReport}>
-                Надіслати
-              </button>
-              <button className="btn btn-ghost py-2 text-sm" onClick={() => setRepOpen(false)}>
-                Скасувати
-              </button>
-            </div>
-          </div>
-        ) : (
-          <button className="btn btn-ghost mt-3 w-full py-2 text-sm" onClick={() => setRepOpen(true)}>
-            Повідомити про проблему
-          </button>
-        )}
-      </div>
-
-      {/* Sticky bottom actions (mobile) */}
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-brand-100 bg-canvas/95 p-3 backdrop-blur sm:hidden">
-        <div className="mx-auto flex max-w-3xl gap-2">
-          <a
-            href={`tel:${place.phone}`}
-            onClick={() => reportLead(place.id, "call")}
-            className="btn btn-brand flex-1 py-2.5"
-          >
-            <PhoneIcon className="h-6 w-6" />
-            Зателефонувати
+      {!inlineVisible && <nav className={styles.sticky} aria-label="Швидкий зв’язок із закладом" data-contact-dock>
+        <div className={styles.stickyInner}>
+          <a href={`tel:${place.phone}`} onClick={() => contact("call")} className="btn btn-brand">
+            <PhoneIcon className="h-5 w-5" />Зателефонувати
           </a>
-          <a
-            href={googleMapsRoute(place)}
-            {...EXTERNAL_LINK_PROPS}
-            onClick={() => reportLead(place.id, "route")}
-            className="btn btn-ghost flex-1 py-2.5"
-          >
-            <RouteIcon className="h-6 w-6" />
-            Маршрут
+          <a href={googleMapsRoute(place)} {...EXTERNAL_LINK_PROPS} onClick={() => contact("route")} className="btn btn-ghost">
+            <RouteIcon className="h-5 w-5" />Маршрут
           </a>
         </div>
-      </div>
+      </nav>}
     </div>
   );
 }

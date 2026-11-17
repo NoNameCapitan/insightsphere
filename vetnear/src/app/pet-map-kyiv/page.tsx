@@ -3,6 +3,7 @@ import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
 import { MapEmbed } from "@/components/MapEmbed";
 import { PLACES } from "@/lib/data/places";
+import { regionOf } from "@/config/coverage";
 import { itemListJsonLd, SITE } from "@/lib/seo";
 
 const PATH = "/pet-map-kyiv";
@@ -18,17 +19,17 @@ export const metadata: Metadata = {
 export default function PetMapKyivPage() {
   return (
     <div className="container-px mx-auto max-w-4xl py-6">
-      <JsonLd data={itemListJsonLd(PLACES.slice(0, 30), `${SITE.url}${PATH}`)} />
+      <JsonLd data={itemListJsonLd(PLACES.filter((place) => regionOf(place) === "kyiv_city").slice(0, 30), `${SITE.url}${PATH}`)} />
       <h1 className="font-display text-2xl font-extrabold text-ink">Карта закладів для тварин у Києві</h1>
       <p className="mt-2 text-ink/70">
         Перегляньте ветклініки, зоомагазини, аптеки, грумінг та притулки на карті.
         Кольори маркерів відповідають категоріям.
       </p>
       <div className="mt-4">
-        <MapEmbed />
+        <MapEmbed region="kyiv_city" />
       </div>
       <div className="mt-4">
-        <Link href="/nearby" className="btn btn-brand">Пошук поруч за моїм розташуванням</Link>
+        <Link href="/nearby?region=kyiv_city" className="btn btn-brand">Пошук поруч за моїм розташуванням</Link>
       </div>
     </div>
   );

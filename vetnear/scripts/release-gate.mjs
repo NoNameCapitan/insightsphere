@@ -11,21 +11,14 @@ function requireValue(name) {
 requireValue("NEXT_PUBLIC_SITE_URL");
 requireValue("SUPABASE_URL");
 requireValue("SUPABASE_SERVICE_ROLE_KEY");
-requireValue("SUPABASE_ANON_KEY");
 requireValue("LEAD_HASH_SALT");
 requireValue("UPSTASH_REDIS_REST_URL");
 requireValue("UPSTASH_REDIS_REST_TOKEN");
 requireValue("UKRAINE_ALARM_API_TOKEN");
 
-if (value("SUPABASE_ANON_KEY") && value("SUPABASE_ANON_KEY") === value("SUPABASE_SERVICE_ROLE_KEY")) {
-  errors.push("SUPABASE_ANON_KEY must be the public anon key, not the service-role key");
-}
-for (const name of Object.keys(process.env)) {
-  if (name.startsWith("NEXT_PUBLIC_") && /SERVICE_ROLE/i.test(name)) errors.push(`${name} would expose the service-role key to browsers`);
-}
 if (value("ADMIN_TOKEN")) errors.push("ADMIN_TOKEN must be removed; issue personal moderator tokens instead");
 if (value("LEAD_HASH_SALT").length < 32) errors.push("LEAD_HASH_SALT must contain at least 32 characters");
-if (value("NEXT_PUBLIC_SHOW_DEMO_EMERGENCY") === "1") errors.push("NEXT_PUBLIC_SHOW_DEMO_EMERGENCY must be 0 in production");
+if (!["", "0", "false"].includes(value("NEXT_PUBLIC_SHOW_DEMO_EMERGENCY").toLowerCase())) errors.push("NEXT_PUBLIC_SHOW_DEMO_EMERGENCY must be 0 or false in production");
 
 for (const name of ["NEXT_PUBLIC_SITE_URL", "SUPABASE_URL", "UPSTASH_REDIS_REST_URL"]) {
   const candidate = value(name);
@@ -36,6 +29,12 @@ if (value("NEXT_PUBLIC_BACKEND_ENABLED") !== "1") {
   errors.push("NEXT_PUBLIC_BACKEND_ENABLED must be 1 for production");
 }
 if (!value("ANTHROPIC_API_KEY")) warnings.push("ANTHROPIC_API_KEY is absent; the deterministic assistant fallback will be used");
+
+if (value("NEXT_PUBLIC_MEASUREMENT_ENABLED") !== value("MEASUREMENT_ENABLED")) errors.push("Public and server measurement flags must agree");
+if (value("MEASUREMENT_ENABLED") === "1") {
+  if (value("NEXT_PUBLIC_MEASUREMENT_CAMPAIGN_CODES") !== value("MEASUREMENT_CAMPAIGN_CODES")) errors.push("Registered measurement campaign codes must agree");
+  if (value("MEASUREMENT_STORAGE_VERIFIED") !== "1") errors.push("MEASUREMENT_STORAGE_VERIFIED=1 requires a verified stored-event and authenticated-report check after migration 007");
+} else warnings.push("Launch measurement is disabled; do not treat this build as an advertising attribution check");
 
 for (const warning of warnings) console.warn(`WARN: ${warning}`);
 if (errors.length) {

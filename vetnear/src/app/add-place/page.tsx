@@ -1,13 +1,16 @@
 "use client";
 
-import { DistrictMap3D } from "@/components/DistrictMap3D";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { track } from "@/lib/analytics";
-import { ALL_ANIMALS, ALL_CATEGORIES, ALL_DISTRICTS, ANIMAL_LABELS, CATEGORY_LABELS, DISTRICT_LABELS } from "@/lib/labels";
+import { ALL_ANIMALS, ALL_CATEGORIES, ALL_DISTRICTS, ANIMAL_LABELS, CATEGORY_LABELS, DISTRICT_LABELS, placeLocationLabel } from "@/lib/labels";
+import { COVERAGE_REGIONS, withinCoverageBounds } from "@/config/coverage";
 import { createSubmission } from "@/lib/partners/store";
+import { isBackendEnabled } from "@/lib/api/backendClient";
+import { getPlaces, hydratePublishedPlaces } from "@/lib/store";
+import { findPartnerPlaces, type PartnerPlaceSummary } from "@/lib/partners/discovery";
 import { isSafeUrl, isValidEmail, isValidPhone } from "@/lib/security/url";
-import type { AnimalType, KyivDistrict, PlaceCategory } from "@/lib/types";
+import type { AnimalType, KyivDistrict, PlaceCategory, PlaceRegion } from "@/lib/types";
 
 const FREE_SOCIAL_CATEGORIES: PlaceCategory[] = ["shelter", "animal_volunteer_help"];
 const STEPS = ["Основне", "Послуги", "Підтвердження"];
@@ -16,11 +19,21 @@ export default function AddPlacePage() {
   useEffect(() => track("add_place_started"), []);
 
   const [step, setStep] = useState(1);
+  const [catalog, setCatalog] = useState<PartnerPlaceSummary[]>([]);
+  const backend = isBackendEnabled();
+  useEffect(() => {
+    let alive = true;
+    setCatalog(getPlaces());
+    void hydratePublishedPlaces().then(() => { if (alive) setCatalog(getPlaces()); });
+    return () => { alive = false; };
+  }, []);
   const [name, setName] = useState("");
   const [category, setCategory] = useState<PlaceCategory>("veterinary_clinic");
   const [description, setDescription] = useState("");
   const [address, setAddress] = useState("");
-  const [district, setDistrict] = useState<KyivDistrict>("shevchenkivskyi");
+  const [region, setRegion] = useState<PlaceRegion>("kyiv_city");
+  const [locality, setLocality] = useState("");
+  const [district, setDistrict] = useState<KyivDistrict | "">("");
   const [mapLink, setMapLink] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
@@ -38,12 +51,19 @@ export default function AddPlacePage() {
   const [representativeConfirmed, setRepConfirmed] = useState(false);
   const [consentModeration, setConsent] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
-  const [done, setDone] = useState(false);
+  const [result, setResult] = useState<Awaited<ReturnType<typeof createSubmission>> | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const inFlight = useRef(false);
 
   const field = "w-full rounded-xl border border-brand-100 bg-surface px-3.5 py-3 text-ink outline-none placeholder:text-ink/30 focus:border-brand focus:ring-2 focus:ring-brand/10";
   const labelCls = "mb-1.5 block text-sm font-medium text-ink/75";
   const num = (value: string) => (value.trim() === "" ? undefined : Number(value));
   const isFreeSocial = FREE_SOCIAL_CATEGORIES.includes(category);
+  const duplicates = useMemo(() => {
+    const matches = [...findPartnerPlaces(catalog, name), ...findPartnerPlaces(catalog, phone)];
+    return matches.filter((place, index) => matches.findIndex(item => item.id === place.id) === index).slice(0, 3);
+  }, [catalog, name, phone]);
+  const scrollToStart = () => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 
   const toggleAnimal = (animal: AnimalType) => {
     setAnimals((current) => current.includes(animal) ? current.filter((item) => item !== animal) : [...current, animal]);
@@ -53,6 +73,7 @@ export default function AddPlacePage() {
     const next: string[] = [];
     if (!name.trim()) next.push("Вкажіть назву організації.");
     if (!address.trim()) next.push("Вкажіть адресу.");
+    if (region === "kyiv_oblast" && !locality.trim()) next.push("Вкажіть населений пункт Київської області.");
     if (!isValidPhone(phone)) next.push("Перевірте номер телефону.");
     return next;
   };
@@ -62,10 +83,11 @@ export default function AddPlacePage() {
     setErrors(nextErrors);
     if (nextErrors.length) return;
     setStep((current) => Math.min(3, current + 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollToStart();
   };
 
-  const submit = () => {
+  const submit = async () => {
+    if (inFlight.current) return;
     const nextErrors = stepOneErrors();
     if (email && !isValidEmail(email)) nextErrors.push("Перевірте email.");
     if (website && !isSafeUrl(website)) nextErrors.push("Перевірте посилання на сайт.");
@@ -76,49 +98,68 @@ export default function AddPlacePage() {
     const latitude = num(lat);
     const longitude = num(lng);
     if ((latitude !== undefined) !== (longitude !== undefined)) nextErrors.push("Вкажіть обидві координати або залиште їх порожніми.");
-    if (latitude !== undefined && (Number.isNaN(latitude) || latitude < 49 || latitude > 51)) nextErrors.push("Широта не відповідає Києву.");
-    if (longitude !== undefined && (Number.isNaN(longitude) || longitude < 29 || longitude > 32)) nextErrors.push("Довгота не відповідає Києву.");
+    if (latitude !== undefined && longitude !== undefined && !withinCoverageBounds(region, { latitude, longitude })) nextErrors.push("Перевірте координати: вони мають відповідати обраній території. Якщо не впевнені — додайте посилання на карту.");
     if (!representativeConfirmed) nextErrors.push("Підтвердіть, що представляєте заклад.");
     if (!consentModeration) nextErrors.push("Надайте згоду на модерацію даних.");
 
     setErrors(nextErrors);
     if (nextErrors.length) return;
 
-    createSubmission({
-      name: name.trim(), category, description: description.trim(), address: address.trim(), district,
-      latitude, longitude, phone: phone.trim(), email: email.trim() || undefined,
-      website: website.trim() || undefined,
-      socialLinks: { instagram: instagram.trim() || undefined, telegram: telegram.trim() || undefined },
-      services: services.split(",").map((item) => item.trim()).filter(Boolean),
-      animalTypes: animals, emergencyAvailable: false, appointmentRequired, deliveryAvailable,
-      pickupAvailable, tags: [], contactPerson: contactPerson.trim() || undefined,
-      mapLink: mapLink.trim() || undefined, representativeConfirmed, consentModeration,
-    });
-    setDone(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    inFlight.current = true;
+    setSubmitting(true);
+    try {
+      const receipt = await createSubmission({
+        name: name.trim(), category, description: description.trim(), address: address.trim(),
+        countryCode: "UA", region, locality: region === "kyiv_city" ? "Київ" : locality.trim(),
+        ...(region === "kyiv_city" && district ? { district } : {}),
+        latitude, longitude, phone: phone.trim(), email: email.trim() || undefined,
+        website: website.trim() || undefined,
+        socialLinks: { instagram: instagram.trim() || undefined, telegram: telegram.trim() || undefined },
+        services: services.split(",").map((item) => item.trim()).filter(Boolean),
+        animalTypes: animals, emergencyAvailable: false, appointmentRequired, deliveryAvailable,
+        pickupAvailable, tags: [], contactPerson: contactPerson.trim() || undefined,
+        mapLink: mapLink.trim() || undefined, representativeConfirmed, consentModeration,
+      });
+      setResult(receipt);
+      scrollToStart();
+    } catch {
+      setErrors(["Не вдалося зберегти заявку. Залиште цю сторінку відкритою та спробуйте ще раз."]);
+    } finally {
+      inFlight.current = false;
+      setSubmitting(false);
+    }
   };
 
-  if (done) {
+  if (result) {
+    const sent = result.delivery.status === "sent";
+    const unconfirmed = result.delivery.status === "unconfirmed";
     return (
-      <main className="container-px mx-auto max-w-xl py-12">
+      <div className="container-px mx-auto max-w-xl py-12">
         <div className="rounded-3xl border border-brand-100 bg-surface p-6 shadow-card sm:p-8">
-          <span className="grid h-12 w-12 place-items-center rounded-full bg-brand-50 text-xl font-bold text-brand">✓</span>
-          <h1 className="mt-5 font-display text-3xl font-bold text-ink">Заявку отримано</h1>
-          <p className="mt-3 leading-7 text-ink/65">Модератор перевірить контакти, адресу та категорію. Після схвалення профіль зʼявиться у пошуку й на карті. Базове розміщення безкоштовне.</p>
+          <h1 className="font-display text-3xl font-bold text-ink">{sent ? "Заявку отримано" : unconfirmed ? "Отримання ще не підтверджено" : result.localSaved ? "Чернетку збережено на пристрої" : "Заявку не збережено"}</h1>
+          <p className="mt-3 leading-7 text-ink/65" role="status">{sent
+            ? "Сервер підтвердив отримання. Модератор перевірить контакти, адресу та категорію. Після схвалення профіль зʼявиться у пошуку й на карті."
+            : unconfirmed
+              ? `Сервер не підтвердив отримання заявки. ${result.localSaved ? "Локальна копія збережена в цьому браузері." : "Локальне сховище недоступне — залиште сторінку відкритою."} Повторне надсилання може створити дублікат, якщо перший запит уже отримано.`
+              : result.localSaved
+                ? "Серверне надсилання в цій версії вимкнено. Модератор ще не отримав заявку; вона доступна лише в цьому браузері."
+                : "Серверне надсилання вимкнено, а браузер не дозволив зберегти чернетку. Поверніться до форми, щоб скопіювати дані."}</p>
           <div className="mt-6 rounded-2xl bg-brand-50/60 p-4 text-sm leading-6 text-ink/70">Позначку невідкладної або цілодобової допомоги VetNear додає тільки після окремого підтвердження телефоном.</div>
           <Link href="/for-partners" className="btn btn-brand mt-6 w-full">Повернутися до партнерів</Link>
+          {!sent && <button type="button" onClick={() => setResult(null)} className="btn btn-ghost mt-3 w-full">Повернутися до заявки</button>}
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="container-px mx-auto max-w-xl py-8 sm:py-12">
+    <div className="operating-screen container-px mx-auto max-w-xl py-8 sm:py-12">
       <Link href="/for-partners" className="text-sm font-medium text-brand hover:underline">Партнерам</Link>
-      <h1 className="mt-4 max-w-lg font-display text-3xl font-bold leading-tight text-ink">Додайте заклад до VetNear</h1>
-      <p className="mt-3 max-w-lg leading-7 text-ink/60">Три короткі кроки. Спочатку лише дані, необхідні для перевірки.</p>
+      <h1 className="operating-heading mt-4 max-w-lg font-display text-3xl font-bold leading-tight text-ink">Додайте заклад до VetNear</h1>
+      <p className="mt-3 max-w-lg leading-7 text-ink/60">Почніть із назви, адреси й контакту. Послуги можна описати пізніше; публікація — після перевірки.</p>
 
-      <div className="mt-8" aria-label={`Крок ${step} із 3`}>
+      {!backend && <p className="mt-5 rounded-xl bg-brand-50 p-4 text-sm leading-6 text-ink/75">Серверне приймання ще не підключено. Тут можна підготувати й зберегти особисту чернетку; команда її не отримає. <Link className="font-semibold text-brand underline underline-offset-4" href="/partner-interest">Варіанти зв’язку з командою</Link></p>}
+      <div className="mt-6" aria-label={`Крок ${step} із 3`}>
         <div className="flex items-center gap-2">
           {STEPS.map((label, index) => {
             const number = index + 1;
@@ -140,18 +181,21 @@ export default function AddPlacePage() {
         </div>
       )}
 
-      <section className="mt-6 rounded-3xl border border-brand-100 bg-surface p-5 shadow-card sm:p-7">
+      <section className="care-surface mt-6 rounded-2xl bg-surface p-5 sm:p-7">
         {step === 1 && (
           <div className="space-y-5">
             <div><label className={labelCls} htmlFor="name">Назва закладу *</label><input id="name" className={field} value={name} onChange={(event) => setName(event.target.value)} autoFocus /></div>
             <div className="grid gap-5 sm:grid-cols-2">
               <div><label className={labelCls} htmlFor="category">Категорія</label><select id="category" className={field} value={category} onChange={(event) => setCategory(event.target.value as PlaceCategory)}>{ALL_CATEGORIES.filter((item) => item !== "emergency_vet").map((item) => <option key={item} value={item}>{CATEGORY_LABELS[item]}</option>)}</select></div>
-              <div><label className={labelCls} htmlFor="district">Район</label><select id="district" className={field} value={district} onChange={(event) => setDistrict(event.target.value as KyivDistrict)}>{ALL_DISTRICTS.map((item) => <option key={item} value={item}>{DISTRICT_LABELS[item]}</option>)}</select></div>
+              <div><label className={labelCls} htmlFor="region">Територія</label><select id="region" className={field} value={region} onChange={(event) => { setRegion(event.target.value as PlaceRegion); setDistrict(""); }}>{Object.entries(COVERAGE_REGIONS).map(([key, name]) => <option key={key} value={key}>{name}</option>)}</select></div>
             </div>
-            <DistrictMap3D allowAll={false} value={district} onChange={(value) => { if (value !== "all") setDistrict(value); }} />
+            {region === "kyiv_city" ? <>
+              <div><label className={labelCls} htmlFor="district">Район Києва · необов’язково</label><select id="district" className={field} value={district} onChange={(event) => setDistrict(event.target.value as KyivDistrict | "")}><option value="">Не вказано</option>{ALL_DISTRICTS.map((item) => <option key={item} value={item}>{DISTRICT_LABELS[item]}</option>)}</select></div>
+            </> : <div><label className={labelCls} htmlFor="locality">Населений пункт *</label><input id="locality" className={field} value={locality} onChange={(event) => setLocality(event.target.value)} placeholder="Місто, селище або село" maxLength={100} /></div>}
             {isFreeSocial && <p className="rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-700">Для притулків і зоозахисних організацій розміщення безкоштовне.</p>}
             <div><label className={labelCls} htmlFor="address">Адреса *</label><input id="address" className={field} value={address} onChange={(event) => setAddress(event.target.value)} /></div>
             <div><label className={labelCls} htmlFor="phone">Телефон *</label><input id="phone" className={field} value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+380…" inputMode="tel" /></div>
+            {duplicates.length > 0 && <aside className="rounded-xl bg-brand-50 p-4 text-sm leading-6" aria-label="Можливі збіги в каталозі"><p className="font-semibold text-ink">Схожі заклади вже є в каталозі</p><p className="mt-1 text-ink/70">Перевірте картку перед створенням дубліката.</p><ul className="mt-3 space-y-3">{duplicates.map(place => <li key={place.id}><Link href={`/partner-interest?claim=${encodeURIComponent(place.slug)}`} className="font-semibold text-brand underline underline-offset-4">{place.name} — це мій заклад</Link><p className="text-ink/65">{place.address}</p></li>)}</ul></aside>}
             <button type="button" className="btn btn-brand w-full" onClick={goNext}>Продовжити</button>
           </div>
         )}
@@ -184,17 +228,17 @@ export default function AddPlacePage() {
 
         {step === 3 && (
           <div className="space-y-5">
-            <div className="rounded-2xl bg-brand-50/55 p-4"><p className="font-semibold text-ink">{name}</p><p className="mt-1 text-sm text-ink/60">{CATEGORY_LABELS[category]} · {DISTRICT_LABELS[district]}</p><p className="mt-1 text-sm text-ink/60">{address} · {phone}</p></div>
-            <p className="text-sm leading-6 text-ink/60">Ми перевіримо дані перед публікацією. Статус 24/7 або невідкладної допомоги не можна заявити самостійно — його підтверджує модератор телефоном.</p>
+            <div className="rounded-2xl bg-brand-50/55 p-4"><p className="font-semibold text-ink">{name}</p><p className="mt-1 text-sm text-ink/60">{CATEGORY_LABELS[category]} · {placeLocationLabel({ region, locality, district: district || undefined })}</p><p className="mt-1 text-sm text-ink/60">{address} · {phone}</p></div>
+            <p className="text-sm leading-6 text-ink/70">Публікація потребує перевірки даних і повноважень через офіційний канал закладу. Позначка у формі не підтверджує представника. Прийом 24/7 і невідкладну допомогу перевіряємо окремо.</p>
             <div className="space-y-3 rounded-2xl border border-brand-100 p-4 text-sm">
               <label className="flex items-start gap-3"><input type="checkbox" className="mt-1" checked={representativeConfirmed} onChange={(event) => setRepConfirmed(event.target.checked)} /><span>Я підтверджую, що представляю цей заклад.</span></label>
               <label className="flex items-start gap-3"><input type="checkbox" className="mt-1" checked={consentModeration} onChange={(event) => setConsent(event.target.checked)} /><span>Я погоджуюсь на перевірку та модерацію наданих даних.</span></label>
             </div>
-            <div className="flex gap-3"><button type="button" className="btn btn-ghost" onClick={() => setStep(2)}>Назад</button><button type="button" className="btn btn-brand flex-1" onClick={submit}>Надіслати на модерацію</button></div>
+            <div className="flex gap-3"><button type="button" className="btn btn-ghost" disabled={submitting} onClick={() => setStep(2)}>Назад</button><button type="button" className="btn btn-brand flex-1" disabled={submitting} aria-busy={submitting} onClick={() => void submit()}>{submitting ? "Зберігаємо…" : backend ? "Надіслати на модерацію" : "Зберегти чернетку на пристрої"}</button></div>
           </div>
         )}
       </section>
-    </main>
+    </div>
   );
 }
 

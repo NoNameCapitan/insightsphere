@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Landing } from "@/components/Landing";
 import { PLACES } from "@/lib/data/places";
+import { regionOf } from "@/config/coverage";
 
 const PATH = "/city/kyiv/pet-stores";
 
@@ -12,14 +13,14 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  const places = PLACES.filter((p) => p.category === "pet_store").slice(0, 30);
+  const places = PLACES.filter((p) => regionOf(p) === "kyiv_city").filter((p) => p.category === "pet_store").slice(0, 30);
   return (
     <Landing
       h1="Зоомагазини Києва"
       intro="Каталог зоомагазинів Києва. Натисніть, щоб відсортувати найближчі за вашим розташуванням."
       places={places}
       path={PATH}
-      ctaHref="/nearby?category=pet_store"
+      ctaHref="/nearby?region=kyiv_city&category=pet_store"
       ctaLabel="Дивитися всі поруч"
     />
   );

@@ -1,7 +1,6 @@
 "use client";
-// Client → server sync (Phase 2). Offline-first: localStorage stays the local
-// copy; when the backend is enabled we ALSO push to the API. Failures never
-// break the local flow — they're logged and the local copy remains.
+// Client → server sync. Callers must distinguish a confirmed server receipt
+// from a local draft; a timeout may have happened after a server commit.
 import type {
   LeadSummary,
   PartnerSubmission,
@@ -13,41 +12,51 @@ export function isBackendEnabled(): boolean {
   return process.env.NEXT_PUBLIC_BACKEND_ENABLED === "1";
 }
 
-async function post(path: string, body: unknown): Promise<{ ok: boolean; id?: string }> {
+export type DeliveryResult =
+  | { status: "sent"; id: string }
+  | { status: "local" }
+  | { status: "unconfirmed" };
+
+async function post(path: string, body: unknown): Promise<DeliveryResult> {
   const res = await fetch(path, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(15_000),
   });
   if (!res.ok) throw new Error(`${path} -> ${res.status}`);
-  return res.json();
+  const data: unknown = await res.json();
+  if (!data || typeof data !== "object" || !("ok" in data) || data.ok !== true || !("id" in data) || typeof data.id !== "string" || !data.id) {
+    throw new Error("Server did not confirm receipt");
+  }
+  return { status: "sent", id: data.id };
 }
 
-/** Push a partner submission to the server. Fire-and-forget safe. */
+/** Resolve only after a receipt, a disabled backend, or an unconfirmed attempt. */
 export async function syncSubmissionToServer(
   sub: Omit<PartnerSubmission, "id" | "status" | "createdAt" | "updatedAt">,
-): Promise<{ ok: boolean; id?: string }> {
-  if (!isBackendEnabled()) return { ok: false };
+): Promise<DeliveryResult> {
+  if (!isBackendEnabled()) return { status: "local" };
   try {
     return await post("/api/submissions", sub);
   } catch (e) {
-    console.warn("[backend] submission sync failed, local copy kept:", e);
-    return { ok: false };
+    console.warn("[backend] submission receipt unconfirmed:", e);
+    return { status: "unconfirmed" };
   }
 }
 
-/** Push a report to the server. Fire-and-forget safe. */
+/** Report delivery is independent of whether the local draft was saved. */
 export async function syncReportToServer(
   placeId: string,
   reason: ReportIssue["reason"],
   message?: string,
-): Promise<{ ok: boolean }> {
-  if (!isBackendEnabled()) return { ok: false };
+): Promise<DeliveryResult> {
+  if (!isBackendEnabled()) return { status: "local" };
   try {
     return await post("/api/reports", { placeId, reason, message });
   } catch (e) {
-    console.warn("[backend] report sync failed, local copy kept:", e);
-    return { ok: false };
+    console.warn("[backend] report receipt unconfirmed:", e);
+    return { status: "unconfirmed" };
   }
 }
 
@@ -88,10 +97,13 @@ export async function setServerSubmissionStatus(
   status: PartnerSubmission["status"],
   reason?: string,
 ): Promise<void> {
-  await adminFetch("/api/admin/submissions", {
+  const result = await adminFetch<{ published?: { ok: boolean; reason?: string } }>("/api/admin/submissions", {
     method: "POST",
     body: JSON.stringify({ id, status, reason }),
   });
+  if (result.published?.ok !== true) {
+    throw new Error("Статус змінено, але публікацію або зняття з публікації не підтверджено. Перевірте запис перед повторною дією.");
+  }
 }
 
 export async function fetchServerReports(): Promise<ReportIssue[]> {
@@ -121,69 +133,4 @@ export async function setPlaceTier(
     "/api/admin/places/tier",
     { method: "POST", body: JSON.stringify({ placeId, tier, promotedDays }) },
   );
-}
-
-// ── Paid-tier requests (v1.31) ─────────────────────────────────────────────
-export interface PartnerInterestItem {
-  id: string;
-  place_name: string;
-  phone: string;
-  email: string;
-  plan: string;
-  note: string | null;
-  status: string;
-  created_at: string;
-}
-
-export async function fetchPartnerInterest(): Promise<PartnerInterestItem[]> {
-  const res = await adminFetch<{ items: PartnerInterestItem[] }>("/api/admin/partner-interest");
-  return res.items;
-}
-
-export async function setPartnerInterestStatus(id: string, status: string): Promise<void> {
-  await adminFetch<{ ok: boolean }>("/api/admin/partner-interest", { method: "PATCH", body: JSON.stringify({ id, status }) });
-}
-
-// ── Prepaid billing (v1.32) ────────────────────────────────────────────────
-export interface BillingPlaceState {
-  id: string;
-  tier: string;
-  subscription_status: string;
-  billing_plan_code: string | null;
-  prepaid_until: string | null;
-  promoted_until: string | null;
-  last_payment_at: string | null;
-}
-export interface BillingOverview {
-  days: number;
-  expiring: BillingPlaceState[];
-  place: BillingPlaceState | null;
-  events: { id: string; from_tier: string | null; to_tier: string; reason: string; note: string | null; created_at: string }[];
-  payments: { id: string; plan_code: string; amount_uah: number; provider_payment_id: string | null; period_end: string; created_at: string }[];
-}
-
-export async function fetchBillingOverview(placeId: string, days = 7): Promise<BillingOverview> {
-  return adminFetch<BillingOverview>(`/api/admin/billing/overview?placeId=${encodeURIComponent(placeId)}&days=${days}`);
-}
-
-export async function activatePrepaidPlan(input: {
-  placeId: string;
-  planCode: string;
-  amountUah: string;
-  paymentRef?: string;
-  note?: string;
-}): Promise<{ ok: true; duplicate: boolean; periodEnd: string }> {
-  const res = await fetch("/api/admin/billing/activate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-admin-token": getAdminToken() },
-    body: JSON.stringify(input),
-  });
-  if (res.status === 401) throw new Error("unauthorized");
-  const body = (await res.json().catch(() => ({}))) as { message?: string; duplicate?: boolean; periodEnd?: string };
-  if (!res.ok) throw new Error(body.message ? `msg:${body.message}` : `activate -> ${res.status}`);
-  return { ok: true, duplicate: Boolean(body.duplicate), periodEnd: String(body.periodEnd ?? "") };
-}
-
-export async function expirePrepaidPlans(): Promise<{ expired: number }> {
-  return adminFetch<{ expired: number }>("/api/admin/billing/expire", { method: "POST", body: "{}" });
 }
