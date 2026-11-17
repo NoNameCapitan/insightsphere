@@ -1,59 +1,3 @@
-/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
-:global(html[data-theme="dark"]) .page { color: #d6ebe4; }
-:global(html[data-theme="dark"]) .intro :global(.btn-ghost) { border-color: #42504366; }
-:global(html[data-theme="dark"]) .preview { background: #152722; color: #d6eae4; }
-:global(html[data-theme="dark"]) .previewLabel { color: #bac7c1; }
-:global(html[data-theme="dark"]) .previewAddress { color: #c0cbc6; }
-:global(html[data-theme="dark"]) .serviceList span { background: #232720; color: #c7dad3; }
-:global(html[data-theme="dark"]) .previewContact { border-top: 1px solid #3a453a; }
-:global(html[data-theme="dark"]) .previewContact span { color: #c0cbc6; }
-:global(html[data-theme="dark"]) .previewLink { color: #c4e8dd; }
-:global(html[data-theme="dark"]) .previewFootnote { color: #bcc6c0; }
-:global(html[data-theme="dark"]) .finder p { color: #bfcbc5; }
-:global(html[data-theme="dark"]) .searchInput { background: #13231f; border: 1px solid #47564b; color: #d6ebe4; }
-:global(html[data-theme="dark"]) .searchInput:focus-visible { outline: 3px solid #b1d8cb; }
-:global(html[data-theme="dark"]) .matches li { border-bottom: 1px solid #3c473d; }
-:global(html[data-theme="dark"]) .empty a { color: #c4e8dd; }
-:global(html[data-theme="dark"]) .section>p { color: #bfcbc5; }
-:global(html[data-theme="dark"]) .sectionHeading>p { color: #bfcbc5; }
-:global(html[data-theme="dark"]) .offer { border-block: 1px solid #404e40; }
-:global(html[data-theme="dark"]) .price { color: #c4e8dd; }
-:global(html[data-theme="dark"]) .note { color: #bdc9c3; }
-:global(html[data-theme="dark"]) .offer ul { color: #c3cfca; }
-:global(html[data-theme="dark"]) .pilot p { color: #bfcbc5; }
-:global(html[data-theme="dark"]) .steps li { border-top: 1px solid #404e40; }
-:global(html[data-theme="dark"]) .steps li::before { color: #b5c3ba; }
-:global(html[data-theme="dark"]) .steps p, :global(html[data-theme="dark"]) .principles p { color: #bfcbc5; }
-:global(html[data-theme="dark"]) .principles { border-top: 1px solid #404e40; }
-:global(html[data-theme="dark"]) .formPage h1 { color: #d6ebe4; }
-:global(html[data-theme="dark"]) .lead { color: #c3cfca; }
-:global(html[data-theme="dark"]) .field label, :global(html[data-theme="dark"]) .field legend { color: #cee4da; }
-:global(html[data-theme="dark"]) .field input, :global(html[data-theme="dark"]) .field select, :global(html[data-theme="dark"]) .field textarea { border: 1px solid #485b51; background: #13231f; color: #d6ebe4; }
-:global(html[data-theme="dark"]) .field input:focus-visible, :global(html[data-theme="dark"]) .field select:focus-visible, :global(html[data-theme="dark"]) .field textarea:focus-visible { outline: 3px solid #acd4c4; }
-:global(html[data-theme="dark"]) .check { color: #c6d9cf; }
-:global(html[data-theme="dark"]) .notice { background: #1f2521; color: #cee4da; }
-:global(html[data-theme="dark"]) .notice a { color: #c7e9de; }
-:global(html[data-theme="dark"]) .error { background: #152722; color: #e0b8b0; }
-:global(html[data-theme="dark"]) .receipt { border-top: 1px solid #3e4f45; color: #cee4da; }
-:global(html[data-theme="dark"]) .inlineLink { color: #c0e6d6; }
-:global(html[data-theme="dark"]) .statusList { color: #c6d9cf; }
-:global(html[data-theme="dark"]) .dashboardEmpty { border-top: 1px solid #3e4f45; color: #c3cfca; }
-:global(html[data-theme="dark"]) .details { border-block: 1px solid #3d493e; }
-:global(html[data-theme="dark"]) .details summary { color: #cee4da; }
-:global(html[data-theme="dark"]) .claim { background: #232620; }
-:global(html[data-theme="dark"]) .claim strong { color: #cee4da; }
-:global(html[data-theme="dark"]) .claim p { color: #c3cfca; }
-:global(html[data-theme="dark"]) .queueItem { background: #13231f; }
-:global(html[data-theme="dark"]) .queueItem p { color: #c3cfca; }
-:global(html[data-theme="dark"]) .queueItem pre { color: #cee4da; }
-:global(html[data-theme="dark"]) .queueMeta { color: #bac7be; }
-@media(hover:hover) and (pointer:fine) {
-  :global(html[data-theme="dark"]) .previewLink:hover { color: #dff2ec; }
-  :global(html[data-theme="dark"]) .matches li:hover { background: #ecefe61f; }
-  :global(html[data-theme="dark"]) .searchInput:hover { border-color: #576d61; }
-}
-/* @generated dark-theme:end */
-
 .page{max-width:1160px;margin:auto;padding:28px 20px 80px;color:#173c30}
 .intro{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.8fr);align-items:center;gap:56px;padding:64px 48px 56px;overflow:hidden;background:radial-gradient(ellipse at 100% 0%,#42614b 0%,transparent 60%),linear-gradient(120deg,#092c29,#153d32);border-radius:24px;box-shadow:0 24px 56px -28px #10382b80;color:#fff9eb}
 .intro::before{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 1px 0 #f5e2bf38;z-index:-1}
@@ -65,3 +9,60 @@
 @media(hover:hover) and (pointer:fine){.previewLink:hover{color:#092d21}.matches li:hover{background:#edf1e940}.searchInput:hover{border-color:#6c9a80}}
 @media(max-width:800px){.intro{grid-template-columns:1fr;gap:34px;padding:34px 28px}.preview{max-width:520px}.offer{grid-template-columns:1fr 1fr}.offer>a{grid-column:1/-1;justify-self:start}.sectionHeading{grid-template-columns:1fr;gap:18px}.steps{gap:20px}}
 @media(max-width:600px){.page{padding:16px 14px 56px}.intro{padding:30px 22px;border-radius:18px;gap:28px}.intro h1{font-size:2.35rem}.introCopy>p{font-size:1rem}.intro .actions{flex-direction:column}.preview{padding:22px}.finder,.section{padding:0 6px;margin-top:38px}.offer,.pilot,.steps,.principles,.fields{grid-template-columns:1fr}.offer{gap:18px}.offer>a{grid-column:auto;justify-self:stretch}.pilot{gap:18px}.principles{gap:24px}.wide{grid-column:auto}.matches li{align-items:start;flex-direction:column;gap:12px}.matches a{width:100%}.actions>*{flex:1;text-align:center}.steps{gap:24px}.formPage{padding:24px 20px 56px}}
+
+/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
+:global(:where(html[data-theme="dark"])) .page { color: #d9e8e3; }
+:global(:where(html[data-theme="dark"])) .intro { background: radial-gradient(ellipse at 100% 0%,#42614b 0%,transparent 60%),linear-gradient(120deg,#0f2219,#1b3122); }
+:global(:where(html[data-theme="dark"])) .intro :global(.btn-ghost) { border-color: #434f4466; }
+:global(:where(html[data-theme="dark"])) .preview { background: #232019; color: #d9e7e3; }
+:global(:where(html[data-theme="dark"])) .previewLabel { color: #bcc5c1; }
+:global(:where(html[data-theme="dark"])) .previewAddress { color: #c1c9c6; }
+:global(:where(html[data-theme="dark"])) .serviceList span { background: #232720; color: #cad7d2; }
+:global(:where(html[data-theme="dark"])) .previewContact { border-top: 1px solid #3b443b; }
+:global(:where(html[data-theme="dark"])) .previewContact span { color: #c1c9c6; }
+:global(:where(html[data-theme="dark"])) .previewLink { color: #cae2db; }
+:global(:where(html[data-theme="dark"])) .previewFootnote { color: #bec5c1; }
+:global(:where(html[data-theme="dark"])) .finder p { color: #c1c9c5; }
+:global(:where(html[data-theme="dark"])) .searchInput { background: #1f1d17; border: 1px solid #48554b; color: #d9e8e3; }
+:global(:where(html[data-theme="dark"])) .searchInput:focus-visible { outline: 3px solid #b7d2c9; }
+:global(:where(html[data-theme="dark"])) .matches li { border-bottom: 1px solid #3d463d; }
+:global(:where(html[data-theme="dark"])) .empty a { color: #cae2db; }
+:global(:where(html[data-theme="dark"])) .section>p { color: #c1c9c5; }
+:global(:where(html[data-theme="dark"])) .sectionHeading>p { color: #c1c9c5; }
+:global(:where(html[data-theme="dark"])) .offer { border-block: 1px solid #414d41; }
+:global(:where(html[data-theme="dark"])) .price { color: #cae2db; }
+:global(:where(html[data-theme="dark"])) .note { color: #bfc7c3; }
+:global(:where(html[data-theme="dark"])) .offer ul { color: #c5cdca; }
+:global(:where(html[data-theme="dark"])) .pilot p { color: #c1c9c5; }
+:global(:where(html[data-theme="dark"])) .steps li { border-top: 1px solid #414d41; }
+:global(:where(html[data-theme="dark"])) .steps li::before { color: #b7c1bb; }
+:global(:where(html[data-theme="dark"])) .steps p, :global(:where(html[data-theme="dark"])) .principles p { color: #c1c9c5; }
+:global(:where(html[data-theme="dark"])) .principles { border-top: 1px solid #414d41; }
+:global(:where(html[data-theme="dark"])) .formPage h1 { color: #d9e8e3; }
+:global(:where(html[data-theme="dark"])) .lead { color: #c5cdca; }
+:global(:where(html[data-theme="dark"])) .field label, :global(:where(html[data-theme="dark"])) .field legend { color: #d1e0d9; }
+:global(:where(html[data-theme="dark"])) .field input, :global(:where(html[data-theme="dark"])) .field select, :global(:where(html[data-theme="dark"])) .field textarea { border: 1px solid #495951; background: #1f1d17; color: #d9e8e3; }
+:global(:where(html[data-theme="dark"])) .field input:focus-visible, :global(:where(html[data-theme="dark"])) .field select:focus-visible, :global(:where(html[data-theme="dark"])) .field textarea:focus-visible { outline: 3px solid #b3cec3; }
+:global(:where(html[data-theme="dark"])) .check { color: #c9d6cf; }
+:global(:where(html[data-theme="dark"])) .notice { background: #1f2521; color: #d1e0d9; }
+:global(:where(html[data-theme="dark"])) .notice a { color: #cde4dc; }
+:global(:where(html[data-theme="dark"])) .error { background: #232019; color: #d9bdb7; }
+:global(:where(html[data-theme="dark"])) .receipt { border-top: 1px solid #3f4d45; color: #d1e0d9; }
+:global(:where(html[data-theme="dark"])) .inlineLink { color: #c6e0d5; }
+:global(:where(html[data-theme="dark"])) .statusList { color: #c9d6cf; }
+:global(:where(html[data-theme="dark"])) .dashboardEmpty { border-top: 1px solid #3f4d45; color: #c5cdca; }
+:global(:where(html[data-theme="dark"])) .details { border-block: 1px solid #3e483f; }
+:global(:where(html[data-theme="dark"])) .details summary { color: #d1e0d9; }
+:global(:where(html[data-theme="dark"])) .claim { background: #232620; }
+:global(:where(html[data-theme="dark"])) .claim strong { color: #d1e0d9; }
+:global(:where(html[data-theme="dark"])) .claim p { color: #c5cdca; }
+:global(:where(html[data-theme="dark"])) .queueItem { background: #201d17; }
+:global(:where(html[data-theme="dark"])) .queueItem p { color: #c5cdca; }
+:global(:where(html[data-theme="dark"])) .queueItem pre { color: #d1e0d9; }
+:global(:where(html[data-theme="dark"])) .queueMeta { color: #bcc5bf; }
+@media(hover:hover) and (pointer:fine) {
+  :global(:where(html[data-theme="dark"])) .previewLink:hover { color: #e2efeb; }
+  :global(:where(html[data-theme="dark"])) .matches li:hover { background: #f1eadd1f; }
+  :global(:where(html[data-theme="dark"])) .searchInput:hover { border-color: #596b61; }
+}
+/* @generated dark-theme:end */

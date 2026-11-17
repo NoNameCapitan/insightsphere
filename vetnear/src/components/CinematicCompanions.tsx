@@ -10,23 +10,28 @@ function subscribeMotion(callback: () => void) {
   return () => query.removeEventListener("change", callback);
 }
 
-// Six specks of warm light at different depths. Positions are fixed so the
-// server and client render the same markup.
-const MOTES = [
-  { x: 62, y: 22, size: 7, depth: 1.6, delay: 0 },
-  { x: 74, y: 58, size: 4, depth: 2.2, delay: -3 },
-  { x: 86, y: 34, size: 9, depth: 1.2, delay: -6 },
-  { x: 55, y: 70, size: 5, depth: 2.6, delay: -9 },
-  { x: 92, y: 74, size: 6, depth: 1.9, delay: -12 },
-  { x: 68, y: 44, size: 3, depth: 3, delay: -15 },
+// Dust in the lamplight: tiny specks, mostly inside the warm area near the
+// lamp (upper right), each on its own slow clock so they never pulse together.
+// Positions are fixed so the server and client render the same markup.
+const DUST = [
+  { x: 84, y: 10, size: 3, depth: 1.4, duration: 34, delay: 0 },
+  { x: 72, y: 18, size: 2, depth: 2.4, duration: 28, delay: -7 },
+  { x: 91, y: 28, size: 4, depth: 1.1, duration: 38, delay: -15 },
+  { x: 64, y: 30, size: 2.5, depth: 2.8, duration: 31, delay: -22 },
+  { x: 79, y: 40, size: 2, depth: 1.9, duration: 26, delay: -4 },
+  { x: 88, y: 46, size: 3, depth: 1.6, duration: 36, delay: -19 },
+  { x: 58, y: 12, size: 2, depth: 2.2, duration: 30, delay: -12 },
+  { x: 95, y: 6, size: 2.5, depth: 1.3, duration: 40, delay: -27 },
 ] as const;
 
 /**
- * The hero "shot": the photograph sits on a 3D plane behind volumetric light,
- * floating motes and film grain. It opens like a film frame (letterbox bars
- * part, the camera settles in), leans towards a fine pointer with real depth,
- * and pushes in slowly as the page scrolls. Text, search and links never
- * move. Everything stops with the pause button or the system "reduce motion".
+ * The hero "shot": an evening room lit by a lamp just out of frame. The photo
+ * sits on a 3D plane; a soft key light, a wrap that settles around the
+ * animals and a warm floor bounce sit above it, with dust drifting through the
+ * light. It opens like an inhale — the lamp warms up and the eye adjusts —
+ * leans gently towards a fine pointer, and pushes in a little on scroll. Text,
+ * search and links never move. Everything stops with the pause button or the
+ * system "reduce motion".
  */
 export function CinematicCompanions() {
   const reduced = useSyncExternalStore(subscribeMotion, () => window.matchMedia("(prefers-reduced-motion: reduce)").matches, () => false);
@@ -77,26 +82,28 @@ export function CinematicCompanions() {
           <Image src="/visuals/care-nearby.webp" alt="Кіт і собака відпочивають поруч удома в теплому вечірньому світлі" fill priority sizes="(max-width: 700px) 100vw, (max-width: 1240px) 94vw, 1184px" className={styles.sceneImage} />
         </div>
       </div>
-      <div className={styles.sceneBeam} aria-hidden />
+      <div className={styles.sceneWrap} aria-hidden />
+      <div className={styles.sceneFill} aria-hidden />
+      <div className={styles.sceneLamp} aria-hidden />
       <div className={styles.sceneLight} aria-hidden />
       <div className={styles.sceneMotes} aria-hidden>
-        {MOTES.map((mote, index) => (
+        {DUST.map((speck, index) => (
           <span
             key={index}
             style={{
-              left: `${mote.x}%`,
-              top: `${mote.y}%`,
-              width: mote.size,
-              height: mote.size,
-              ["--depth" as string]: mote.depth,
-              animationDelay: `${mote.delay}s`,
+              left: `${speck.x}%`,
+              top: `${speck.y}%`,
+              width: speck.size,
+              height: speck.size,
+              ["--depth" as string]: speck.depth,
+              ["--dur" as string]: `${speck.duration}s`,
+              animationDelay: `${speck.delay}s`,
             }}
           />
         ))}
       </div>
       <div className={styles.sceneShade} aria-hidden />
       <div className={styles.sceneGrain} aria-hidden />
-      <div className={styles.letterbox} aria-hidden />
       <button type="button" className={styles.motionToggle} disabled={reduced} aria-pressed={active} aria-label={reduced ? "Рух зменшено в налаштуваннях системи" : active ? "Зупинити рух сцени" : "Увімкнути рух сцени"} onClick={() => setEnabled(!enabled)}>
         <svg aria-hidden viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.4">{active ? <path d="M7 5v10M13 5v10" /> : <path d="m7 4 9 6-9 6V4Z" />}</svg>
         <span>{active ? "Рух увімкнено" : "Без руху"}</span>

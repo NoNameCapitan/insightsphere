@@ -1,42 +1,3 @@
-/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
-:global(html[data-theme="dark"]) .page { --events-ink: #d6eeeb; --events-muted: #c0c9c6; --events-line: #39423a; }
-:global(html[data-theme="dark"]) .page button:focus-visible, :global(html[data-theme="dark"]) .page a:focus-visible, :global(html[data-theme="dark"]) .page summary:focus-visible, :global(html[data-theme="dark"]) .page select:focus-visible, :global(html[data-theme="dark"]) .page input:focus-visible { outline: 3px solid #a3cbc1; }
-:global(html[data-theme="dark"]) .categories button { border: 1px solid #3a453c; }
-:global(html[data-theme="dark"]) .categories button:hover { background: #222822; }
-:global(html[data-theme="dark"]) .scopes button[aria-pressed=true] { color: #c6e9e3; }
-:global(html[data-theme="dark"]) .regionLabel select { border: 1px solid #3d483f; background: #13231f; }
-:global(html[data-theme="dark"]) .scheduleNote { background: #22251f; color: #c7d3cc; }
-:global(html[data-theme="dark"]) .liveNotice { color: #c6e9e3; }
-:global(html[data-theme="dark"]) .error { background: #162823; color: #e0b4af; }
-:global(html[data-theme="dark"]) .eventCategory { color: #bde0d8; }
-:global(html[data-theme="dark"]) .status { color: #c1e1d6; background: #202820; }
-:global(html[data-theme="dark"]) .statusPending { color: #e4d4bc; background: #2c281f; }
-:global(html[data-theme="dark"]) .statusExpired { color: #c1c7c3; background: #232521; }
-:global(html[data-theme="dark"]) .saveButton { color: #c0cdc7; }
-:global(html[data-theme="dark"]) .saveButton[aria-pressed=true] { color: #c6e9e0; }
-:global(html[data-theme="dark"]) .details summary { color: #c4e3db; }
-:global(html[data-theme="dark"]) .details a { color: #c4e5dd; }
-:global(html[data-theme="dark"]) .sourceLink { color: #c5e9e2; }
-:global(html[data-theme="dark"]) .calendarButton { border: 1px solid #3c493e; }
-:global(html[data-theme="dark"]) .followPanel { background: #232720; }
-:global(html[data-theme="dark"]) .followPanel>p { color: #c2cdc5; }
-:global(html[data-theme="dark"]) .topicList label { border-top: 1px solid #3e493c; }
-:global(html[data-theme="dark"]) .topicList input { accent-color: #c2e7e1; }
-:global(html[data-theme="dark"]) .editorNote>svg { color: #b9d7cd; }
-:global(html[data-theme="dark"]) .nearbyLink strong { color: #c7e9e3; }
-:global(html[data-theme="dark"]) .empty { background: #22251f; }
-:global(html[data-theme="dark"]) .empty>svg { color: #b2c8be; }
-:global(html[data-theme="dark"]) .empty button { color: #c5e9e2; }
-:global(html[data-theme="dark"]) .followPanel { background: #292620; }
-:global(html[data-theme="dark"]) .topicList label { border: 1px solid #37564e; background: #13231f; }
-:global(html[data-theme="dark"]) .topicList label:has(input:checked) { background: #232b25; border-color: #586a5e; }
-:global(html[data-theme="dark"]) .facts { color: #c6d4ce; }
-@media(hover:hover) and (pointer:fine) {
-  :global(html[data-theme="dark"]) .saveButton:hover { color: #d4eee8; }
-  :global(html[data-theme="dark"]) .topicList label:hover { border-color: #5a6b60; }
-}
-/* @generated dark-theme:end */
-
 .page { --events-ink:#123a34; --events-muted:#53665f; --events-line:#dbe3dc; max-width:1240px; margin:0 auto; padding:28px 28px 88px; color:var(--events-ink); }
 .page ::selection { background:#b3e3c6; color:#123a34; }
 .page button, .page a, .page select { -webkit-tap-highlight-color:transparent; }
@@ -210,3 +171,48 @@
 }
 @media(max-width:380px) { .heroMain { padding-inline:20px; } .heroMain h1 { font-size:33px; } .followPanel { padding:16px; } .topicList { gap:6px; } .topicList label { padding-inline:10px; font-size:13px; } .categories button { padding-inline:12px; } .scopes { gap:15px; } .scopes button { font-size:13px; } .saveButton>span { display:none; } }
 @media(prefers-reduced-motion:reduce) { .page button:active,.heroFeature a:hover svg,.sourceLink:hover svg { transform:none; } }
+
+/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
+:global(:where(html[data-theme="dark"])) .page { --events-ink: #daebe8; --events-muted: #c1c8c5; --events-line: #39413a; }
+:global(:where(html[data-theme="dark"])) .page button:focus-visible, :global(:where(html[data-theme="dark"])) .page a:focus-visible, :global(:where(html[data-theme="dark"])) .page summary:focus-visible, :global(:where(html[data-theme="dark"])) .page select:focus-visible, :global(:where(html[data-theme="dark"])) .page input:focus-visible { outline: 3px solid #aac5be; }
+:global(:where(html[data-theme="dark"])) .hero { background: #182e22; }
+:global(:where(html[data-theme="dark"])) .categories button { border: 1px solid #3b443c; }
+:global(:where(html[data-theme="dark"])) .categories button[aria-pressed=true] { background: #245037; }
+:global(:where(html[data-theme="dark"])) .categories button:hover { background: #222822; }
+:global(:where(html[data-theme="dark"])) .categories button[aria-pressed=true]:hover { background: #1e3e2c; }
+:global(:where(html[data-theme="dark"])) .scopes button[aria-pressed=true] { color: #cce4df; }
+:global(:where(html[data-theme="dark"])) .scopes button[aria-pressed=true]:after { background: #204a32; }
+:global(:where(html[data-theme="dark"])) .regionLabel select { border: 1px solid #3e473f; background: #1f1d17; }
+:global(:where(html[data-theme="dark"])) .scheduleNote { background: #22251f; color: #c9d1cc; }
+:global(:where(html[data-theme="dark"])) .liveNotice { color: #cce4df; }
+:global(:where(html[data-theme="dark"])) .error { background: #24211a; color: #d8bab7; }
+:global(:where(html[data-theme="dark"])) .eventCategory { color: #c2dbd5; }
+:global(:where(html[data-theme="dark"])) .status { color: #c6dcd5; background: #202820; }
+:global(:where(html[data-theme="dark"])) .statusPending { color: #ded3c2; background: #2c281f; }
+:global(:where(html[data-theme="dark"])) .statusExpired { color: #c2c6c3; background: #232521; }
+:global(:where(html[data-theme="dark"])) .saveButton { color: #c2cbc7; }
+:global(:where(html[data-theme="dark"])) .saveButton[aria-pressed=true] { color: #cbe3dd; }
+:global(:where(html[data-theme="dark"])) .details summary { color: #c9ded9; }
+:global(:where(html[data-theme="dark"])) .details a { color: #c9e0da; }
+:global(:where(html[data-theme="dark"])) .sourceLink { color: #cbe3de; }
+:global(:where(html[data-theme="dark"])) .calendarButton { border: 1px solid #3d483f; }
+:global(:where(html[data-theme="dark"])) .followPanel { background: #232720; }
+:global(:where(html[data-theme="dark"])) .followPanel>p { color: #c4cbc6; }
+:global(:where(html[data-theme="dark"])) .topicList label { border-top: 1px solid #3f483d; }
+:global(:where(html[data-theme="dark"])) .topicList input { accent-color: #c8e1dd; }
+:global(:where(html[data-theme="dark"])) .followPanel>button { background: #245037; }
+:global(:where(html[data-theme="dark"])) .editorNote>svg { color: #bdd2cb; }
+:global(:where(html[data-theme="dark"])) .nearbyLink strong { color: #cce4e0; }
+:global(:where(html[data-theme="dark"])) .empty { background: #22251f; }
+:global(:where(html[data-theme="dark"])) .empty>svg { color: #b5c4bd; }
+:global(:where(html[data-theme="dark"])) .empty button { color: #cbe3de; }
+:global(:where(html[data-theme="dark"])) .hero { background: radial-gradient(ellipse at 84% 0%,#426755 0,transparent 56%),linear-gradient(125deg,#0e2319,#1d3324 72%,#324e3b); }
+:global(:where(html[data-theme="dark"])) .followPanel { background: #292620; }
+:global(:where(html[data-theme="dark"])) .topicList label { border: 1px solid #4f4b3e; background: #1f1d17; }
+:global(:where(html[data-theme="dark"])) .topicList label:has(input:checked) { background: #232b25; border-color: #59685f; }
+:global(:where(html[data-theme="dark"])) .facts { color: #c8d2ce; }
+@media(hover:hover) and (pointer:fine) {
+  :global(:where(html[data-theme="dark"])) .saveButton:hover { color: #d8eae6; }
+  :global(:where(html[data-theme="dark"])) .topicList label:hover { border-color: #5b6960; }
+}
+/* @generated dark-theme:end */

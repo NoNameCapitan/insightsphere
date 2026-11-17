@@ -1,58 +1,49 @@
-/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
-:global(html[data-theme="dark"]) .motionToggle { border: 1px solid #3a5b525c; }
-:global(html[data-theme="dark"]) .search { background: #152621; color: #d7ebe6; }
-:global(html[data-theme="dark"]) .field+.field { border-left: 1px solid #3f4539; }
-:global(html[data-theme="dark"]) .field label { color: #bfcac4; }
-:global(html[data-theme="dark"]) .field select { color: #d7ebe6; }
-:global(html[data-theme="dark"]) .serviceIcon { color: #c4dfd6; }
-:global(html[data-theme="dark"]) .services small { color: #bbc4be; }
-:global(html[data-theme="dark"]) .returnLinks { border-top: 1px solid #3e4538; }
-:global(html[data-theme="dark"]) .returnLinks a { color: #c5dcd2; }
-:global(html[data-theme="dark"]) .search select:focus-visible, :global(html[data-theme="dark"]) .search button:focus-visible { outline: 2px solid #c5e0d4; }
-@media(hover:hover) and (pointer:fine) {
-  :global(html[data-theme="dark"]) .services a:hover { background: #272821; }
-}
-@media(max-width:700px) {
-  :global(html[data-theme="dark"]) .locationField { border-bottom: 1px solid #3f4539; }
-}
-/* @generated dark-theme:end */
-
 .hero { max-width:1240px; margin:0 auto; padding:24px 28px 8px; }
-.stage { position:relative; overflow:hidden; isolation:isolate; border-radius:20px; background:#0b2822; color:#fbf6e8; box-shadow:0 32px 64px -42px #123e3673; }
+/* --stage is the room: deep pine with a little umber in it, so lamp light reads as warm, not neon. */
+.stage { --stage:14 39 30; position:relative; overflow:hidden; isolation:isolate; border-radius:20px; background:rgb(var(--stage)); color:#fbf6e8; box-shadow:0 32px 64px -42px #3a2a1659; }
 .intro { position:relative; min-height:440px; }
 .copy { position:relative; z-index:2; padding:46px 0 28px 44px; width:65%; }
 .context { margin:0 0 20px; color:#d2dece; font-size:13px; line-height:1.5; font-weight:550; }
 .copy h1 { font-size:clamp(42px,4.5vw,62px); font-weight:560; letter-spacing:-.035em; line-height:1.08; margin:0; }
 .copy h1 .line { display:block; overflow:hidden; padding-bottom:.06em; margin-bottom:-.06em; }
 .copy h1 .line>span { display:block; }
-.gold { font-style:normal; color:#e4c18b; background:linear-gradient(100deg,#e4c18b 20%,#fff1cf 45%,#e4c18b 70%); background-size:220% 100%; background-position:100% 0; -webkit-background-clip:text; background-clip:text; color:transparent; }
+/* Amber, not gold leaf: the word sits in lamplight and keeps a faint warm halo. */
+.gold { font-style:normal; color:#ebb877; background:linear-gradient(100deg,#e8b170 20%,#f6d3a0 45%,#e8b170 70%); background-size:240% 100%; background-position:100% 0; -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 0 26px rgb(240 168 88 / .22); }
 .description { max-width:390px; font-size:16px; line-height:1.7; color:#dce5d8; margin:26px 0 10px; text-wrap:pretty; }
 .coverage { display:inline-flex; align-items:center; gap:8px; color:#f4eddf; font-size:12px; font-weight:600; min-height:44px; }
 .coverage>svg:first-child { width:19px; height:19px; }.coverage svg:last-child { margin-left:8px; }
 .scene { position:absolute; inset:0; overflow:hidden; isolation:isolate; --px:0; --py:0; perspective:1100px; perspective-origin:68% 45%; }
 /* Far plane: the photograph leans away from the pointer in real 3D. */
-.sceneDepth { position:absolute; inset:-4%; transform-style:preserve-3d; transform:translate3d(calc(var(--px) * -26px),calc(var(--py) * -16px),0) rotateY(calc(var(--px) * 4deg)) rotateX(calc(var(--py) * -3deg)); transition:transform 900ms cubic-bezier(.22,1,.36,1); will-change:transform; }
+.sceneDepth { position:absolute; inset:-4%; transform-style:preserve-3d; transform:translate3d(calc(var(--px) * -18px),calc(var(--py) * -11px),0) rotateY(calc(var(--px) * 2.6deg)) rotateX(calc(var(--py) * -2deg)); transition:transform 1400ms cubic-bezier(.22,1,.36,1); will-change:transform; }
 .sceneFrame { position:absolute; inset:0; }
-.sceneImage { object-fit:cover; object-position:center 48%; }
-/* Volumetric light: a soft beam through the "window", following the pointer a little. */
-.sceneBeam { position:absolute; inset:-20% -10% -10% 30%; pointer-events:none; opacity:.55; mix-blend-mode:screen; background:conic-gradient(from 212deg at 96% -8%,transparent 0deg,#ffd9a024 14deg,transparent 26deg,#ffe4b818 34deg,transparent 46deg); transform:translate3d(calc(var(--px) * 18px),0,0) rotate(calc(var(--px) * 2deg)); transform-origin:96% -8%; transition:transform 1100ms cubic-bezier(.22,1,.36,1); filter:blur(6px); }
-.sceneLight { position:absolute; inset:-12px; pointer-events:none; opacity:.5; mix-blend-mode:soft-light; background:radial-gradient(ellipse 46% 52% at calc(76% + var(--px) * 30%) calc(32% + var(--py) * 30%),#ffe7b8 0%,#ffdfa600 70%); transition:background-position 600ms; }
-/* Near plane: motes drift slowly and move more than the photo (parallax). */
+/* Grade: lifted shadows and softer contrast so fur reads as soft, not crisp; a touch of warmth. */
+.sceneImage { object-fit:cover; object-position:center 48%; filter:contrast(.92) brightness(1.03) saturate(1.04) sepia(.07); }
+/* Key light: a table lamp just out of frame, upper right. Large, soft, warm — no hard rays. */
+.sceneLamp { position:absolute; inset:-10%; pointer-events:none; mix-blend-mode:screen; background:radial-gradient(ellipse 52% 62% at calc(86% + var(--px) * 3%) calc(6% + var(--py) * 2%),rgb(255 194 124 / .30) 0%,rgb(255 176 104 / .12) 38%,transparent 70%); transition:background-position 1400ms; }
+/* Wrap: the light settles around the animals — it holds them rather than lighting them. */
+.sceneWrap { position:absolute; inset:0; pointer-events:none; mix-blend-mode:soft-light; background:radial-gradient(ellipse 36% 48% at 70% 54%,rgb(255 214 160 / .55) 0%,rgb(255 196 130 / .16) 55%,transparent 78%),linear-gradient(rgb(255 168 92 / .10),rgb(255 168 92 / .10)); }
+/* Fill: the lamp's bounce off the rug — keeps the shadow side of the fur warm and open. */
+.sceneFill { position:absolute; inset:0; pointer-events:none; mix-blend-mode:screen; background:radial-gradient(ellipse 60% 38% at 58% 108%,rgb(255 166 96 / .16),transparent 72%); }
+/* A faint hand-held warmth that follows a fine pointer. */
+.sceneLight { position:absolute; inset:-12px; pointer-events:none; opacity:.32; mix-blend-mode:soft-light; background:radial-gradient(ellipse 50% 56% at calc(74% + var(--px) * 24%) calc(36% + var(--py) * 24%),#ffd9a8 0%,#ffd9a800 70%); }
+/* Dust in the lamplight: tiny, slow, mostly inside the warm area; brighter only while it crosses the light. */
 .sceneMotes { position:absolute; inset:0; pointer-events:none; }
-.sceneMotes span { position:absolute; border-radius:50%; background:radial-gradient(circle,#fff3d6 0%,#ffdca266 45%,transparent 72%); filter:blur(.6px); opacity:.0; translate:calc(var(--px) * var(--depth) * 22px) calc(var(--py) * var(--depth) * 14px); transition:translate 1000ms cubic-bezier(.22,1,.36,1); animation:moteDrift 18s ease-in-out infinite; }
-@keyframes moteDrift { 0% { opacity:0; transform:translate3d(0,14px,0) scale(.8); } 20% { opacity:.75; } 55% { opacity:.45; transform:translate3d(-16px,-26px,0) scale(1.05); } 80% { opacity:.7; } 100% { opacity:0; transform:translate3d(10px,-48px,0) scale(.9); } }
-/* Film grain: a fixed texture, no animation cost. */
-.sceneGrain { position:absolute; inset:0; pointer-events:none; opacity:.14; mix-blend-mode:overlay; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-/* Opening shot: letterbox bars part and the camera settles in. */
-.letterbox { position:absolute; inset:0; pointer-events:none; z-index:4; }
-.letterbox::before,.letterbox::after { content:""; position:absolute; left:0; right:0; height:14%; background:#040c0a; transform:scaleY(0); }
-.letterbox::before { top:0; transform-origin:top; }
-.letterbox::after { bottom:0; transform-origin:bottom; }
-.sceneShade { position:absolute; inset:0; pointer-events:none; background:linear-gradient(90deg,#0b2822ed 0%,#0b2822bd 31%,#0b282220 60%,transparent 76%),linear-gradient(0deg,#0b2822 0%,#0b282200 25%); }
-.motionToggle { position:absolute; top:18px; right:18px; display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:8px 12px; border-radius:100px; background:#0a2521dc; color:#f0eee0; font-size:11px; border:1px solid #b8c5b85c; }
+.sceneMotes span { position:absolute; border-radius:50%; background:rgb(255 230 196 / .9); box-shadow:0 0 6px 1px rgb(255 206 150 / .35); filter:blur(.35px); opacity:0; translate:calc(var(--px) * var(--depth) * 14px) calc(var(--py) * var(--depth) * 9px); transition:translate 1600ms cubic-bezier(.22,1,.36,1); animation:dustFloat var(--dur,30s) linear infinite; }
+@keyframes dustFloat {
+  0% { opacity:0; transform:translate3d(0,-6px,0); }
+  18% { opacity:.18; }
+  45% { opacity:.5; transform:translate3d(-14px,18px,0); }
+  70% { opacity:.28; transform:translate3d(-6px,34px,0); }
+  100% { opacity:0; transform:translate3d(-20px,52px,0); }
+}
+/* Grain: barely there — texture of a photograph, not of a film print. */
+.sceneGrain { position:absolute; inset:0; pointer-events:none; opacity:.07; mix-blend-mode:soft-light; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+/* The room around the copy: shadow with a little amber in it, never black. */
+.sceneShade { position:absolute; inset:0; pointer-events:none; background:linear-gradient(90deg,rgb(var(--stage) / .93) 0%,rgb(var(--stage) / .74) 31%,rgb(var(--stage) / .12) 60%,transparent 76%),linear-gradient(0deg,rgb(var(--stage)) 0%,rgb(var(--stage) / 0) 25%),radial-gradient(ellipse 40% 60% at 0% 100%,rgb(120 70 30 / .14),transparent 70%); }
+.motionToggle { position:absolute; top:18px; right:18px; display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:8px 12px; border-radius:100px; background:rgb(var(--stage) / .78); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); color:#f3ecdc; font-size:11px; border:1px solid rgb(240 210 170 / .22); }
 .motionToggle svg { width:16px; height:16px; }.motionToggle:disabled { cursor:default; }
 .searchArea { position:relative; z-index:3; padding:0 28px 16px; }
-.search { display:grid; grid-template-columns:1.1fr .9fr 1fr 190px; align-items:stretch; background:#fcf9f1; color:#17392f; border-radius:12px; padding:8px; box-shadow:0 10px 24px -16px #001a17,inset 0 1px 0 #fff; }
+.search { display:grid; grid-template-columns:1.1fr .9fr 1fr 190px; align-items:stretch; background:#fcf8ef; color:#17392f; border-radius:14px; padding:8px; box-shadow:0 14px 30px -18px #1a0f05b3,0 0 0 1px rgb(255 236 205 / .5),inset 0 1px 0 #fff; }
 .field { padding:7px 16px; min-width:0; }.field+.field { border-left:1px solid #dbe1d5; }
 .field label { display:block; font-size:12px; color:#52685c; margin-bottom:4px; font-weight:600; }
 .field select { background:transparent; color:#17392f; border:0; border-radius:5px; width:100%; min-height:40px; padding:0 20px 0 0; font:inherit; font-size:15px; font-weight:650; cursor:pointer; }
@@ -72,7 +63,7 @@
 .search select:focus-visible,.search button:focus-visible { outline:2px solid #295d46; outline-offset:3px; }
 @media(hover:hover) and (pointer:fine) {
  .searchButton:hover { background:#0d3c31; }.services a:hover { background:#eaece1; }
- .coverage:hover,.searchNotes a:hover { color:#fff8e8; }.motionToggle:hover { background:#0a2521; }
+ .coverage:hover,.searchNotes a:hover { color:#fff8e8; }.motionToggle:hover { background:rgb(var(--stage) / .94); }
  .returnLinks a:hover { text-decoration:underline; text-underline-offset:4px; }
 }
 @media(max-width:1000px) {
@@ -86,7 +77,7 @@
  .copy { width:100%; padding:24px 20px 12px; min-height:304px; }.context { font-size:11px; line-height:1.5; margin-bottom:14px; max-width:270px; }
  .copy h1 { font-size:clamp(34px,8.7vw,45px); line-height:1.08; max-width:360px; }
  .description { font-size:13px; line-height:1.7; margin:18px 0 4px; max-width:245px; }.coverage { font-size:11px; gap:5px; }.coverage>svg:first-child { width:17px; height:17px; }.coverage>svg:last-child { width:14px; margin-left:2px; }
- .scene { pointer-events:none; }.sceneImage { object-position:80% 48%; }.sceneShade { background:linear-gradient(90deg,#0b2822ef 0%,#0b2822a6 40%,#0b282210 100%),linear-gradient(0deg,#0b2822 0%,#0b282200 42%); }.motionToggle,.sceneLight { display:none; }
+ .scene { pointer-events:none; }.sceneImage { object-position:80% 48%; }.sceneShade { background:linear-gradient(90deg,rgb(var(--stage) / .94) 0%,rgb(var(--stage) / .65) 40%,rgb(var(--stage) / .06) 100%),linear-gradient(0deg,rgb(var(--stage)) 0%,rgb(var(--stage) / 0) 42%); }.motionToggle,.sceneLight { display:none; }
  .searchArea { padding:0 12px 10px; }.search { grid-template-columns:1fr 1fr; padding:8px; gap:6px 0; }.field { padding:5px 8px; }.field label { font-size:11px; }.field select { font-size:16px; min-height:36px; }
  .locationField { grid-column:1/-1; display:flex; align-items:center; gap:14px; border-bottom:1px solid #dbe1d5; padding:3px 8px 8px; }.locationField label { margin:0; flex-shrink:0; }.locationField select { text-align:right; }.locationField+.field { border-left:0; }
  .searchButton { grid-column:1/-1; min-height:48px; padding:12px 14px; font-size:14px; }.searchNotes { display:flex; align-items:flex-start; flex-direction:column; gap:0; font-size:11px; margin:10px 4px 0; }.searchNotes a { font-size:12px; min-height:44px; }
@@ -104,62 +95,89 @@
    form, links and copy text are always present and still.
 =========================================================================== */
 @media (prefers-reduced-motion: no-preference) {
-  /* Opening shot (once): bars part, the camera settles from a soft, dark push-in. */
-  .letterbox::before,.letterbox::after { animation:letterOpen 1.5s cubic-bezier(.7,0,.2,1) .2s backwards; }
-  .sceneFrame { animation:dollyIn 2.4s cubic-bezier(.16,1,.3,1) backwards; }
-  .sceneBeam { animation:beamIn 2.8s cubic-bezier(.16,1,.3,1) .4s backwards; }
-  /* Then a slow Ken Burns while the scene is "running". */
-  .sceneImage { animation:kenBurns 28s ease-in-out 2.4s infinite alternate; transform-origin:70% 45%; }
-  /* Headline lines rise out of their masks; the gold word catches the light once. */
-  .copy h1 .line>span { animation:lineRise 1.15s cubic-bezier(.16,1,.3,1) .45s backwards; }
-  .copy h1 .line+.line>span { animation-delay:.6s; }
-  .gold { animation:goldSweep 1.8s cubic-bezier(.22,1,.36,1) 1.5s backwards; background-position:0 0; }
-  .context,.description,.coverage { animation:copyIn .9s cubic-bezier(.16,1,.3,1) backwards; }
-  .context { animation-delay:.3s; }.description { animation-delay:.85s; }.coverage { animation-delay:1s; }
-  /* Scroll: the camera pushes in and the shot darkens as it leaves (progressive enhancement). */
+  /* Opening: an inhale, not a reveal. The room is a little dim, the lamp warms
+     up, the eye adjusts; the text arrives quietly after. */
+  .sceneFrame { animation:settleIn 3.2s cubic-bezier(.33,0,.15,1) backwards; }
+  .sceneLamp,.sceneWrap { animation:lampWarm 2.8s cubic-bezier(.45,0,.2,1) .35s backwards; }
+  .sceneFill { animation:lampWarm 3.4s cubic-bezier(.45,0,.2,1) .8s backwards; }
+  /* A near-still drift while the scene runs (slow enough to feel like breathing room, not a move). */
+  .sceneImage { animation:kenBurns 46s ease-in-out 3.2s infinite alternate; transform-origin:70% 45%; }
+  .copy h1 .line>span { animation:lineRise 1.5s cubic-bezier(.22,1,.36,1) .5s backwards; }
+  .copy h1 .line+.line>span { animation-delay:.72s; }
+  /* "домом." catches the lamp once — a slow warm glint that settles into a glow. */
+  .gold { animation:goldGlint 3.6s cubic-bezier(.4,0,.2,1) 1.6s backwards; background-position:0 0; }
+  .context,.description,.coverage { animation:copyIn 1.3s cubic-bezier(.22,1,.36,1) backwards; }
+  .context { animation-delay:.3s; }.description { animation-delay:1.05s; }.coverage { animation-delay:1.25s; }
+  /* Scroll: a gentle push-in as the shot leaves (progressive enhancement). */
   @supports (animation-timeline: view()) {
     .sceneDepth { animation:scrollPush linear both; animation-timeline:view(); animation-range:exit 0% exit 100%; }
   }
   /* Paused: every running animation in the scene holds its frame. */
   .scene[data-motion="off"] *,.scene[data-motion="off"] *::before,.scene[data-motion="off"] *::after { animation-play-state:paused!important; }
-  .scene[data-motion="off"] .sceneMotes { opacity:.35; }
+  .scene[data-motion="off"] .sceneMotes { opacity:.45; }
 }
-@keyframes letterOpen { from { transform:scaleY(1); } to { transform:scaleY(0); } }
-@keyframes dollyIn { from { transform:scale(1.16) translate3d(-1.5%,1%,0); filter:blur(10px) brightness(.4) saturate(.7); } 60% { filter:blur(0) brightness(.92) saturate(1); } to { transform:none; filter:none; } }
-@keyframes beamIn { from { opacity:0; } }
-@keyframes kenBurns { from { transform:scale(1) translate3d(0,0,0); } to { transform:scale(1.07) translate3d(-1.4%,-.8%,0); } }
-@keyframes lineRise { from { transform:translateY(108%) rotate(2.5deg); opacity:0; } 40% { opacity:1; } }
-@keyframes goldSweep { from { background-position:100% 0; } }
-@keyframes copyIn { from { opacity:0; transform:translateY(14px); filter:blur(4px); } }
-@keyframes scrollPush { to { scale:1.08; translate:0 6%; filter:brightness(.6); } }
+@keyframes settleIn { from { transform:scale(1.035); filter:brightness(.72) saturate(.9); } to { transform:none; filter:none; } }
+@keyframes lampWarm { from { opacity:0; } }
+@keyframes kenBurns { from { transform:scale(1) translate3d(0,0,0); } to { transform:scale(1.035) translate3d(-.8%,-.5%,0); } }
+@keyframes lineRise { from { transform:translateY(.45em); opacity:0; } }
+@keyframes goldGlint { from { background-position:100% 0; text-shadow:0 0 0 rgb(240 168 88 / 0); } 55% { text-shadow:0 0 34px rgb(240 168 88 / .34); } }
+@keyframes copyIn { from { opacity:0; transform:translateY(8px); } }
+@keyframes scrollPush { to { scale:1.04; translate:0 4%; filter:brightness(.82); } }
 
 /* Service tiles: lift towards the viewer with depth on fine pointers. */
 .services { perspective:900px; }
 .services a { transform-style:preserve-3d; transition:transform 420ms cubic-bezier(.22,1,.36,1),background-color 200ms,box-shadow 300ms; }
 .serviceIcon { transition:transform 420ms cubic-bezier(.22,1,.36,1); }
 @media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
-  .services a:hover { transform:translateY(-4px) rotateX(10deg); box-shadow:0 18px 26px -22px #0b2822a6; }
-  .services a:hover .serviceIcon { transform:translateZ(22px) scale(1.08); }
+  .services a:hover { transform:translateY(-3px) rotateX(7deg); box-shadow:0 18px 28px -22px #4a30157a; }
+  .services a:hover .serviceIcon { transform:translateZ(16px) scale(1.05); }
 }
 
 /* --- Dark theme ----------------------------------------------------------- */
-:global(html[data-theme="dark"]) .stage { box-shadow:0 0 0 1px #8fd9bd14,0 40px 80px -40px #000000e6,0 0 80px -30px #e4c18b1f; }
-:global(html[data-theme="dark"]) .search { background:#12221e; color:#e8ebe1; box-shadow:0 12px 28px -18px #000,inset 0 1px 0 #ffffff0d,0 0 0 1px #8fd9bd14; }
-:global(html[data-theme="dark"]) .field+.field { border-left-color:#25392f; }
-:global(html[data-theme="dark"]) .field label { color:#a7b5a9; }
-:global(html[data-theme="dark"]) .field select { color:#eef0e6; background:transparent; border:0; }
-:global(html[data-theme="dark"]) .locationField { border-bottom-color:#25392f; }
-:global(html[data-theme="dark"]) .searchButton { background:#1f7a63; color:#fbfff9; }
-:global(html[data-theme="dark"]) .serviceIcon { color:#9ed4b6; }
-:global(html[data-theme="dark"]) .services strong { color:#eef0e6; }
-:global(html[data-theme="dark"]) .services small { color:#a7b5a9; }
-:global(html[data-theme="dark"]) .returnLinks { border-top-color:#25392f; }
-:global(html[data-theme="dark"]) .returnLinks a { color:#9ed4b6; }
-:global(html[data-theme="dark"]) .search select:focus-visible,:global(html[data-theme="dark"]) .search button:focus-visible { outline-color:#8fd9bd; }
+:global(html[data-theme="dark"]) .stage { --stage:24 23 17; box-shadow:0 0 0 1px rgb(232 196 150 / .07),0 40px 80px -40px #000000e6,0 0 90px -30px rgb(232 168 96 / .22); }
+/* Evening: the lamp is the main source now — warmer, closer, the fur a little softer still. */
+:global(html[data-theme="dark"]) .sceneImage { filter:contrast(.9) brightness(.95) saturate(1.02) sepia(.14); }
+:global(html[data-theme="dark"]) .sceneLamp { background:radial-gradient(ellipse 56% 66% at calc(86% + var(--px) * 3%) calc(6% + var(--py) * 2%),rgb(255 184 110 / .38) 0%,rgb(255 164 92 / .15) 40%,transparent 72%); }
+:global(html[data-theme="dark"]) .sceneWrap { background:radial-gradient(ellipse 38% 50% at 70% 54%,rgb(255 204 146 / .62) 0%,rgb(255 184 116 / .2) 55%,transparent 80%),linear-gradient(rgb(255 160 80 / .14),rgb(255 160 80 / .14)); }
+:global(html[data-theme="dark"]) .sceneFill { background:radial-gradient(ellipse 62% 40% at 58% 108%,rgb(255 158 86 / .22),transparent 72%); }
+:global(html[data-theme="dark"]) .gold { text-shadow:0 0 30px rgb(240 160 80 / .3); }
+:global(html[data-theme="dark"]) .search { background:#1d1b16; color:#f1eadd; box-shadow:0 12px 28px -18px #000,inset 0 1px 0 #ffffff0d,0 0 0 1px #e8c49614; }
+:global(html[data-theme="dark"]) .field+.field { border-left-color:#38342b; }
+:global(html[data-theme="dark"]) .field label { color:#b8ad99; }
+:global(html[data-theme="dark"]) .field select { color:#f3ecdf; background:transparent; border:0; }
+:global(html[data-theme="dark"]) .locationField { border-bottom-color:#38342b; }
+:global(html[data-theme="dark"]) .searchButton { background:#34765a; color:#fffaf0; }
+:global(html[data-theme="dark"]) .serviceIcon { color:#b0d6b8; }
+:global(html[data-theme="dark"]) .services strong { color:#f3ecdf; }
+:global(html[data-theme="dark"]) .services small { color:#b8ad99; }
+:global(html[data-theme="dark"]) .returnLinks { border-top-color:#38342b; }
+:global(html[data-theme="dark"]) .returnLinks a { color:#b0d6b8; }
+:global(html[data-theme="dark"]) .search select:focus-visible,:global(html[data-theme="dark"]) .search button:focus-visible { outline-color:#e8b77c; }
 @media(hover:hover) and (pointer:fine) {
-  :global(html[data-theme="dark"]) .searchButton:hover { background:#24876d; }
-  :global(html[data-theme="dark"]) .services a:hover { background:#152a24; }
+  :global(html[data-theme="dark"]) .searchButton:hover { background:#3d8466; }
+  :global(html[data-theme="dark"]) .services a:hover { background:#25221b; }
 }
 
-@media(prefers-reduced-motion:reduce) { .sceneLight,.sceneBeam,.sceneDepth,.sceneMotes span { transform:none!important; translate:none!important; transition:none; }.sceneMotes { display:none; }.searchButton { transition:background-color 150ms; }.searchButton:active { transform:none; } }
-@media(max-width:700px) { .sceneBeam { opacity:.35; }.sceneMotes span:nth-child(n+4) { display:none; }.letterbox::before,.letterbox::after { height:10%; } }
+@media(prefers-reduced-motion:reduce) { .sceneLight,.sceneLamp,.sceneDepth,.sceneMotes span { transform:none!important; translate:none!important; transition:none; }.sceneMotes { display:none; }.searchButton { transition:background-color 150ms; }.searchButton:active { transform:none; } }
+@media(max-width:700px) { .sceneLamp { opacity:.8; }.sceneMotes span:nth-child(n+5) { display:none; } }
+
+/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
+:global(:where(html[data-theme="dark"])) .sceneMotes span { background: #2e2820e6; }
+:global(:where(html[data-theme="dark"])) .search { background: #232019; color: #dae8e4; }
+:global(:where(html[data-theme="dark"])) .field+.field { border-left: 1px solid #3f443a; }
+:global(:where(html[data-theme="dark"])) .field label { color: #c0c8c4; }
+:global(:where(html[data-theme="dark"])) .field select { color: #dae8e4; }
+:global(:where(html[data-theme="dark"])) .searchButton { background: #1f3d2a; }
+:global(:where(html[data-theme="dark"])) .serviceIcon { color: #c8dad4; }
+:global(:where(html[data-theme="dark"])) .services small { color: #bcc2bf; }
+:global(:where(html[data-theme="dark"])) .returnLinks { border-top: 1px solid #3e4439; }
+:global(:where(html[data-theme="dark"])) .returnLinks a { color: #c9d8d1; }
+:global(:where(html[data-theme="dark"])) .search select:focus-visible, :global(:where(html[data-theme="dark"])) .search button:focus-visible { outline: 2px solid #c9dcd4; }
+@media(hover:hover) and (pointer:fine) {
+  :global(:where(html[data-theme="dark"])) .searchButton:hover { background: #152f1e; }
+  :global(:where(html[data-theme="dark"])) .services a:hover { background: #272821; }
+}
+@media(max-width:700px) {
+  :global(:where(html[data-theme="dark"])) .locationField { border-bottom: 1px solid #3f443a; }
+}
+/* @generated dark-theme:end */

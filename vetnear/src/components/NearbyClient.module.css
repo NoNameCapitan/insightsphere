@@ -1,14 +1,3 @@
-/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
-:global(html[data-theme="dark"]) .locationButton { background: #20241f; color: #d5ebe6; }
-:global(html[data-theme="dark"]) .locationButton > span:nth-child(2) > span { color: #c0cbc7; }
-:global(html[data-theme="dark"]) .locateButton { color: #c8eae6; }
-:global(html[data-theme="dark"]) .locationDetails { background: #13231f; }
-:global(html[data-theme="dark"]) .searchControls input { border: 1px solid #3b4a44; background: #13231f; }
-:global(html[data-theme="dark"]) .searchControls input::placeholder { color: #b9c2bf; }
-:global(html[data-theme="dark"]) .animalNote { color: #bfd0ca; }
-:global(html[data-theme="dark"]) .animalNote[open] { background: #172b26; }
-/* @generated dark-theme:end */
-
 .screen { padding-bottom: calc(var(--bottom-nav-clearance,88px) + 28px); }
 .locationRow { display:flex; gap:8px; align-items:center; margin-block: 12px 16px; }
 .locationButton { display:flex; min-height:56px; min-width:0; flex:1; align-items:center; gap:10px; text-align:left; padding:8px 12px; border-radius:12px; background:#eaf0e9; color:#173d34; }
@@ -29,3 +18,14 @@
 .animalNote[open] { padding:0 12px 4px; border-radius:12px; background:#ecf2eb; }
 .animalNote p { line-height:1.6; }
 @media(max-width:359px) { .searchControls { grid-template-columns:minmax(0,1fr) 112px; } }
+
+/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
+:global(:where(html[data-theme="dark"])) .locationButton { background: #20241f; color: #d9e8e4; }
+:global(:where(html[data-theme="dark"])) .locationButton > span:nth-child(2) > span { color: #c1c9c6; }
+:global(:where(html[data-theme="dark"])) .locateButton { color: #cde4e2; }
+:global(:where(html[data-theme="dark"])) .locationDetails { background: #1f1d17; }
+:global(:where(html[data-theme="dark"])) .searchControls input { border: 1px solid #3c4943; background: #1f1d17; }
+:global(:where(html[data-theme="dark"])) .searchControls input::placeholder { color: #bac0be; }
+:global(:where(html[data-theme="dark"])) .animalNote { color: #c1cdc9; }
+:global(:where(html[data-theme="dark"])) .animalNote[open] { background: #26231c; }
+/* @generated dark-theme:end */

@@ -35,3 +35,9 @@
 .items article>p { font-size:12px; color:#c6d8ca; }
 .items h3 { font-size:22px; }
 @media(max-width:700px) { .intro>p { font-size:15px; } .items h3 { font-size:21px; } }
+
+/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
+:global(:where(html[data-theme="dark"])) .strip { background: #182f22; }
+:global(:where(html[data-theme="dark"])) .topics a:hover { background: #304736; }
+:global(:where(html[data-theme="dark"])) .strip { background: radial-gradient(ellipse at 12% 0%,#374d3b 0,transparent 64%),linear-gradient(130deg,#182e21,#0e2218); }
+/* @generated dark-theme:end */

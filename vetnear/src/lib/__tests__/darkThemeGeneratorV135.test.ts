@@ -19,8 +19,17 @@ describe("dark theme generator", () => {
 
   it("turns light surfaces into night surfaces and keeps dark or vivid fills", () => {
     expect(hexLightness(mapColor("#ffffff", "fill"))).toBeLessThan(0.15);
-    expect(mapColor("#0d352e", "fill")).toBeNull(); // the hero
     expect(mapColor("#d9274c", "fill")).toBeNull(); // emergency coral
+    expect(mapColor("#5a3a2a", "fill")).toBeNull(); // a dark warm fill stays
+  });
+
+  it("warms deep pine into evening olive-pine at the same depth", () => {
+    const pine = mapColor("#0d352e", "fill"); // the hero green
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt((pine ?? "").slice(i, i + 2), 16));
+    expect(pine).toMatch(/^#[0-9a-f]{6}$/);
+    expect(b).toBeLessThan(g); // less cyan: blue drops below green
+    expect(r).toBeGreaterThan(0x0d); // a little warmer
+    expect(Math.abs(hexLightness(pine) - hexLightness("#0d352e"))).toBeLessThan(0.03);
   });
 
   it("keeps the alpha of translucent colours", () => {

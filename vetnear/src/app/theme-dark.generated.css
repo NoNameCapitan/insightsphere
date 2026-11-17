@@ -2,109 +2,124 @@
    Do not edit: run `npm run theme:dark`. Hand-written dark rules live in theme.css. */
 
 /* ── from src/app/globals.css ── */
-html[data-theme="dark"] .service-card__icon { background: linear-gradient(155deg, #12211d 0%, #152823 52%, #1f2d28 100%); }
-html[data-theme="dark"] .service-card--emergency .service-card__icon { background: linear-gradient(180deg, #142521 0%, #12211d 92%); }
-html[data-theme="dark"] .service-card--clinic { background-image: linear-gradient(180deg, #12211d 0%, #152823 100%); }
-html[data-theme="dark"] .service-card--pharmacy { background-image: linear-gradient(180deg, #12211d 0%, #162924 100%); }
-html[data-theme="dark"] .service-card--store { background-image: linear-gradient(180deg, #12211d 0%, #152722 100%); }
-html[data-theme="dark"] .service-card--grooming { background-image: linear-gradient(180deg, #12211d 0%, #162924 100%); }
-html[data-theme="dark"] .service-card--hotel { background-image: linear-gradient(180deg, #12211d 0%, #152722 100%); }
+:where(html[data-theme="dark"]) .service-card__icon { background: linear-gradient(155deg, #1e1b15 0%, #24211a 52%, #1f2d28 100%); }
+:where(html[data-theme="dark"]) .service-card--emergency .service-card__icon { background: linear-gradient(180deg, #211f18 0%, #1e1b15 92%); }
+:where(html[data-theme="dark"]) .service-card--clinic { background-image: linear-gradient(180deg, #1e1b15 0%, #23211a 100%); }
+:where(html[data-theme="dark"]) .service-card--pharmacy { background-image: linear-gradient(180deg, #1e1b15 0%, #25221b 100%); }
+:where(html[data-theme="dark"]) .service-card--store { background-image: linear-gradient(180deg, #1e1b15 0%, #232019 100%); }
+:where(html[data-theme="dark"]) .service-card--grooming { background-image: linear-gradient(180deg, #1e1b15 0%, #24221a 100%); }
+:where(html[data-theme="dark"]) .service-card--hotel { background-image: linear-gradient(180deg, #1e1b15 0%, #232019 100%); }
 @media (hover: hover) and (pointer: fine) {
-  html[data-theme="dark"] .service-card:hover { background-image: linear-gradient(180deg, #12211d 0%, #152622 100%); }
-  html[data-theme="dark"] .service-card--emergency:hover { background-image: linear-gradient(180deg, #12211d 0%, #13241f 100%); }
+  :where(html[data-theme="dark"]) .service-card:hover { background-image: linear-gradient(180deg, #1e1b15 0%, #222019 100%); }
+  :where(html[data-theme="dark"]) .service-card--emergency:hover { background-image: linear-gradient(180deg, #1e1b15 0%, #201e17 100%); }
 }
-html[data-theme="dark"] .cockpit__chip { background: #12211deb; color: #ddeef1bf; }
-html[data-theme="dark"] .card { background-image: linear-gradient(145deg, #12211df7, #12211dd6); }
-html[data-theme="dark"] .readiness-card { color: #c7e9e4; background: linear-gradient(145deg, #12211dfa, #162924eb); }
-html[data-theme="dark"] .readiness-card__icon { color: #c7e9e4; background: #12211dd1; }
-html[data-theme="dark"] .readiness-card--emergency { color: #da9fab; background: linear-gradient(145deg, #12211d, #142521 94%); }
-html[data-theme="dark"] .readiness-card--emergency .readiness-card__icon { color: #d38f9d; background: #142520eb; }
-html[data-theme="dark"] .readiness-card--shelter { background: linear-gradient(145deg, #12211d, #162924 94%); }
-html[data-theme="dark"] .readiness-card--found { color: #d1a496; background: linear-gradient(145deg, #12211d, #152722 94%); }
-html[data-theme="dark"] .readiness-card--found .readiness-card__icon { color: #d1a496; background: #152722eb; }
-html[data-theme="dark"] .readiness-card--health { color: #e3d1b6; background: linear-gradient(145deg, #12211d, #152823 94%); }
-html[data-theme="dark"] .readiness-card--health .readiness-card__icon { color: #dfcaad; background: #152823f0; }
-html[data-theme="dark"] .rail-control { color: #c7e9e4; background: #12211dd1; }
-html[data-theme="dark"] .rail-control:hover { background: #12211d; }
-html[data-theme="dark"] .service-card { background-color: #12211d; }
-html[data-theme="dark"] .service-card__icon { background: #152722; }
-html[data-theme="dark"] .readiness-card, html[data-theme="dark"] .readiness-card--emergency, html[data-theme="dark"] .readiness-card--shelter, html[data-theme="dark"] .readiness-card--found, html[data-theme="dark"] .readiness-card--health { background: #12211d; }
-html[data-theme="dark"] .icon-tile { background: linear-gradient(160deg, #12211df2, #162924cc); }
-html[data-theme="dark"] .icon3d { background: linear-gradient(155deg, #12211d 0%, #152823 52%, #1f2d28 100%); }
-html[data-theme="dark"] .icon3d--warm { background: linear-gradient(155deg, #12211d 0%, #142520 52%, #281c1d 100%); }
-html[data-theme="dark"] .icon3d:has(.icon-raster), html[data-theme="dark"] .service-card__icon:has(.icon-raster) { background: #162924; }
-html[data-theme="dark"] .tabbar { background: #142621eb; }
-html[data-theme="dark"] .tabbar a { color: #dfedeb8c; }
-html[data-theme="dark"] .tabbar a[aria-current="page"] { color: #c3e8e4; }
-html[data-theme="dark"] .tabbar a.tabbar__urgent { color: #dfb2ae; }
-html[data-theme="dark"] .district-map__tag { background: #12211d; color: #dfedeb; }
-html[data-theme="dark"] .district-map__tag-count { color: #cfece9; }
-html[data-theme="dark"] .district-map__status { color: #dfedeb99; }
-html[data-theme="dark"] .district-map__status strong { color: #dfedeb; }
-html[data-theme="dark"] .district-map__chip { background: #12211d; color: #dfedebb3; }
-html[data-theme="dark"] .district-map__chip:hover { color: #dfedeb; }
-html[data-theme="dark"] .district-map__credit { color: #dfedeb59; }
-html[data-theme="dark"] .site-header__bar { border: 1px solid #263b35b3; background: #12211da8; }
-html[data-theme="dark"] .site-nav__link { color: #dfedebad; }
-html[data-theme="dark"] .site-nav__link:hover { color: #cfece9; }
-html[data-theme="dark"] .site-nav__link[aria-current="page"] { color: #cfece9; }
-html[data-theme="dark"] .site-nav__link--urgent { color: #dfb2ae; }
-html[data-theme="dark"] .site-nav__link--urgent:hover, html[data-theme="dark"] .site-nav__link--urgent[aria-current="page"] { color: #dfb2ae; }
-html[data-theme="dark"] .hero-stats { background: #12211d9e; }
-html[data-theme="dark"] .hero-stats dd { color: #c3e8e4; }
-html[data-theme="dark"] .hero-stats dt { color: #dfedeb8c; }
-html[data-theme="dark"] .tagline { color: #dfedeb; }
-html[data-theme="dark"] .tagline .tagline__word:nth-child(-n + 6).is-lit, html[data-theme="dark"] .tagline:not([data-live]) .tagline__word:nth-child(-n + 6) { color: #c3e8e4; }
-html[data-theme="dark"] .site-footer__mark { color: #c3e8e40b; }
-html[data-theme="dark"] .tabbar { border: 1px solid #263b35bf; background: #12211db8; }
-html[data-theme="dark"] .hero-urgent { background: linear-gradient(180deg, #12211d, #142521); color: #dfb2ae; }
-html[data-theme="dark"] .hero-urgent__icon { color: #d3938d; }
-html[data-theme="dark"] .status-pill--open { background: #1c2823; color: #cfece9; }
-html[data-theme="dark"] .status-pill--closed { color: #dfedeb94; }
-html[data-theme="dark"] [role="group"][aria-label="Категорія"] > button[aria-pressed="true"], html[data-theme="dark"] #nearby-advanced-filters button[aria-pressed="true"] { background: linear-gradient(180deg, #142621, #29211c); color: #e3c3b6; }
-html[data-theme="dark"] .vn-pin__body { background: #12211d; }
-html[data-theme="dark"] .service-card.card { border-color: #2e463de6; background-color: #13231f; }
-html[data-theme="dark"] ::selection { background: #263631; color: #dfedeb; }
-html[data-theme="dark"] input, html[data-theme="dark"] textarea { caret-color: #c3e8e4; }
-html[data-theme="dark"] .owner-home { background: #172b26; }
-html[data-theme="dark"] .owner-home h2 span { color: #c3e8e4; }
-html[data-theme="dark"] .owner-home>div>p { color: #c0cac7; }
-html[data-theme="dark"] .owner-home__link { color: #cfece9; }
-html[data-theme="dark"] .owner-home__details>div>span, html[data-theme="dark"] .owner-home__details svg { color: #c3e8e4; }
-html[data-theme="dark"] .owner-home__details small { color: #c0cac7; }
-html[data-theme="dark"] .owner-home .owner-home__local { border-top: 1px solid #3a4a40; color: #c0cac7; }
-html[data-theme="dark"] .discovery-location { background: #162924; }
-html[data-theme="dark"] .discovery-location p { color: #c3d5cf; }
-html[data-theme="dark"] .discovery-location strong { color: #dfedeb; }
-html[data-theme="dark"] .discovery-location button { color: #cfece9; }
-html[data-theme="dark"] .home-partner { border-top: 1px solid #3d4840; border-bottom: 1px solid #3d4840; }
-html[data-theme="dark"] .home-partner h2 span { color: #c3e8e4; }
-html[data-theme="dark"] .home-partner p { color: #c0cac7; }
+:where(html[data-theme="dark"]) .cockpit__chip { background: #1e1b15eb; color: #e0ecedbf; }
+:where(html[data-theme="dark"]) .btn-brand { background-image: linear-gradient(135deg, #204831 0%, #29583e 100%); }
+:where(html[data-theme="dark"]) .card { background-image: linear-gradient(145deg, #1e1b15f7, #1e1b15d6); }
+:where(html[data-theme="dark"]) .readiness-card { color: #cde4e0; background: linear-gradient(145deg, #1e1b15fa, #25221beb); }
+:where(html[data-theme="dark"]) .readiness-card__icon { color: #cde4e0; background: #1e1b15d1; }
+:where(html[data-theme="dark"]) .readiness-card--emergency { color: #d1a8b1; background: linear-gradient(145deg, #1e1b15, #211f18 94%); }
+:where(html[data-theme="dark"]) .readiness-card--emergency .readiness-card__icon { color: #c999a3; background: #211f18eb; }
+:where(html[data-theme="dark"]) .readiness-card--shelter { background: linear-gradient(145deg, #1e1b15, #24221a 94%); }
+:where(html[data-theme="dark"]) .readiness-card--found { color: #c8a99f; background: linear-gradient(145deg, #1e1b15, #232019 94%); }
+:where(html[data-theme="dark"]) .readiness-card--found .readiness-card__icon { color: #c8a99f; background: #232019eb; }
+:where(html[data-theme="dark"]) .readiness-card--health { color: #dccfbd; background: linear-gradient(145deg, #1e1b15, #23211a 94%); }
+:where(html[data-theme="dark"]) .readiness-card--health .readiness-card__icon { color: #d8c9b5; background: #23211af0; }
+:where(html[data-theme="dark"]) .rail-control { color: #cde4e0; background: #1e1b15d1; }
+:where(html[data-theme="dark"]) .rail-control:hover { background: #1e1b15; }
+:where(html[data-theme="dark"]) .service-card { background-color: #1e1b15; }
+:where(html[data-theme="dark"]) .service-card__icon { background: #232019; }
+:where(html[data-theme="dark"]) .readiness-card, :where(html[data-theme="dark"]) .readiness-card--emergency, :where(html[data-theme="dark"]) .readiness-card--shelter, :where(html[data-theme="dark"]) .readiness-card--found, :where(html[data-theme="dark"]) .readiness-card--health { background: #1e1b15; }
+:where(html[data-theme="dark"]) .icon-tile { background: linear-gradient(160deg, #1e1b15f2, #24221acc); }
+:where(html[data-theme="dark"]) .map-beacon { background: #1a5739; }
+:where(html[data-theme="dark"]) .icon3d { background: linear-gradient(155deg, #1e1b15 0%, #24211a 52%, #1f2d28 100%); }
+:where(html[data-theme="dark"]) .icon3d--warm { background: linear-gradient(155deg, #1e1b15 0%, #211e18 52%, #281c1d 100%); }
+:where(html[data-theme="dark"]) .icon3d:has(.icon-raster), :where(html[data-theme="dark"]) .service-card__icon:has(.icon-raster) { background: #25221b; }
+:where(html[data-theme="dark"]) .tabbar { background: #221f18eb; }
+:where(html[data-theme="dark"]) .tabbar a { color: #e1ebea8c; }
+:where(html[data-theme="dark"]) .tabbar a[aria-current="page"] { color: #c9e2e0; }
+:where(html[data-theme="dark"]) .tabbar a.tabbar__urgent { color: #d8b8b6; }
+:where(html[data-theme="dark"]) .district-map__tag { background: #1e1b15; color: #e1ebea; }
+:where(html[data-theme="dark"]) .district-map__tag-count { color: #d3e8e6; }
+:where(html[data-theme="dark"]) .district-map__status { color: #e1ebea99; }
+:where(html[data-theme="dark"]) .district-map__status strong { color: #e1ebea; }
+:where(html[data-theme="dark"]) .district-map__chip { background: #1e1b15; color: #e1ebeab3; }
+:where(html[data-theme="dark"]) .district-map__chip:hover { color: #e1ebea; }
+:where(html[data-theme="dark"]) .district-map__chip[aria-pressed="true"] { background: #1a5739; }
+:where(html[data-theme="dark"]) .district-map__credit { color: #e1ebea59; }
+:where(html[data-theme="dark"]) .skip-link { background: #1a5739; }
+:where(html[data-theme="dark"]) .scroll-progress { background: linear-gradient(90deg, #12a892, #1a5739 60%, #f2a47e); }
+:where(html[data-theme="dark"]) .site-header__bar { border: 1px solid #36332bb3; background: #1e1b15a8; }
+:where(html[data-theme="dark"]) .site-nav__link { color: #e1ebeaad; }
+:where(html[data-theme="dark"]) .site-nav__link:hover { color: #d3e8e6; }
+:where(html[data-theme="dark"]) .site-nav__link[aria-current="page"] { color: #d3e8e6; }
+:where(html[data-theme="dark"]) .site-nav__link--urgent { color: #d8b8b6; }
+:where(html[data-theme="dark"]) .site-nav__link--urgent:hover, :where(html[data-theme="dark"]) .site-nav__link--urgent[aria-current="page"] { color: #d8b8b6; }
+:where(html[data-theme="dark"]) .btn-brand { background-image: linear-gradient(180deg, #206341 0%, #1a5739 52%, #174d32 100%); }
+:where(html[data-theme="dark"]) .hero-stats { background: #1e1b159e; }
+:where(html[data-theme="dark"]) .hero-stats dd { color: #c9e2e0; }
+:where(html[data-theme="dark"]) .hero-stats dt { color: #e1ebea8c; }
+:where(html[data-theme="dark"]) .tagline { color: #e1ebea; }
+:where(html[data-theme="dark"]) .tagline .tagline__word:nth-child(-n + 6).is-lit, :where(html[data-theme="dark"]) .tagline:not([data-live]) .tagline__word:nth-child(-n + 6) { color: #c9e2e0; }
+:where(html[data-theme="dark"]) .site-footer__mark { color: #c9e2e00b; }
+:where(html[data-theme="dark"]) .tabbar { border: 1px solid #36332bbf; background: #1e1b15b8; }
+:where(html[data-theme="dark"]) .hero-urgent { background: linear-gradient(180deg, #1e1b15, #211f18); color: #d8b8b6; }
+:where(html[data-theme="dark"]) .hero-urgent__icon { color: #c89c98; }
+:where(html[data-theme="dark"]) .distance-pill { background: #1a5739; }
+:where(html[data-theme="dark"]) .status-pill--open { background: #1c2823; color: #d3e8e6; }
+:where(html[data-theme="dark"]) .status-pill--closed { color: #e1ebea94; }
+:where(html[data-theme="dark"]) [role="group"][aria-label="Категорія"] > button[aria-pressed="true"], :where(html[data-theme="dark"]) #nearby-advanced-filters button[aria-pressed="true"] { background: linear-gradient(180deg, #221f18, #29211c); color: #dcc6bd; }
+:where(html[data-theme="dark"]) .vn-pin__body { background: #1e1b15; }
+:where(html[data-theme="dark"]) .service-card.card { border-color: #30443ce6; background-color: #1f1d17; }
+:where(html[data-theme="dark"]) ::selection { background: #263631; color: #e1ebea; }
+:where(html[data-theme="dark"]) input, :where(html[data-theme="dark"]) textarea { caret-color: #c9e2e0; }
+:where(html[data-theme="dark"]) .owner-home { background: #26241c; }
+:where(html[data-theme="dark"]) .owner-home h2 span { color: #c9e2e0; }
+:where(html[data-theme="dark"]) .owner-home>div>p { color: #c1c8c6; }
+:where(html[data-theme="dark"]) .owner-home__link { color: #d3e8e6; }
+:where(html[data-theme="dark"]) .owner-home__details>div>span, :where(html[data-theme="dark"]) .owner-home__details svg { color: #c9e2e0; }
+:where(html[data-theme="dark"]) .owner-home__details small { color: #c1c8c6; }
+:where(html[data-theme="dark"]) .owner-home .owner-home__local { border-top: 1px solid #3c4940; color: #c1c8c6; }
+:where(html[data-theme="dark"]) .discovery-location { background: #25221b; }
+:where(html[data-theme="dark"]) .discovery-location p { color: #c6d2ce; }
+:where(html[data-theme="dark"]) .discovery-location strong { color: #e1ebea; }
+:where(html[data-theme="dark"]) .discovery-location button { color: #d3e8e6; }
+:where(html[data-theme="dark"]) .home-partner { border-top: 1px solid #3e4741; border-bottom: 1px solid #3e4741; }
+:where(html[data-theme="dark"]) .home-partner h2 span { color: #c9e2e0; }
+:where(html[data-theme="dark"]) .home-partner p { color: #c1c8c6; }
+:where(html[data-theme="dark"]) .home-partner>a { background: #0e2319; }
+@media(hover:hover) and (pointer:fine) {
+  :where(html[data-theme="dark"]) .home-partner>a:hover { background: #1a5033; }
+}
 
 /* ── from src/app/care-system.css ── */
-html[data-theme="dark"] ::selection { background: #2b3125; color: #d6ebe4; }
-html[data-theme="dark"] input, html[data-theme="dark"] textarea { caret-color: #c2e3d5; }
-html[data-theme="dark"] input::placeholder, html[data-theme="dark"] textarea::placeholder { color: #b6bfb7; }
-html[data-theme="dark"] :focus-visible { outline: 2px solid #bcd8c6; }
-html[data-theme="dark"] .site-header__bar { background: #142520f0; }
-html[data-theme="dark"] .site-footer { background: #24251f; border-color: #424839; }
-html[data-theme="dark"] .site-footer p { color: #bfcac2; }
-html[data-theme="dark"] .btn-ghost { background: #13241f; border-color: #3e483b; }
-html[data-theme="dark"] .card { border-color: #3e4537; }
-html[data-theme="dark"] .place-card { border-color: #3e4537; }
-html[data-theme="dark"] .place-card__icon.icon3d { background: #25271f; color: #c5dcd1; }
-html[data-theme="dark"] .owner-home { background: linear-gradient(120deg,#272a21,#28261e); }
-html[data-theme="dark"] .owner-home h2 { color: #d1e9df; }
-html[data-theme="dark"] .owner-home h2 span { color: #bbcbbf; }
-html[data-theme="dark"] .owner-home>div>p, html[data-theme="dark"] .owner-home__details small { color: #c2cbc1; }
-html[data-theme="dark"] .home-partner { border-color: #444c3d; }
-html[data-theme="dark"] .home-partner h2 { color: #cfe4d8; }
-html[data-theme="dark"] .home-partner h2 span { color: #b7c5b8; }
-html[data-theme="dark"] .tabbar { background: #142520f7; }
-html[data-theme="dark"] .tabbar a { color: #c0cac3; }
-html[data-theme="dark"] .tabbar a[aria-current="page"] { background: #282c22; color: #c6e3d3; }
-html[data-theme="dark"] .tabbar a.tabbar__urgent { color: #dcafa8; }
+:where(html[data-theme="dark"]) ::selection { background: #2b3125; color: #d9e8e3; }
+:where(html[data-theme="dark"]) input, :where(html[data-theme="dark"]) textarea { caret-color: #c7ded4; }
+:where(html[data-theme="dark"]) input::placeholder, :where(html[data-theme="dark"]) textarea::placeholder { color: #b7bdb8; }
+:where(html[data-theme="dark"]) :focus-visible { outline: 2px solid #c0d3c7; }
+:where(html[data-theme="dark"]) .site-header__bar { background: #211f18f0; }
+:where(html[data-theme="dark"]) .site-footer { background: #24251f; border-color: #41463a; }
+:where(html[data-theme="dark"]) .site-footer p { color: #c0c8c2; }
+:where(html[data-theme="dark"]) .btn-brand { background: #29462e; background-image: linear-gradient(180deg,#325138,#29462e); }
+:where(html[data-theme="dark"]) .btn-ghost { background: #201e17; border-color: #3f473c; }
+:where(html[data-theme="dark"]) .card { border-color: #3e4438; }
+:where(html[data-theme="dark"]) .place-card { border-color: #3e4438; }
+:where(html[data-theme="dark"]) .place-card__icon.icon3d { background: #25271f; color: #c8d8d1; }
+:where(html[data-theme="dark"]) .care-dark-surface { background: linear-gradient(135deg,#27402c,#112519); }
+:where(html[data-theme="dark"]) .owner-home { background: linear-gradient(120deg,#272a21,#28261e); }
+:where(html[data-theme="dark"]) .owner-home h2 { color: #d4e5de; }
+:where(html[data-theme="dark"]) .owner-home h2 span { color: #bdc9c0; }
+:where(html[data-theme="dark"]) .owner-home>div>p, :where(html[data-theme="dark"]) .owner-home__details small { color: #c4cac2; }
+:where(html[data-theme="dark"]) .home-partner { border-color: #444b3e; }
+:where(html[data-theme="dark"]) .home-partner h2 { color: #d2e0d8; }
+:where(html[data-theme="dark"]) .home-partner h2 span { color: #b9c3ba; }
+:where(html[data-theme="dark"]) .home-partner>a { background: #1b311f; }
+:where(html[data-theme="dark"]) .tabbar { background: #211f18f7; }
+:where(html[data-theme="dark"]) .tabbar a { color: #c2c8c3; }
+:where(html[data-theme="dark"]) .tabbar a[aria-current="page"] { background: #282c22; color: #cadfd4; }
+:where(html[data-theme="dark"]) .tabbar a.tabbar__urgent { color: #d4b5b0; }
 @media(hover:hover) and (pointer:fine) {
-  html[data-theme="dark"] .card:hover, html[data-theme="dark"] .card:active { border-color: #4d5849; }
-  html[data-theme="dark"] .btn-ghost:hover { background: #24261e; }
+  :where(html[data-theme="dark"]) .card:hover, :where(html[data-theme="dark"]) .card:active { border-color: #4d574a; }
+  :where(html[data-theme="dark"]) .btn-brand:hover { background: #1e3b22; }
+  :where(html[data-theme="dark"]) .btn-ghost:hover { background: #24261e; }
 }

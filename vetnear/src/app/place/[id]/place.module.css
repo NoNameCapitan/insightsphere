@@ -1,11 +1,3 @@
-/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
-:global(html[data-theme="dark"]) .categoryIcon { color: #c5e1d8; background: #152823; }
-:global(html[data-theme="dark"]) .statusRow > span:not([data-status]) { background: #ecefe614; border-color: #263b3533; }
-:global(html[data-theme="dark"]) .provenance { border-block: 1px solid #394238; }
-:global(html[data-theme="dark"]) .provenance summary { color: #c5e8e2; }
-:global(html[data-theme="dark"]) .photoNote { background: #23251f; color: #bfccc5; }
-/* @generated dark-theme:end */
-
 .page { padding-bottom:calc(var(--bottom-nav-clearance,88px) + 100px); }
 .header { position:relative; isolation:isolate; overflow:hidden; margin-top:8px; padding:24px; border-radius:20px; color:#fbf6e9; background:radial-gradient(ellipse at 100% 0%,rgb(201 166 110 / .2),transparent 62%),linear-gradient(120deg,#0d352e,#173e32); }
 .header::after { position:absolute; inset:0; z-index:-1; content:""; border-radius:inherit; box-shadow:inset 0 1px 0 rgb(255 255 255 / .15); pointer-events:none; }
@@ -26,3 +18,12 @@
 .photoNote p { margin-top:4px; font-size:13px; line-height:1.6; }
 @media(min-width:768px) { .header { padding:32px; } .page { padding-bottom:40px; } }
 @media(max-width:359px) { .header { padding:18px; } }
+
+/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
+:global(:where(html[data-theme="dark"])) .header { background: radial-gradient(ellipse at 100% 0%,rgb(201 166 110 / .2),transparent 62%),linear-gradient(120deg,#13291d,#1c3223); }
+:global(:where(html[data-theme="dark"])) .categoryIcon { color: #c9dcd6; background: #23211a; }
+:global(:where(html[data-theme="dark"])) .statusRow > span:not([data-status]) { background: #f1eadd14; border-color: #36332b33; }
+:global(:where(html[data-theme="dark"])) .provenance { border-block: 1px solid #3a4139; }
+:global(:where(html[data-theme="dark"])) .provenance summary { color: #cae3de; }
+:global(:where(html[data-theme="dark"])) .photoNote { background: #23251f; color: #c1cac5; }
+/* @generated dark-theme:end */

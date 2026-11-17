@@ -7,9 +7,11 @@
    theme in JS: <html data-theme="light|dark"> is set before first paint by
    the bootstrap script in the root layout (src/lib/theme/theme.ts).
 
-   Dark palette — "night pine": the deep forest of the hero becomes the page,
-   warm cream text, mint for actions, the hero's gold as the one warm accent,
-   and a coral that stays reserved for emergencies.
+   Dark palette — "Вечірній дім" (evening at home): the room after the lamp
+   is switched on. Warm umber surfaces instead of cold forest, cream text,
+   sage for actions, soft amber as the lamp's one warm accent, and a coral
+   that stays reserved for emergencies. Nothing is pure black, nothing glows
+   cyan: the darkest tone still has a little brown in it.
    Pairs used for text are checked for WCAG AA in src/lib/__tests__/theme.test.ts.
 =========================================================================== */
 
@@ -54,63 +56,65 @@
   --theme-danger: #ae4435;
   --theme-danger-text: #953c2e;
   --theme-focus: #386e4b;
-  --theme-shadow: 0 16px 40px -26px rgb(22 55 40 / 0.28);
+  /* Shadows are cast by a warm lamp: brown-tinted, never blue-black. */
+  --theme-shadow: 0 16px 40px -26px rgb(74 48 22 / 0.26);
+  --care-shadow: 0 16px 40px -26px rgb(74 48 22 / 0.26);
   --theme-glow: 0 0 0 transparent;
 }
 
 html[data-theme="dark"] {
   color-scheme: dark;
 
-  --c-ink: 236 239 230;
-  --c-canvas: 10 23 20;
-  --c-surface: 18 34 30;
+  --c-ink: 241 234 221;
+  --c-canvas: 20 19 15;
+  --c-surface: 29 27 22;
   --c-peach: 242 164 126;
-  --c-peach-50: 42 29 22;
+  --c-peach-50: 46 32 23;
   --c-peach-100: 58 39 29;
   --c-peach-200: 90 59 43;
   --c-peach-700: 244 185 153;
   /* DEFAULT/600 are fills under white text; 50–300 are tints; 700–900 are text. */
-  --c-brand: 31 122 99;
-  --c-brand-50: 18 48 42;
-  --c-brand-100: 32 62 54;
-  --c-brand-200: 44 84 73;
-  --c-brand-300: 70 126 107;
-  --c-brand-400: 92 205 172;
-  --c-brand-600: 24 102 82;
-  --c-brand-700: 155 221 196;
-  --c-brand-800: 189 234 217;
-  --c-brand-900: 221 245 236;
+  --c-brand: 52 118 90;
+  --c-brand-50: 33 38 29;
+  --c-brand-100: 43 50 38;
+  --c-brand-200: 59 71 53;
+  --c-brand-300: 90 112 84;
+  --c-brand-400: 150 200 162;
+  --c-brand-600: 44 102 78;
+  --c-brand-700: 181 216 186;
+  --c-brand-800: 206 231 208;
+  --c-brand-900: 231 243 229;
   --c-emergency: 194 65 47;
-  --c-emergency-50: 44 22 19;
+  --c-emergency-50: 48 25 19;
   --c-emergency-100: 64 30 25;
   --c-emergency-600: 169 56 40;
   --c-emergency-700: 255 179 165;
-  --c-amber: 230 168 82;
+  --c-amber: 232 176 108;
 
-  --theme-surface: #12221e;
-  --theme-surface-raised: #182c27;
-  --theme-text: #e8ebe1;
-  --theme-text-muted: #a8b6aa;
-  --theme-line: #25392f;
-  --theme-accent: #1f7a63;
-  --theme-accent-text: #fbfff9;
-  --theme-link: #8fd9bd;
-  --theme-gold: #e4c18b;
+  --theme-surface: #1d1b16;
+  --theme-surface-raised: #25221c;
+  --theme-text: #f1eadd;
+  --theme-text-muted: #b8ad99;
+  --theme-line: #38342b;
+  --theme-accent: #34765a;
+  --theme-accent-text: #fffaf0;
+  --theme-link: #b5dcbf;
+  --theme-gold: #e8b77c;
   --theme-danger: #c2412f;
-  --theme-danger-text: #ff9a88;
-  --theme-focus: #8fd9bd;
+  --theme-danger-text: #ff9f8a;
+  --theme-focus: #e8b77c; /* the lamp: focus reads as warm light */
   --theme-shadow: 0 18px 44px -24px rgb(0 0 0 / 0.7);
-  --theme-glow: 0 0 0 1px rgb(143 217 189 / 0.08), 0 20px 50px -30px rgb(0 0 0 / 0.8);
+  --theme-glow: 0 0 0 1px rgb(232 196 150 / 0.08), 0 20px 50px -30px rgb(0 0 0 / 0.8);
 
-  /* v1.34 "care" variables, re-pointed for the night palette. */
-  --care-pine: #e8e4d3;
-  --care-forest: #9ed4b6;
-  --care-ink: #e6eae0;
-  --care-muted: #a7b5a9;
-  --care-paper: #0a1714;
-  --care-surface: #12221e;
-  --care-line: #25392f;
-  --care-amber: #e4c18b;
+  /* v1.34 "care" variables, re-pointed for the evening palette. */
+  --care-pine: #efe6d2;
+  --care-forest: #b0d6b8;
+  --care-ink: #efe8da;
+  --care-muted: #b8ad99;
+  --care-paper: #14130f;
+  --care-surface: #1d1b16;
+  --care-line: #38342b;
+  --care-amber: #e8b77c;
   --care-shadow: 0 18px 44px -24px rgb(0 0 0 / 0.7);
 }
 
@@ -121,6 +125,11 @@ html[data-theme-ready] .tabbar,
 html[data-theme-ready] .card {
   transition: background-color 380ms var(--ease-care), color 380ms var(--ease-care), border-color 380ms var(--ease-care);
 }
+
+/* --- Warmth in small things (both themes) ---------------------------------- */
+::selection { background: rgb(232 176 108 / 0.3); color: inherit; }
+/* Cards rest on a warm surface: their hairline catches a little lamplight on top. */
+html[data-theme="dark"] :is(.card, .place-card) { box-shadow: inset 0 1px 0 rgb(255 226 186 / 0.05), var(--theme-shadow); }
 
 /* --- Header toggle -------------------------------------------------------- */
 .theme-toggle {
@@ -135,22 +144,25 @@ html[data-theme-ready] .card {
 .theme-toggle svg { width: 20px; height: 20px; }
 .theme-toggle:hover { background: rgb(var(--c-brand-50)); color: var(--theme-text); }
 .theme-toggle:active { transform: scale(0.94); }
+/* In the evening the moon icon is lamp-amber: a small sign that the room is lit. */
+html[data-theme="dark"] .theme-toggle[data-preference="dark"] { color: var(--theme-gold); }
 
 /* ===========================================================================
    Dark overrides for v1.34 surfaces that use fixed colours.
    Grouped by area; each block mirrors the light rule it replaces.
 =========================================================================== */
-html[data-theme="dark"] { scrollbar-color: #3a5248 #0a1714; }
+html[data-theme="dark"] { scrollbar-color: #4a4538 #14130f; }
 html[data-theme="dark"] body {
   color: var(--care-ink);
   background:
-    radial-gradient(ellipse 70% 30rem at 88% -4%, rgb(228 193 139 / 0.07), transparent),
-    radial-gradient(ellipse 60% 26rem at 0% 30%, rgb(92 205 172 / 0.05), transparent),
+    /* The lamp in the corner of the room, and its faint bounce off the floor. */
+    radial-gradient(ellipse 70% 32rem at 90% -6%, rgb(240 178 104 / 0.11), transparent),
+    radial-gradient(ellipse 60% 26rem at 4% 104%, rgb(214 150 92 / 0.05), transparent),
     var(--care-paper);
 }
-html[data-theme="dark"] ::selection { background: #2c5a49; color: #f3f6ee; }
-html[data-theme="dark"] :is(input, textarea) { caret-color: #8fd9bd; }
-html[data-theme="dark"] :is(input, textarea)::placeholder { color: #8a998d; }
+html[data-theme="dark"] ::selection { background: rgb(232 176 108 / 0.32); color: #fff8ec; }
+html[data-theme="dark"] :is(input, textarea) { caret-color: #b5dcbf; }
+html[data-theme="dark"] :is(input, textarea)::placeholder { color: #9a907e; }
 html[data-theme="dark"] :focus-visible { outline-color: var(--theme-focus); }
 
 /* Utilities whose meaning is "light surface" or "brand text". */
@@ -162,71 +174,71 @@ html[data-theme="dark"] :is(input, select, textarea):not([type="checkbox"]):not(
   color: rgb(var(--c-ink));
   border-color: var(--theme-line);
 }
-html[data-theme="dark"] select option { background: #12221e; color: #e8ebe1; }
+html[data-theme="dark"] select option { background: #1d1b16; color: #f1eadd; }
 
 /* Header, footer, tab bar. */
 html[data-theme="dark"] .site-header__bar {
-  background: rgb(14 30 26 / 0.86);
-  box-shadow: 0 12px 32px -22px rgb(0 0 0 / 0.9), inset 0 0 0 1px rgb(143 217 189 / 0.07);
+  background: rgb(31 28 22 / 0.86);
+  box-shadow: 0 12px 32px -22px rgb(0 0 0 / 0.9), inset 0 0 0 1px rgb(232 196 150 / 0.07);
 }
-html[data-theme="dark"] .site-nav__link { color: #b9c6bb; }
+html[data-theme="dark"] .site-nav__link { color: #c4baa6; }
 html[data-theme="dark"] .site-nav__link:hover,
-html[data-theme="dark"] .site-nav__link[aria-current="page"] { color: #eef3ea; background: rgb(143 217 189 / 0.1); box-shadow: none; }
+html[data-theme="dark"] .site-nav__link[aria-current="page"] { color: #f3eee4; background: rgb(232 196 150 / 0.1); box-shadow: none; }
 html[data-theme="dark"] .site-nav__link--urgent { color: #ffab9b; background: rgb(194 65 47 / 0.16); }
-html[data-theme="dark"] .site-footer { background: #0d1c18; border-color: #1f322b; }
-html[data-theme="dark"] .site-footer p { color: #a7b5a9; }
+html[data-theme="dark"] .site-footer { background: #100f0c; border-color: #2c2922; }
+html[data-theme="dark"] .site-footer p { color: #b8ad99; }
 html[data-theme="dark"] .tabbar {
-  background: rgb(14 30 26 / 0.94);
-  box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.85), 0 0 0 1px rgb(143 217 189 / 0.08);
+  background: rgb(31 28 22 / 0.94);
+  box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.85), 0 0 0 1px rgb(232 196 150 / 0.08);
 }
-html[data-theme="dark"] .tabbar a { color: #a8b6aa; }
-html[data-theme="dark"] .tabbar a[aria-current="page"] { background: rgb(143 217 189 / 0.13); color: #b9ecd8; }
-html[data-theme="dark"] .tabbar a.tabbar__urgent { color: #ff9a88; }
+html[data-theme="dark"] .tabbar a { color: #b8ad99; }
+html[data-theme="dark"] .tabbar a[aria-current="page"] { background: rgb(232 196 150 / 0.13); color: #cde8d2; }
+html[data-theme="dark"] .tabbar a.tabbar__urgent { color: #ff9f8a; }
 
 /* Buttons, cards, tiles. */
-html[data-theme="dark"] .btn-brand { background: #1f7a63; background-image: linear-gradient(180deg, #24876d, #1d7360); color: #fbfff9; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 10px 22px -14px rgb(31 122 99 / 0.9); }
+html[data-theme="dark"] .btn-brand { background: #34765a; background-image: linear-gradient(180deg, #3d8466, #2f6c52); color: #fffaf0; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 10px 22px -14px rgb(20 40 28 / 0.9); }
 html[data-theme="dark"] .btn-emergency { background: #c2412f; }
-html[data-theme="dark"] .btn-ghost { background: #142722; border-color: #2a4238; color: #e6eae0; }
+html[data-theme="dark"] .btn-ghost { background: #201e18; border-color: #3d382e; color: #efe8da; }
 html[data-theme="dark"] .card,
-html[data-theme="dark"] .place-card { background: var(--care-surface); border-color: #23382f; }
+html[data-theme="dark"] .place-card { background: var(--care-surface); border-color: #36322a; }
 html[data-theme="dark"] .place-card__icon.icon3d,
-html[data-theme="dark"] .icon3d { background: linear-gradient(155deg, #1f362f, #15291f 70%); border-color: rgb(143 217 189 / 0.08); color: #a9dcc4; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05); }
+html[data-theme="dark"] .icon3d { background: linear-gradient(155deg, #2a2b22, #1f1e18 70%); border-color: rgb(232 196 150 / 0.08); color: #bcdcc2; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05); }
 /* Clay icon tiles are ivory images; dim them slightly so they sit in the night palette. */
 html[data-theme="dark"] .icon-raster { filter: brightness(0.86) saturate(0.95); }
-html[data-theme="dark"] .care-dark-surface { background: linear-gradient(135deg, #1a3a2e, #0d211c); box-shadow: var(--theme-glow); }
-html[data-theme="dark"] .owner-home { background: linear-gradient(120deg, #13261f, #172a24); box-shadow: var(--theme-glow); }
-html[data-theme="dark"] .owner-home h2 { color: #eef0e4; }
-html[data-theme="dark"] .owner-home h2 span { color: #9ed4b6; }
-html[data-theme="dark"] :is(.owner-home > div > p, .owner-home__details small) { color: #a7b5a9; }
-html[data-theme="dark"] .home-partner { border-color: #24392f; }
-html[data-theme="dark"] .home-partner h2 { color: #eef0e4; }
-html[data-theme="dark"] .home-partner h2 span { color: #9ed4b6; }
-html[data-theme="dark"] .home-partner > a { background: #1f7a63; }
-html[data-theme="dark"] .status-pill--open { background: rgb(92 205 172 / 0.14); color: #a9e8d2; }
-html[data-theme="dark"] .status-pill--closed { background: rgb(236 239 230 / 0.07); color: #a8b6aa; }
-html[data-theme="dark"] .distance-pill { background: #1f7a63; }
-html[data-theme="dark"] .skeleton { background: linear-gradient(100deg, rgb(92 205 172 / 0.06) 25%, rgb(228 193 139 / 0.1) 50%, rgb(92 205 172 / 0.06) 75%); background-size: 220% 100%; }
-html[data-theme="dark"] .chip-off { border-color: #2a4238; color: #c8d3c9; }
-html[data-theme="dark"] .chip-on { background: rgb(92 205 172 / 0.14); border-color: #3f8f75; color: #b9ecd8; }
+html[data-theme="dark"] .care-dark-surface { background: linear-gradient(135deg, #263425, #171a13); box-shadow: var(--theme-glow); }
+html[data-theme="dark"] .owner-home { background: linear-gradient(120deg, #221f19, #1b1a15); box-shadow: var(--theme-glow); }
+html[data-theme="dark"] .owner-home h2 { color: #f3ecdf; }
+html[data-theme="dark"] .owner-home h2 span { color: #b0d6b8; }
+html[data-theme="dark"] :is(.owner-home > div > p, .owner-home__details small) { color: #b8ad99; }
+html[data-theme="dark"] .home-partner { border-color: #36322a; }
+html[data-theme="dark"] .home-partner h2 { color: #f3ecdf; }
+html[data-theme="dark"] .home-partner h2 span { color: #b0d6b8; }
+html[data-theme="dark"] .home-partner > a { background: #34765a; }
+html[data-theme="dark"] .status-pill--open { background: rgb(150 200 162 / 0.14); color: #c4e3c9; }
+html[data-theme="dark"] .status-pill--closed { background: rgb(241 234 221 / 0.07); color: #b8ad99; }
+html[data-theme="dark"] .distance-pill { background: #34765a; }
+html[data-theme="dark"] .skeleton { background: linear-gradient(100deg, rgb(232 196 150 / 0.04) 25%, rgb(232 183 124 / 0.09) 50%, rgb(232 196 150 / 0.04) 75%); background-size: 220% 100%; }
+html[data-theme="dark"] .chip-off { border-color: #3d382e; color: #cfc6b3; }
+html[data-theme="dark"] .chip-on { background: rgb(150 200 162 / 0.14); border-color: #4b8a6b; color: #cde8d2; }
 
 @media (hover: hover) and (pointer: fine) {
   html[data-theme="dark"] .card:hover,
-  html[data-theme="dark"] .card:active { border-color: #3a5b4c; box-shadow: 0 16px 34px -24px rgb(0 0 0 / 0.9); }
-  html[data-theme="dark"] .btn-brand:hover { background: #24876d; }
-  html[data-theme="dark"] .btn-ghost:hover { background: #1a3029; }
+  html[data-theme="dark"] .card:active { border-color: #4b4a3a; box-shadow: inset 0 1px 0 rgb(255 226 186 / 0.09), 0 18px 38px -24px rgb(0 0 0 / 0.9), 0 0 40px -24px rgb(232 168 96 / 0.22); }
+  html[data-theme="dark"] .btn-brand:hover { background: #3d8466; }
+  html[data-theme="dark"] .btn-ghost:hover { background: #2a271f; }
 }
 
 /* Map (Leaflet): night tiles from the same OpenStreetMap source — no new host. */
-html[data-theme="dark"] .leaflet-container { background: #0e1d19; }
-html[data-theme="dark"] .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.82) contrast(0.92) saturate(0.6); }
+html[data-theme="dark"] .leaflet-container { background: #1a1813; }
+html[data-theme="dark"] .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.8) contrast(0.9) saturate(0.45) sepia(0.22); }
 html[data-theme="dark"] :is(.leaflet-popup-content-wrapper, .leaflet-popup-tip, .leaflet-bar a, .leaflet-control-attribution) {
-  background: #142722;
-  color: #e6eae0;
-  border-color: #2a4238;
+  background: #201e18;
+  color: #efe8da;
+  border-color: #3d382e;
 }
-html[data-theme="dark"] .leaflet-control-attribution a { color: #8fd9bd; }
+html[data-theme="dark"] .leaflet-control-attribution a { color: #b5dcbf; }
 
-html[data-theme="dark"] :is(.bg-white\/80, .bg-white\/85, .bg-white\/90, .bg-white\/95) { background-color: rgb(18 34 30 / 0.95); }
+html[data-theme="dark"] :is(.bg-white\/80, .bg-white\/85, .bg-white\/90, .bg-white\/95) { background-color: rgb(29 27 22 / 0.95); }
 
 /* Muted text (v1.34 used ink at 40–60 % opacity: 2.6–4.0:1, below WCAG AA).
    Raised to ≥ 4.5:1 in both themes. :where() keeps specificity at one class,
@@ -236,8 +248,5 @@ html[data-theme="dark"] :is(.bg-white\/80, .bg-white\/85, .bg-white\/90, .bg-whi
 
 /* Filled brand buttons keep pure white text (≥ 5:1 on the dark brand fill). */
 html[data-theme="dark"] .btn-brand { color: #fff; }
-
-/* Hand-kept exceptions to the generated overrides (pale fill + dark text). */
-html[data-theme="dark"] [class*="districtButton"][aria-pressed="true"] > span { color: #2c5446; }
 
 /* Print: ThemeToggle switches the page to light around window.print(). */

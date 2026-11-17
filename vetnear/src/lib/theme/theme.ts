@@ -15,7 +15,7 @@ export const THEME_PREFERENCES: readonly ThemePreference[] = ["system", "light",
 export const THEME_CHANGED_EVENT = "vetnear:theme-changed";
 
 /** Browser chrome colour per applied theme (status bar, PWA title bar). */
-export const THEME_COLOR: Record<AppliedTheme, string> = { light: "#F7F4ED", dark: "#0A1714" };
+export const THEME_COLOR: Record<AppliedTheme, string> = { light: "#F7F4ED", dark: "#14130F" };
 
 export function isThemePreference(value: unknown): value is ThemePreference {
   return value === "system" || value === "light" || value === "dark";

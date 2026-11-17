@@ -1,9 +1,3 @@
-/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
-:global(html[data-theme="dark"]) .explanation { color: #bfcac7; }
-:global(html[data-theme="dark"]) .secondary { color: #c6e9e6; }
-:global(html[data-theme="dark"]) .sticky { background: #142520; }
-/* @generated dark-theme:end */
-
 .actions { display: grid; gap: 12px; }
 .primary { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
 .primary > a { min-height: 54px; padding-inline: 12px; }
@@ -23,3 +17,9 @@
 }
 @media(min-width:768px) { .sticky { display: none; } }
 @media(prefers-reduced-motion:reduce) { .sticky, .primary a { transition: none; } }
+
+/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
+:global(:where(html[data-theme="dark"])) .explanation { color: #c0c8c6; }
+:global(:where(html[data-theme="dark"])) .secondary { color: #cbe3e1; }
+:global(:where(html[data-theme="dark"])) .sticky { background: #211f18; }
+/* @generated dark-theme:end */

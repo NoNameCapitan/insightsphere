@@ -1,26 +1,3 @@
-/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
-:global(html[data-theme="dark"]) .intro::after { border: 1px solid #263b3514; }
-:global(html[data-theme="dark"]) .introAction { background: #302b21; color: #d5ebe5; }
-:global(html[data-theme="dark"]) .portrait { background: #ecefe60f; }
-:global(html[data-theme="dark"]) .next { background: #13231f; }
-:global(html[data-theme="dark"]) .nextTitle { color: #c2cec9; }
-:global(html[data-theme="dark"]) .nextName { color: #d6eae5; }
-:global(html[data-theme="dark"]) .nextDate { color: #bec9c4; }
-:global(html[data-theme="dark"]) .panel { background: #13231f; }
-:global(html[data-theme="dark"]) .panel h2 { color: #d6eae5; }
-:global(html[data-theme="dark"]) .summary { border-bottom: 1px solid #384239; }
-:global(html[data-theme="dark"]) .summary summary { color: #c8e8e0; }
-:global(html[data-theme="dark"]) .storage { color: #c0cac4; }
-:global(html[data-theme="dark"]) .return { background: #2b261e; }
-:global(html[data-theme="dark"]) .return h2 { color: #d6eae5; }
-:global(html[data-theme="dark"]) .return p { color: #c0cac4; }
-:global(html[data-theme="dark"]) .return a { color: #c6e9e0; }
-:global(html[data-theme="dark"]) .recordTabs button { color: #bec9c4; background: #ecefe61f; }
-@media (hover:hover) and (pointer:fine) {
-  :global(html[data-theme="dark"]) .introAction:hover { background: #2d291f; }
-}
-/* @generated dark-theme:end */
-
 .intro {
   position: relative;
   overflow: hidden;
@@ -60,3 +37,28 @@
 @media (hover:hover) and (pointer:fine) { .introAction:hover { background: #ffedc7; } }
 @media (prefers-reduced-motion:reduce) { .introAction { transition: none; } .introAction:active { transform: none; } }
 @media print { .intro, .next, .panel { background: white; color: #193c33; box-shadow: none; border: 1px solid #dbe4dc; } .intro h1, .intro p { color: #193c33; } }
+
+/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
+:global(:where(html[data-theme="dark"])) .intro { background: radial-gradient(ellipse at 100% 0%, #436452 0%, transparent 65%), #173020; }
+:global(:where(html[data-theme="dark"])) .intro::after { border: 1px solid #36332b14; }
+:global(:where(html[data-theme="dark"])) .introAction { background: #302b21; color: #d9e8e3; }
+:global(:where(html[data-theme="dark"])) .portrait { background: #f1eadd0f; }
+:global(:where(html[data-theme="dark"])) .next { background: #201d17; }
+:global(:where(html[data-theme="dark"])) .nextTitle { color: #c4ccc8; }
+:global(:where(html[data-theme="dark"])) .nextName { color: #d9e7e3; }
+:global(:where(html[data-theme="dark"])) .nextDate { color: #c0c7c4; }
+:global(:where(html[data-theme="dark"])) .panel { background: #1f1d17; }
+:global(:where(html[data-theme="dark"])) .panel h2 { color: #d9e7e3; }
+:global(:where(html[data-theme="dark"])) .summary { border-bottom: 1px solid #39413a; }
+:global(:where(html[data-theme="dark"])) .summary summary { color: #cde3de; }
+:global(:where(html[data-theme="dark"])) .storage { color: #c1c8c4; }
+:global(:where(html[data-theme="dark"])) .return { background: #2b261e; }
+:global(:where(html[data-theme="dark"])) .return h2 { color: #d9e7e3; }
+:global(:where(html[data-theme="dark"])) .return p { color: #c1c8c4; }
+:global(:where(html[data-theme="dark"])) .return a { color: #cbe3dd; }
+:global(:where(html[data-theme="dark"])) .recordTabs button { color: #c0c7c4; background: #f1eadd1f; }
+:global(:where(html[data-theme="dark"])) .recordTabs button[aria-pressed="true"] { background: #244430; }
+@media (hover:hover) and (pointer:fine) {
+  :global(:where(html[data-theme="dark"])) .introAction:hover { background: #2d291f; }
+}
+/* @generated dark-theme:end */

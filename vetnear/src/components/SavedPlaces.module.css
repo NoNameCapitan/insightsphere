@@ -1,13 +1,3 @@
-/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
-:global(html[data-theme="dark"]) .favoriteError { background: #142521; color: #dfbcb6; }
-:global(html[data-theme="dark"]) .entry { color: #c8e3d8; }
-:global(html[data-theme="dark"]) .intro { border: 1px solid #41473a; background: #13241f; }
-:global(html[data-theme="dark"]) .intro h2 { color: #d6ebe4; }
-:global(html[data-theme="dark"]) .intro p { color: #bbc5be; }
-:global(html[data-theme="dark"]) .note { border: 1px solid #41473a; background: #26251e; color: #c5d2ca; }
-:global(html[data-theme="dark"]) .count { color: #bbc5be; }
-/* @generated dark-theme:end */
-
 .favoriteWrap { position: relative; display: inline-flex; flex-shrink: 0; vertical-align: middle; }
 .compact { min-width: 44px; min-height: 44px; }
 .favoriteError { position: absolute; z-index: 30; top: calc(100% + 8px); right: 0; width: min(260px, calc(100vw - 48px)); padding: 12px 14px; border: 1px solid #d8bdb4; border-radius: 12px; background: #fff8f1; color: #7a3629; box-shadow: 0 8px 24px #183c301a; font-size: 13px; line-height: 1.6; font-weight: 400; }
@@ -24,3 +14,13 @@
 .count { margin: 24px 0 12px; font-size: 14px; color: #5b6e60; }
 .list { display: grid; gap: 12px; }
 @media (max-width: 380px) { .intro { padding: 22px; } .list :global(.place-card .btn) { padding-inline: 8px; gap: 6px; font-size: 13px; } .list :global(.place-card .btn svg) { display: none; } }
+
+/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
+:global(:where(html[data-theme="dark"])) .favoriteError { background: #211f18; color: #d9c1bc; }
+:global(:where(html[data-theme="dark"])) .entry { color: #ccdfd7; }
+:global(:where(html[data-theme="dark"])) .intro { border: 1px solid #41463b; background: #201e17; }
+:global(:where(html[data-theme="dark"])) .intro h2 { color: #d9e7e3; }
+:global(:where(html[data-theme="dark"])) .intro p { color: #bdc3bf; }
+:global(:where(html[data-theme="dark"])) .note { border: 1px solid #41463b; background: #26251e; color: #c7d0ca; }
+:global(:where(html[data-theme="dark"])) .count { color: #bdc3bf; }
+/* @generated dark-theme:end */

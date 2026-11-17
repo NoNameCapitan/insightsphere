@@ -1,6 +1,6 @@
 /* Only static assets are persisted. Dynamic pages, RSC payloads, APIs and
    private data always go to the network. Offline never implies fresh care data. */
-const CACHE = "vetnear-v1.35-static";
+const CACHE = "vetnear-v1.36-static";
 const CACHE_PREFIX = "vetnear-";
 const OFFLINE = "/offline.html";
 const MAX_ENTRIES = 160;

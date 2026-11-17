@@ -73,7 +73,7 @@ describe("theme preference logic", () => {
     expect(root().dataset.themePreference).toBe("dark");
     expect(root().style.colorScheme).toBe("dark");
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("dark");
-    expect(document.querySelector('meta[name="theme-color"]')?.getAttribute("content")).toBe("#0A1714");
+    expect(document.querySelector('meta[name="theme-color"]')?.getAttribute("content")).toBe("#14130F");
     expect(heard).toHaveBeenCalledTimes(1);
     window.removeEventListener(THEME_CHANGED_EVENT, heard);
   });

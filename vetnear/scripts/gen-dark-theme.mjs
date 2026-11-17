@@ -15,10 +15,15 @@
 //   line  (border*)       light hairlines become dark hairlines.
 // Shadows, keyframes and already-dark rules are left alone.
 //
-// Output: global sheets → src/app/theme-dark.generated.css (imported before
-// the hand-written src/app/theme.css, which therefore wins). CSS modules get
-// a marked block at the TOP of the same file, so hand-written dark rules
-// lower in the module still take precedence.
+// Output: global sheets → src/app/theme-dark.generated.css (imported after the
+// light sheets and before the hand-written src/app/theme.css). CSS modules get
+// a marked block at the END of the same file.
+//
+// Specificity: generated selectors use :where(html[data-theme="dark"]), which
+// adds nothing, so every override has exactly the specificity of the light rule
+// it mirrors and wins only by coming later. State precedence is therefore the
+// same in both themes (a pressed button still beats the base button), and any
+// hand-written html[data-theme="dark"] rule always beats the generated one.
 import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
@@ -28,6 +33,9 @@ const GLOBAL_OUT = "src/app/theme-dark.generated.css";
 const START = "/* @generated dark-theme:start — do not edit; run `npm run theme:dark` */";
 const END = "/* @generated dark-theme:end */";
 const DARK = 'html[data-theme="dark"]';
+const DARK_WHERE = `:where(${DARK})`;
+/** Hue of the evening palette's surfaces (--c-surface 29 27 22 ≈ 44°). */
+const WARM_HUE = 44;
 
 // ── colour maths ────────────────────────────────────────────────────────────
 const NAMED = { white: "#ffffff", black: "#000000" };
@@ -73,6 +81,16 @@ function format({ r, g, b }, a) {
   return a >= 1 ? base : `${base}${hex(Math.round(a * 255))}`;
 }
 
+/**
+ * Deep pine fills (heroes, feature cards) move towards evening olive-pine:
+ * a little warmer, a little less saturated, the same depth. Null otherwise.
+ */
+function warmPine(c) {
+  const { h, s, l } = toHsl(c);
+  if (l > 0.3 || h < 140 || h > 190 || s <= 0.2 || c.a < 0.6) return null;
+  return format(fromHsl({ h: h - 24, s: s * 0.6, l: l * 0.92 }), c.a);
+}
+
 /** Maps one colour for a role; returns null when it should stay as is. */
 export function mapColor(token, role) {
   const c = parseColor(token);
@@ -80,22 +98,24 @@ export function mapColor(token, role) {
   const { h, s, l } = toHsl(c);
   if (role === "text") {
     if (l >= 0.62) return null; // already light: sits on a dark fill
-    return format(fromHsl({ h, s: Math.min(s, 0.55) * 0.8, l: Math.min(0.92, 0.97 - 0.55 * l) }), c.a);
+    return format(fromHsl({ h, s: Math.min(s, 0.55) * 0.55, l: Math.min(0.92, 0.97 - 0.55 * l) }), c.a);
   }
   if (role === "fill") {
     // Dark fills (buttons, the hero) and vivid accents (the emergency
     // gradient) already work on a night canvas: keep them.
+    const pine = warmPine(c);
+    if (pine) return pine;
     if (l <= 0.5 || (l < 0.82 && s >= 0.3)) return null;
     // Translucent white washes become faint light washes on the night canvas.
-    if (c.a < 0.6 && s < 0.25) return format({ r: 236, g: 239, b: 230 }, Math.min(c.a, 0.12));
-    // Near-neutral surfaces take the night-green hue of --c-surface.
+    if (c.a < 0.6 && s < 0.25) return format({ r: 241, g: 234, b: 221 }, Math.min(c.a, 0.12));
+    // Near-neutral surfaces take the warm umber of --c-surface ("Вечірній дім").
     const neutral = s < 0.12 || l > 0.93;
-    return format(fromHsl({ h: neutral ? 164 : h, s: neutral ? 0.3 : Math.min(s, 0.45) * 0.4, l: 0.1 + (1 - l) * 0.45 }), c.a);
+    return format(fromHsl({ h: neutral ? WARM_HUE : h, s: neutral ? 0.16 : Math.min(s, 0.45) * 0.4, l: 0.1 + (1 - l) * 0.45 }), c.a);
   }
   if (role === "line") {
     if (l <= 0.5 || (l < 0.82 && s >= 0.3)) return null;
     const neutral = s < 0.12 || l > 0.93;
-    return format(fromHsl({ h: neutral ? 164 : h, s: neutral ? 0.22 : Math.min(s, 0.35) * 0.6, l: 0.19 + (1 - l) * 0.4 }), c.a);
+    return format(fromHsl({ h: neutral ? WARM_HUE : h, s: neutral ? 0.12 : Math.min(s, 0.35) * 0.5, l: 0.19 + (1 - l) * 0.4 }), c.a);
   }
   return null;
 }
@@ -127,12 +147,13 @@ function roleOf(property) {
 function mapDeclaration(property, value) {
   const role = roleOf(property);
   if (!role || value.includes("var(")) return null;
-  // A gradient that fades to transparent is light (a glow, beam, sheen), not a
-  // surface: it reads correctly on either canvas.
-  if (role === "fill" && /gradient\(/.test(value) && /\btransparent\b|#0000\b|rgb\([^)]*\/\s*0\)/.test(value)) return null;
+  // A gradient that fades to transparent is light (a glow, beam, sheen) over a
+  // surface: the light stays as is; only opaque deep-pine stops are warmed.
+  const glow = role === "fill" && /gradient\(/.test(value) && /\btransparent\b|#0000\b|rgb\([^)]*\/\s*0\)/.test(value);
   let changed = false;
   const mapped = value.replace(COLOR_RE, (token) => {
-    const next = mapColor(token, role);
+    const parsed = glow ? parseColor(token) : null;
+    const next = glow ? (parsed ? warmPine(parsed) : null) : mapColor(token, role);
     if (!next) return token;
     changed = true;
     return next;
@@ -204,7 +225,7 @@ function prefixSelector(sel, isModule) {
   if (/^(:root|html|body)$/.test(sel)) return null;
   if (/^html[\s.:[]/.test(sel)) return isModule ? null : DARK + sel.slice(4);
   if (/^:root[\s.:[]/.test(sel)) return isModule ? null : DARK + sel.slice(5);
-  return isModule ? `:global(${DARK}) ${sel}` : `${DARK} ${sel}`;
+  return isModule ? `:global(${DARK_WHERE}) ${sel}` : `${DARK_WHERE} ${sel}`;
 }
 
 function emit(blocks, isModule, indent = "") {
@@ -257,7 +278,8 @@ function withoutGenerated(css) {
   const a = css.indexOf(START);
   if (a < 0) return css;
   const b = css.indexOf(END, a);
-  return css.slice(0, a) + css.slice(b + END.length).replace(/^\n+/, "");
+  const rest = (css.slice(0, a) + css.slice(b + END.length).replace(/^\n+/, "")).replace(/\s+$/, "");
+  return `${rest}\n`;
 }
 
 export function buildOutputs() {
@@ -272,7 +294,7 @@ export function buildOutputs() {
     const file = relative(ROOT, path);
     const source = withoutGenerated(readFileSync(path, "utf8"));
     const generated = emit(parseBlocks(stripComments(source)), true);
-    outputs.set(file, generated.trim() ? `${START}\n${generated}${END}\n\n${source}` : source);
+    outputs.set(file, generated.trim() ? `${source}\n${START}\n${generated}${END}\n` : source);
   }
   return outputs;
 }
