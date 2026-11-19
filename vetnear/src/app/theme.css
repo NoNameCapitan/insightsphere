@@ -197,7 +197,7 @@ html[data-theme="dark"] .tabbar a[aria-current="page"] { background: rgb(232 196
 html[data-theme="dark"] .tabbar a.tabbar__urgent { color: #ff9f8a; }
 
 /* Buttons, cards, tiles. */
-html[data-theme="dark"] .btn-brand { background: #34765a; background-image: linear-gradient(180deg, #3d8466, #2f6c52); color: #fffaf0; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 10px 22px -14px rgb(20 40 28 / 0.9); }
+html[data-theme="dark"] .btn-brand { background: #34765a; background-image: linear-gradient(180deg, #367a5e, #2b6249); color: #fffaf0; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 10px 22px -14px rgb(20 40 28 / 0.9); }
 html[data-theme="dark"] .btn-emergency { background: #c2412f; }
 html[data-theme="dark"] .btn-ghost { background: #201e18; border-color: #3d382e; color: #efe8da; }
 html[data-theme="dark"] .card,
@@ -207,16 +207,17 @@ html[data-theme="dark"] .icon3d { background: linear-gradient(155deg, #2a2b22, #
 /* Clay icon tiles are ivory images; dim them slightly so they sit in the night palette. */
 html[data-theme="dark"] .icon-raster { filter: brightness(0.86) saturate(0.95); }
 html[data-theme="dark"] .care-dark-surface { background: linear-gradient(135deg, #263425, #171a13); box-shadow: var(--theme-glow); }
-html[data-theme="dark"] .owner-home { background: linear-gradient(120deg, #221f19, #1b1a15); box-shadow: var(--theme-glow); }
+html[data-theme="dark"] .owner-home { background: radial-gradient(ellipse 46% 70% at 100% 0%, rgb(240 170 96 / 0.1), transparent 66%), linear-gradient(150deg, #24211a, #1b1a15); box-shadow: var(--theme-glow); }
 html[data-theme="dark"] .owner-home h2 { color: #f3ecdf; }
 html[data-theme="dark"] .owner-home h2 span { color: #b0d6b8; }
 html[data-theme="dark"] :is(.owner-home > div > p, .owner-home__details small) { color: #b8ad99; }
-html[data-theme="dark"] .home-partner { --sep-warm: #4a3f2e; --sep-cool: #34372c; }
 html[data-theme="dark"] .owner-home { border-color: #36322a; box-shadow: inset 0 1px 0 rgb(255 226 186 / 0.05), 0 24px 48px -32px rgb(0 0 0 / 0.85); }
 html[data-theme="dark"] :is(.owner-home__details>div>span, .owner-home__details>div>svg) { color: #b0d6b8; background: linear-gradient(155deg, #2a2820, #201e18); border-color: rgb(232 196 150 / 0.08); box-shadow: inset 0 1px 0 rgb(255 226 186 / 0.06), 0 8px 16px -12px #000; }
 html[data-theme="dark"] .home-partner h2 { color: #f3ecdf; }
-html[data-theme="dark"] .home-partner h2 span { color: #b0d6b8; }
-html[data-theme="dark"] .home-partner > a { background: #34765a; }
+html[data-theme="dark"] .home-partner { box-shadow: 0 40px 80px -48px #000, 0 0 0 1px rgb(240 210 170 / 0.08), inset 0 1px 0 rgb(245 226 191 / 0.1); }
+html[data-theme="dark"] .home-partner h2 span { color: #e8b77c; }
+html[data-theme="dark"] .home-partner p { color: #d8d0bf; }
+html[data-theme="dark"] .home-partner > a { color: #1b2a20; background: linear-gradient(180deg, #f2d8a6 0%, #e4b977 100%); }
 html[data-theme="dark"] .status-pill--open { background: rgb(150 200 162 / 0.14); color: #c4e3c9; }
 html[data-theme="dark"] .status-pill--closed { background: rgb(241 234 221 / 0.07); color: #b8ad99; }
 html[data-theme="dark"] .distance-pill { background: #34765a; }
@@ -227,7 +228,9 @@ html[data-theme="dark"] .chip-on { background: rgb(150 200 162 / 0.14); border-c
 @media (hover: hover) and (pointer: fine) {
   html[data-theme="dark"] .card:hover,
   html[data-theme="dark"] .card:active { border-color: #4b4a3a; box-shadow: inset 0 1px 0 rgb(255 226 186 / 0.09), 0 18px 38px -24px rgb(0 0 0 / 0.9), 0 0 40px -24px rgb(232 168 96 / 0.22); }
-  html[data-theme="dark"] .btn-brand:hover { background: #3d8466; }
+  html[data-theme="dark"] .btn-brand:hover { background: #377b5f; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 12px 26px -12px rgb(232 160 80 / 0.45); }
+  html[data-theme="dark"] .home-partner > a:hover { background: linear-gradient(180deg, #f6e0b4 0%, #eac285 100%); color: #16241b; }
+  html[data-theme="dark"] .place-card:hover { border-color: #4f4636; box-shadow: inset 0 1px 0 rgb(255 226 186 / 0.08), 0 22px 44px -26px #000, 0 0 40px -24px rgb(232 168 96 / 0.22); }
   html[data-theme="dark"] .btn-ghost:hover { background: #2a271f; }
 }
 

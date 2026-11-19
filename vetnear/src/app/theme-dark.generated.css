@@ -103,21 +103,21 @@
 :where(html[data-theme="dark"]) .btn-ghost { background: #201e17; border-color: #3f473c; }
 :where(html[data-theme="dark"]) .card { border-color: #3e4438; }
 :where(html[data-theme="dark"]) .place-card { border-color: #3e4438; }
-:where(html[data-theme="dark"]) .place-card__icon.icon3d { background: linear-gradient(155deg,#221f18 0%,#25271e 60%,#282b22 100%); color: #c8d8d1; }
+:where(html[data-theme="dark"]) .place-card__icon.icon3d { background: linear-gradient(155deg,#201e17 0%,#24261e 55%,#292c23 100%); color: #c8d8d1; }
 :where(html[data-theme="dark"]) .care-dark-surface { background: linear-gradient(135deg,#27402c,#112519); }
-:where(html[data-theme="dark"]) .owner-home { background: linear-gradient(120deg,#272a21,#28261e); }
 :where(html[data-theme="dark"]) .owner-home h2 { color: #d4e5de; }
 :where(html[data-theme="dark"]) .owner-home h2 span { color: #bdc9c0; }
-:where(html[data-theme="dark"]) .owner-home>div>p, :where(html[data-theme="dark"]) .owner-home__details small { color: #c4cac2; }
-:where(html[data-theme="dark"]) .home-partner h2 { color: #d2e0d8; }
-:where(html[data-theme="dark"]) .home-partner h2 span { color: #b9c3ba; }
-:where(html[data-theme="dark"]) .home-partner>a { background: #1b311f; }
+:where(html[data-theme="dark"]) .owner-home>div>p { color: #c4cac4; }
+:where(html[data-theme="dark"]) .owner-home__details small { color: #c4cac2; }
+:where(html[data-theme="dark"]) .home-partner { background: radial-gradient(ellipse 50% 80% at 100% 0%,rgb(255 190 120 / .22),transparent 64%),radial-gradient(ellipse 50% 60% at 30% 120%,rgb(255 166 96 / .1),transparent 70%),linear-gradient(125deg,#102217 0%,#182d1e 58%,#1f3020 100%); }
+:where(html[data-theme="dark"]) .home-partner>a { background: linear-gradient(180deg,#353025 0%,#ebc483 100%); }
 :where(html[data-theme="dark"]) .tabbar { background: #211f18f7; }
 :where(html[data-theme="dark"]) .tabbar a { color: #c2c8c3; }
 :where(html[data-theme="dark"]) .tabbar a[aria-current="page"] { background: #282c22; color: #cadfd4; }
 :where(html[data-theme="dark"]) .tabbar a.tabbar__urgent { color: #d4b5b0; }
 @media(hover:hover) and (pointer:fine) {
   :where(html[data-theme="dark"]) .card:hover, :where(html[data-theme="dark"]) .card:active { border-color: #4d574a; }
-  :where(html[data-theme="dark"]) .btn-brand:hover { background: #1e3b22; }
+  :where(html[data-theme="dark"]) .btn-brand:hover { background: #26482d; }
+  :where(html[data-theme="dark"]) .home-partner>a:hover { background: linear-gradient(180deg,#302b22 0%,#efcb8e 100%); }
   :where(html[data-theme="dark"]) .btn-ghost:hover { background: #24261e; }
 }

@@ -4,7 +4,7 @@
 .stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, transparent 72%, #102f2c); }
 .stageHeader { position: absolute; z-index: 5; top: 26px; left: 28px; right: 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .cityName { font-size: 24px; font-weight: 650; letter-spacing: -0.03em; }
-.cityName > span { margin-left: 10px; font-size: 12px; font-weight: 500; letter-spacing: 0; color: #b9cec3; }
+.cityName > span { margin-left: 10px; font-size: 12px; font-weight: 500; letter-spacing: 0; color: #e4eee7; }
 .motionButton { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 7px 9px; border: 1px solid #648477; border-radius: 8px; color: #d2e1d6; font-size: 11px; line-height: 1.2; background: #10362e; }
 .motionButton svg { width: 15px; height: 15px; flex: 0 0 auto; }
 .motionButton:disabled { cursor: default; border-color: #3f6255; }
