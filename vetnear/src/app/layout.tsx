@@ -5,6 +5,7 @@ import "./globals.css";
 import "./care-system.css";
 import "./theme-dark.generated.css";
 import "./theme.css";
+import { IconMaterialDefs } from "@/components/icons/ServiceIcons";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { THEME_BOOTSTRAP_SCRIPT, THEME_COLOR } from "@/lib/theme/theme";
 import { t } from "@/lib/i18n";
@@ -162,6 +163,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }} />
       </head>
       <body>
+        <IconMaterialDefs />
         <JsonLd data={websiteJsonLd()} />
         <a href="#main" className="skip-link">Перейти до вмісту</a>
         <MotionRuntime />

@@ -80,7 +80,7 @@ export default function HomePage() {
       </section>
 
       <section className="home-partner" aria-labelledby="home-partner-title">
-        <div><h2 id="home-partner-title">Ви дбаєте про тварин.<br /><span>Допоможемо вас знайти.</span></h2><p>Для клінік, аптек, грумерів та інших фахівців Києва й області. Розкажіть про ваш заклад і оберіть формат участі.</p></div>
+        <div><h2 id="home-partner-title">Ви дбаєте про тварин.<br /><span>Допоможемо вас знайти.</span></h2><p>Для клінік, аптек, грумерів та інших фахівців Києва й області. Безкоштовний профіль, перевірений перед публікацією, — щоб вас знаходили люди, яким ви потрібні.</p></div>
         <Link href="/for-partners">Стати партнером <svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 19 19 5M5 5h14v14" /></svg></Link>
       </section>
 

@@ -1,0 +1,312 @@
+[
+  {
+    "name": "mobile/light / applied theme",
+    "ok": true,
+    "detail": "light"
+  },
+  {
+    "name": "mobile/light / no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "mobile/light /nearby applied theme",
+    "ok": true,
+    "detail": "light"
+  },
+  {
+    "name": "mobile/light /nearby no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "mobile/light /kyiv-updates applied theme",
+    "ok": true,
+    "detail": "light"
+  },
+  {
+    "name": "mobile/light /kyiv-updates no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "mobile/light /place/masterzoo-podil-26 applied theme",
+    "ok": true,
+    "detail": "light"
+  },
+  {
+    "name": "mobile/light /place/masterzoo-podil-26 no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "mobile/light /my-pets applied theme",
+    "ok": true,
+    "detail": "light"
+  },
+  {
+    "name": "mobile/light /my-pets no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "mobile/light /for-partners applied theme",
+    "ok": true,
+    "detail": "light"
+  },
+  {
+    "name": "mobile/light /for-partners no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "mobile/light no console/page errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "mobile/dark / applied theme",
+    "ok": true,
+    "detail": "dark"
+  },
+  {
+    "name": "mobile/dark / no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "mobile/dark /nearby applied theme",
+    "ok": true,
+    "detail": "dark"
+  },
+  {
+    "name": "mobile/dark /nearby no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "mobile/dark /kyiv-updates applied theme",
+    "ok": true,
+    "detail": "dark"
+  },
+  {
+    "name": "mobile/dark /kyiv-updates no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "mobile/dark /place/masterzoo-podil-26 applied theme",
+    "ok": true,
+    "detail": "dark"
+  },
+  {
+    "name": "mobile/dark /place/masterzoo-podil-26 no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "mobile/dark /my-pets applied theme",
+    "ok": true,
+    "detail": "dark"
+  },
+  {
+    "name": "mobile/dark /my-pets no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "mobile/dark /for-partners applied theme",
+    "ok": true,
+    "detail": "dark"
+  },
+  {
+    "name": "mobile/dark /for-partners no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "mobile/dark no console/page errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop/light / applied theme",
+    "ok": true,
+    "detail": "light"
+  },
+  {
+    "name": "desktop/light / no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "desktop/light /nearby applied theme",
+    "ok": true,
+    "detail": "light"
+  },
+  {
+    "name": "desktop/light /nearby no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "desktop/light /kyiv-updates applied theme",
+    "ok": true,
+    "detail": "light"
+  },
+  {
+    "name": "desktop/light /kyiv-updates no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "desktop/light /place/masterzoo-podil-26 applied theme",
+    "ok": true,
+    "detail": "light"
+  },
+  {
+    "name": "desktop/light /place/masterzoo-podil-26 no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "desktop/light /my-pets applied theme",
+    "ok": true,
+    "detail": "light"
+  },
+  {
+    "name": "desktop/light /my-pets no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "desktop/light /for-partners applied theme",
+    "ok": true,
+    "detail": "light"
+  },
+  {
+    "name": "desktop/light /for-partners no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "desktop/light no console/page errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop/dark / applied theme",
+    "ok": true,
+    "detail": "dark"
+  },
+  {
+    "name": "desktop/dark / no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "desktop/dark /nearby applied theme",
+    "ok": true,
+    "detail": "dark"
+  },
+  {
+    "name": "desktop/dark /nearby no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "desktop/dark /kyiv-updates applied theme",
+    "ok": true,
+    "detail": "dark"
+  },
+  {
+    "name": "desktop/dark /kyiv-updates no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "desktop/dark /place/masterzoo-podil-26 applied theme",
+    "ok": true,
+    "detail": "dark"
+  },
+  {
+    "name": "desktop/dark /place/masterzoo-podil-26 no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "desktop/dark /my-pets applied theme",
+    "ok": true,
+    "detail": "dark"
+  },
+  {
+    "name": "desktop/dark /my-pets no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "desktop/dark /for-partners applied theme",
+    "ok": true,
+    "detail": "dark"
+  },
+  {
+    "name": "desktop/dark /for-partners no horizontal overflow",
+    "ok": true,
+    "detail": "0px"
+  },
+  {
+    "name": "desktop/dark no console/page errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "toggle: system → light → dark",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "toggle: stored",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "toggle: aria-label describes next step",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "no flash: dark before any bundle runs",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "system: follows OS change live",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "print: light while printing, restored after",
+    "ok": true,
+    "detail": "light → dark"
+  },
+  {
+    "name": "reduced motion: no running animations",
+    "ok": true,
+    "detail": "0"
+  },
+  {
+    "name": "reduced motion: pause button disabled",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "pointer tilt updates --px",
+    "ok": true,
+    "detail": "-0.017"
+  },
+  {
+    "name": "pause: scene marked off",
+    "ok": true,
+    "detail": ""
+  }
+]

@@ -126,6 +126,38 @@ html[data-theme-ready] .card {
   transition: background-color 380ms var(--ease-care), color 380ms var(--ease-care), border-color 380ms var(--ease-care);
 }
 
+/* --- Icon material (category icons, v1.39) --------------------------------
+   One matte volume lit from the upper left by a warm source; outline in the
+   context colour (currentColor); a single accent; a rim light on the top edge;
+   a soft contact shadow. Gradients: <IconMaterialDefs /> in the root layout. */
+:root {
+  --svc-hi: #fffdf6;
+  --svc-lo: #d2dcc4;
+  --svc-accent-hi: #4d8d6f;
+  --svc-accent: #2a6650;
+  --svc-urgent-hi: #e27a6c;
+  --svc-urgent: #b4463a;
+  --svc-rim: rgb(255 255 255 / 0.92);
+  --svc-shadow: rgb(74 48 22 / 0.34);
+}
+html[data-theme="dark"] {
+  --svc-hi: #403d32;
+  --svc-lo: #25241d;
+  --svc-accent-hi: #c2e0c8;
+  --svc-accent: #88b998;
+  --svc-urgent-hi: #ffa08e;
+  --svc-urgent: #df6a5c;
+  --svc-rim: rgb(255 226 186 / 0.24);
+  --svc-shadow: rgb(0 0 0 / 0.6);
+}
+.svc-icon { overflow: visible; }
+.svc-icon__contact { fill: url(#vn-svc-contact) none; }
+.svc-icon__body { fill: url(#vn-svc-body) var(--svc-lo); stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+.svc-icon__line { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.svc-icon__accent { fill: url(#vn-svc-accent) var(--svc-accent); }
+.svc-icon--urgent .svc-icon__accent { fill: url(#vn-svc-urgent) var(--svc-urgent); }
+.svc-icon__rim { fill: none; stroke: var(--svc-rim); stroke-width: 1.1; stroke-linecap: round; }
+
 /* --- Warmth in small things (both themes) ---------------------------------- */
 ::selection { background: rgb(232 176 108 / 0.3); color: inherit; }
 /* Cards rest on a warm surface: their hairline catches a little lamplight on top. */

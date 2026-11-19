@@ -22,7 +22,7 @@ export default async function ForPartnersPage() {
     <section className={styles.intro}>
       <div className={styles.introCopy}>
         <h1>Ваша турбота.<br /><span>Ближче до своїх.</span></h1>
-        <p>Допоможіть власникам тварин знайти ваш заклад у Києві та області. Послуги, адреса й прямий контакт — у безкоштовному профілі VetNear.</p>
+        <p>Власники тварин у Києві та області шукають не просто адресу, а місце, якому можна довіряти. Безкоштовний профіль показує ваші послуги, адресу й прямий контакт — і проходить перевірку перед публікацією.</p>
         <div className={styles.actions}><a href="#find-your-place" className="btn btn-brand">Знайти свій заклад</a><Link href="/add-place" className="btn btn-ghost">Додати новий</Link></div>
         <p className={styles.heroNote}>Базове розміщення без оплати · Публікація після перевірки</p>
       </div>
@@ -51,21 +51,37 @@ export default async function ForPartnersPage() {
       </aside>
     </section>
     <PartnerPlaceFinder places={publicPlaces.map(({ id, slug, name, address, phone, locality, category }) => ({ id, slug, name, address, phone, locality, category }))} />
-    <section className={styles.section} id="pricing">
-      <div className={styles.sectionHeading}><h2>Почнімо з того,<br />що потрібно людям.</h2><p>Точна картка допомагає зрозуміти ваші послуги до першого дзвінка. Базова інформація залишається безкоштовною.</p></div>
-      <div className={styles.plans}>
+    {/* One decisive offer: the free profile is the product; the pilot is a quiet side door in the same card. */}
+    <section className={styles.section} id="pricing" aria-labelledby="partners-offer-title">
+      <h2 id="partners-offer-title">Почнімо з того,<br />що потрібно людям.</h2>
       <div className={styles.offer}>
-        <div><p className={styles.eyebrow}>Основа для кожного закладу</p><h3>Ваш профіль</h3><p className={styles.price}>Безкоштовно</p><p className={styles.note}>Для клінік, аптек, грумерів, перетримок і притулків.</p></div>
-        <ul><li>Адреса, офіційний контакт і графік</li><li>Послуги, види тварин та умови прийому</li><li>Уточнення даних через модерацію</li><li>Прямий перехід до вашого каналу зв’язку</li></ul>
-        <Link href="/add-place" className="btn btn-brand">Підготувати профіль</Link>
+        <div className={styles.offerMain}>
+          <p className={styles.eyebrow}>Ваш профіль</p>
+          <p className={styles.price}>Безкоштовно</p>
+          <p className={styles.note}>Для клінік, аптек, грумерів, перетримок і притулків.</p>
+          <ul><li>Адреса, офіційний контакт і графік</li><li>Послуги, види тварин та умови прийому</li><li>Уточнення даних через модерацію</li><li>Прямий перехід до вашого каналу зв’язку</li></ul>
+          <Link href="/add-place" className="btn btn-brand">Підготувати профіль</Link>
+        </div>
+        <div className={styles.pilot}>
+          <p className={styles.eyebrow}>Пілот для перших партнерів</p>
+          <p>Обговоримо, як вам зручніше оновлювати інформацію, показувати послуги й оцінювати звернення. Окремо можемо запропонувати допомогу з оформленням профілю або даними кількох філій.</p>
+          <Link href="/partner-interest?founding=1" className="btn btn-ghost">Обговорити пілот</Link>
+        </div>
       </div>
-      <div className={styles.pilot}><div><p className={styles.eyebrow}>Разом із командою VetNear</p><h3>Пілот для перших партнерів</h3><p>Обговоримо, як вам зручніше оновлювати інформацію, показувати послуги й оцінювати звернення. Окремо можна запропонувати допомогу з оформленням профілю або даними кількох філій.</p></div><div className={styles.pilotFoot}><p className={styles.terms}>Платні послуги, ціни й умови погоджуються окремо. Онлайн-оплата та підписки поки не підключені; заявка не створює зобов’язання купувати.</p><Link href="/partner-interest?founding=1" className="btn btn-ghost">Обговорити пілот</Link></div></div>
-      </div>
+      <p className={styles.terms}>Платні послуги, ціни й умови погоджуються окремо. Онлайн-оплата та підписки поки не підключені; заявка не створює зобов’язання купувати.</p>
     </section>
-    <section className={`${styles.section} ${styles.process}`}>
-      <h2>Зрозумілий шлях до профілю</h2>
-      <ol className={styles.steps}><li><h3>Знайдіть або додайте заклад</h3><p>Почніть із назви, адреси й контакту. Деталі можна підготувати окремо.</p></li><li><h3>Підтвердьте представника</h3><p>Команда звіряє заявку з офіційним каналом закладу. Самої позначки у формі недостатньо.</p></li><li><h3>Уточнюйте інформацію</h3><p>Передавайте зміни графіка, послуг і умов. Публічні оновлення проходять модерацію.</p></li></ol>
-      <div className={styles.principles}><div><span className={styles.principleIcon} aria-hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 5 6v5c0 4.4 3 8.3 7 9.5 4-1.2 7-5.1 7-9.5V6l-7-3Z" /><path d="m9 12 2 2 4-4" /></svg></span><h3>Довіра не продається</h3><p>Оплата не підтверджує медичну кваліфікацію, прийом зараз або роботу 24/7. Термінова видача не залежить від рекламного плану.</p></div><div><span className={styles.principleIcon} aria-hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5h16v11H8l-4 4V5Z" /><path d="M8 9h8M8 12h5" /></svg></span><h3>Звернення називаємо точно</h3><p>Клік телефону — це контактна дія, а не завершений дзвінок чи новий клієнт. Обсяг звернень не гарантується.</p></div></div>
+    {/* Three steps you can scan in seconds; the two trust rules close the page as a quiet footnote. */}
+    <section className={`${styles.section} ${styles.process}`} aria-labelledby="partners-steps-title">
+      <h2 id="partners-steps-title">Три кроки до профілю</h2>
+      <ol className={styles.steps}>
+        <li><h3>Знайдіть або додайте заклад</h3><p>Назва, адреса й контакт. Деталі — пізніше.</p></li>
+        <li><h3>Підтвердьте представника</h3><p>Звіряємо з офіційним каналом закладу.</p></li>
+        <li><h3>Оновлюйте інформацію</h3><p>Зміни графіка й послуг проходять модерацію.</p></li>
+      </ol>
+      <div className={styles.principles}>
+        <p><span className={styles.principleIcon} aria-hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 5 6v5c0 4.4 3 8.3 7 9.5 4-1.2 7-5.1 7-9.5V6l-7-3Z" /><path d="m9 12 2 2 4-4" /></svg></span><span><strong>Довіра не продається.</strong> Оплата не підтверджує кваліфікацію, прийом зараз чи роботу 24/7 і не впливає на термінову видачу.</span></p>
+        <p><span className={styles.principleIcon} aria-hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5h16v11H8l-4 4V5Z" /><path d="M8 9h8M8 12h5" /></svg></span><span><strong>Звернення називаємо точно.</strong> Клік телефону — це контактна дія, а не дзвінок чи новий клієнт. Обсяг звернень не гарантується.</span></p>
+      </div>
     </section>
   </div>;
 }
