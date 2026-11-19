@@ -126,37 +126,48 @@ html[data-theme-ready] .card {
   transition: background-color 380ms var(--ease-care), color 380ms var(--ease-care), border-color 380ms var(--ease-care);
 }
 
-/* --- Icon material (category icons, v1.39) --------------------------------
-   One matte volume lit from the upper left by a warm source; outline in the
-   context colour (currentColor); a single accent; a rim light on the top edge;
-   a soft contact shadow. Gradients: <IconMaterialDefs /> in the root layout. */
+/* --- Objects in the room (category icons, v1.40) ----------------------------
+   Sage ceramic bodies, cream/brass details, one terracotta object for
+   emergencies; lit by the hero's lamp from the upper left; no outlines.
+   Gradients: <IconMaterialDefs /> in the root layout. */
 :root {
-  --svc-hi: #fffdf6;
-  --svc-lo: #d2dcc4;
-  --svc-accent-hi: #4d8d6f;
-  --svc-accent: #2a6650;
-  --svc-urgent-hi: #e27a6c;
-  --svc-urgent: #b4463a;
-  --svc-rim: rgb(255 255 255 / 0.92);
-  --svc-shadow: rgb(74 48 22 / 0.34);
+  --obj-hi: #cdd5b4;
+  --obj-mid: #86a084;
+  --obj-lo: #4a6651;
+  --obj-line: #3d5544;
+  --obj-detail-hi: #fbefd6;
+  --obj-detail-lo: #e2c48f;
+  --obj-urgent-hi: #f0b29a;
+  --obj-urgent-mid: #cf6e58;
+  --obj-urgent-lo: #9a3f32;
+  --obj-rim: rgb(255 240 210 / 0.7);
+  --obj-shadow: rgb(74 48 22 / 0.4);
+  /* The pool of lamplight an object rests in (replaces the raised app tile). */
+  --obj-pool: radial-gradient(circle at 50% 42%, rgb(255 238 208 / 0.95) 0%, rgb(250 236 210 / 0.55) 46%, rgb(250 236 210 / 0) 72%);
 }
 html[data-theme="dark"] {
-  --svc-hi: #403d32;
-  --svc-lo: #25241d;
-  --svc-accent-hi: #c2e0c8;
-  --svc-accent: #88b998;
-  --svc-urgent-hi: #ffa08e;
-  --svc-urgent: #df6a5c;
-  --svc-rim: rgb(255 226 186 / 0.24);
-  --svc-shadow: rgb(0 0 0 / 0.6);
+  --obj-hi: #d9d3a6;
+  --obj-mid: #879f80;
+  --obj-lo: #3e5644;
+  --obj-line: #a9b79a;
+  --obj-detail-hi: #fbe5bc;
+  --obj-detail-lo: #d9b06f;
+  --obj-urgent-hi: #f6b9a0;
+  --obj-urgent-mid: #d4705a;
+  --obj-urgent-lo: #8f3a2e;
+  --obj-rim: rgb(255 222 170 / 0.6);
+  --obj-shadow: rgb(0 0 0 / 0.65);
+  --obj-pool: radial-gradient(circle at 50% 42%, rgb(240 178 104 / 0.2) 0%, rgb(240 178 104 / 0.08) 48%, rgb(240 178 104 / 0) 72%);
 }
 .svc-icon { overflow: visible; }
-.svc-icon__contact { fill: url(#vn-svc-contact) none; }
-.svc-icon__body { fill: url(#vn-svc-body) var(--svc-lo); stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
-.svc-icon__line { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-.svc-icon__accent { fill: url(#vn-svc-accent) var(--svc-accent); }
-.svc-icon--urgent .svc-icon__accent { fill: url(#vn-svc-urgent) var(--svc-urgent); }
-.svc-icon__rim { fill: none; stroke: var(--svc-rim); stroke-width: 1.1; stroke-linecap: round; }
+.svc-icon__contact { fill: url(#vn-obj-contact) none; }
+.svc-icon__body { fill: url(#vn-obj-body) var(--obj-mid); }
+.svc-icon--urgent .svc-icon__body { fill: url(#vn-obj-urgent) var(--obj-urgent-mid); }
+.svc-icon__line { fill: none; stroke: var(--obj-line); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.svc-icon__detail { fill: url(#vn-obj-detail) var(--obj-detail-lo); }
+.svc-icon__rim { fill: none; stroke: var(--obj-rim); stroke-width: 1.1; stroke-linecap: round; }
+/* Scissor blades are brass, not leather. */
+.svc-icon__line--metal { stroke: var(--obj-detail-lo); stroke-width: 2.2; }
 
 /* --- Warmth in small things (both themes) ---------------------------------- */
 ::selection { background: rgb(232 176 108 / 0.3); color: inherit; }
@@ -233,8 +244,8 @@ html[data-theme="dark"] .btn-brand { background: #34765a; background-image: line
 html[data-theme="dark"] .btn-emergency { background: #c2412f; }
 html[data-theme="dark"] .btn-ghost { background: #201e18; border-color: #3d382e; color: #efe8da; }
 html[data-theme="dark"] .card,
-html[data-theme="dark"] .place-card { background: var(--care-surface); border-color: #36322a; }
-html[data-theme="dark"] .place-card__icon.icon3d,
+html[data-theme="dark"] .place-card { background: radial-gradient(ellipse 55% 70% at 0% 0%, rgb(240 170 96 / 0.08), transparent 62%), var(--care-surface); border-color: #36322a; }
+html[data-theme="dark"] .place-card__icon.icon3d { background: var(--obj-pool); border: 0; box-shadow: none; color: #bcdcc2; }
 html[data-theme="dark"] .icon3d { background: linear-gradient(155deg, #2a2b22, #1f1e18 70%); border-color: rgb(232 196 150 / 0.08); color: #bcdcc2; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05); }
 /* Clay icon tiles are ivory images; dim them slightly so they sit in the night palette. */
 html[data-theme="dark"] .icon-raster { filter: brightness(0.86) saturate(0.95); }

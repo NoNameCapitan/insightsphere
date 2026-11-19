@@ -84,7 +84,7 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ i
 
       <header className={styles.header}>
         <div className={styles.titleRow}>
-          <span aria-hidden className={styles.categoryIcon}><ServiceIcon category={place.category} className="h-7 w-7" /></span>
+          <span aria-hidden className={styles.categoryIcon}><ServiceIcon category={place.category} className="h-9 w-9" /></span>
           <p>{CATEGORY_LABELS[place.category]} · {placeLocationLabel(place)}</p>
         </div>
         <h1 className={styles.title}>{place.name}</h1>

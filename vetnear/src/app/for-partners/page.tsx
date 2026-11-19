@@ -51,28 +51,24 @@ export default async function ForPartnersPage() {
       </aside>
     </section>
     <PartnerPlaceFinder places={publicPlaces.map(({ id, slug, name, address, phone, locality, category }) => ({ id, slug, name, address, phone, locality, category }))} />
-    {/* One decisive offer: the free profile is the product; the pilot is a quiet side door in the same card. */}
+    {/* An invitation, not a price list: what VetNear is, what your place gets, one next step. */}
     <section className={styles.section} id="pricing" aria-labelledby="partners-offer-title">
-      <h2 id="partners-offer-title">Почнімо з того,<br />що потрібно людям.</h2>
-      <div className={styles.offer}>
-        <div className={styles.offerMain}>
-          <p className={styles.eyebrow}>Ваш профіль</p>
-          <p className={styles.price}>Безкоштовно</p>
-          <p className={styles.note}>Для клінік, аптек, грумерів, перетримок і притулків.</p>
-          <ul><li>Адреса, офіційний контакт і графік</li><li>Послуги, види тварин та умови прийому</li><li>Уточнення даних через модерацію</li><li>Прямий перехід до вашого каналу зв’язку</li></ul>
-          <Link href="/add-place" className="btn btn-brand">Підготувати профіль</Link>
-        </div>
-        <div className={styles.pilot}>
-          <p className={styles.eyebrow}>Пілот для перших партнерів</p>
-          <p>Обговоримо, як вам зручніше оновлювати інформацію, показувати послуги й оцінювати звернення. Окремо можемо запропонувати допомогу з оформленням профілю або даними кількох філій.</p>
-          <Link href="/partner-interest?founding=1" className="btn btn-ghost">Обговорити пілот</Link>
+      <div className={styles.invite}>
+        <h2 id="partners-offer-title">Ми збираємо мапу турботи Києва — разом із тими, хто її робить.</h2>
+        <div className={styles.inviteBody}>
+          <p>Коли тварині зле або просто час на огляд, людина відкриває VetNear, щоб зрозуміти, куди звернутися. Ваш заклад там — з адресою, графіком, послугами, видами тварин і прямим контактом.</p>
+          <p className={styles.inviteFree}><strong>Безкоштовно.</strong> Після перевірки, з уточненнями через модерацію.</p>
+          <div className={styles.inviteActions}>
+            <Link href="/add-place" className="btn btn-brand">Підготувати профіль</Link>
+            <Link href="/partner-interest?founding=1" className={styles.pilotLink}>Пілот для перших партнерів <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M5 19 19 5M5 5h14v14" /></svg></Link>
+          </div>
+          <p className={styles.terms}>Пілот — розмова про зручне оновлення даних, показ послуг і облік звернень. Платні послуги, ціни й умови погоджуються окремо. Онлайн-оплата та підписки поки не підключені; заявка не створює зобов’язання купувати.</p>
         </div>
       </div>
-      <p className={styles.terms}>Платні послуги, ціни й умови погоджуються окремо. Онлайн-оплата та підписки поки не підключені; заявка не створює зобов’язання купувати.</p>
     </section>
     {/* Three steps you can scan in seconds; the two trust rules close the page as a quiet footnote. */}
     <section className={`${styles.section} ${styles.process}`} aria-labelledby="partners-steps-title">
-      <h2 id="partners-steps-title">Три кроки до профілю</h2>
+      <h2 id="partners-steps-title">Як ви з’являєтеся у VetNear</h2>
       <ol className={styles.steps}>
         <li><h3>Знайдіть або додайте заклад</h3><p>Назва, адреса й контакт. Деталі — пізніше.</p></li>
         <li><h3>Підтвердьте представника</h3><p>Звіряємо з офіційним каналом закладу.</p></li>

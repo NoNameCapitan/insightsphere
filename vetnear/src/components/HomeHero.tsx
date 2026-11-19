@@ -72,7 +72,8 @@ export function HomeHero() {
           </div>
         </div>
       </div>
-      <nav className={styles.services} aria-label="Послуги для тварин">
+      <p className={styles.servicesCaption} aria-hidden>Планова турбота</p>
+      <nav className={styles.services} aria-label="Планова турбота: послуги для тварин">
         {SERVICES.map((service) => <Link key={service.category} href={`/nearby?category=${service.category}`}><span className={styles.serviceIcon} aria-hidden><ServiceIcon category={service.category} /></span><span><strong>{service.label}</strong><small>{service.description}</small></span><span className={styles.serviceArrow}><Arrow diagonal /></span></Link>)}
       </nav>
       <nav className={styles.returnLinks} aria-label="Швидкий доступ">

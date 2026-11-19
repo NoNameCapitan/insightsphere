@@ -3,7 +3,8 @@
 .header::after { position:absolute; inset:0; z-index:-1; content:""; border-radius:inherit; box-shadow:inset 0 1px 0 rgb(255 255 255 / .15); pointer-events:none; }
 .titleRow { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
 .titleRow p { color:#c8d9d0; font-size:13px; line-height:1.5; }
-.categoryIcon { display:grid; place-items:center; height:38px; width:38px; border-radius:12px; color:#285d4c; background:#fff9e9; flex-shrink:0; }
+/* On the dark header the object sits in a pool of lamplight, like the hero. */
+.categoryIcon { --dark-keep:1; display:grid; place-items:center; height:44px; width:44px; border-radius:50%; background:radial-gradient(circle at 50% 42%,rgb(255 214 160 / .3) 0%,rgb(255 214 160 / .1) 48%,rgb(255 214 160 / 0) 72%); flex-shrink:0; }
 .title { font-size:clamp(1.7rem,4.8vw,2.7rem); line-height:1.12; letter-spacing:-.035em; font-weight:680; text-wrap:balance; }
 .address { color:#dce5db; font-size:15px; line-height:1.6; margin-top:12px; }
 .statusRow { display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; margin-top:16px; }
@@ -21,7 +22,6 @@
 
 /* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
 :global(:where(html[data-theme="dark"])) .header { background: radial-gradient(ellipse at 100% 0%,rgb(201 166 110 / .2),transparent 62%),linear-gradient(120deg,#13291d,#1c3223); }
-:global(:where(html[data-theme="dark"])) .categoryIcon { color: #c9dcd6; background: #23211a; }
 :global(:where(html[data-theme="dark"])) .statusRow > span:not([data-status]) { background: #f1eadd14; border-color: #36332b33; }
 :global(:where(html[data-theme="dark"])) .provenance { border-block: 1px solid #3a4139; }
 :global(:where(html[data-theme="dark"])) .provenance summary { color: #cae3de; }

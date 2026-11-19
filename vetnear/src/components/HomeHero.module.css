@@ -58,7 +58,9 @@
 .searchNotes { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:8px 2px 0; font-size:12px; line-height:1.6; color:#e4e9dc; }
 .searchNotes a { font-weight:650; color:#f5d6bc; min-height:44px; display:inline-flex; align-items:center; gap:8px; }
 .urgentMark { display:grid; place-items:center; width:24px; height:24px; border-radius:50%; background:#e6b39018; font-size:20px; font-weight:500; }
-.services { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); margin:16px 0 8px; gap:8px; }
+/* Two words name the calm path; the urgent door lives in the hero above. */
+.servicesCaption { margin:22px 10px 0; font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:#85571c; }
+.services { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); margin:8px 0 8px; gap:8px; }
 .services a { display:flex; align-items:center; gap:12px; position:relative; min-width:0; min-height:44px; padding:18px 12px 18px 10px; border-radius:14px; }
 .serviceIcon { width:38px; height:38px; display:block; flex-shrink:0; color:#2c5e4d; }.serviceIcon svg { width:100%; height:100%; }
 .services strong { display:block; font-size:13px; font-weight:700; }.services small { display:block; margin-top:4px; font-size:11px; line-height:1.5; color:#5d6f64; }/* The arrow waits off to the side and slides in when a tile is hovered or focused. */
@@ -103,7 +105,8 @@
  .searchButton { min-height:54px; padding:14px 16px; font-size:15px; }
  .searchNotes { display:flex; align-items:flex-start; flex-direction:column; gap:0; font-size:11px; margin:10px 4px 0; }.searchNotes a { font-size:12px; min-height:44px; }
  /* Services: a row of tactile cards that scrolls sideways; the third card peeks to show there is more. */
- .services { display:flex; gap:10px; margin:14px -14px 6px; padding:2px 14px 10px; overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory; scroll-padding-inline:14px; -webkit-overflow-scrolling:touch; scrollbar-width:none; perspective:none; }
+ .servicesCaption { margin:18px 4px 0; }
+ .services { display:flex; gap:10px; margin:8px -14px 6px; padding:2px 14px 10px; overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory; scroll-padding-inline:14px; -webkit-overflow-scrolling:touch; scrollbar-width:none; perspective:none; }
  .services::-webkit-scrollbar { display:none; }
  .services a { flex:0 0 auto; min-width:148px; max-width:168px; flex-direction:column; align-items:flex-start; gap:10px; padding:14px 14px 13px; scroll-snap-align:start; background:#fdf9f1; border:1px solid #e6dfcf; box-shadow:0 1px 0 #fff inset,0 8px 18px -16px rgb(74 48 22 / .5); }
  .services small { display:block; font-size:11px; margin-top:3px; }.services strong { font-size:13px; letter-spacing:-.01em; }.serviceIcon { width:34px; height:34px; }.serviceArrow { display:none; }
@@ -177,6 +180,7 @@
 :global(html[data-theme="dark"]) .search::before { background:radial-gradient(ellipse at 50% 0%,rgb(240 160 80 / .26),transparent 70%); }
 :global(html[data-theme="dark"]) .field:focus-within { background:rgb(255 226 186 / .05); box-shadow:inset 0 1px 2px rgb(0 0 0 / .3); }
 :global(html[data-theme="dark"]) .serviceArrow { color:#e8b77c; }
+:global(html[data-theme="dark"]) .servicesCaption { color:#e0b678; }
 :global(html[data-theme="dark"]) .serviceIcon { color:#b0d6b8; }
 :global(html[data-theme="dark"]) .services strong { color:#f3ecdf; }
 :global(html[data-theme="dark"]) .services small { color:#b8ad99; }
@@ -201,6 +205,7 @@
 :global(:where(html[data-theme="dark"])) .field label { color: #c0c8c4; }
 :global(:where(html[data-theme="dark"])) .field select { color: #dae8e4; }
 :global(:where(html[data-theme="dark"])) .searchButton { background: linear-gradient(180deg,#284f34 0%,#1c3726 100%); }
+:global(:where(html[data-theme="dark"])) .servicesCaption { color: #dbcdbb; }
 :global(:where(html[data-theme="dark"])) .serviceIcon { color: #c8dad4; }
 :global(:where(html[data-theme="dark"])) .services small { color: #bcc2bf; }
 :global(:where(html[data-theme="dark"])) .serviceArrow { color: #cec3b3; }

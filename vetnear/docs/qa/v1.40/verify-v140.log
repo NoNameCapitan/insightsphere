@@ -1,0 +1,182 @@
+
+> vetnear@1.40.0 verify
+> npm run theme:check && npm run lint && npx tsc --noEmit && npm run test && npm run build
+
+
+> vetnear@1.40.0 theme:check
+> node scripts/gen-dark-theme.mjs --check
+
+Dark theme overrides are up to date.
+
+> vetnear@1.40.0 lint
+> eslint .
+
+
+> vetnear@1.40.0 test
+> vitest run
+
+
+ RUN  v2.1.9 /home/user/insightsphere/vetnear
+
+ ✓ src/lib/__tests__/nearestShelter.test.ts (35 tests) 34ms
+ ✓ src/lib/__tests__/leads.test.ts (24 tests) 37ms
+ ✓ src/lib/__tests__/coverage.test.ts (19 tests) 24ms
+ ✓ src/lib/__tests__/distance.test.ts (27 tests) 31ms
+ ✓ src/lib/__tests__/serverRateLimit.test.ts (12 tests) 18ms
+ ✓ src/lib/__tests__/publishing.test.ts (16 tests) 9ms
+ ✓ src/lib/__tests__/emergencyVerification.test.ts (16 tests) 26ms
+ ✓ src/lib/__tests__/catalogExpansion.test.ts (6 tests) 29ms
+ ✓ src/lib/__tests__/serviceWorker.test.ts (12 tests) 159ms
+ ✓ src/lib/__tests__/petCalendar.test.ts (10 tests) 20ms
+ ✓ src/lib/__tests__/vertical.test.ts (19 tests) 15ms
+ ✓ src/lib/__tests__/submissionValidation.test.ts (15 tests) 7ms
+ ✓ src/lib/__tests__/shelterSource.test.ts (19 tests) 28ms
+ ✓ src/lib/__tests__/ranking.test.ts (10 tests) 20ms
+ ✓ src/lib/__tests__/kyivUpdates.test.ts (10 tests) 30ms
+ ✓ src/lib/__tests__/dataset.test.ts (11 tests) 25ms
+ ✓ src/lib/__tests__/launchMeasurementApi.test.ts (7 tests) 23ms
+ ✓ src/lib/__tests__/partnerMonetization.test.ts (23 tests) 11ms
+ ✓ src/lib/__tests__/hardening.test.ts (11 tests) 16ms
+ ✓ src/lib/__tests__/triage.test.ts (18 tests) 6ms
+ ✓ src/lib/__tests__/partnerInterestApi.test.ts (6 tests) 14ms
+ ✓ src/lib/__tests__/safety.test.ts (5 tests) 5ms
+ ✓ src/lib/__tests__/launchMeasurement.test.ts (5 tests) 5ms
+ ✓ src/lib/__tests__/phoneFreshness.test.ts (4 tests) 6ms
+ ✓ src/lib/__tests__/assistant.test.ts (19 tests) 6ms
+ ✓ src/lib/__tests__/kyivDistricts.test.ts (4 tests) 12ms
+ ✓ src/lib/__tests__/darkThemeGeneratorV135.test.ts (7 tests) 49ms
+ ✓ src/lib/__tests__/publicPlaceLookup.test.ts (4 tests) 8ms
+ ✓ src/lib/__tests__/safetyCache.test.ts (5 tests) 15ms
+stderr | src/lib/__tests__/leadReceiptApi.test.ts > contact events are not phantom receipts > accepts the known uniqueness duplicate but refuses other storage errors
+[api/events/lead] insert failed: not a uniqueness conflict
+
+ ✓ src/lib/__tests__/leadReceiptApi.test.ts (4 tests) 12ms
+ ✓ src/lib/__tests__/petCare.test.ts (5 tests) 20ms
+ ✓ src/lib/__tests__/partnerDiscovery.test.ts (5 tests) 6ms
+ ✓ src/lib/__tests__/generatedVisuals.test.ts (4 tests) 5ms
+ ✓ src/lib/__tests__/serviceIconsV139.test.ts (15 tests) 14ms
+ ✓ src/lib/__tests__/submissionRegionApi.test.ts (2 tests) 9ms
+ ✓ src/lib/__tests__/eventFeed.test.ts (3 tests) 31ms
+ ✓ src/lib/__tests__/url.test.ts (20 tests) 8ms
+ ✓ src/lib/__tests__/discoveryStateV133.test.ts (2 tests) 4ms
+ ✓ src/lib/__tests__/urgentNavigationV133.test.ts (1 test) 3ms
+ ✓ src/lib/__tests__/requestBody.test.ts (4 tests) 7ms
+ ✓ src/lib/__tests__/releaseGate.test.ts (7 tests) 244ms
+ ✓ src/lib/__tests__/placesInSync.test.ts (1 test) 61ms
+ ✓ src/lib/__tests__/themeV135.test.ts (22 tests) 47ms
+ ✓ src/lib/__tests__/geoFallbackDom.test.ts (20 tests) 193ms
+ ✓ src/lib/__tests__/shelterButtonDom.test.ts (17 tests) 201ms
+ ✓ src/lib/__tests__/petPersistence.test.ts (11 tests) 20ms
+ ✓ src/lib/__tests__/savedPlacesDomV134.test.ts (6 tests) 86ms
+ ✓ src/lib/__tests__/petCollectionGuard.test.ts (16 tests) 152ms
+ ✓ src/lib/__tests__/delivery.test.ts (7 tests) 65ms
+ ✓ src/lib/__tests__/districtMapDom.test.ts (5 tests) 250ms
+ ✓ src/lib/__tests__/eventsHubDom.test.ts (4 tests) 468ms
+ ✓ src/lib/__tests__/petCarePresentationDom.test.ts (4 tests) 152ms
+ ✓ src/lib/__tests__/favoritePlacesV134.test.ts (5 tests) 10ms
+ ✓ src/lib/__tests__/nearbyRecoveryV133.test.ts (2 tests) 132ms
+ ✓ src/lib/__tests__/petProfileQuickCreateDom.test.ts (3 tests) 142ms
+ ✓ src/lib/__tests__/mapAvailabilityDom.test.ts (2 tests) 55ms
+ ✓ src/lib/__tests__/petRecordFormDom.test.ts (6 tests) 233ms
+ ✓ src/lib/__tests__/placeContactV133.test.ts (2 tests) 53ms
+ ✓ src/lib/__tests__/launchMeasurementClient.test.ts (6 tests) 14ms
+ ✓ src/lib/__tests__/partnerAddPlaceDom.test.ts (1 test) 62ms
+ ✓ src/lib/__tests__/eventPreferences.test.ts (3 tests) 6ms
+ ✓ src/lib/__tests__/petMedicalStore.test.ts (2 tests) 6ms
+
+ Test Files  62 passed (62)
+      Tests  596 passed (596)
+   Start at  17:47:47
+   Duration  9.88s (transform 2.37s, setup 0ms, collect 5.52s, tests 3.46s, environment 7.52s, prepare 3.53s)
+
+
+> vetnear@1.40.0 build
+> next build
+
+▲ Next.js 16.4.6 (Turbopack)
+⚠ React 18 support is deprecated in Next.js 16 and will be removed in Next.js 17. Please upgrade to React 19. Learn more: https://nextjs.org/docs/messages/react-version
+✓ Running next.config.mjs took 33ms
+- Experiments (use with caution):
+  · cpus: 1
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 1846ms
+  Running TypeScript ...
+  Finished TypeScript in 1985ms ...
+  Collecting page data using 1 worker ...
+  Generating static pages using 1 worker (0/26) ...
+  Generating static pages using 1 worker (6/26) 
+  Generating static pages using 1 worker (12/26) 
+  Generating static pages using 1 worker (19/26) 
+✓ Generating static pages using 1 worker (26/26) in 804ms
+  Finalizing page optimization ...
+
+Route (app)                         Revalidate  Expire
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /add-place
+├ ƒ /admin
+├ ƒ /admin/analytics
+├ ƒ /admin/imports
+├ ƒ /admin/imports/google-places
+├ ƒ /admin/leads
+├ ƒ /admin/moderation
+├ ƒ /admin/partner-interest
+├ ƒ /api/admin/analytics
+├ ƒ /api/admin/partner-interest
+├ ƒ /api/admin/places/tier
+├ ƒ /api/admin/reports
+├ ƒ /api/admin/submissions
+├ ƒ /api/assistant
+├ ƒ /api/events/analytics
+├ ƒ /api/events/lead
+├ ƒ /api/partner-interest
+├ ƒ /api/partner/leads
+├ ○ /api/places/published                   1m      1y
+├ ƒ /api/reports
+├ ƒ /api/safety/alert
+├ ƒ /api/safety/shelters
+├ ƒ /api/submissions
+├ ƒ /api/triage
+├ ƒ /assistant
+├ ƒ /city/kyiv/district/[district]
+├ ○ /city/kyiv/grooming
+├ ○ /city/kyiv/pet-services
+├ ○ /city/kyiv/pet-stores
+├ ○ /city/kyiv/shelters
+├ ○ /city/kyiv/vet-clinics
+├ ○ /city/kyiv/vet-pharmacies
+├ ○ /emergency-vet-near-me
+├ ○ /for-partners
+├ ○ /grooming-near-me
+├ ƒ /help
+├ ○ /icon.svg
+├ ƒ /kyiv-updates
+├ ƒ /lost-found
+├ ○ /manifest.webmanifest
+├ ƒ /my-pets
+├ ƒ /my-pets/[id]
+├ ƒ /my-pets/[id]/records/new
+├ ƒ /my-pets/new
+├ ƒ /nearby
+├ ƒ /partner-interest
+├ ƒ /partner/dashboard
+├ ○ /pet-map-kyiv
+├ ƒ /pet-scan
+├ ○ /pet-services-near-me
+├ ○ /pet-store-near-me
+├ ƒ /place/[id]
+├ ○ /privacy
+├ ƒ /products-nearby
+├ ○ /questionnaire
+├ ○ /robots.txt
+├ ○ /saved
+├ ○ /sitemap.xml
+├ ○ /terms
+├ ○ /vet-clinic-near-me
+└ ○ /vet-pharmacy-near-me
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

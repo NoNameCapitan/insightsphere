@@ -8,14 +8,15 @@ import type { PlaceCategory } from "@/lib/types";
 const categories = Object.keys(CATEGORY_LABELS) as PlaceCategory[];
 const render = (category: PlaceCategory) => renderToStaticMarkup(createElement(ServiceIcon, { category, className: "h-8 w-8" }));
 
-describe("category icons (one material, v1.39)", () => {
+describe("category icons — objects from the warm room (v1.40)", () => {
   it.each(categories)("%s is decorative and built from the shared material layers", (category) => {
     const svg = render(category);
     expect(svg).toContain('aria-hidden="true"');
     expect(svg).toContain('focusable="false"');
     expect(svg).toContain("svc-icon__body");
-    expect(svg).toContain("svc-icon__accent");
     expect(svg).toContain("svc-icon__contact");
+    // Objects, not UI symbols: no outline stroke on the body.
+    expect(svg).not.toMatch(/svc-icon__body"[^>]*stroke/);
     expect(svg).toContain("h-8 w-8");
     // Colours come from tokens only: no hard-coded fills or strokes inside the icon.
     expect(svg).not.toMatch(/(fill|stroke)="#/);
@@ -34,8 +35,8 @@ describe("category icons (one material, v1.39)", () => {
 
   it("defines the shared gradients once, hidden from assistive tech", () => {
     const defs = renderToStaticMarkup(createElement(IconMaterialDefs));
-    for (const id of ["vn-svc-body", "vn-svc-accent", "vn-svc-urgent", "vn-svc-contact"]) expect(defs).toContain(`id="${id}"`);
+    for (const id of ["vn-obj-body", "vn-obj-detail", "vn-obj-urgent", "vn-obj-contact"]) expect(defs).toContain(`id="${id}"`);
     expect(defs).toContain('aria-hidden="true"');
-    expect(defs).toContain("var(--svc-hi)");
+    expect(defs).toContain("var(--obj-hi)");
   });
 });
