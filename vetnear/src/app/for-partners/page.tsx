@@ -23,8 +23,8 @@ export default async function ForPartnersPage() {
       <div className={styles.introCopy}>
         <h1>Ваша турбота.<br /><span>Ближче до своїх.</span></h1>
         <p>Власники тварин у Києві та області шукають не просто адресу, а місце, якому можна довіряти. Безкоштовний профіль показує ваші послуги, адресу й прямий контакт — і проходить перевірку перед публікацією.</p>
-        <div className={styles.actions}><a href="#find-your-place" className="btn btn-brand">Знайти свій заклад</a><Link href="/add-place" className="btn btn-ghost">Додати новий</Link></div>
-        <p className={styles.heroNote}>Базове розміщення без оплати · Публікація після перевірки</p>
+        <div className={styles.actions}><a href="#find-your-place" className="btn btn-brand">Знайти свій заклад</a><Link href="/add-place" className="btn btn-ghost">Додати новий заклад</Link></div>
+        <p className={styles.heroNote}>Місце на мапі — без оплати · Публікація після перевірки</p>
       </div>
       {/* "How clients see you": the real catalogue card, framed the way an owner sees it on a phone.
           Everything shown comes from the example place; the call/route buttons are an illustration. */}
@@ -51,29 +51,26 @@ export default async function ForPartnersPage() {
       </aside>
     </section>
     <PartnerPlaceFinder places={publicPlaces.map(({ id, slug, name, address, phone, locality, category }) => ({ id, slug, name, address, phone, locality, category }))} />
-    {/* An invitation, not a price list: what VetNear is, what your place gets, one next step. */}
+    {/* One invitation: the shared map, what being on it means, how you appear, one step.
+        The pilot is a side door; the trust rules close the page. */}
     <section className={styles.section} id="pricing" aria-labelledby="partners-offer-title">
       <div className={styles.invite}>
         <h2 id="partners-offer-title">Ми збираємо мапу турботи Києва — разом із тими, хто її робить.</h2>
         <div className={styles.inviteBody}>
-          <p>Коли тварині зле або просто час на огляд, людина відкриває VetNear, щоб зрозуміти, куди звернутися. Ваш заклад там — з адресою, графіком, послугами, видами тварин і прямим контактом.</p>
-          <p className={styles.inviteFree}><strong>Безкоштовно.</strong> Після перевірки, з уточненнями через модерацію.</p>
+          <p>Коли тварині зле або просто час на огляд, людина відкриває VetNear, щоб зрозуміти, куди звернутися. Ваш заклад на цій мапі — з адресою, графіком, послугами, видами тварин і прямим контактом.</p>
+          <p className={styles.inviteFree}><strong>Місце на мапі не купується.</strong> Перед публікацією ми звіряємо заявку з офіційним каналом закладу, а зміни даних проходять модерацію.</p>
           <div className={styles.inviteActions}>
-            <Link href="/add-place" className="btn btn-brand">Підготувати профіль</Link>
-            <Link href="/partner-interest?founding=1" className={styles.pilotLink}>Пілот для перших партнерів <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M5 19 19 5M5 5h14v14" /></svg></Link>
+            <Link href="/add-place" className="btn btn-brand">Додати заклад на мапу</Link>
           </div>
-          <p className={styles.terms}>Пілот — розмова про зручне оновлення даних, показ послуг і облік звернень. Платні послуги, ціни й умови погоджуються окремо. Онлайн-оплата та підписки поки не підключені; заявка не створює зобов’язання купувати.</p>
         </div>
       </div>
-    </section>
-    {/* Three steps you can scan in seconds; the two trust rules close the page as a quiet footnote. */}
-    <section className={`${styles.section} ${styles.process}`} aria-labelledby="partners-steps-title">
-      <h2 id="partners-steps-title">Як ви з’являєтеся у VetNear</h2>
-      <ol className={styles.steps}>
+      <ol className={styles.steps} aria-label="Як ви з’являєтеся у VetNear">
         <li><h3>Знайдіть або додайте заклад</h3><p>Назва, адреса й контакт. Деталі — пізніше.</p></li>
         <li><h3>Підтвердьте представника</h3><p>Звіряємо з офіційним каналом закладу.</p></li>
         <li><h3>Оновлюйте інформацію</h3><p>Зміни графіка й послуг проходять модерацію.</p></li>
       </ol>
+      <p className={styles.sideDoor}>Хочете будувати це з нами від початку? <Link href="/partner-interest?founding=1" className={styles.pilotLink}>Пілот для перших партнерів <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M5 19 19 5M5 5h14v14" /></svg></Link></p>
+      <p className={styles.terms}>Пілот — розмова про зручне оновлення даних, показ послуг і облік звернень. Платні послуги, ціни й умови погоджуються окремо. Онлайн-оплата та підписки поки не підключені; заявка не створює зобов’язання купувати.</p>
       <div className={styles.principles}>
         <p><span className={styles.principleIcon} aria-hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 5 6v5c0 4.4 3 8.3 7 9.5 4-1.2 7-5.1 7-9.5V6l-7-3Z" /><path d="m9 12 2 2 4-4" /></svg></span><span><strong>Довіра не продається.</strong> Оплата не підтверджує кваліфікацію, прийом зараз чи роботу 24/7 і не впливає на термінову видачу.</span></p>
         <p><span className={styles.principleIcon} aria-hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5h16v11H8l-4 4V5Z" /><path d="M8 9h8M8 12h5" /></svg></span><span><strong>Звернення називаємо точно.</strong> Клік телефону — це контактна дія, а не дзвінок чи новий клієнт. Обсяг звернень не гарантується.</span></p>

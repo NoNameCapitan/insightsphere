@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { IconMaterialDefs, ServiceIcon } from "@/components/icons/ServiceIcons";
+import { IconMaterialDefs, PhoneIcon, RoomObject, RouteIcon, ServiceIcon, type RoomObjectName } from "@/components/icons/ServiceIcons";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import type { PlaceCategory } from "@/lib/types";
 
@@ -40,3 +40,27 @@ describe("category icons — objects from the warm room (v1.40)", () => {
     expect(defs).toContain("var(--obj-hi)");
   });
 });
+
+describe("scenario objects and action glyphs (v1.41)", () => {
+  const names: RoomObjectName[] = ["urgent", "lantern", "tag", "shield", "record", "calendar"];
+
+  it.each(names)("%s is an object of the same material", (name) => {
+    const svg = renderToStaticMarkup(createElement(RoomObject, { name }));
+    expect(svg).toContain("svc-icon__body");
+    expect(svg).toContain("svc-icon__contact");
+    expect(svg).toContain('aria-hidden="true"');
+    expect(svg).not.toMatch(/(fill|stroke)="#/);
+    expect(svg.includes("svc-icon--urgent")).toBe(name === "urgent");
+  });
+
+  it("keeps call and route as quiet controls in the text colour, not objects", () => {
+    for (const Icon of [PhoneIcon, RouteIcon]) {
+      const svg = renderToStaticMarkup(createElement(Icon, { className: "h-5 w-5" }));
+      expect(svg).toContain('stroke="currentColor"');
+      expect(svg).not.toContain("svc-icon");
+      expect(svg).not.toContain("Gradient");
+      expect(svg).toContain('aria-hidden="true"');
+    }
+  });
+});
+

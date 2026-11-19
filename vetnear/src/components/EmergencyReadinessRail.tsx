@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef } from "react";
-import { TileIcon } from "@/components/icons/ServiceIcons";
+import { RoomObject } from "@/components/icons/ServiceIcons";
 
 type Scenario = {
   title: string;
@@ -20,7 +20,7 @@ const SCENARIOS: Scenario[] = [
     action: "Знайти допомогу",
     href: "/help",
     tone: "emergency",
-    icon: <TileIcon name="emergency" />,
+    icon: <RoomObject name="urgent" />,
   },
   {
     title: "Повітряна тривога",
@@ -28,7 +28,7 @@ const SCENARIOS: Scenario[] = [
     action: "Відкрити карту",
     href: "/nearby",
     tone: "shelter",
-    icon: <TileIcon name="alert" />,
+    icon: <RoomObject name="lantern" />,
   },
   {
     title: "Знайшли тварину",
@@ -36,7 +36,7 @@ const SCENARIOS: Scenario[] = [
     action: "Що робити",
     href: "/lost-found",
     tone: "found",
-    icon: <TileIcon name="pet" />,
+    icon: <RoomObject name="tag" />,
   },
   {
     title: "Укус або ризик сказу",
@@ -44,7 +44,7 @@ const SCENARIOS: Scenario[] = [
     action: "Переглянути інструкцію",
     href: "/kyiv-updates",
     tone: "health",
-    icon: <TileIcon name="shield" />,
+    icon: <RoomObject name="shield" />,
   },
 ];
 
@@ -59,7 +59,7 @@ export function EmergencyReadinessRail() {
     <section className="mx-auto w-full max-w-5xl px-4 pt-4" aria-labelledby="readiness-title">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold text-brand-700">Готові сценарії</p>
+          <p className="readiness-eyebrow text-xs font-semibold text-brand-700">Якщо щось трапилось</p>
           <h2 id="readiness-title" className="mt-1 font-display text-2xl font-bold text-ink">
             Коли важлива кожна хвилина
           </h2>

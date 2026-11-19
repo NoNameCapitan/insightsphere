@@ -36,7 +36,7 @@ export function HomeHero() {
               <span className={styles.line}><span>Турбота про тих,</span></span>
               <span className={styles.line}><span>хто робить дім <em className={styles.gold}>домом.</em></span></span>
             </h1>
-            <p className={styles.description}>Ветеринари, грумінг і ветаптеки у Києві та області. Знайдіть потрібне місце й зв’яжіться напряму.</p>
+            <p className={styles.description}>Коли тварині зле або просто час на огляд — знайдіть потрібне місце у Києві чи області й зв’яжіться напряму.</p>
             <Link className={styles.coverage} href="/nearby?location=manual"><svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>Київ та Київська область <Arrow diagonal /></Link>
           </div>
           <CinematicCompanions />

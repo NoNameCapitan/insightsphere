@@ -67,7 +67,7 @@
 :where(html[data-theme="dark"]) .hero-urgent__icon { color: #c89c98; }
 :where(html[data-theme="dark"]) .distance-pill { background: #1a5739; }
 :where(html[data-theme="dark"]) .status-pill--open { background: #1c2823; color: #d3e8e6; }
-:where(html[data-theme="dark"]) .status-pill--closed { color: #e1ebea94; }
+:where(html[data-theme="dark"]) .status-pill--closed { color: #e1ebeac2; }
 :where(html[data-theme="dark"]) [role="group"][aria-label="Категорія"] > button[aria-pressed="true"], :where(html[data-theme="dark"]) #nearby-advanced-filters button[aria-pressed="true"] { background: linear-gradient(180deg, #221f18, #29211c); color: #dcc6bd; }
 :where(html[data-theme="dark"]) .vn-pin__body { background: #1e1b15; }
 :where(html[data-theme="dark"]) .service-card.card { border-color: #30443ce6; background-color: #1f1d17; }
@@ -77,7 +77,6 @@
 :where(html[data-theme="dark"]) .owner-home h2 span { color: #c9e2e0; }
 :where(html[data-theme="dark"]) .owner-home>div>p { color: #c1c8c6; }
 :where(html[data-theme="dark"]) .owner-home__link { color: #d3e8e6; }
-:where(html[data-theme="dark"]) .owner-home__details>div>span, :where(html[data-theme="dark"]) .owner-home__details>div>svg { color: #c9e2e0; background: linear-gradient(155deg, #1e1b15, #24211a); }
 :where(html[data-theme="dark"]) .owner-home__details small { color: #c1c8c6; }
 :where(html[data-theme="dark"]) .owner-home .owner-home__local { border-top: 1px solid #4a483b; color: #c1c8c6; }
 :where(html[data-theme="dark"]) .discovery-location { background: #25221b; }
@@ -121,3 +120,6 @@
   :where(html[data-theme="dark"]) .home-partner>a:hover { background: linear-gradient(180deg,#302b22 0%,#efcb8e 100%); }
   :where(html[data-theme="dark"]) .btn-ghost:hover { background: #24261e; }
 }
+:where(html[data-theme="dark"]) .readiness-card, :where(html[data-theme="dark"]) .readiness-card--emergency, :where(html[data-theme="dark"]) .readiness-card--shelter, :where(html[data-theme="dark"]) .readiness-card--found, :where(html[data-theme="dark"]) .readiness-card--health { color: #cadbd4; border: 1px solid #4a4434; }
+:where(html[data-theme="dark"]) .readiness-card--emergency { color: #d1ada9; }
+:where(html[data-theme="dark"]) .readiness-eyebrow { color: #dbcdbb; }

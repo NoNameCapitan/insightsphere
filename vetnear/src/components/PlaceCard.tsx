@@ -186,7 +186,7 @@ export function PlaceCard({
           }}
           className="btn btn-brand px-3 py-2.5 text-[13px] sm:text-sm"
         >
-          <PhoneIcon className="h-6 w-6" />
+          <PhoneIcon className="h-5 w-5" />
           Зателефонувати
         </a>
         {routeBlocked ? (
@@ -207,7 +207,7 @@ export function PlaceCard({
             }}
             className="btn btn-ghost px-3 py-2.5 text-[13px] sm:text-sm"
           >
-            <RouteIcon className="h-6 w-6" />
+            <RouteIcon className="h-5 w-5" />
             Маршрут
           </a>
         )}

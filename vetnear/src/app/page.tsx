@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { RoomObject } from "@/components/icons/ServiceIcons";
 import { DatasetSummary } from "@/components/DatasetSummary";
 import { EmergencyReadinessRail } from "@/components/EmergencyReadinessRail";
 import { FounderNote } from "@/components/FounderNote";
@@ -26,13 +27,13 @@ export default function HomePage() {
 
       <section className="owner-home" aria-labelledby="owner-home-title">
         <div>
-          <h2 id="owner-home-title">Усе важливе про вашу тварину.<br /><span>В одному місці.</span></h2>
-          <p>Медичні записи, щеплення та заплановані події — щоб підготуватися до візиту й нічого не забути.</p>
+          <h2 id="owner-home-title">Історія вашої тварини.<br /><span>Під рукою, коли важливо.</span></h2>
+          <p>Щеплення, алергії, візити й наступні дати — щоб у клініці відповідати спокійно й нічого не забути.</p>
           <Link href="/my-pets" className="owner-home__link">Відкрити моїх тварин <svg aria-hidden className="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M5 15 15 5M5 5h10v10" /></svg></Link>
         </div>
         <div className="owner-home__details">
-          <div><span aria-hidden>+</span><p><strong>Своя картка для кожного</strong><small>Історія візитів, алергії та важливі нотатки.</small></p></div>
-          <div><svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="4" y="5" width="16" height="16" rx="3" /><path d="M8 3v4m8-4v4M4 11h16m-12 4h3m2 0h3" /></svg><p><strong>Наступний крок під рукою</strong><small>Дати, які ви обрали за рекомендацією ветеринара.</small></p></div>
+          <div><span aria-hidden className="owner-home__object"><RoomObject name="record" /></span><p><strong>Своя картка для кожного</strong><small>Історія візитів, алергії та важливі нотатки.</small></p></div>
+          <div><span aria-hidden className="owner-home__object"><RoomObject name="calendar" /></span><p><strong>Наступний крок під рукою</strong><small>Дати, які ви обрали за рекомендацією ветеринара.</small></p></div>
           <p className="owner-home__local">Картки зберігаються у цьому браузері. Резервну копію можна завантажити в розділі «Мої тварини».</p>
         </div>
       </section>

@@ -255,7 +255,6 @@ html[data-theme="dark"] .owner-home h2 { color: #f3ecdf; }
 html[data-theme="dark"] .owner-home h2 span { color: #b0d6b8; }
 html[data-theme="dark"] :is(.owner-home > div > p, .owner-home__details small) { color: #b8ad99; }
 html[data-theme="dark"] .owner-home { border-color: #36322a; box-shadow: inset 0 1px 0 rgb(255 226 186 / 0.05), 0 24px 48px -32px rgb(0 0 0 / 0.85); }
-html[data-theme="dark"] :is(.owner-home__details>div>span, .owner-home__details>div>svg) { color: #b0d6b8; background: linear-gradient(155deg, #2a2820, #201e18); border-color: rgb(232 196 150 / 0.08); box-shadow: inset 0 1px 0 rgb(255 226 186 / 0.06), 0 8px 16px -12px #000; }
 html[data-theme="dark"] .home-partner h2 { color: #f3ecdf; }
 html[data-theme="dark"] .home-partner { box-shadow: 0 40px 80px -48px #000, 0 0 0 1px rgb(240 210 170 / 0.08), inset 0 1px 0 rgb(245 226 191 / 0.1); }
 html[data-theme="dark"] .home-partner h2 span { color: #e8b77c; }
@@ -276,6 +275,12 @@ html[data-theme="dark"] .chip-on { background: rgb(150 200 162 / 0.14); border-c
   html[data-theme="dark"] .place-card:hover { border-color: #4f4636; box-shadow: inset 0 1px 0 rgb(255 226 186 / 0.08), 0 22px 44px -26px #000, 0 0 40px -24px rgb(232 168 96 / 0.22); }
   html[data-theme="dark"] .btn-ghost:hover { background: #2a271f; }
 }
+
+/* Readiness scenarios in the evening room. */
+html[data-theme="dark"] :is(.readiness-card, .readiness-card--emergency, .readiness-card--shelter, .readiness-card--found, .readiness-card--health) { color: #b0d6b8; border-color: #36322a; background: radial-gradient(ellipse 60% 55% at 0% 0%, rgb(240 170 96 / 0.08), transparent 62%), var(--care-surface); box-shadow: inset 0 1px 0 rgb(255 226 186 / 0.05), 0 18px 36px -26px #000; }
+html[data-theme="dark"] .readiness-card--emergency { color: #ff9f8a; }
+html[data-theme="dark"] .readiness-card .readiness-card__icon { background: var(--obj-pool); box-shadow: none; }
+html[data-theme="dark"] .readiness-eyebrow { color: #e0b678; }
 
 /* Map (Leaflet): night tiles from the same OpenStreetMap source — no new host. */
 html[data-theme="dark"] .leaflet-container { background: #1a1813; }
