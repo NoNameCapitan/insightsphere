@@ -44,6 +44,13 @@ describe("dark theme generator", () => {
     expect(stale, "run `npm run theme:dark`").toEqual([]);
   });
 
+  it("respects the --dark-keep opt-out (hero dust stays light on the dark stage)", () => {
+    const hero = readFileSync(path.resolve(process.cwd(), "src/components/HomeHero.module.css"), "utf8");
+    const generated = hero.slice(hero.indexOf("@generated dark-theme:start"));
+    expect(hero).toMatch(/\.sceneMotes span \{ --dark-keep:1;/);
+    expect(generated).not.toMatch(/sceneMotes/);
+  });
+
   it("never darkens print or the page canvas", () => {
     const css = readFileSync(path.resolve(process.cwd(), "src/app/theme-dark.generated.css"), "utf8");
     expect(css).not.toMatch(/@media\s+print/);

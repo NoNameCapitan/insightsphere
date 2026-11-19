@@ -73,18 +73,17 @@
 :where(html[data-theme="dark"]) .service-card.card { border-color: #30443ce6; background-color: #1f1d17; }
 :where(html[data-theme="dark"]) ::selection { background: #263631; color: #e1ebea; }
 :where(html[data-theme="dark"]) input, :where(html[data-theme="dark"]) textarea { caret-color: #c9e2e0; }
-:where(html[data-theme="dark"]) .owner-home { background: #26241c; }
+:where(html[data-theme="dark"]) .owner-home { background: linear-gradient(155deg, #221f18 0%, #26231b 52%, #1f2521 100%); border: 1px solid #444438; }
 :where(html[data-theme="dark"]) .owner-home h2 span { color: #c9e2e0; }
 :where(html[data-theme="dark"]) .owner-home>div>p { color: #c1c8c6; }
 :where(html[data-theme="dark"]) .owner-home__link { color: #d3e8e6; }
-:where(html[data-theme="dark"]) .owner-home__details>div>span, :where(html[data-theme="dark"]) .owner-home__details svg { color: #c9e2e0; }
+:where(html[data-theme="dark"]) .owner-home__details>div>span, :where(html[data-theme="dark"]) .owner-home__details>div>svg { color: #c9e2e0; background: linear-gradient(155deg, #1e1b15, #24211a); }
 :where(html[data-theme="dark"]) .owner-home__details small { color: #c1c8c6; }
-:where(html[data-theme="dark"]) .owner-home .owner-home__local { border-top: 1px solid #3c4940; color: #c1c8c6; }
+:where(html[data-theme="dark"]) .owner-home .owner-home__local { border-top: 1px solid #4a483b; color: #c1c8c6; }
 :where(html[data-theme="dark"]) .discovery-location { background: #25221b; }
 :where(html[data-theme="dark"]) .discovery-location p { color: #c6d2ce; }
 :where(html[data-theme="dark"]) .discovery-location strong { color: #e1ebea; }
 :where(html[data-theme="dark"]) .discovery-location button { color: #d3e8e6; }
-:where(html[data-theme="dark"]) .home-partner { border-top: 1px solid #3e4741; border-bottom: 1px solid #3e4741; }
 :where(html[data-theme="dark"]) .home-partner h2 span { color: #c9e2e0; }
 :where(html[data-theme="dark"]) .home-partner p { color: #c1c8c6; }
 :where(html[data-theme="dark"]) .home-partner>a { background: #0e2319; }
@@ -104,13 +103,12 @@
 :where(html[data-theme="dark"]) .btn-ghost { background: #201e17; border-color: #3f473c; }
 :where(html[data-theme="dark"]) .card { border-color: #3e4438; }
 :where(html[data-theme="dark"]) .place-card { border-color: #3e4438; }
-:where(html[data-theme="dark"]) .place-card__icon.icon3d { background: #25271f; color: #c8d8d1; }
+:where(html[data-theme="dark"]) .place-card__icon.icon3d { background: linear-gradient(155deg,#221f18 0%,#25271e 60%,#282b22 100%); color: #c8d8d1; }
 :where(html[data-theme="dark"]) .care-dark-surface { background: linear-gradient(135deg,#27402c,#112519); }
 :where(html[data-theme="dark"]) .owner-home { background: linear-gradient(120deg,#272a21,#28261e); }
 :where(html[data-theme="dark"]) .owner-home h2 { color: #d4e5de; }
 :where(html[data-theme="dark"]) .owner-home h2 span { color: #bdc9c0; }
 :where(html[data-theme="dark"]) .owner-home>div>p, :where(html[data-theme="dark"]) .owner-home__details small { color: #c4cac2; }
-:where(html[data-theme="dark"]) .home-partner { border-color: #444b3e; }
 :where(html[data-theme="dark"]) .home-partner h2 { color: #d2e0d8; }
 :where(html[data-theme="dark"]) .home-partner h2 span { color: #b9c3ba; }
 :where(html[data-theme="dark"]) .home-partner>a { background: #1b311f; }

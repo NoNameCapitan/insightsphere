@@ -1,4 +1,6 @@
-.section { width: min(100% - 48px, 1180px); margin: 88px auto 0; color: #183e34; scroll-margin-top: 90px; }
+.section { position: relative; width: min(100% - 48px, 1180px); margin: 96px auto 0; color: #183e34; scroll-margin-top: 90px; }
+/* A warm hairline that fades at both ends separates the hero area from what follows. */
+.section::before { --dark-keep: 1; content: ""; position: absolute; top: -48px; left: 50%; width: min(100%, 720px); height: 1px; translate: -50% 0; background: linear-gradient(90deg, transparent, rgb(176 122 53 / 0.3) 30%, rgb(6 117 106 / 0.2) 70%, transparent); pointer-events: none; }
 .heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; margin-bottom: 27px; }
 .heading h2 { font-size: clamp(30px, 3.5vw, 46px); line-height: 1.12; letter-spacing: -0.035em; font-weight: 650; }
 .heading h2 > span { color: #57766a; }
@@ -13,7 +15,7 @@
 .footnote a { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; margin-top: -11px; color: #245744; font-size: 12px; font-weight: 600; }
 @media (hover: hover) and (pointer: fine) { .regionNav a:not(.cityLink):hover { background: #e6ebdf; } .footnote a:hover { text-decoration: underline; text-underline-offset: 4px; } }
 @media (max-width: 900px) { .heading { align-items: flex-start; } .regionNav { flex-direction: column; } }
-@media (max-width: 700px) { .section { width: calc(100% - 32px); margin-top: 56px; } .heading { display: block; margin-bottom: 20px; } .heading p { font-size: 13px; max-width: 45ch; } .regionNav { flex-direction: row; display: inline-flex; margin-top: 22px; } .footnote { display: block; margin-top: 13px; } .footnote p { font-size: 10px; } .footnote a { font-size: 11px; margin-top: 4px; } }
+@media (max-width: 700px) { .section { width: calc(100% - 32px); margin-top: 64px; } .section::before { top: -32px; width: 72%; } .heading { display: block; margin-bottom: 20px; } .heading p { font-size: 13px; max-width: 45ch; } .regionNav { flex-direction: row; display: inline-flex; margin-top: 22px; } .footnote { display: block; margin-top: 13px; } .footnote p { font-size: 10px; } .footnote a { font-size: 11px; margin-top: 4px; } }
 
 /* @generated dark-theme:start — do not edit; run `npm run theme:dark` */
 :global(:where(html[data-theme="dark"])) .section { color: #d8e7e3; }

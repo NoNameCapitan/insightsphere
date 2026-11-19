@@ -13,7 +13,8 @@
 //   fill  (background*)   light surfaces become night surfaces; dark fills
 //         (buttons, the hero) stay as they are.
 //   line  (border*)       light hairlines become dark hairlines.
-// Shadows, keyframes and already-dark rules are left alone.
+// Shadows, keyframes and already-dark rules are left alone. A rule can opt
+// out explicitly with the declaration `--dark-keep: 1`.
 //
 // Output: global sheets → src/app/theme-dark.generated.css (imported after the
 // light sheets and before the hand-written src/app/theme.css). CSS modules get
@@ -240,6 +241,9 @@ function emit(blocks, isModule, indent = "") {
     }
     if (/data-theme/.test(block.selector)) continue;
     const all = splitDeclarations(block.body);
+    // Opt-out: a rule that declares `--dark-keep: 1` already works on both
+    // canvases (e.g. a layer that always sits on the dark hero stage).
+    if (all.some(([p]) => p === "--dark-keep")) continue;
     // A rule that keeps its own light fill (a gold button, a pale chip on the
     // dark hero) keeps its dark text too, or the pair would lose contrast.
     // Gradient-filled type (background-clip: text) is glyph colour on an

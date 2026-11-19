@@ -74,8 +74,8 @@ export function PlaceCard({
       data-cat={place.category}
     >
       <div className="flex items-start gap-3">
-        <span aria-hidden className={`place-card__icon icon3d h-12 w-12 ${isEmergency ? "icon3d--warm" : ""}`}>
-          <ServiceIcon category={place.category} className="h-9 w-9" />
+        <span aria-hidden className={`place-card__icon icon3d h-[52px] w-[52px] ${isEmergency ? "icon3d--warm" : ""}`}>
+          <ServiceIcon category={place.category} className="h-10 w-10" />
         </span>
 
         <div className="min-w-0 flex-1">
